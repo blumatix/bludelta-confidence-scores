@@ -1,0 +1,91 @@
+{
+  "input_path": "../Documents/274202/274202_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2944.36,
+    "Invoice.Date": "29-01-2024",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": 10,
+    "Net.Amount": 2676.69,
+    "Vat.Amount": 267.67
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.65,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "{\n  \"GrandTotal.Amount\": 2944.36,\n  \"Invoice.Date\": \"29-01-2024\",\n  \"Sender.VatId\": \"ATU22642807\",\n  \"Vat.Rate\": 10,\n  \"Net.Amount\": 2676.69,\n  \"Vat.Amount\": 267.67\n}",
+    "step2": "I'll evaluate each extracted field with step-by-step confidence reasoning.\n\n1) GrandTotal.Amount = 2944.36\n- Evidence: The invoice shows \"Endbetrag EUR 2.944,36\" (German formatting comma as decimal). That matches 2,944.36 EUR.\n- Consistency check: Net 2,676.69 + VAT 267.67 = 2,944.36 — math matches.\n- Ambiguities: None significant; currency clearly EUR.\nConfidence: Very high (≈98%).\n\n2) Invoice.Date = \"29-01-2024\"\n- Evidence: Header area shows \"Wien, 29-01-2024\" next to the invoice/Gutschrift info. That is the only full date in the header context.\n- Ambiguities: Could be document issue date vs. delivery date; user asked for \"Invoice.Date\" — using the header date is standard.\nConfidence: High (≈95%).\n\n3) Sender.VatId = \"ATU22642807\"\n- Evidence: Text includes \"ATU22642807\" prominently (preceded by nothing or \"ATU22642807\" line). Also elsewhere \"UID-Nr.: ATU 43349701\" appears — there are two ATU numbers in the document.\n- Ambiguities: The invoice shows two UID/ATU numbers: ATU22642807 (isolated near totals) and \"UID-Nr.: ATU 43349701\" further down. Which is the sender VAT? The company Senna likely has one VAT; need to determine which is correct. The extracted value ATU22642807 appears directly above \"Zahlung:\" block — likely the seller's VAT. But presence of another UID indicates possible buyer/seller mix or different IDs (maybe Bäko's UID). This reduces certainty.\nConfidence: Moderate (≈65%).\n\n4) Vat.Rate = 10 (%)\n- Evidence: Near totals it shows \"+ 10 % Mehrwertsteuer\".\n- Ambiguities: None obvious.\nConfidence: Very high (≈99%).\n\n5) Net.Amount = 2676.69\n- Evidence: \"Auftragssumme 2.676,69\" and shown as base amount before VAT; matches the net used in the skonto calculation.\n- Consistency check: Net + VAT = GrandTotal, and 2% cash discount calculation shown uses a base near this number.\n- Ambiguities: Could be gross vs net labeling confusion, but context indicates net.\nConfidence: Very high (≈98%).\n\n6) Vat.Amount = 267.67\n- Evidence: Listed near totals as \"267,67\" next to the 10% VAT line.\n- Consistency check: 10% of 2,676.69 = 267.669 → rounded to 267.67, matches.\n- Ambiguities: None significant.\nConfidence: Very high (≈99%)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 5.31,
+      "input_tokens": 1942,
+      "output_tokens": 461,
+      "total_tokens": 2403
+    },
+    "step2": {
+      "runtime_sec": 5.74,
+      "input_tokens": 1081,
+      "output_tokens": 669,
+      "total_tokens": 1750
+    },
+    "step3": {
+      "runtime_sec": 2.54,
+      "input_tokens": 2005,
+      "output_tokens": 219,
+      "total_tokens": 2224
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274202\\274202_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU 43349701"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        2944.36,
+        "2.944,36"
+      ],
+      "Net.Amount": [
+        true,
+        2676.69,
+        "2.676,69"
+      ],
+      "Vat.Amount": [
+        true,
+        267.67,
+        "267,67"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "29-01-2024",
+        "29-01-2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  }
+}
