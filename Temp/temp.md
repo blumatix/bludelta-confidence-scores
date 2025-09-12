@@ -58,65 +58,6 @@
   ground_tr: 48,52
   confidence: 0.94
 
-=== File 274298 ===
-- Net.Amount
-  predicted: 2219.37
-  ground_tr: ['2.219,37', '733,83']
-  confidence: 0.96
-- Vat.Amount
-  predicted: 221.95
-  ground_tr: ['221,95', '0,00']
-  confidence: 0.96
-- Vat.Rate
-  predicted: 10
-  ground_tr: ['10,00', '0,00']
-  confidence: 0.96
-
-=== File 274299 ===
-- Sender.VatId
-  predicted: ATU34011805
-  ground_tr: ATU38173800
-  confidence: 0.9
-- Net.Amount
-  predicted: [914.03, 2706.68]
-  ground_tr: 2.706,68
-  confidence: 0.98
-- Vat.Amount
-  predicted: [0.0, 270.67]
-  ground_tr: 270,67
-  confidence: 0.98
-- Vat.Rate
-  predicted: [0, 10]
-  ground_tr: 10,00
-  confidence: 0.98
-
-=== File 274371 ===
-- Net.Amount
-  predicted: [570.2, 179.99]
-  ground_tr: 179,99
-  confidence: 0.96
-- Vat.Amount
-  predicted: 0.0
-  ground_tr: 18,00
-  confidence: 0.99
-- Vat.Rate
-  predicted: 0
-  ground_tr: 10,00
-  confidence: 0.98
-
-=== File 274386 ===
-- Net.Amount
-  predicted: [382.08, 513.5]
-  ground_tr: 513,50
-  confidence: 0.96
-- Vat.Amount
-  predicted: [0.0, 51.35]
-  ground_tr: 51,35
-  confidence: 0.96
-- Vat.Rate
-  predicted: [0, 10]
-  ground_tr: 10,00
-  confidence: 0.98
 
 === File 274395 ===
 - Net.Amount
@@ -157,12 +98,6 @@
   predicted: 
   ground_tr: 542,08
   confidence: 0.4
-
-=== File 274819 ===
-- GrandTotal.Amount
-  predicted: 3174.64
-  ground_tr: 3.174,64 -
-  confidence: 0.83
 
 === File 274828 ===
 - Sender.VatId
@@ -227,3 +162,5 @@
 Scanned: 150 files | Files with errors: 47 | Total wrong fields: 77
 Scanned: 150 files | Files with non BÄKO errors: 29 | Total wrong fields: 59
 Scanned: 150 files | Files with non BÄKO and multilabel errors: 26 | Total wrong fields: 44
+Scanned: 150 files | Files with non BÄKO and multilabel errors and no ground truth errors: 20 | Total wrong fields: 29
+Scanned: 150 files | Files with multilabel errors and no ground truth errors: 38 | Total wrong fields: 47
