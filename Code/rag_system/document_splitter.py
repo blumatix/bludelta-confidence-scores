@@ -29,16 +29,8 @@ class DocumentChunk:
 class DocumentSplitter:
     """Handles splitting documents into manageable chunks for vector storage"""
     
-    def __init__(self, chunk_size: int = 1000, chunk_overlap: int = 200):
-        """
-        Initialize the document splitter
-        
-        Args:
-            chunk_size: Maximum size of each chunk in characters
-            chunk_overlap: Number of characters to overlap between chunks
-        """
-        self.chunk_size = chunk_size
-        self.chunk_overlap = chunk_overlap
+    def __init__(self):
+        """Initialize the document splitter for page-based splitting only"""
         self.logger = logging.getLogger(__name__)
     
     def split_pdf_by_pages(self, pdf_path: Path) -> List[DocumentChunk]:
@@ -80,165 +72,8 @@ class DocumentSplitter:
         self.logger.info(f"Split {document_name} into {len(chunks)} page chunks")
         return chunks
     
-    def split_text_by_paragraphs(self, text: str, document_name: str, page_number: int = 1) -> List[DocumentChunk]:
-        """
-        Split text into paragraph-based chunks
-        
-        Args:
-            text: Text content to split
-            document_name: Name of the source document
-            page_number: Page number this text comes from
-            
-        Returns:
-            List of DocumentChunk objects based on paragraphs
-        """
-        chunks = []
-        
-        # Split by double newlines (paragraph breaks)
-        paragraphs = re.split(r'\n\s*\n', text)
-        
-        current_chunk = ""
-        chunk_index = 0
-        
-        for paragraph in paragraphs:
-            paragraph = paragraph.strip()
-            if not paragraph:
-                continue
-                
-            # If adding this paragraph would exceed chunk size, create a new chunk
-            if current_chunk and len(current_chunk) + len(paragraph) > self.chunk_size:
-                chunk = DocumentChunk(
-                    content=current_chunk.strip(),
-                    page_number=page_number,
-                    chunk_index=chunk_index,
-                    document_name=document_name,
-                    chunk_type='paragraph',
-                    metadata={'paragraph_count': len(current_chunk.split('\n\n'))}
-                )
-                chunks.append(chunk)
-                
-                # Start new chunk with overlap if specified
-                if self.chunk_overlap > 0:
-                    # Take last part of current chunk as overlap
-                    overlap_text = current_chunk[-self.chunk_overlap:] if len(current_chunk) > self.chunk_overlap else current_chunk
-                    current_chunk = overlap_text + "\n\n" + paragraph
-                else:
-                    current_chunk = paragraph
-                    
-                chunk_index += 1
-            else:
-                if current_chunk:
-                    current_chunk += "\n\n" + paragraph
-                else:
-                    current_chunk = paragraph
-        
-        # Add the final chunk if it has content
-        if current_chunk.strip():
-            chunk = DocumentChunk(
-                content=current_chunk.strip(),
-                page_number=page_number,
-                chunk_index=chunk_index,
-                document_name=document_name,
-                chunk_type='paragraph',
-                metadata={'paragraph_count': len(current_chunk.split('\n\n'))}
-            )
-            chunks.append(chunk)
-        
-        return chunks
     
-    def split_pdf_by_paragraphs(self, pdf_path: Path) -> List[DocumentChunk]:
-        """
-        Split PDF into paragraph-based chunks across all pages
-        
-        Args:
-            pdf_path: Path to the PDF file
-            
-        Returns:
-            List of DocumentChunk objects based on paragraphs
-        """
-        all_chunks = []
-        document_name = pdf_path.name
-        
-        try:
-            with pdfplumber.open(pdf_path) as pdf:
-                for page_num, page in enumerate(pdf.pages, 1):
-                    text = page.extract_text() or ""
-                    
-                    if text.strip():
-                        page_chunks = self.split_text_by_paragraphs(text, document_name, page_num)
-                        all_chunks.extend(page_chunks)
-                        
-        except Exception as e:
-            self.logger.error(f"Error splitting PDF {pdf_path} by paragraphs: {e}")
-            return []
-        
-        self.logger.info(f"Split {document_name} into {len(all_chunks)} paragraph chunks")
-        return all_chunks
     
-    def split_by_sections(self, text: str, document_name: str, page_number: int = 1) -> List[DocumentChunk]:
-        """
-        Split text by detected sections (headers, numbered lists, etc.)
-        
-        Args:
-            text: Text content to split
-            document_name: Name of the source document
-            page_number: Page number this text comes from
-            
-        Returns:
-            List of DocumentChunk objects based on sections
-        """
-        chunks = []
-        
-        # Patterns to detect section breaks
-        section_patterns = [
-            r'^\d+\.\s+.+$',  # Numbered sections (1. Section Title)
-            r'^[A-Z][A-Z\s]+$',  # ALL CAPS headers
-            r'^\s*[A-Z][^.!?]*:$',  # Headers ending with colon
-            r'^\s*#+\s+.+$',  # Markdown-style headers
-        ]
-        
-        lines = text.split('\n')
-        current_section = []
-        chunk_index = 0
-        
-        for line in lines:
-            is_section_break = any(re.match(pattern, line.strip(), re.MULTILINE) for pattern in section_patterns)
-            
-            # If we found a section break and have accumulated content, create a chunk
-            if is_section_break and current_section:
-                section_text = '\n'.join(current_section).strip()
-                if section_text:
-                    chunk = DocumentChunk(
-                        content=section_text,
-                        page_number=page_number,
-                        chunk_index=chunk_index,
-                        document_name=document_name,
-                        chunk_type='section',
-                        metadata={'line_count': len(current_section)}
-                    )
-                    chunks.append(chunk)
-                    chunk_index += 1
-                
-                # Start new section
-                current_section = [line]
-            else:
-                current_section.append(line)
-        
-        # Add the final section
-        if current_section:
-            section_text = '\n'.join(current_section).strip()
-            if section_text:
-                chunk = DocumentChunk(
-                    content=section_text,
-                    page_number=page_number,
-                    chunk_index=chunk_index,
-                    document_name=document_name,
-                    chunk_type='section',
-                    metadata={'line_count': len(current_section)}
-                )
-                chunks.append(chunk)
-        
-        return chunks
     
     def get_document_summary(self, chunks: List[DocumentChunk]) -> Dict:
         """
@@ -270,16 +105,15 @@ class DocumentSplitter:
             'avg_chunk_size': total_chars / len(chunks) if chunks else 0
         }
 
-def load_and_split_documents(document_folder: Path, splitting_strategy: str = 'pages') -> Dict[str, List[DocumentChunk]]:
+def load_and_split_documents(document_folder: Path) -> Dict[str, List[DocumentChunk]]:
     """
-    Load and split all PDF documents in a folder
+    Load and split all PDF documents in a folder by pages
     
     Args:
         document_folder: Path to folder containing PDF files
-        splitting_strategy: Strategy to use ('pages', 'paragraphs', 'sections')
         
     Returns:
-        Dictionary mapping document names to their chunks
+        Dictionary mapping document names to their page chunks
     """
     splitter = DocumentSplitter()
     document_chunks = {}
@@ -289,25 +123,7 @@ def load_and_split_documents(document_folder: Path, splitting_strategy: str = 'p
     
     for pdf_file in pdf_files:
         try:
-            if splitting_strategy == 'pages':
-                chunks = splitter.split_pdf_by_pages(pdf_file)
-            elif splitting_strategy == 'paragraphs':
-                chunks = splitter.split_pdf_by_paragraphs(pdf_file)
-            elif splitting_strategy == 'sections':
-                # For sections, we'll split by pages first, then by sections within each page
-                page_chunks = splitter.split_pdf_by_pages(pdf_file)
-                chunks = []
-                for page_chunk in page_chunks:
-                    section_chunks = splitter.split_by_sections(
-                        page_chunk.content, 
-                        page_chunk.document_name, 
-                        page_chunk.page_number
-                    )
-                    chunks.extend(section_chunks)
-            else:
-                logging.warning(f"Unknown splitting strategy: {splitting_strategy}, using 'pages'")
-                chunks = splitter.split_pdf_by_pages(pdf_file)
-            
+            chunks = splitter.split_pdf_by_pages(pdf_file)
             document_chunks[pdf_file.name] = chunks
             
             # Log summary
@@ -320,16 +136,3 @@ def load_and_split_documents(document_folder: Path, splitting_strategy: str = 'p
     
     return document_chunks
 
-if __name__ == "__main__":
-    # Example usage
-    logging.basicConfig(level=logging.INFO)
-    
-    # Test document splitting
-    doc_folder = Path("../Documents/docs")  # Adjust path as needed
-    if doc_folder.exists():
-        chunks = load_and_split_documents(doc_folder, 'paragraphs')
-        
-        for doc_name, doc_chunks in chunks.items():
-            print(f"\n{doc_name}: {len(doc_chunks)} chunks")
-            if doc_chunks:
-                print(f"  First chunk: {doc_chunks[0].content[:100]}...")

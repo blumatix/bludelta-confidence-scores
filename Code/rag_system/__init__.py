@@ -2,9 +2,10 @@
 RAG System Package
 
 This package contains all components for the iterative RAG-based QA validation system.
+Documents are split by pages only.
 
 Main components:
-- document_splitter: Split documents into manageable chunks
+- document_splitter: Split documents into pages
 - vector_store: Create and manage vector stores for similarity search
 - iterative_rag: Implement iterative context retrieval
 - qa_validation_rag: QA validation using RAG context

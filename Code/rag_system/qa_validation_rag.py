@@ -415,23 +415,3 @@ class BatchQAProcessor:
         
         return final_results
 
-if __name__ == "__main__":
-    # Example usage
-    import asyncio
-    from dotenv import load_dotenv
-    import os
-    
-    async def test_qa_validation():
-        """Test the QA validation with RAG"""
-        load_dotenv()
-        
-        client = AsyncOpenAI(
-            api_key=os.getenv("AZURE_OPENAI_API_KEY"),
-            base_url=os.getenv("AZURE_OPENAI_ENDPOINT")
-        )
-        
-        print("QA Validation with RAG system initialized")
-        print("To use, first create vector stores and set up document chunks")
-    
-    if Path("../.env").exists():
-        asyncio.run(test_qa_validation())

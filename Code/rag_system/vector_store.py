@@ -469,39 +469,3 @@ class MultiDocumentVectorStore:
         
         self.logger.info(f"Loaded {len(self.document_stores)} vector stores from {base_path}")
 
-if __name__ == "__main__":
-    # Example usage
-    import asyncio
-    from dotenv import load_dotenv
-    import os
-    
-    async def test_vector_store():
-        load_dotenv()
-        
-        client = AsyncOpenAI(
-            api_key=os.getenv("AZURE_OPENAI_API_KEY"),
-            base_url=os.getenv("AZURE_OPENAI_ENDPOINT")
-        )
-        
-        # Create some test chunks
-        chunks = [
-            DocumentChunk("This is about artificial intelligence and machine learning.", 1, 0, "test.pdf", "page"),
-            DocumentChunk("The document discusses neural networks and deep learning algorithms.", 2, 0, "test.pdf", "page"),
-            DocumentChunk("Natural language processing is an important field in AI.", 3, 0, "test.pdf", "page"),
-        ]
-        
-        # Create vector store
-        store = DocumentVectorStore()
-        await store.add_chunks(chunks, client)
-        
-        # Test search
-        results = await store.search("machine learning algorithms", client, top_k=2)
-        
-        for result in results:
-            print(f"Score: {result.similarity_score:.3f}")
-            print(f"Content: {result.chunk.content}")
-            print()
-    
-    # Run test
-    if Path("../.env").exists():
-        asyncio.run(test_vector_store())

@@ -32,7 +32,6 @@ async def main():
     print(f"🚀 Model: {config.deployment_name}")
     print(f"⚡ Concurrent tasks: {config.concurrent_tasks}")
     print(f"📏 Max context chars: {config.max_context_chars}")
-    print(f"🔄 Splitting strategy: {config.splitting_strategy}")
     
     # Initialize processor
     processor = QAProcessor(config)

@@ -32,10 +32,10 @@ class QAProcessorConfig:
         self.document_storage = Path(os.getenv("DOCUMENT_STORAGE_QA"))
         self.docs_folder = self.document_storage / "docs"
         self.qa_file_path = self.document_storage / "DocumentQA_new.json"
-        self.output_dir = Path("../QAOutput")
-        self.logs_dir = Path("../QALogs")
-        self.vector_store_dir = Path("../VectorStores")
-        self.system_prompt_path = "../QAPrompts/system_prompt.txt"
+        self.output_dir = Path("QAOutput")
+        self.logs_dir = Path("QALogs")
+        self.vector_store_dir = Path("VectorStores")
+        self.system_prompt_path = "QAPrompts/system_prompt.txt"
         
         # API Configuration
         self.api_key = os.getenv("AZURE_OPENAI_API_KEY")
@@ -48,10 +48,6 @@ class QAProcessorConfig:
         self.max_rag_iterations = int(os.getenv("MAX_RAG_ITERATIONS", "3"))
         self.min_relevance_threshold = float(os.getenv("MIN_RELEVANCE_THRESHOLD", "0.3"))
         
-        # Document splitting configuration
-        self.splitting_strategy = os.getenv("SPLITTING_STRATEGY", "paragraphs")  # pages, paragraphs, sections
-        self.chunk_size = int(os.getenv("CHUNK_SIZE", "1000"))
-        self.chunk_overlap = int(os.getenv("CHUNK_OVERLAP", "200"))
         
         # Generate timestamp
         self.timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -121,12 +117,9 @@ class QAProcessor:
         """Load and split documents, and load QA pairs"""
         self.logger.info("Loading documents and QA pairs...")
         
-        # Load and split documents
-        self.logger.info(f"Splitting documents using strategy: {self.config.splitting_strategy}")
-        self.document_chunks = load_and_split_documents(
-            self.config.docs_folder, 
-            self.config.splitting_strategy
-        )
+        # Load and split documents by pages
+        self.logger.info(f"Splitting documents by pages")
+        self.document_chunks = load_and_split_documents(self.config.docs_folder)
         
         total_chunks = sum(len(chunks) for chunks in self.document_chunks.values())
         self.logger.info(f"Loaded {len(self.document_chunks)} documents with {total_chunks} total chunks")
@@ -268,7 +261,6 @@ class QAProcessor:
                 "concurrent_tasks": self.config.concurrent_tasks,
                 "max_context_chars": self.config.max_context_chars,
                 "max_rag_iterations": self.config.max_rag_iterations,
-                "splitting_strategy": self.config.splitting_strategy,
                 "processing_summary": {
                     "total_tokens": total_tokens,
                     "avg_processing_time": avg_processing_time,
@@ -352,7 +344,6 @@ async def main():
     
     print(f"Starting QA processing with iterative RAG...")
     print(f"Configuration: {MAX_DOCS} docs, {MAX_QUESTIONS_PER_DOC} questions per doc")
-    print(f"Vector store strategy: {config.splitting_strategy}")
     print(f"Max context chars: {config.max_context_chars}")
     print(f"Concurrent tasks: {config.concurrent_tasks}")
     

@@ -334,26 +334,3 @@ class IterativeRAGRetriever:
             "character_utilization": rag_context.total_chars / self.max_context_chars
         }
 
-if __name__ == "__main__":
-    # Example usage
-    import asyncio
-    from dotenv import load_dotenv
-    import os
-    from pathlib import Path
-    
-    async def test_iterative_rag():
-        """Test the iterative RAG system"""
-        load_dotenv()
-        
-        client = AsyncOpenAI(
-            api_key=os.getenv("AZURE_OPENAI_API_KEY"),
-            base_url=os.getenv("AZURE_OPENAI_ENDPOINT")
-        )
-        
-        # This would normally be loaded from your vector stores
-        print("Iterative RAG system initialized")
-        print("To use, first create vector stores with document_splitter.py and vector_store.py")
-    
-    # Run test
-    if Path("../.env").exists():
-        asyncio.run(test_iterative_rag())
