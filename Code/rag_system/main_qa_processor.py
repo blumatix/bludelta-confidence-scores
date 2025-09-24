@@ -16,10 +16,10 @@ from typing import Dict, List, Any, Optional
 from dotenv import load_dotenv
 from openai import AsyncOpenAI
 
-from document_splitter import load_and_split_documents
-from vector_store import MultiDocumentVectorStore
-from iterative_rag import IterativeRAGRetriever
-from qa_validation_rag import QAValidatorRAG, BatchQAProcessor, QAValidationResult
+from .document_splitter import load_and_split_documents
+from .vector_store import MultiDocumentVectorStore
+from .iterative_rag import IterativeRAGRetriever
+from .qa_validation_rag import QAValidatorRAG, BatchQAProcessor, QAValidationResult
 
 class QAProcessorConfig:
     """Configuration for the QA processor"""
@@ -29,7 +29,7 @@ class QAProcessorConfig:
         load_dotenv(override=True)
         
         # Paths
-        self.document_storage = Path(os.getenv("DOCUMENT_STORAGE_QA", "../Documents"))
+        self.document_storage = Path(os.getenv("DOCUMENT_STORAGE_QA"))
         self.docs_folder = self.document_storage / "docs"
         self.qa_file_path = self.document_storage / "DocumentQA_new.json"
         self.output_dir = Path("../QAOutput")

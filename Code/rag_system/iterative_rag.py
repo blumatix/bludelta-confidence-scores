@@ -11,8 +11,8 @@ from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass
 from openai import AsyncOpenAI
 
-from document_splitter import DocumentChunk
-from vector_store import MultiDocumentVectorStore, VectorSearchResult
+from .document_splitter import DocumentChunk
+from .vector_store import MultiDocumentVectorStore, VectorSearchResult
 
 @dataclass
 class RAGContext:

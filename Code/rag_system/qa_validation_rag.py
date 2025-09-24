@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from openai import AsyncOpenAI, BadRequestError
 
-from iterative_rag import IterativeRAGRetriever, RAGContext
+from .iterative_rag import IterativeRAGRetriever, RAGContext
 
 @dataclass
 class QAValidationResult:

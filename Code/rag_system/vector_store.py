@@ -15,7 +15,7 @@ from dataclasses import dataclass, asdict
 import asyncio
 from openai import AsyncOpenAI
 import faiss
-from document_splitter import DocumentChunk
+from .document_splitter import DocumentChunk
 
 @dataclass
 class VectorSearchResult:
@@ -228,10 +228,30 @@ class DocumentVectorStore:
             save_path: Directory path to save the vector store
         """
         save_path = Path(save_path)
-        save_path.mkdir(parents=True, exist_ok=True)
+        
+        # Ensure the directory exists
+        try:
+            save_path.mkdir(parents=True, exist_ok=True)
+            self.logger.info(f"Created directory: {save_path}")
+        except Exception as e:
+            self.logger.error(f"Failed to create directory {save_path}: {e}")
+            raise
+        
+        # Verify directory exists and is writable
+        if not save_path.exists():
+            raise FileNotFoundError(f"Directory was not created: {save_path}")
+        
+        if not save_path.is_dir():
+            raise NotADirectoryError(f"Path is not a directory: {save_path}")
         
         # Save FAISS index
-        faiss.write_index(self.index, str(save_path / "faiss_index.idx"))
+        faiss_path = save_path / "faiss_index.idx"
+        self.logger.info(f"Saving FAISS index to: {faiss_path}")
+        try:
+            faiss.write_index(self.index, str(faiss_path))
+        except Exception as e:
+            self.logger.error(f"Failed to save FAISS index to {faiss_path}: {e}")
+            raise
         
         # Save chunks and metadata
         with open(save_path / "chunks.pkl", 'wb') as f:
@@ -290,6 +310,45 @@ class MultiDocumentVectorStore:
         self.embedding_model = embedding_model
         self.document_stores: Dict[str, DocumentVectorStore] = {}
         self.logger = logging.getLogger(__name__)
+    
+    def _create_safe_filename(self, doc_name: str) -> str:
+        """
+        Create a safe filename from document name
+        
+        Args:
+            doc_name: Original document name
+            
+        Returns:
+            Safe filename for filesystem (ASCII only)
+        """
+        import re
+        import unicodedata
+        
+        # Remove file extension and clean up name
+        clean_name = doc_name.replace('.pdf', '').replace('.PDF', '')
+        
+        # Convert Unicode characters to ASCII equivalents
+        # This converts ä->a, ö->o, ü->u, ß->ss, etc.
+        ascii_name = unicodedata.normalize('NFKD', clean_name)
+        ascii_name = ''.join(c for c in ascii_name if ord(c) < 128)
+        
+        # Replace any remaining problematic characters with underscores
+        # Only allow alphanumeric, hyphens, underscores, and periods
+        safe_name = re.sub(r'[^\w\-_\.]', '_', ascii_name)
+        
+        # Remove multiple underscores
+        safe_name = re.sub(r'_+', '_', safe_name)
+        
+        # Limit length and remove leading/trailing underscores
+        safe_name = safe_name[:50].strip('_')
+        
+        # Ensure it doesn't start with a dot or hyphen
+        safe_name = re.sub(r'^[\.\-]+', '', safe_name)
+        
+        if not safe_name or len(safe_name) < 3:  # Fallback if name becomes empty or too short
+            safe_name = f"document_{hash(doc_name) % 10000}"
+        
+        return safe_name
     
     async def create_document_store(self, document_name: str, chunks: List[DocumentChunk], 
                                    client: AsyncOpenAI) -> DocumentVectorStore:
@@ -363,11 +422,9 @@ class MultiDocumentVectorStore:
         base_path.mkdir(parents=True, exist_ok=True)
         
         for doc_name, store in self.document_stores.items():
-            # Create safe filename from document name
-            safe_name = "".join(c for c in doc_name if c.isalnum() or c in (' ', '-', '_')).rstrip()
-            safe_name = safe_name.replace(' ', '_')
-            
+            safe_name = self._create_safe_filename(doc_name)
             doc_path = base_path / safe_name
+            self.logger.info(f"Saving vector store for '{doc_name}' to: {doc_path}")
             store.save(doc_path)
         
         # Save index of all stores
@@ -403,9 +460,7 @@ class MultiDocumentVectorStore:
         
         # Load each document store
         for doc_name in index_data['documents']:
-            safe_name = "".join(c for c in doc_name if c.isalnum() or c in (' ', '-', '_')).rstrip()
-            safe_name = safe_name.replace(' ', '_')
-            
+            safe_name = self._create_safe_filename(doc_name)
             doc_path = base_path / safe_name
             if doc_path.exists():
                 store = DocumentVectorStore(embedding_model=self.embedding_model)
