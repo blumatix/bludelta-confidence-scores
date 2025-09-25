@@ -64,7 +64,6 @@ class SimpleRAGRetriever:
         
         # Grace period tracking
         self.current_grace_attempts = 0
-        self.actual_iterations = 0
     
     async def process_qa_pair(self, document_name: str, question: str, answer: str, 
                             client: AsyncOpenAI, verbose: bool = False) -> SimpleRAGContext:
@@ -85,7 +84,7 @@ class SimpleRAGRetriever:
         
         # Reset grace period for new QA pair
         self.current_grace_attempts = 0
-        self.actual_iterations = 0
+        actual_iterations = 0
         
         # Get all relevant pages above similarity threshold
         all_relevant_pages = await self._get_all_relevant_pages(
@@ -97,7 +96,7 @@ class SimpleRAGRetriever:
         all_pages = []
         
         for iteration in range(self.max_iterations):
-            self.actual_iterations += 1
+            actual_iterations += 1
             if verbose:
                 self.logger.info(f"Iteration {iteration + 1}/{self.max_iterations}")
             
@@ -167,7 +166,7 @@ class SimpleRAGRetriever:
             pages=sorted(accumulated_pages),
             content=accumulated_content,
             total_chars=len(accumulated_content),
-            iterations=self.actual_iterations,
+            iterations=actual_iterations,
             judgment=judgment,
             confidence=confidence,
             reasoning=reasoning,
