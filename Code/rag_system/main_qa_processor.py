@@ -97,7 +97,7 @@ class QAProcessor:
         log_file = self.config.logs_dir / f"{self.config.deployment_name}_{self.config.timestamp}.log"
         
         logging.basicConfig(
-            level=logging.INFO,
+            level=logging.WARNING,
             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
             handlers=[
                 logging.FileHandler(log_file),

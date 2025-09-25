@@ -12,6 +12,12 @@ import pdfplumber
 import re
 from dataclasses import dataclass
 
+# Set logging levels to reduce noise from PDF processing
+logging.getLogger("pdfminer").setLevel(logging.WARNING)
+logging.getLogger("pdfminer.psparser").setLevel(logging.WARNING)
+logging.getLogger("pdfminer.pdfinterp").setLevel(logging.WARNING)
+logging.getLogger("pdfminer.pdfpage").setLevel(logging.WARNING)
+
 @dataclass
 class DocumentChunk:
     """Represents a chunk of document content"""
