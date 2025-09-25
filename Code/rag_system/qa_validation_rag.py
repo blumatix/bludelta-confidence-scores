@@ -89,7 +89,7 @@ class QAValidatorRAG:
         return self.confidence_classes[idx]
     
     async def _timed_request(self, client: AsyncOpenAI, instructions: str, input_text: str, 
-                           reasoning: Optional[Dict] = None, max_output_tokens: int = 2000,
+                           reasoning: Optional[Dict] = None,
                            text: Optional[Dict] = None, user: str = "qa-judge", 
                            store: bool = True, timeout_sec: int = 60) -> tuple:
         """
@@ -100,7 +100,6 @@ class QAValidatorRAG:
             instructions: System instructions
             input_text: Input text for the model
             reasoning: Reasoning configuration
-            max_output_tokens: Maximum output tokens
             text: Text configuration
             user: User identifier
             store: Whether to store the request
@@ -118,7 +117,6 @@ class QAValidatorRAG:
                         instructions=instructions,
                         input=input_text,
                         reasoning=reasoning,
-                        max_output_tokens=max_output_tokens,
                         text=text,
                         user=user,
                         store=store
@@ -248,15 +246,15 @@ class QAValidatorRAG:
                     "Step 3 — FINAL JUDGMENT:\n"
                     "Based on your analysis, provide your final evaluation. Return ONLY a single valid JSON object with this exact structure:\n"
                     "{\n"
-                    '  "judgment": "<True|False|Incomplete|Unknown>",\n'
+                    '  "judgment": "<True|False|Insufficient_Details|Unfinished_Research>",\n'
                     '  "reasoning": "<detailed explanation of your decision>",\n'
                     '  "confidence": <numeric value between 0.0 and 1.0>\n'
                     "}\n\n"
                     "Where:\n"
-                    "- True: The answer correctly and sufficiently answers the question based on the document\n"
-                    "- False: The answer is incorrect, incomplete, or doesn't properly answer the question\n"
-                    "- Incomplete: The answer is partially correct, but lacks important information. Always add whether you think the answer is true or false (Incomplete|True or Incomplete|False).\n"
-                    "- Unknown: Cannot determine due to insufficient information in the document\n"
+                    "- True: The answer as it is is correct, fully supported, and no major information in the document is missing\n"
+                    "- False: The answer has provably wrong claims or is irrelevant to the question\n"
+                    "- Insufficient_Details: The answer is not as detailed as the document. The answer is correct but lacks important information that the document contains\n"
+                    "- Unfinished_Research: The answer contains claims that could not yet be verified as true or false, more documents are needed\n"
                     "- confidence: How certain you are of your judgment (0.0 = very uncertain, 1.0 = very certain)\n\n"
                     f"--- CONTEXT ANALYSIS ---\n{step1_notes}\n\n"
                     f"--- ANSWER EVALUATION ---\n{step2_notes}\n"

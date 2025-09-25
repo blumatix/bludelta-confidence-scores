@@ -47,6 +47,7 @@ class QAProcessorConfig:
         self.max_context_chars = int(os.getenv("MAX_CONTEXT_CHARS", "8000"))
         self.max_rag_iterations = int(os.getenv("MAX_RAG_ITERATIONS", "3"))
         self.min_relevance_threshold = float(os.getenv("MIN_RELEVANCE_THRESHOLD", "0.3"))
+        self.confidence_threshold = float(os.getenv("CONFIDENCE_THRESHOLD", "0.8"))
         
         
         # Generate timestamp
@@ -174,7 +175,9 @@ class QAProcessor:
             vector_store_manager=self.vector_store_manager,
             max_context_chars=self.config.max_context_chars,
             max_iterations=self.config.max_rag_iterations,
-            min_relevance_threshold=self.config.min_relevance_threshold
+            min_relevance_threshold=self.config.min_relevance_threshold,
+            model_name=self.config.deployment_name,
+            confidence_threshold=self.config.confidence_threshold
         )
         
         # Initialize QA validator
@@ -221,7 +224,7 @@ class QAProcessor:
         
         return results
     
-    def save_results(self, results: List[QAValidationResult], filename: Optional[str] = None):
+    def save_results(self, results: List[QAValidationResult], filename: Optional[str] = None, verbose: bool = False):
         """Save processing results to file"""
         if filename is None:
             filename = f"qa_results_rag_{self.config.deployment_name}_{self.config.timestamp}.json"
@@ -240,17 +243,25 @@ class QAProcessor:
                 "confidence_numeric": result.confidence_numeric,
                 "confidence_verbal": result.confidence_verbal,
                 "step_analysis": result.step_analysis,
-                "rag_context_summary": result.rag_context_summary,
-                "token_usage": result.token_usage,
-                "processing_time": result.processing_time,
                 "timestamp": self.config.timestamp
             }
+            
+            # Add verbose metrics only if verbose is True
+            if verbose:
+                result_dict.update({
+                    "rag_context_summary": result.rag_context_summary,
+                    "token_usage": result.token_usage,
+                    "processing_time": result.processing_time
+                })
+            else:
+                # In non-verbose mode, include only essential context info
+                if hasattr(result, 'rag_context_summary') and result.rag_context_summary:
+                    # Keep only pages_covered from context summary
+                    context_summary = result.rag_context_summary
+                    if isinstance(context_summary, dict) and 'pages_covered' in context_summary:
+                        result_dict["pages_covered"] = context_summary['pages_covered']
+            
             serializable_results.append(result_dict)
-        
-        # Calculate summary statistics
-        total_tokens = sum(r.token_usage.get("total_tokens", 0) for r in results)
-        avg_processing_time = sum(r.processing_time for r in results) / len(results) if results else 0
-        avg_confidence = sum(r.confidence_numeric for r in results) / len(results) if results else 0
         
         # Create output data
         output_data = {
@@ -260,15 +271,23 @@ class QAProcessor:
                 "total_results": len(serializable_results),
                 "concurrent_tasks": self.config.concurrent_tasks,
                 "max_context_chars": self.config.max_context_chars,
-                "max_rag_iterations": self.config.max_rag_iterations,
-                "processing_summary": {
-                    "total_tokens": total_tokens,
-                    "avg_processing_time": avg_processing_time,
-                    "avg_confidence": avg_confidence
-                }
+                "max_rag_iterations": self.config.max_rag_iterations
             },
             "results": serializable_results
         }
+        
+        # Add verbose metrics only if verbose is True
+        if verbose:
+            # Calculate summary statistics for verbose mode
+            total_tokens = sum(r.token_usage.get("total_tokens", 0) for r in results)
+            avg_processing_time = sum(r.processing_time for r in results) / len(results) if results else 0
+            avg_confidence = sum(r.confidence_numeric for r in results) / len(results) if results else 0
+            
+            output_data["metadata"]["processing_summary"] = {
+                "total_tokens": total_tokens,
+                "avg_processing_time": avg_processing_time,
+                "avg_confidence": avg_confidence
+            }
         
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(output_data, f, indent=2, ensure_ascii=False)
@@ -292,7 +311,8 @@ class QAProcessor:
     
     async def run_full_pipeline(self, max_docs: Optional[int] = None,
                                max_questions_per_doc: Optional[int] = None,
-                               force_rebuild_vectors: bool = False):
+                               force_rebuild_vectors: bool = False,
+                               verbose: bool = False):
         """Run the complete QA processing pipeline"""
         start_time = datetime.now()
         
@@ -310,7 +330,7 @@ class QAProcessor:
             results = await self.process_qa_pairs(max_docs, max_questions_per_doc)
             
             # Step 5: Save results
-            output_path = self.save_results(results)
+            output_path = self.save_results(results, verbose=verbose)
             
             # Step 6: Print summary
             processing_time = (datetime.now() - start_time).total_seconds()
@@ -319,6 +339,16 @@ class QAProcessor:
             
             # Print sample results
             self.print_sample_results(results)
+            
+            # Print error statistics if available
+            if hasattr(self.rag_retriever, 'get_error_statistics'):
+                error_stats = self.rag_retriever.get_error_statistics()
+                if error_stats['total_assessments'] > 0:
+                    self.logger.info(f"Error Statistics:")
+                    self.logger.info(f"  Total assessments: {error_stats['total_assessments']}")
+                    self.logger.info(f"  JSON parse errors: {error_stats['json_parse_errors']} ({error_stats['json_parse_error_rate']:.1%})")
+                    self.logger.info(f"  Assessment errors: {error_stats['assessment_errors']} ({error_stats['assessment_error_rate']:.1%})")
+                    self.logger.info(f"  Overall error rate: {error_stats['error_rate']:.1%}")
             
             return results, output_path
             
