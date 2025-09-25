@@ -39,6 +39,7 @@ async def main():
     parser.add_argument("--max-iterations", type=int, default=3, help="Maximum search iterations")
     parser.add_argument("--grace-period", type=int, default=2, help="Grace period for False judgments")
     parser.add_argument("--document-name", type=str, help="Process only documents with this name (partial match)")
+    parser.add_argument("--longDoc", type=bool, default=False, help="Use long document paths and QA structure (True/False)")
     
     args = parser.parse_args()
     
@@ -58,22 +59,31 @@ async def main():
         "grace_period": args.grace_period,
         "max_documents": args.docs,
         "max_questions_per_document": args.questions,
-        "document_name_filter": args.document_name
+        "document_name_filter": args.document_name,
+        "long_doc": args.longDoc
     }
     
     # Initialize processor
     processor = SimpleQAProcessor(config)
     
-    # Set up paths from environment variables
+    # Set up paths from environment variables based on longDoc flag
     base_folder = Path(os.getenv("DOCUMENT_STORAGE_QA", "Documents"))
-    documents_folder = base_folder / "docs"  # Documents are in ./docs subfolder
-    qa_folder = base_folder  # QA file is in the parent folder
+    
+    if args.longDoc:
+        # Long document paths
+        documents_folder = base_folder / "100 pages doc"  
+        qa_file = base_folder / "DocumentQA-Azure_AI_Search.json"
+        logger.info(f"Using LONG DOC paths: docs={documents_folder}, qa={qa_file}")
+    else:
+        # Regular paths (current setup)
+        documents_folder = base_folder / "docs"
+        qa_file = base_folder / "DocumentQA_new.json"
+        logger.info(f"Using REGULAR paths: docs={documents_folder}, qa={qa_file}")
     
     if not documents_folder.exists():
         logger.error(f"Documents folder not found: {documents_folder}")
         return
     
-    qa_file = qa_folder / "DocumentQA_new.json"
     if not qa_file.exists():
         logger.error(f"QA file not found: {qa_file}")
         return
@@ -82,7 +92,7 @@ async def main():
     try:
         results = await processor.run_full_pipeline(
             documents_folder=documents_folder,
-            qa_folder=qa_folder,
+            qa_file=qa_file,
             verbose=args.verbose
         )
         

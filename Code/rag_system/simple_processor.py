@@ -153,7 +153,7 @@ class SimpleQAProcessor:
             self.logger.error(f"[FAILED] document: {document_name} - {e}")
             return []
     
-    async def run_full_pipeline(self, documents_folder: Path, qa_folder: Path, 
+    async def run_full_pipeline(self, documents_folder: Path, qa_file: Path, 
                               verbose: bool = False) -> Dict[str, Any]:
         """Run the full simplified pipeline"""
         self.logger.info("Starting simplified RAG pipeline")
@@ -166,8 +166,7 @@ class SimpleQAProcessor:
         self.logger.info("Creating vector stores...")
         await self.vector_store_manager.create_all_stores(document_chunks, self.client)
         
-        # Load QA pairs from DocumentQA_new.json
-        qa_file = qa_folder / "DocumentQA_new.json"
+        # Load QA pairs from the specified QA file
         if not qa_file.exists():
             self.logger.error(f"QA file not found: {qa_file}")
             return {"error": f"QA file not found: {qa_file}"}
@@ -203,10 +202,18 @@ class SimpleQAProcessor:
                 if qa_item.get("document_name") == document_name:
                     # Extract QA pairs from the qa_pairs array
                     for qa_pair in qa_item.get("qa_pairs", []):
-                        document_qa_pairs.append({
-                            "question": qa_pair.get("Question"),
-                            "answer": qa_pair.get("Detailed Answer")
-                        })
+                        if self.config.get("long_doc", False):
+                            # Long document structure: Question, Answer, Page_Number
+                            document_qa_pairs.append({
+                                "question": qa_pair.get("Question"),
+                                "answer": qa_pair.get("Answer")
+                            })
+                        else:
+                            # Regular structure: Question, Detailed Answer
+                            document_qa_pairs.append({
+                                "question": qa_pair.get("Question"),
+                                "answer": qa_pair.get("Detailed Answer")
+                            })
             
             if not document_qa_pairs:
                 self.logger.warning(f"No QA pairs found for {document_name}")
