@@ -36,6 +36,7 @@ class SimpleRAGContext:
     supporting_evidence: List[str]
     contradicting_evidence: List[str]
     missing_information: List[str]
+    grace_period_attempts: int
 
 class SimpleRAGRetriever:
     """Simplified RAG retriever with minimal complexity"""
@@ -62,8 +63,7 @@ class SimpleRAGRetriever:
         self.grace_period = grace_period
         self.logger = logging.getLogger(__name__)
         
-        # Grace period tracking
-        self.current_grace_attempts = 0
+        # Grace period tracking (will be reset per QA pair)
     
     async def process_qa_pair(self, document_name: str, question: str, answer: str, 
                             client: AsyncOpenAI, verbose: bool = False) -> SimpleRAGContext:
@@ -83,7 +83,7 @@ class SimpleRAGRetriever:
         self.logger.info(f"Processing QA pair for {document_name}")
         
         # Reset grace period for new QA pair
-        self.current_grace_attempts = 0
+        current_grace_attempts = 0
         actual_iterations = 0
         
         # Get all relevant pages above similarity threshold
@@ -143,10 +143,10 @@ class SimpleRAGRetriever:
                     self.logger.info("True judgment - terminating")
                 break
             elif judgment == "False":
-                if self.current_grace_attempts < self.grace_period:
-                    self.current_grace_attempts += 1
+                if current_grace_attempts < self.grace_period:
+                    current_grace_attempts += 1
                     if verbose:
-                        self.logger.info(f"False judgment - grace period attempt {self.current_grace_attempts}/{self.grace_period}")
+                        self.logger.info(f"False judgment - grace period attempt {current_grace_attempts}/{self.grace_period}")
                         self.logger.info(f"Current pages: {sorted(accumulated_pages)}")
                     continue
                 else:
@@ -172,7 +172,8 @@ class SimpleRAGRetriever:
             reasoning=reasoning,
             supporting_evidence=supporting_evidence,
             contradicting_evidence=contradicting_evidence,
-            missing_information=missing_information
+            missing_information=missing_information,
+            grace_period_attempts=current_grace_attempts
         )
     
     async def _get_all_relevant_pages(self, document_name: str, question: str, answer: str,
@@ -397,7 +398,7 @@ Return your response as JSON with these exact fields:
         if verbose:
             summary.update({
                 "content_preview": context.content[:500] + "..." if len(context.content) > 500 else context.content,
-                "grace_period_attempts": self.current_grace_attempts,
+                "grace_period_attempts": context.grace_period_attempts,
                 "grace_period_max": self.grace_period
             })
         
