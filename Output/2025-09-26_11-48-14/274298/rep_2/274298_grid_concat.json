@@ -1,0 +1,112 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\274327\\274298_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 3175.15,
+    "Invoice.Date": "25.01.2024",
+    "Sender.VatId": "ATU38173800",
+    "Vat.Rate": 10,
+    "Net.Amount": 2219.37,
+    "Vat.Amount": 221.95
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Presence of \"Rechnungsnummer\", \"Rechnung\", \"Datum\", \"Gesamtsumme\", line items with amounts, VAT percentages — strongly indicates an invoice.\n- No exclusion indicators like \"Mahnung\" or \"Zahlungserinnerung\" as prominent headers. So classify as invoice and proceed.\n\nLocate fields per schema:\n\n1) GrandTotal.Amount\n- Search for total payable amount. I see \"Vorschreibungsbetrag 3.175,15 EUR\" and later \"Betrag: EUR 3175,15\". Both match. Keep decimals and comma as decimal separator; schema expects number, so convert to numeric format preserving decimals: 3175.15.\n- No other grand total conflicting entries. So GrandTotal.Amount = 3175.15.\n\n2) Invoice.Date\n- \"Datum: 25.01.2024\" appears near Rechnungsnummer. So Invoice.Date = \"25.01.2024\" (keep same format as in input).\n\n3) Sender.VatId\n- Look for UID/VAT. At top: \"UID: ATU38173800\". That's the sender VAT ID. Keep as string exactly: \"ATU38173800\".\n\n4) Vat.Rate, Net.Amount, Vat.Amount\n- There are VAT group summaries near bottom:\n  - \"0,00 % netto 733,83 Ust-Betr. 0,00\"\n  - \"10,00 % netto 2.219,37 Ust-Betr. 221,95\"\n- Need to return rates without percent sign and as numbers, and amounts as numbers preserving decimals and separators converted to decimal point.\n- For 0% group: Vat.Rate = 0 (number), Net.Amount = 733.83, Vat.Amount = 0.00 (or 0.0 preserving two decimals like input shows \"0,00\" → 0.00).\n- For 10% group: Vat.Rate = 10, Net.Amount = 2219.37, Vat.Amount = 221.95.\n\nVerify no other VAT groups:\n- Line items individually list \"10 %\" beside amounts; but overall groups summarized as above. No other exchange rates. So two Vat groups only.\n\nCheck No Inference and Multiple Occurrences rules:\n- All extracted values explicitly present; no guessing.\n- Return these as the Vat items (note schema expects fields Vat.Rate, Net.Amount, Vat.Amount — developer note said Vat.Item is an array, but schema lists those fields as top-level; instruction: \"Important: Vat.Item is an array... Treat them as entries in the Vat.Item Array\" — however schema does not define Vat.Item. Given schema only includes Vat.Rate, Net.Amount, Vat.Amount as properties and required, but mentions multiple entries allowed. Likely expecting arrays? But types in schema show \"number\" or \"\". It conflicts. However developer note: \"Vat.Item is an array\" — but schema didn't include it. To follow schema strictly, possibly multiple occurrences should be returned how? The instruction: \"Important: Vat.Item is an array, so you are allowed to have multiple entries for Vat.Rate, Net.Amount and Vat.Amount Treat them as entries in the Vat.Item Array\" I'll prepare to output multiple entries — but final JSON must match schema. Since final answer not yet required, note this ambiguity to handle in output step.\n\nDecimal formats:\n- Convert commas to dots for numeric types, preserve two decimals as in input.\n\nAll required fields located. No exclusion triggers.",
+    "step2": "GrandTotal.Amount — Confidence: Very high (≈99%)\n- Evidence: \"Vorschreibungsbetrag 3.175,15 EUR\" and later \"Betrag: EUR 3175,15\" both explicitly state same total. No conflicting totals present.\n\nInvoice.Date — Confidence: Very high (≈99%)\n- Evidence: \"Datum: 25.01.2024\" appears adjacent to Rechnungsnummer. Clear, unambiguous format.\n\nSender.VatId — Confidence: Very high (≈99%)\n- Evidence: \"UID: ATU38173800\" at top of document. Standard VAT identifier format for Austria (ATU...).\n\nVat.Rate / Net.Amount / Vat.Amount (0% group) — Confidence: High (≈95%)\n- Evidence: Summary line \"0,00 % netto 733,83 Ust-Betr. 0,00\" clearly associates net and VAT amount with 0% rate.\n- Minor uncertainty: formatting/spacing in OCR could misplace numbers, but grouping is clear.\n\nVat.Rate / Net.Amount / Vat.Amount (10% group) — Confidence: High (≈95%)\n- Evidence: Summary line \"10,00 % netto 2.219,37 Ust-Betr. 221,95\" clearly provides rate, net, and VAT amount.\n- Minor OCR risk for comma placement, but numeric values are consistent with line-item VAT markings.\n\nGeneral classification as invoice — Confidence: Very high (≈99%)\n- Evidence: presence of \"Rechnungsnummer\", \"Rechnung\", totals, VAT groups, invoice date, payment instructions; no exclusion keywords present."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.33,
+      "input_tokens": 2191,
+      "cached_input_tokens": null,
+      "output_tokens": 793,
+      "total_tokens": 2984,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.36,
+      "input_tokens": 2967,
+      "cached_input_tokens": null,
+      "output_tokens": 340,
+      "total_tokens": 3307,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.69,
+      "input_tokens": 3607,
+      "cached_input_tokens": null,
+      "output_tokens": 475,
+      "total_tokens": 4082,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\274327\\274298_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU38173800",
+        "ATU38173800"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        3175.15,
+        "3.175,15"
+      ],
+      "Net.Amount": [
+        false,
+        2219.37,
+        [
+          "2.219,37",
+          "733,83"
+        ]
+      ],
+      "Vat.Amount": [
+        false,
+        221.95,
+        [
+          "221,95",
+          "0,00"
+        ]
+      ],
+      "Vat.Rate": [
+        false,
+        10,
+        [
+          "10,00",
+          "0,00"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "25.01.2024",
+        "25.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 8765,
+    "cached_input_tokens": 0,
+    "output_tokens": 1608,
+    "eur_estimate": 0.00471
+  }
+}

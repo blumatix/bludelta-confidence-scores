@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231054\\231053_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 121440.0,
+    "Invoice.Date": "21.09.2023",
+    "Sender.VatId": "",
+    "Vat.Rate": 20,
+    "Net.Amount": 101200.0,
+    "Vat.Amount": 20240.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.2,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Chances are slight",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: document is an invoice (contains \"Rechnung\"/\"ABSCHLAGSRECHNUNG\", invoice number, dates, totals, VAT lines).\n\nDetected candidate values (locations and notes):\n- Invoice Date: \"21.09.2023\" (header, page 1).\n- Grand total: \"€ 121.440,00\" (labeled \"Gesamt-Betrag\", page 1).\n- Net amount (invoice-level): \"€ 101.200,00\" (labeled \"Netto-Summe\", page 1).\n- VAT amount (invoice-level): \"€ 20.240,00\" (20,00 % USt., page 1).\n- VAT rate: \"20,00 %\" (appears with VAT line; will be extracted as 20).\n- Sender VAT ID candidates:\n  - \"USt-ID-Nr. : ATU31771008\" (near Kunden header; likely recipient/customer).\n  - \"UID ATU 66249099\" (bottom footer near Bankverbindung; likely sender). — ambiguous; both present.\n- Other amounts present (partial payments/earlier invoices) but not invoice-level totals: Abschlagssumme € 38.640,00; Restbetrag € 82.800,00; Skonto 3% and reduced amount € 80.316,00.\n\nAmbiguities noted to avoid inference:\n- Two different VAT IDs appear; cannot infer which is \"Sender.VatId\" without assuming sender vs recipient. Will leave empty if ambiguous per no-inference rule.",
+    "step2": "GrandTotal.Amount: 95% — \"Gesamt-Betrag € 121.440,00\" clearly labeled.\n\nInvoice.Date: 95% — \"Datum : 21.09.2023\" in header.\n\nNet.Amount: 95% — \"Netto-Summe € 101.200,00\" clearly labeled.\n\nVat.Amount: 95% — \"20,00 % USt. € 20.240,00\" matches net→vat math.\n\nVat.Rate: 99% — appears as \"20,00 %\" next to VAT line (extract as 20).\n\nSender.VatId: 20% — two VAT IDs present (\"USt-ID-Nr. : ATU31771008\" and footer \"UID ATU 66249099\"); sender vs recipient ambiguous, so low confidence."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.64,
+      "input_tokens": 2083,
+      "cached_input_tokens": null,
+      "output_tokens": 777,
+      "total_tokens": 2860,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.95,
+      "input_tokens": 2459,
+      "cached_input_tokens": null,
+      "output_tokens": 432,
+      "total_tokens": 2891,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.31,
+      "input_tokens": 2935,
+      "cached_input_tokens": null,
+      "output_tokens": 278,
+      "total_tokens": 3213,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231054\\231053_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "",
+        "ATU 66249099."
+      ],
+      "GrandTotal.Amount": [
+        true,
+        121440.0,
+        "121.440,00"
+      ],
+      "Net.Amount": [
+        true,
+        101200.0,
+        "101.200,00"
+      ],
+      "Vat.Amount": [
+        true,
+        20240.0,
+        "20.240,00"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "21.09.2023",
+        "21.09.2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7477,
+    "cached_input_tokens": 0,
+    "output_tokens": 1487,
+    "eur_estimate": 0.004217
+  }
+}

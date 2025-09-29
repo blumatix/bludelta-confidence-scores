@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\226180\\226159_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1523.74,
+    "Invoice.Date": "25.08.2023",
+    "Sender.VatId": "ATU66427645",
+    "Vat.Rate": 10,
+    "Net.Amount": 1385.22,
+    "Vat.Amount": 138.52
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.6,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not produce the final JSON yet. Brief, non-sensitive summary of extraction plan and candidate values:\n\n- Document classification: contains \"Rechnung\", \"Rechnungsbetrag\", \"Nettobetrag\", VAT lines — classified as an invoice.\n- Invoice identifier present: \"Rechnung 202302228\" (invoice number present, will not be output unless required).\n- Invoice date: \"Datum: 25.08.2023\" — candidate for Invoice.Date.\n- Grand total: \"Rechnungsbetrag 1.523,74 €\" — candidate for GrandTotal.Amount (numeric, keep decimals).\n- Net amount: \"Nettobetrag 1.385,22 €\" — candidate for Net.Amount.\n- VAT group: \"+ 10,00% USt. von 1.385,22 138,52 €\" — candidate VAT rate 10 (without %), Vat.Amount 138,52.\n- Sender VAT ID: two UID values appear:\n  - Near top under Bäko-Österreich: \"UID: ATU22642807\"\n  - Bottom under company info \"UID-Nr: ATU66427645\" for Unterweger Früchteküche GmbH (seller). Per header/footer context, ATU66427645 is the sender's VAT ID — candidate for Sender.VatId.\n- No conflicting exclusion terms detected (no \"Mahnung\" etc.).\n- All numeric values will be returned without currency symbols and preserving decimals.",
+    "step2": "GrandTotal.Amount — High confidence\n- Evidence: Explicit label \"Rechnungsbetrag                                                          1.523,74         €\".\n- Consistency: Matches Nettobetrag + VAT amount (1.385,22 + 138,52 = 1.523,74).\n\nInvoice.Date — High confidence\n- Evidence: Clear \"Datum:                               25.08.2023\" at top of document.\n- Consistency: Dates for delivery and order also present but this date is labeled plainly.\n\nSender.VatId — Medium confidence\n- Evidence: Two UID values appear:\n  - \"UID:   ATU22642807\" near the Bäko-Österreich header (likely buyer).\n  - \"UID-Nr:    ATU66427645\" in footer with company Unterweger Früchteküche GmbH (likely seller).\n- Reasoning: Sender (invoice issuer) appears to be Unterweger Früchteküche GmbH; UID-Nr ATU66427645 aligns with footer company details. Slight uncertainty because top UID could be sender in other layouts.\n\nVat.Rate — High confidence\n- Evidence: Line \"+   10,00%         USt.    von       1.385,22\" clearly indicates 10% VAT.\n- Extraction rule: will return \"10\" (without percent).\n\nNet.Amount — High confidence\n- Evidence: Explicit \"Nettobetrag                                                              1.385,22         €\".\n- Consistency: Used to compute VAT and grand total.\n\nVat.Amount — High confidence\n- Evidence: VAT amount shown as \"138,52       €\" next to the VAT line.\n- Consistency: 10% of 1.385,22 equals 138,522 → rounded/presented as 138,52 matching document.\n\nOverall notes: main ambiguity only about which UID corresponds to the sender; evidence favors ATU66427645 as the invoice issuer."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.57,
+      "input_tokens": 1848,
+      "cached_input_tokens": null,
+      "output_tokens": 824,
+      "total_tokens": 2672,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.46,
+      "input_tokens": 2207,
+      "cached_input_tokens": null,
+      "output_tokens": 467,
+      "total_tokens": 2674,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.44,
+      "input_tokens": 2910,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 3257,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\226180\\226159_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU66427645",
+        "ATU66427645"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1523.74,
+        "1.523,74"
+      ],
+      "Net.Amount": [
+        true,
+        1385.22,
+        "1.385,22"
+      ],
+      "Vat.Amount": [
+        true,
+        138.52,
+        "138,52"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "25.08.2023",
+        "25.08.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6965,
+    "cached_input_tokens": 0,
+    "output_tokens": 1638,
+    "eur_estimate": 0.004366
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\200141\\200123_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 3842.23,
+    "Invoice.Date": "04.07.23",
+    "Sender.VatId": "ATU16406805",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 3201.86,
+    "Vat.Amount": 640.37
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification:\n- Contains clear invoice indicators: header \"Rechnung\", \"Rechnungsdatum\", totals, VAT percentages, invoice number. No exclusion headers like \"Mahnung\" or \"Zahlungserinnerung\" prominent → classify as invoice.\n\n2) Locate candidate fields:\n- Invoice date: \"Rechnungsdatum 04.07.23\" (appears on page 1).\n- Sender VAT ID: \"MWST Nr. ATU16406805\" and \"USt-IdNr. ATU16406805\" (page 1 / footer).\n- VAT rate: \"Steuersatz 20.00\" (page 3 total block) and multiple line items show \"20\" in MWST % column — consistent 20%.\n- Net amount (total without VAT): \"Total EUR ohne MwSt. 3’201.86\" (page 3).\n- VAT amount: shown as \"640.37\" next to the net total in the Steuersatz block.\n- Grand total: \"Total EUR inkl. MwSt. 3’842.23\" (page 3).\n- Verify no conflicting multiple values for these invoice-level totals or VAT rate; values are consistent across summary.\n\n3) Conform to rules:\n- Do not infer missing values — all required fields are present in document.\n- VAT rate must be returned without \"%\" → use 20 (or 20.00 numeric).\n- Preserve decimals as in source (e.g., 3’842.23, 3’201.86, 640.37).",
+    "step2": "GrandTotal.Amount — High confidence (~95%):\n- Evidence: Explicit line \"Total EUR inkl. MwSt. 3’842.23\" on page 3. No other competing grand total present. Formatting with thousands separator consistent with other totals.\n\nInvoice.Date — High confidence (~95%):\n- Evidence: \"Rechnungsdatum 04.07.23\" on page 1. Matches invoice numbering and line-item dates; no alternative invoice date found.\n\nSender.VatId — Very high confidence (~99%):\n- Evidence: \"MWST Nr. ATU16406805\" and \"USt-IdNr. ATU16406805\" appear prominently on page 1 and footer. Both identical; no conflicting VAT IDs.\n\nVat.Rate — High confidence (~95%):\n- Evidence: Steuersatz block shows \"20.00\" and individual line items show \"20\" in MWST % column throughout. No other VAT rates present.\n\nNet.Amount — High confidence (~95%):\n- Evidence: \"Total EUR ohne MwSt. 3’201.86\" on page 3. Matches sum before VAT; no alternative net total visible.\n\nVat.Amount — High confidence (~95%):\n- Evidence: VAT amount \"640.37\" appears adjacent to net total in the Steuersatz block (Net 3’201.86 → VAT 640.37 → Gross 3’842.23). Values are arithmetically consistent."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.7,
+      "input_tokens": 4069,
+      "cached_input_tokens": null,
+      "output_tokens": 586,
+      "total_tokens": 4655,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.76,
+      "input_tokens": 4446,
+      "cached_input_tokens": null,
+      "output_tokens": 304,
+      "total_tokens": 4750,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.09,
+      "input_tokens": 5050,
+      "cached_input_tokens": null,
+      "output_tokens": 476,
+      "total_tokens": 5526,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\200141\\200123_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU16406805",
+        "ATU16406805"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        3842.23,
+        "3’842.23"
+      ],
+      "Net.Amount": [
+        true,
+        3201.86,
+        "3’201.86"
+      ],
+      "Vat.Amount": [
+        true,
+        640.37,
+        "640.37"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20.00"
+      ],
+      "Invoice.Date": [
+        true,
+        "04.07.23",
+        "04.07.23"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 13565,
+    "cached_input_tokens": 0,
+    "output_tokens": 1366,
+    "eur_estimate": 0.005347
+  }
+}

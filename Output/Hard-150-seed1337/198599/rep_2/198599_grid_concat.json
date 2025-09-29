@@ -1,0 +1,98 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198599\\198599_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 950.0,
+    "Invoice.Date": "27-12-2022",
+    "Sender.VatId": "PL6372194989",
+    "Vat.Rate": "",
+    "Net.Amount": 950.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.7,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.8,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Very good chance",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Highly likely",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Reasoning summary (concise, non-sensitive):\n\n- Classification: Document contains clear invoice indicators (\"Faktura\", invoice number, supplier/buyer, totals). Not an exclusion document. Proceed with extraction.\n\n- Key visible fields and candidates:\n  - Invoice number: \"nr 0228/12/2022/B\" (present) and an apparent invoice date line \"Gołaczewy dn. 27-12-2022\" — treat 27-12-2022 as Invoice.Date.\n  - Grand total candidates: two totals appear — PLN total \"4 458,73\" and an explicit \"Do zapłaty: 950,00EUR\". \"Do zapłaty\" is the payable amount; choose 950,00 as GrandTotal.Amount (numeric 950.00) because it is the amount due.\n  - Sender VAT ID: Supplier NIP shown as \"PL6372194989\" — extract as Sender.VatId.\n  - VAT grouping: invoice shows the line in EUR with VAT indicator \"NP\" (reverse charge) and VAT amounts 0,00. There is no explicit numeric VAT rate (%) provided for that group (it shows \"NP\" and lines with 0,00 and \"23%\" rows but those are zero). Per rules, do not infer a rate; leave Vat.Rate empty if no numeric percent appears.\n  - Net and VAT amounts for the VAT group: For the EUR line, Netto = 950,00 and Vat.Amount = 0,00. Preserve decimals as in source.\n\n- Decisions / alternatives considered:\n  - For GrandTotal.Amount could have used PLN 4 458,73 vs EUR 950,00. Chosen 950,00 based on explicit \"Do zapłaty\" (amount to pay).\n  - For Vat.Rate: although VAT percentages columns exist, no explicit numeric percent applies to the charged EUR item (marked NP). Therefore Vat.Rate must be empty (no inference).\n  - Net.Amount and Vat.Amount will reflect the VAT group values exactly as printed (950,00 and 0,00).\n\n- Prepared mapping for final JSON:\n  - Invoice.Date: \"27-12-2022\"\n  - GrandTotal.Amount: 950.00\n  - Sender.VatId: \"PL6372194989\"\n  - Vat.Rate: \"\" (empty)\n  - Net.Amount: 950.00\n  - Vat.Amount: 0.00\n\nI will now produce the final JSON when requested.",
+    "step2": "Confidence assessment (field-by-field):\n\n- Invoice.Date (\"27-12-2022\"): High confidence. Evidence: \"Gołaczewy dn. 27-12-2022\" is a clear date near invoice header. Matches typical invoice date placement.\n\n- GrandTotal.Amount (950.00): Moderate confidence. Evidence: \"Do zapłaty: 950,00EUR\" explicitly states amount to pay. Alternative candidate is PLN total \"4 458,73\" shown as PLN RAZEM; context indicates invoice has EUR payable line and PLN internal conversion. Chosen 950.00EUR is the explicit payable amount, but ambiguity exists whether GrandTotal should be in invoice currency or base currency — decision favors explicit \"Do zapłaty\" label.\n\n- Sender.VatId (\"PL6372194989\"): Very high confidence. Evidence: Supplier block lists \"NIP: PL6372194989\" clearly.\n\n- Vat.Rate (\"\"): Moderate-high confidence. Evidence: VAT column for the EUR line marked \"NP\" (reverse charge) and VAT amounts shown 0,00; no explicit numeric percent attached to the charged item. Although a \"23%\" row appears elsewhere with zeros, no numeric VAT rate applies to the EUR item. Per no-inference rule, leaving empty is appropriate.\n\n- Net.Amount (950.00): High confidence. Evidence: Line shows \"950,00 EUR\" as Netto for the EUR service; also \"RAZEM EUR: 950,00\". Matches chosen payable line.\n\n- Vat.Amount (0.00): High confidence. Evidence: Multiple VAT amount fields display \"0,00\" for the EUR line and VAT grouping; consistent with \"NP\" reverse charge and shown zeros.\n\nOverall note: Main residual uncertainty is whether GrandTotal should be represented in EUR 950.00 (chosen) versus PLN 4 458.73 (conversion shown). Other fields are well-supported."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.97,
+      "input_tokens": 2389,
+      "cached_input_tokens": null,
+      "output_tokens": 970,
+      "total_tokens": 3359,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.37,
+      "input_tokens": 2958,
+      "cached_input_tokens": null,
+      "output_tokens": 398,
+      "total_tokens": 3356,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.91,
+      "input_tokens": 3656,
+      "cached_input_tokens": null,
+      "output_tokens": 343,
+      "total_tokens": 3999,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198599\\198599.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "PL6372194989",
+        "PL6372194989"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        950.0,
+        "950,00"
+      ],
+      "Net.Amount": [
+        true,
+        950.0,
+        "950,00"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "27-12-2022",
+        "27-12-2022"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 5,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 9003,
+    "cached_input_tokens": 0,
+    "output_tokens": 1711,
+    "eur_estimate": 0.001049
+  }
+}

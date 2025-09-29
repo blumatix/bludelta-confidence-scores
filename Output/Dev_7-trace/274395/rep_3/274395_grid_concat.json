@@ -1,0 +1,130 @@
+{
+  "input_path": "..\\Documents\\274400\\274395_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 506.73,
+    "Invoice.Date": "23.1.2024",
+    "Sender.VatId": "ATU36768002",
+    "Vat.Rate": [
+      10,
+      10
+    ],
+    "Net.Amount": [
+      309.05,
+      151.62
+    ],
+    "Vat.Amount": [
+      30.9,
+      15.16
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.97,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Determine if document is an invoice:\n- Presence of invoice-like keywords: \"Rechn.Nr.\" (Rechnungsnummer), \"Datum\", \"Netto\", \"Ust.\", \"Brutto\", \"Endsaldo EUR\", payment instruction, IBAN — strong invoice indicators.\n- Exclusion keywords (\"Zahlungserinnerung\", \"Mahnung\") do not dominate; header says \"Lastschriftanzeige - Teilzahlungsanforderung\" but this is still a billing/collection notice with invoice elements. Conclusion: classify as invoice and proceed.\n\n2) Locate Invoice ID and Date:\n- \"Rechn.Nr.: 050914198                1346\" -> invoice number clearly present (050914198 and possibly an extension 1346). Primary invoice number: 050914198.\n- Date: \"Datum: 23.1.2024\" appears twice; take \"23.1.2024\" as Invoice.Date.\n\n3) Identify Grand Total:\n- \"Endsaldo EUR 506,73\" and multiple occurrences of 506,73 in payment sections; Grand total = 506,73 (European comma decimal). Convert to numeric form preserving decimals -> 506.73.\n\n4) VAT / tax details:\n- Header columns show \"Netto   10% Ust.   Brutto\".\n- Two line groups with net, VAT, gross:\n  - \"Abfallwirtschaftsgebühr   309,      05   30,     90   339,      95\" -> Net 309,05 ; VAT 30,90 ; Brutto 339,95.\n  - \"Kanalbenützungsgebühr     151,      62   15,16     166,78\" -> Net 151,62 ; VAT 15,16 ; Brutto 166,78.\n- VAT rate shown as 10% for these groups. According to rules, extract rate without % -> \"10\".\n- Sum check: Net sum 309,05+151,62 = 460,67; VAT sum 30,90+15,16 = 46,06; Net+VAT = 506,73 matches Endsaldo — consistent.\n\n5) Sender VAT ID:\n- At bottom header: \"UID: ATU36768002\" -> Sender.VatId = \"ATU36768002\".\n\n6) Field mapping to required schema:\n- GrandTotal.Amount -> 506.73 (number)\n- Invoice.Date -> \"23.1.2024\" (string)\n- Sender.VatId -> \"ATU36768002\" (string)\n- Vat.Rate -> 10 (number) — but there are two VAT groups with same rate; rate is uniform.\n- Net.Amount -> There are two net amounts (309.05 and 151.62). The schema/instructions indicate multiple VAT items are allowed; these should both be provided as entries corresponding to the VAT groups.\n- Vat.Amount -> Two VAT amounts (30.90 and 15.16) corresponding to the net amounts.\n\n7) Ambiguity / validation:\n- Document contains two VAT groups with identical rate (10). Rules permit multiple occurrences; we'll produce Net and Vat amounts for each group in order.\n- Numeric formatting: keep decimal places as in input (two decimals), convert commas to dots for numeric values.\n- No inference beyond visible data; invoice number not requested by schema, so not included in final JSON.\n\nConclusion: the invoice is valid for extraction. Extracted values to output: GrandTotal.Amount=506.73; Invoice.Date=\"23.1.2024\"; Sender.VatId=\"ATU36768002\"; Vat.Rate entries = 10 (uniform); Net.Amount entries = 309.05 and 151.62; Vat.Amount entries = 30.90 and 15.16.",
+    "step2": "GrandTotal.Amount — 506.73\n- Evidence: \"Endsaldo EUR 506,73\" and repeated payment amount \"506,73\" in payment section.\n- Consistency check: equals sum of net + VAT groups (309,05+151,62 + 30,90+15,16 = 506,73).\n- Confidence: 98%\n\nInvoice.Date — \"23.1.2024\"\n- Evidence: \"Datum: 23.1.2024\" appears twice on the document.\n- Ambiguity: none apparent.\n- Confidence: 99%\n\nSender.VatId — \"ATU36768002\"\n- Evidence: \"UID: ATU36768002\" in header/footer area (standard VAT identifier).\n- Ambiguity: none apparent.\n- Confidence: 98%\n\nVat.Rate — 10\n- Evidence: Column header shows \"10% Ust.\" above line items; both line items align under that column.\n- Ambiguity: VAT rate is explicit and consistent across items.\n- Confidence: 99%\n\nNet.Amount — [309.05, 151.62]\n- Evidence: Line items list net values \"309,05\" and \"151,62\" in Netto column.\n- Consistency check: sums to 460,67 which plus VAT sums to grand total.\n- Confidence: 97%\n\nVat.Amount — [30.90, 15.16]\n- Evidence: Corresponding VAT column shows \"30,90\" and \"15,16\".\n- Consistency check: VAT sum 46,06; net+VAT = 506,73 matches grand total.\n- Confidence: 97%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 16.99,
+      "input_tokens": 2170,
+      "cached_input_tokens": null,
+      "output_tokens": 1438,
+      "total_tokens": 3608,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.89,
+      "input_tokens": 2975,
+      "cached_input_tokens": null,
+      "output_tokens": 411,
+      "total_tokens": 3386,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 7.98,
+      "input_tokens": 3591,
+      "cached_input_tokens": null,
+      "output_tokens": 565,
+      "total_tokens": 4156,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274400\\274395_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU36768002",
+        "ATU36768002,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        506.73,
+        "506,73"
+      ],
+      "Net.Amount": [
+        true,
+        [
+          309.05,
+          151.62
+        ],
+        [
+          "309, 05",
+          "151, 62"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        [
+          30.9,
+          15.16
+        ],
+        [
+          "30, 90",
+          "15,16"
+        ]
+      ],
+      "Vat.Rate": [
+        false,
+        [
+          10,
+          10
+        ],
+        [
+          "10",
+          "10"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "23.1.2024",
+        "23.1.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 8736,
+    "cached_input_tokens": 0,
+    "output_tokens": 2414,
+    "eur_estimate": 0.006098
+  }
+}

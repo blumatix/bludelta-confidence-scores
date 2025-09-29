@@ -1,0 +1,112 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198400\\198400_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 796.5,
+    "Invoice.Date": "2023-03-22",
+    "Sender.VatId": "PL7881856353",
+    "Vat.Rate": "",
+    "Net.Amount": 742.04,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.8,
+    "Net.Amount": 0.75,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Highly likely",
+    "Net.Amount": "Very good chance",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Planned extraction steps and observed candidates (concise):\n\n1. Classify document as invoice\n   - Presence of \"NIP\", \"Sprzedawca\", \"Nabywca\", line items, totals, currency \"EUR\" → classify as invoice.\n\n2. Locate Invoice.Date\n   - Found \"2023-03-22\" near header (right side). Candidate: \"2023-03-22\".\n\n3. Locate Sender.VatId\n   - Seller NIP shown as \"PL7881856353\" (appears twice). Candidate: \"PL7881856353\".\n\n4. Locate GrandTotal.Amount\n   - \"Razem do zaptaty: 796,50 EUR\" and repeated \"796,50 EUR\" → Candidate numeric amount: 796,50 (preserve comma as decimal from source; schema requires number — will convert to decimal point later if producing JSON).\n\n5. Locate Net.Amount and Vat.Amount and Vat.Rate groups\n   - Net appears as \"742,04\" (labeled bNetto / Netto) and also line shows \"796,50\" as gross.\n   - VAT amount appears as \"0,00\" (labeled RAZEM 0,00) and VAT rate displayed as \"NP\" (non‑taxable) near line item.\n   - Candidates:\n     - Vat.Rate: \"NP\" (non-numeric; per rules do not infer numeric rate; will leave empty if numeric required).\n     - Net.Amount: 742,04\n     - Vat.Amount: 0,00\n\n6. Validation against rules\n   - Do not infer numeric VAT rate from \"NP\" — leave Vat.Rate empty.\n   - Keep decimals as in input (two decimals).\n   - If schema requires numeric types, plan to represent amounts as numbers with same decimals (e.g., 796.50, 742.04, 0.00) but note \"NP\" cannot be converted to a numeric VAT rate.\n\nConclusion: key text candidates identified — Invoice.Date: 2023-03-22; Sender.VatId: PL7881856353; GrandTotal.Amount: 796,50; Net.Amount: 742,04; Vat.Amount: 0,00; Vat.Rate: indicated as \"NP\" (non-numeric → will be left empty per No Inference).",
+    "step2": "Confidence evaluation for each field (concise):\n\n- Document classification as invoice: High confidence. Evidence: \"Sprzedawca\", \"Nabywca\", NIP, line items, totals, currency EUR. Confidence: 95%.\n\n- Invoice.Date (\"2023-03-22\"): High confidence. Appears clearly near header aligned with date/context. Possible alternative: \"data wykonania uslugi\" nearby but same date printed. Confidence: 90%.\n\n- Sender.VatId (\"PL7881856353\"): High confidence. NIP labeled for Sprzedawca appears twice as \"PL7881856353\". OCR spacing consistent. Confidence: 95%.\n\n- GrandTotal.Amount (796,50 EUR): High confidence. \"Razem do zaptaty: 796,50 EUR\" appears twice. Interpretation straightforward. Confidence: 95%.\n\n- Net.Amount (742,04): Moderate-to-high confidence. \"bNetto\" / \"Netto\" shows 742,04 near totals; matches gross minus VAT=0 pattern? However gross shown as 796,50 while net 742,04 — difference exists (796.50 - 742.04 = 54.46) which is inconsistent with VAT 0.00, suggesting possible OCR layout confusion (742,04 may be an intermediate or currency-converted net). Because text lists Netto 742,04 and also gross 796,50, confidence is 75%.\n\n- Vat.Amount (0,00): High confidence that VAT amount printed as \"0,00\" next to \"RAZEM\". It appears explicitly. Confidence: 90%.\n\n- Vat.Rate (NP): Medium confidence that VAT indicator is \"NP\" (non‑taxable). It's present next to line item. Schema expects numeric or empty; per rules we won't infer numeric. Confidence that the text is \"NP\": 80%."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.16,
+      "input_tokens": 1825,
+      "cached_input_tokens": null,
+      "output_tokens": 812,
+      "total_tokens": 2637,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.39,
+      "input_tokens": 2364,
+      "cached_input_tokens": null,
+      "output_tokens": 390,
+      "total_tokens": 2754,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.68,
+      "input_tokens": 3054,
+      "cached_input_tokens": null,
+      "output_tokens": 407,
+      "total_tokens": 3461,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198400\\198400.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "PL7881856353",
+        [
+          "PL7881856353",
+          "PL 7881856353"
+        ]
+      ],
+      "GrandTotal.Amount": [
+        true,
+        796.5,
+        "796,50"
+      ],
+      "Net.Amount": [
+        false,
+        742.04,
+        [
+          "796,50",
+          "3 742,04"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        [
+          "0,00",
+          "0,00"
+        ]
+      ],
+      "Vat.Rate": [
+        false,
+        "",
+        []
+      ],
+      "Invoice.Date": [
+        true,
+        "2023-03-22",
+        "2023-03-22"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7243,
+    "cached_input_tokens": 0,
+    "output_tokens": 1609,
+    "eur_estimate": 0.000925
+  }
+}

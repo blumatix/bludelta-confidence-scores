@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\194766\\194702_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2278.79,
+    "Invoice.Date": "2023-06-05",
+    "Sender.VatId": "ATU31800708",
+    "Vat.Rate": 10,
+    "Net.Amount": 2071.63,
+    "Vat.Amount": 207.16
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.8,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Highly likely",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Below is a concise, non-sensitive summary of the planned extraction steps and checks I will perform on the invoice text:\n\n- Verify document is an invoice by checking for keywords: \"Rechnung\", \"Rechnungsadresse\", \"Rechnung\", \"Endbetrag\", \"MWSt\", totals, invoice number and dates.\n- Confirm absence of exclusion indicators (\"Zahlungserinnerung\", \"Mahnung\", \"Servicebericht\").\n- Locate and extract explicit fields:\n  - Invoice.Date: find date labeled near header (e.g., \"Stans, 2023-06-05\" or \"vom: 2023-05-30\") and choose the invoice issue date.\n  - GrandTotal.Amount: value labeled \"Endbetrag\" with currency EUR.\n  - Sender.VatId: VAT identifier near sender block (UID-Nr.: ...).\n  - Vat groups: find MWSt lines showing rate (e.g., \"10,00\") and corresponding MWSt-Basis (net) and MWSt amount; extract Net.Amount, Vat.Rate (as number without %), Vat.Amount preserving decimals.\n- Apply No Inference rule: if any required field is not explicitly present, leave it empty.\n- Preserve numeric formatting and decimals as in source; remove percent sign for rates.\n- If document fails invoice validation, return all fields as empty strings.\n\nI will now proceed to extract the values following these steps.",
+    "step2": "GrandTotal.Amount:\n- Evidence: \"Endbetrag                                                                 EUR                        2.278,79\"\n- Confidence: High. The label \"Endbetrag\" with EUR and 2.278,79 matches total payable.\n\nInvoice.Date:\n- Evidence: Possible dates: \"Stans,        2023-06-05\" (near header) and \"vom:        2023-05-30\" (next to \"Ihr Auftrag: 20914 vom: 2023-05-30\"). Typical invoice issue date appears as \"Stans, 2023-06-05\".\n- Confidence: Medium-high for 2023-06-05; medium for 2023-05-30 as alternative (order date). Some ambiguity which is the invoice issue date.\n\nSender.VatId:\n- Evidence: \"UID-Nr.:      ATU31800708\" in sender footer block.\n- Confidence: High. Clear VAT identifier present.\n\nVat.Rate:\n- Evidence: \"MWSt              10,00\" in VAT grouping line.\n- Confidence: High. Explicit VAT rate for the MWSt group is 10,00 (should be returned as 10 or 10,00 per schema rules—rate value without %).\n\nNet.Amount:\n- Evidence: \"MWSt-Basis                  1                                       2.071,63\" and \"Auftragssumme                                                                                       2.071,63\" — net amount appears as 2.071,63.\n- Confidence: High. Net base equals 2.071,63 consistent with VAT base.\n\nVat.Amount:\n- Evidence: \"MWSt              10,00                                                                                 207,16\" — VAT amount 207,16 corresponds to 10% of 2.071,63 (207,163 → rounded displayed 207,16).\n- Confidence: High. VAT amount explicitly shown.\n\nOverall note: Invoice classification as invoice is supported (labels like \"Rechnung\", \"Endbetrag\", \"MWSt\", invoice-like headers); no exclusion terms present."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 5.71,
+      "input_tokens": 1908,
+      "cached_input_tokens": null,
+      "output_tokens": 366,
+      "total_tokens": 2274,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.36,
+      "input_tokens": 2257,
+      "cached_input_tokens": null,
+      "output_tokens": 423,
+      "total_tokens": 2680,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.78,
+      "input_tokens": 2980,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 3327,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\194766\\194702_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU31800708",
+        "ATU31800708,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        2278.79,
+        "2.278,79"
+      ],
+      "Net.Amount": [
+        true,
+        2071.63,
+        "2.071,63"
+      ],
+      "Vat.Amount": [
+        true,
+        207.16,
+        "207,16"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "2023-06-05",
+        "2023-06-05"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7145,
+    "cached_input_tokens": 0,
+    "output_tokens": 1136,
+    "eur_estimate": 0.003537
+  }
+}

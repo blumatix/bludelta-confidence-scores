@@ -1,0 +1,110 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\172675\\172675_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 467.5,
+    "Invoice.Date": "19.12.22",
+    "Sender.VatId": "CZ40763811",
+    "Vat.Rate": 0,
+    "Net.Amount": 467.5,
+    "Vat.Amount": 0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.85,
+    "Net.Amount": 0.85,
+    "Vat.Amount": 0.85
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Highly likely",
+    "Net.Amount": "Highly likely",
+    "Vat.Amount": "Highly likely"
+  },
+  "reasoning": {
+    "step1": "I will (1) confirm this is an invoice by presence of \"RECHNUNG\", invoice-like headers, totals and VAT lines; (2) locate explicit fields matching the schema; (3) avoid guessing and extract only exact text/numbers shown.\n\nFindings to extract:\n- Invoice date: appears as \"Praha : 19.12.22\" → Invoice.Date = \"19.12.22\".\n- Sender VAT: header shows \"VAT:        CZ40763811\" under METRANS → Sender.VatId = \"CZ40763811\".\n- Grand total: \"TOTAL: ... EUR ... 467.50\" → GrandTotal.Amount = 467.50.\n- VAT groups: table shows a 0% group with Besteuerungsgrundlage EUR 467.50 and VAT 0.00, and a 21% group with EUR 0.00 and VAT 0.00.\n  - Therefore extract two VAT entries:\n    - Vat.Rate = 0, Net.Amount = 467.50, Vat.Amount = 0.00\n    - Vat.Rate = 21, Net.Amount = 0.00, Vat.Amount = 0.00\n\nNo other invoice fields required by the schema are present. I will not infer any missing values.",
+    "step2": "GrandTotal.Amount — Confidence: High (≈95%)\n- Evidence: \"TOTAL: ... EUR                                         11341.55                             467.50\" shows 467.50 aligned under EUR column near TOTAL. The layout strongly indicates 467.50 is the invoice total in EUR.\n- Uncertainty: OCR spacing could misalign columns, but no other competing total in EUR is present.\n\nInvoice.Date — Confidence: High (≈95%)\n- Evidence: Line \"Praha                                 :   19.12.22\" clearly presents a date; nearby context shows invoice header and expedition date, making 19.12.22 the issue date.\n- Uncertainty: Could be mistaken for expedition date, but \"Expedieret am : 19.12.22\" also appears; both are same date, reducing ambiguity.\n\nSender.VatId — Confidence: High (≈95%)\n- Evidence: Under METRANS block appears \"VAT:        CZ40763811\" which matches typical VAT ID formatting.\n- Uncertainty: Another \"VAT                                       ATU62333479\" appears elsewhere (maybe recipient or different VAT). Chosen value CZ40763811 appears directly under sender address — strong signal.\n\nVat.Rate / Net.Amount / Vat.Amount — Confidence: Medium-High (≈85%)\n- Evidence: The VAT breakdown shows lines:\n  - \"Besteuerungsgrundlage                                                 0%         KC/        EUR                                         11341.55                             467.50\"\n  - \"Besteuerungsgrundlage                                            21      %       KC/        EUR                                                  0.00                             0.00\"\n  - \"MwSt.                                                           21       %       KC/        EUR                                                  0.00                             0.00\"\n  - Totals align with TOTAL 467.50 in EUR.\n- Interpretation: The 0% VAT group has Net.Amount 467.50 and Vat.Amount 0.00; the 21% group shows Net 0.00 and Vat 0.00.\n- Uncertainty: OCR column alignment and dual-currency (KC/EUR) could cause confusion which column corresponds to EUR. However, the EUR column earlier lists 467.50 under totals, supporting the mapping. Potential ambiguity about whether 11341.55 relates to KC column only; Net.Amount chosen as EUR 467.50 consistent with TOTAL.\n\nOverall note on no-inference rule:\n- All values reported are taken directly from visible lines; where multiple VAT-related numbers exist (e.g., 11341.55), mapping chosen to match EUR TOTAL."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.31,
+      "input_tokens": 1797,
+      "cached_input_tokens": null,
+      "output_tokens": 1232,
+      "total_tokens": 3029,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.01,
+      "input_tokens": 2116,
+      "cached_input_tokens": null,
+      "output_tokens": 532,
+      "total_tokens": 2648,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.34,
+      "input_tokens": 2948,
+      "cached_input_tokens": null,
+      "output_tokens": 533,
+      "total_tokens": 3481,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\172675\\172675.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "CZ40763811",
+        "CZ40763811"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        467.5,
+        "467.50"
+      ],
+      "Net.Amount": [
+        false,
+        467.5,
+        [
+          "467.50",
+          "0.00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0,
+        "0.00"
+      ],
+      "Vat.Rate": [
+        false,
+        0,
+        [
+          "0",
+          "21",
+          "21"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "19.12.22",
+        "19.12.22"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 6861,
+    "cached_input_tokens": 0,
+    "output_tokens": 2297,
+    "eur_estimate": 0.001147
+  }
+}

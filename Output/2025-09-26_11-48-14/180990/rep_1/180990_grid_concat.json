@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\181004\\180990_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 65.45,
+    "Invoice.Date": "15.03.2023",
+    "Sender.VatId": "ATU66053389",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 59.5,
+    "Vat.Amount": 5.95
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will identify invoice indicators, locate required fields, consider alternatives, and verify exact text matches.\n\n1) Document classification\n- Invoice indicators present: header \"RECHNUNG\", \"Belegdatum\", \"NETTOBETRAG\", \"BRUTTOBETRAG\", VAT line \"10,00 % MwSt.\" and line-item totals. No exclusion terms like \"Mahnung\" in prominent positions. Conclusion: treat as an invoice.\n\n2) Locate Invoice.Date\n- Found \"Belegdatum: 15.03.2023\" near top. Candidate: \"15.03.2023\". No conflicting date elsewhere. Accept as Invoice.Date.\n\n3) Locate GrandTotal.Amount\n- Found \"BRUTTOBETRAG 65,45 EUR\". Candidate total = 65,45. Preserve two decimals. Represent as numeric value 65.45 (decimal separator normalization for numeric field). No other gross total present.\n\n4) Locate Net.Amount\n- Found \"NETTOBETRAG 59,50 EUR\". Candidate net = 59,50 → numeric 59.50.\n\n5) Locate Vat.Amount\n- Found VAT line: \"10,00 % MwSt. von 59,50 5,95 EUR\". VAT amount = 5,95 → numeric 5.95.\n\n6) Locate Vat.Rate\n- VAT percent shown as \"10,00 % MwSt.\" Per rule remove percent symbol and keep decimals as shown. Candidate numeric = 10.00 → represent as 10 (or 10.00). To keep decimal places same as input (two decimals), use 10.00. However schema allows number; choose 10 (but preserve decimals rule suggests 10.00). I will record as 10.00 to match input formatting.\n\n7) Locate Sender.VatId\n- Two UID occurrences:\n  a) Near top right: \"UID-Nr.: ATU22642807\" associated with customer block (likely the buyer).\n  b) Bottom in company/legal info: \"UID: ATU     66053389\" following company FN and LG Linz — this corresponds to the invoice issuer (Knollmühle GmbH). Per \"Sender.VatId\" we must use the sender/issuer VAT. Candidate: \"ATU66053389\" (text shows spaces between ATU and number; normalized to typical continuous form but not inventing digits).\n- No other sender UID present. Choose ATU66053389 as Sender.VatId.\n\n8) Consistency checks / No-inference policy\n- All extracted numeric amounts come exactly from displayed figures; decimal places preserved (converted to numeric form with dot).\n- No guesswork for missing fields; each required field found.\n- VAT rate formatting: keep numeric value corresponding to \"10,00 %\"; I will output as 10.00 to reflect two decimals as in source.\n\n9) Final mapping (values prepared for JSON):\n- Invoice.Date: \"15.03.2023\"\n- GrandTotal.Amount: 65.45\n- Net.Amount: 59.50\n- Vat.Amount: 5.95\n- Vat.Rate: 10.00\n- Sender.VatId: \"ATU66053389\"\n\nI will now produce the final JSON in the next step.",
+    "step2": "GrandTotal.Amount (65.45)\n- Evidence: Explicit \"BRUTTOBETRAG 65,45 EUR\" present.\n- Potential issues: none apparent.\n- Confidence: 99%\n\nInvoice.Date (\"15.03.2023\")\n- Evidence: Explicit \"Belegdatum: 15.03.2023\".\n- Potential issues: no conflicting dates.\n- Confidence: 99%\n\nSender.VatId (\"ATU66053389\")\n- Evidence: Two UID values present: \"UID-Nr.: ATU22642807\" (near customer block) and \"UID: ATU     66053389\" in issuer legal info. Invoice issuer is Knollmühle GmbH (header), and the latter UID appears with company/legal details.\n- Potential issues: formatting contains spaces; selection assumes issuer UID is the one in legal footer. Slight ambiguity because both UIDs appear.\n- Confidence: 85%\n\nVat.Rate (10.00)\n- Evidence: Explicit \"10,00 % MwSt.\" line.\n- Potential issues: none; preserved two-decimal format.\n- Confidence: 99%\n\nNet.Amount (59.50)\n- Evidence: Explicit \"NETTOBETRAG 59,50 EUR\".\n- Potential issues: none apparent.\n- Confidence: 99%\n\nVat.Amount (5.95)\n- Evidence: VAT line shows \"5,95 EUR\" corresponding to 10% of 59,50.\n- Potential issues: none apparent.\n- Confidence: 99%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 15.66,
+      "input_tokens": 1936,
+      "cached_input_tokens": null,
+      "output_tokens": 1323,
+      "total_tokens": 3259,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.59,
+      "input_tokens": 2666,
+      "cached_input_tokens": null,
+      "output_tokens": 505,
+      "total_tokens": 3171,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.46,
+      "input_tokens": 3279,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3562,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\181004\\180990_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU66053389",
+        "ATU 66053389,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        65.45,
+        "65,45"
+      ],
+      "Net.Amount": [
+        true,
+        59.5,
+        "59,50"
+      ],
+      "Vat.Amount": [
+        true,
+        5.95,
+        "5,95"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "15.03.2023",
+        "15.03.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7881,
+    "cached_input_tokens": 0,
+    "output_tokens": 2111,
+    "eur_estimate": 0.005386
+  }
+}

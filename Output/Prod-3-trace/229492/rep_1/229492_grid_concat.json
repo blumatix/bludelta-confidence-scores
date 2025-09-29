@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\229510\\229492_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1118.28,
+    "Invoice.Date": "13.09.2023",
+    "Sender.VatId": "ATU34775204",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 931.9,
+    "Vat.Amount": 186.38
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Plan: verify document is an invoice, locate required fields (GrandTotal.Amount, Invoice.Date, Sender.VatId, Vat.Rate, Net.Amount, Vat.Amount), avoid guessing, preserve decimals and percent formatting rule (VAT rate as number without %).\n\n1) Invoice classification check\n- Document contains \"RECHNUNG\" header, \"Rechnungsbetrag\", \"Summe Warenwert\", VAT lines, invoice number, date — clear invoice indicators.\n- No exclusion keywords like \"Mahnung\" or \"Zahlungserinnerung\" in prominent header (only generic payment terms). Classify as invoice — proceed.\n\n2) Locate Invoice.Date\n- Multiple pages show \"Datum : 13.09.2023 - 13:13\" near header. Use issue date \"13.09.2023\".\n- No other differing invoice dates found. Invoice.Date = \"13.09.2023\".\n\n3) Locate Sender.VatId\n- The company UID/Steuernr appears as \"Steuernr. : ATU34775204\" and also \"UID-Nr.: ATU 34775204\".\n- Sender.VatId = \"ATU34775204\" (preserve string).\n\n4) Locate VAT rate(s) and VAT amounts and Net amounts\n- Page 3 shows summary lines:\n  - \"Summe Warenwert EUR 931,90\" — this is net total (before VAT). So Net.Amount = 931.90 (number, keep decimals).\n  - \"+ 20,00 % Mwst. EUR 186,38\" — VAT rate 20,00% and VAT amount 186,38. VAT rate per rule should be numeric without % -> 20,00 or 20? Schema Vat.Rate is number; keep decimals as in input but remove percent symbol. Input uses comma as decimal. Convert to dot decimal for numeric types. Preserve decimals count.\n    - VAT rate: \"20,00 %\" → numeric 20.00\n    - Vat.Amount: \"186,38\" → numeric 186.38\n- Grand total / Rechnungsbetrag:\n  - \"Rechnungsbetrag ... EUR 1118,28\" — total payable. GrandTotal.Amount = 1118.28\n\n5) Consistency check\n- Net 931.90 + VAT 186.38 = 1118.28 — matches Rechnungsbetrag. Good.\n\n6) Ensure no inference\n- All fields explicitly present; no guesses required.\n\n7) Prepare values per schema types\n- GrandTotal.Amount: number 1118.28\n- Invoice.Date: string \"13.09.2023\"\n- Sender.VatId: string \"ATU34775204\"\n- Vat.Rate: number 20.00\n- Net.Amount: number 931.90\n- Vat.Amount: number 186.38\n\nDecision: proceed to output final JSON with these exact values.",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"value\": 1118.28,\n    \"confidence\": \"high\",\n    \"justification\": \"Explicitly stated as 'Rechnungsbetrag ... EUR 1118,28' and matches Net + VAT totals.\"\n  },\n  \"Invoice.Date\": {\n    \"value\": \"13.09.2023\",\n    \"confidence\": \"high\",\n    \"justification\": \"Clearly printed near header as 'Datum : 13.09.2023 - 13:13'.\"\n  },\n  \"Sender.VatId\": {\n    \"value\": \"ATU34775204\",\n    \"confidence\": \"high\",\n    \"justification\": \"Appears explicitly as 'Steuernr. : ATU34775204' and 'UID-Nr.: ATU 34775204'.\"\n  },\n  \"Vat.Rate\": {\n    \"value\": 20.00,\n    \"confidence\": \"high\",\n    \"justification\": \"Shown in summary as '+ 20,00 % Mwst.'; consistent with VAT amount and totals.\"\n  },\n  \"Net.Amount\": {\n    \"value\": 931.90,\n    \"confidence\": \"high\",\n    \"justification\": \"Displayed in summary as 'Summe Warenwert EUR 931,90' and sums correctly with VAT.\"\n  },\n  \"Vat.Amount\": {\n    \"value\": 186.38,\n    \"confidence\": \"high\",\n    \"justification\": \"Displayed as '+ 20,00 % Mwst. EUR 186,38' and matches calculation with Net and Grand Total.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.87,
+      "input_tokens": 4459,
+      "cached_input_tokens": null,
+      "output_tokens": 734,
+      "total_tokens": 5193,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.97,
+      "input_tokens": 5112,
+      "cached_input_tokens": null,
+      "output_tokens": 534,
+      "total_tokens": 5646,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.21,
+      "input_tokens": 5754,
+      "cached_input_tokens": null,
+      "output_tokens": 284,
+      "total_tokens": 6038,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\229510\\229492_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU34775204",
+        "ATU34775204"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1118.28,
+        "1118,28"
+      ],
+      "Net.Amount": [
+        true,
+        931.9,
+        "931,90"
+      ],
+      "Vat.Amount": [
+        true,
+        186.38,
+        "186,38"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "13.09.2023",
+        "13.09.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 15325,
+    "cached_input_tokens": 0,
+    "output_tokens": 1552,
+    "eur_estimate": 0.006056
+  }
+}

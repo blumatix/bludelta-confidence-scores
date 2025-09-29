@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\274406\\274373_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2203.2,
+    "Invoice.Date": "20.12.2023",
+    "Sender.VatId": "ATU75601939",
+    "Vat.Rate": 20,
+    "Net.Amount": 1836.0,
+    "Vat.Amount": 367.2
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: document is an invoice (contains \"Rechnung\", invoice number, dates, totals, VAT, line item).\n\nExtraction plan (high-level):\n- Locate invoice header fields: invoice date, performance date, invoice number — use explicit labeled values.\n- Identify sender VAT: labeled \"Unsere USt-Id.\" and \"Ihre USt-Id.\" — sender is Aptean Austria GmbH, so use \"Unsere USt-Id.\"\n- Find totals block for Nettowert, MwSt. % and Endbetrag — map Nettowert -> Net.Amount, MwSt. % -> Vat.Rate, MwSt. value -> Vat.Amount, Endbetrag -> GrandTotal.Amount.\n- Preserve decimal precision as in source; convert to numeric form for output.\n\nKey observations and extracted values to be output:\n- Invoice.Date: \"20.12.2023\" (explicit \"Datum\")\n- Sender.VatId: \"ATU75601939\" (labeled \"Unsere USt-Id.\")\n- Net.Amount: 1836.00 (Nettowert shown as \"1.836,00\" → 1836.00)\n- Vat.Rate: 20 (shown \"20,00\" %)\n- Vat.Amount: 367.20 (shown \"367,20\")\n- GrandTotal.Amount: 2203.20 (Endbetrag \"2.203,20\")\n\nNo conflicting alternatives found; all values are explicitly present. I will produce the final JSON next.",
+    "step2": "- Invoice.Date — 20.12.2023 — Confidence: 95% — Explicitly labeled \"Datum 20.12.2023\" in header.\n- Sender.VatId — ATU75601939 — Confidence: 95% — Explicitly labeled \"Unsere USt-Id. ATU75601939\".\n- Net.Amount — 1836.00 — Confidence: 95% — \"Nettowert 1.836,00\" shown in totals (comma decimal), converted to numeric form.\n- Vat.Rate — 20 — Confidence: 90% — \"MwSt. % 20,00\" appears in totals; rate extracted without percent symbol per rules.\n- Vat.Amount — 367.20 — Confidence: 95% — VAT line shows \"367,20\" in totals matching 20% of the net.\n- GrandTotal.Amount — 2203.20 — Confidence: 95% — \"Endbetrag 2.203,20\" shown as the invoice total."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 6.51,
+      "input_tokens": 1701,
+      "output_tokens": 629,
+      "total_tokens": 2330
+    },
+    "step2": {
+      "runtime_sec": 4.96,
+      "input_tokens": 2017,
+      "output_tokens": 408,
+      "total_tokens": 2425
+    },
+    "step3": {
+      "runtime_sec": 3.26,
+      "input_tokens": 2502,
+      "output_tokens": 347,
+      "total_tokens": 2849
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274406\\274373_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU75601939",
+        "ATU75601939"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        2203.2,
+        "2.203,20"
+      ],
+      "Net.Amount": [
+        true,
+        1836.0,
+        "1.836,00"
+      ],
+      "Vat.Amount": [
+        true,
+        367.2,
+        "367,20"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "20.12.2023",
+        "20.12.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  }
+}

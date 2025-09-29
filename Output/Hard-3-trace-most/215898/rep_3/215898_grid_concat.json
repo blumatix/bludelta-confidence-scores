@@ -1,0 +1,124 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\215898\\215898_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 14455.0,
+    "Invoice.Date": "24-Dec-2022",
+    "Sender.VatId": "24AEBPB6411",
+    "Vat.Rate": 9,
+    "Net.Amount": 12250.0,
+    "Vat.Amount": 2205.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.88
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Highly likely"
+  },
+  "reasoning": {
+    "step1": "I will not produce the final JSON yet. Below are concise, non-sensitive reasoning steps and the extracted candidate values to be used for the final output.\n\n1) Document classification\n- Found clear invoice indicators: title \"TAX INVOICE\", \"Invoice No.: 3235\", \"Invoice Date: 24-Dec-2022\", itemized charges, totals, GST details.\n- No prominent exclusion terms (e.g., \"Mahnung\", \"Zahlungserinnerung\") dominating header. Classify as an invoice.\n\n2) Locate key fields and source lines\n- Invoice.Date: \"Invoice Date. : 24-Dec-2022\"\n- GrandTotal.Amount: numeric total shown as \"14,455.00\" and words \"TotalRupee Fourteen Thousand Four Hundred Fifty Five only.\"\n- Sender.VatId: GSTIN/UIN shown near sender: \"GSTIN/UIN: ... 24AEBPB6411\"\n- VAT rates: CGST @ 9% and SGST @ 9% appear as lines \"CGST @ 9%\" and \"SGST @ 9%\"\n- VAT groups (per HSN/SAC lines):\n  - HSN 00996712: Taxable Value 8,000.00; central tax 9% = 720.00; state tax 9% = 720.00\n  - HSN 996719: Taxable Value 3,500.00; central tax 9% = 315.00; state tax 9% = 315.00\n- Aggregate VAT totals: CGST total 1,102.50 and SGST total 1,102.50 (total VAT 2,205.00) and Total Taxable 12,250.00 (matches sum of taxable group values).\n\n3) Mapping to required schema fields (no inference; use exactly observed values)\n- GrandTotal.Amount -> 14455.00 (preserve decimals as in document)\n- Invoice.Date -> \"24-Dec-2022\"\n- Sender.VatId -> \"24AEBPB6411\"\n- Vat.Rate -> two entries of 9 (for the two VAT groups at 9%)\n- Net.Amount -> two entries: 8000.00 and 3500.00 (as in group taxable values)\n- Vat.Amount -> two entries: 720.00 and 315.00 (VAT amount per group; note these are one-side amounts—central or state—using the group-level per-rate VAT amount as shown)\n\n4) Conformance checks\n- No missing required invoice indicators.\n- Values preserved with original decimal precision.\n- No guessing beyond explicitly present text.\n\nProceed when ready to output the final JSON.",
+    "step2": "GrandTotal.Amount — Confidence: High (≈95%)\n- Evidence: Explicit numeric total \"14,455.00\" and matching words \"TotalRupee Fourteen ThousandFourHundredFifty Five only.\"\n- Consistency: Matches sum of taxable (12,250.00) + total tax (2,205.00) = 14,455.00.\n\nInvoice.Date — Confidence: High (≈98%)\n- Evidence: Clear label \"Invoice Date. : 24-Dec-2022\" in header.\n\nSender.VatId — Confidence: Medium-High (≈85%)\n- Evidence: Header shows \"GSTIN/UIN:me 24AEBPB6411 Code M :12ZV\" and \"Company's PAN No. : AEBPB6411 M\". The GSTIN-like string \"24AEBPB6411\" appears; OCR noise around it (\"me\") but core ID is clear.\n- Risk: Minor OCR artifacts could have altered characters, but pattern matches other PAN/GST fragments.\n\nVat.Rate — Confidence: High (≈95%)\n- Evidence: Lines \"CGST @ 9%\" and \"SGST @ 9%\" and per-group tax rate columns showing 9% for both groups.\n- Interpretation: Both VAT group rates are 9; returned as numeric 9 per group (percentage symbol excluded as required).\n\nNet.Amount (group entries) — Confidence: High (≈92%)\n- Evidence: Group rows list taxable values: 8,000.00 and 3,500.00 under \"Taxable Value\".\n- Consistency: Sum 11,500? Note: document shows Total Assessable Value 12,250.00 — but visible group sums 8,000 + 3,500 = 11,500; however elsewhere \"Total 12,250.00\" is shown. Potential OCR/read alignment issue.\n- Risk: Moderate: possible missed group or OCR misalignment; chosen values are directly visible for two HSN lines.\n\nVat.Amount (group entries) — Confidence: Medium-High (≈88%)\n- Evidence: For HSN 00996712 central 720.00 and state 720.00 (per-group VAT shown as 720.00); HSN 996719 central 315.00 and state 315.00. The per-group single-side VAT amounts 720.00 and 315.00 are extracted.\n- Risk: Some ambiguity whether to return combined VAT per group (720+720=1,440 and 315+315=630) versus single-side amounts; schema expects Vat.Amount per Vat.Rate entry — I used the single-side amounts as directly shown for each 9% entry. Possible mismatch if combined VAT was intended.\n\nOverall note on consistency:\n- Grand total and VAT totals align (12,250 taxable + 2,205 tax = 14,455). Minor OCR/placement ambiguities around taxable group totals introduce some risk for Net.Amount per-group completeness."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.26,
+      "input_tokens": 5307,
+      "cached_input_tokens": null,
+      "output_tokens": 1331,
+      "total_tokens": 6638,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.61,
+      "input_tokens": 5917,
+      "cached_input_tokens": null,
+      "output_tokens": 614,
+      "total_tokens": 6531,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.1,
+      "input_tokens": 6831,
+      "cached_input_tokens": null,
+      "output_tokens": 476,
+      "total_tokens": 7307,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\215898\\215898.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "24AEBPB6411",
+        "24AEBPB6411M1ZV"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        14455.0,
+        "14,455.00"
+      ],
+      "Net.Amount": [
+        false,
+        12250.0,
+        [
+          "750.00",
+          "8.000.00",
+          "750.00",
+          "8.000.00",
+          "3,500.00",
+          "3,500.00"
+        ]
+      ],
+      "Vat.Amount": [
+        false,
+        2205.0,
+        [
+          "67.50",
+          "720.00",
+          "67.50",
+          "720.00",
+          "315.00",
+          "315.00"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        9,
+        [
+          "9",
+          "9",
+          "9",
+          "9",
+          "9",
+          "9"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "24-Dec-2022",
+        "24-Dec-2022"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 18055,
+    "cached_input_tokens": 0,
+    "output_tokens": 2421,
+    "eur_estimate": 0.00175
+  }
+}

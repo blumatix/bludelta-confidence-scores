@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\183057\\183011_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": -7494.6,
+    "Invoice.Date": "11.04.2023",
+    "Sender.VatId": "ATU39103108",
+    "Vat.Rate": 10,
+    "Net.Amount": -6813.27,
+    "Vat.Amount": -681.33
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification:\n- Found invoice indicators: \"Rechnungskopie\", \"Datum\", \"Gesamtgewicht\", \"MwSt.\", \"Gesamtsumme\", line-item table with Nettobetrag — classify as invoice (actually a \"Gutschrift\" credit-note but still an invoice-type document).\n- No exclusion terms (\"Mahnung\", \"Zahlungserinnerung\", \"Servicebericht\") prominent.\n\n2) Locate fields:\n- Invoice date: \"Datum 11.04.2023\" → Invoice.Date = \"11.04.2023\".\n- Sender VAT ID: \"VAT Registration n° ATU39103108\" and repeated \"ATU39103108\" in footer → Sender.VatId = \"ATU39103108\".\n- VAT rate: totals section shows \"10,00 %\" → Vat.Rate = 10.\n- Net amount: totals show \"- 6.813,27\" (net) → Net.Amount = -6813.27 (preserve decimals).\n- VAT amount: totals show \"- 681,33\" (MwSt.-€) → Vat.Amount = -681.33.\n- Grand total: totals section shows \"Gesamtsumme netto (EUR) ... - 7.494,60\" and payment NETTO EUR 7.494,60 (sign indicates credit) → GrandTotal.Amount = -7494.60.\n\n3) No inference beyond visible data; kept sign and decimals as in source.",
+    "step2": "Invoice.Date (11.04.2023)\n- Evidence: explicit \"Datum 11.04.2023\" in header.\n- Confidence: 99%\n\nSender.VatId (ATU39103108)\n- Evidence: \"VAT Registration n° ATU39103108\" and repeated \"ATU39103108\" in footer.\n- Confidence: 99%\n\nVat.Rate (10)\n- Evidence: Totals section shows \"10,00 %\" and line items show \"10    %\".\n- Confidence: 99%\n\nNet.Amount (-6813.27)\n- Evidence: Totals table shows \"- 6.813,27\" labeled as net value; consistent with listed Nettobetrag sum.\n- Signs: document is a \"Gutschrift\" (credit) so negative sign present.\n- Confidence: 95%\n\nVat.Amount (-681.33)\n- Evidence: Totals table shows \"- 681,33\" under \"MwSt.-€von\" (VAT €); matches 10% of net (-681.327 → rounded to -681.33).\n- Confidence: 95%\n\nGrandTotal.Amount (-7494.60)\n- Evidence: Totals show \"Gesamtsumme ... - 7.494,60\" and \"NETTO EUR 7.494,60\" as payable; sign consistent with credit.\n- Slight ambiguity due to multiple mentions (payment offer 7.344,71 with 2% discount) but main Gesamtsumme is -7.494,60.\n- Confidence: 95%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 14.52,
+      "input_tokens": 6885,
+      "cached_input_tokens": null,
+      "output_tokens": 628,
+      "total_tokens": 7513,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.97,
+      "input_tokens": 7240,
+      "cached_input_tokens": null,
+      "output_tokens": 387,
+      "total_tokens": 7627,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.86,
+      "input_tokens": 7863,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 8146,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\183057\\183011_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU39103108",
+        "ATU39103108"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        -7494.6,
+        "- 7.494,60"
+      ],
+      "Net.Amount": [
+        true,
+        -6813.27,
+        "- 6.813,27"
+      ],
+      "Vat.Amount": [
+        true,
+        -681.33,
+        "- 681,33"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "11.04.2023",
+        "11.04.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 21988,
+    "cached_input_tokens": 0,
+    "output_tokens": 1298,
+    "eur_estimate": 0.007083
+  }
+}

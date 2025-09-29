@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\274772\\274708_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 40.44,
+    "Invoice.Date": "30.01.2024",
+    "Sender.VatId": "ATU66213527",
+    "Vat.Rate": 20,
+    "Net.Amount": 33.7,
+    "Vat.Amount": 6.74
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.8,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.96,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: document is an invoice (contains \"Rechnung\", invoice number, totals, VAT).\n\nRelevant evidence and extraction decisions:\n- Invoice Number present: \"Rechnung R1041560\" (used as identifier in text).\n- Invoice Date / issue date extracted from \"Druckdatum 30.01.2024\" → Invoice.Date = \"30.01.2024\".\n- Grand total from \"Rechnungsendbetrag 40,44 €\" → GrandTotal.Amount = 40.44.\n- Net amount from \"Zwischensumme 33,70 €\" → Net.Amount = 33.70.\n- VAT group: \"+  20,0 % Ust. von 33,70 € 6,74 €\" → Vat.Rate = 20 (without %), Vat.Amount = 6.74.\n- Sender VAT ID: document shows multiple UID numbers; \"UID-Nummer: ATU66213527\" appears in the sender/company block at the bottom (hollu Systemhygiene GmbH). I select Sender.VatId = \"ATU66213527\".\nNotes on uncertainties/alternatives considered:\n- There are other UID values near addresses (ATU22642807, ATU64479308) but those correspond to customer/recipient; per header/placement the bottom \"UID-Nummer: ATU66213527\" matches the issuing company (sender), so chosen accordingly.\n- Numerical decimals preserved as in source (commas converted to decimal points for numeric fields).",
+    "step2": "GrandTotal.Amount — 95% confident.\nEvidence: Clearly labeled \"Rechnungsendbetrag 40,44 €\". Matches subtotal + VAT lines. Low uncertainty from OCR comma-to-dot conversion.\n\nInvoice.Date — 90% confident.\nEvidence: \"Druckdatum 30.01.2024\" is the only clear date labeled near invoice metadata. Slight uncertainty whether a separate explicit \"Rechnungsdatum\" exists.\n\nSender.VatId — 80% confident.\nEvidence: Multiple UID numbers present; bottom block lists \"UID-Nummer: ATU66213527\" associated with hollu company details (sender). Moderate uncertainty because other UID values appear near header/addresses (ATU22642807, ATU64479308).\n\nVat.Rate — 98% confident.\nEvidence: Line \"+  20,0 % Ust. von 33,70 €\" explicitly shows 20.0% VAT. Very clear; reporting without percent sign per rules yields \"20\".\n\nNet.Amount — 96% confident.\nEvidence: \"Zwischensumme 33,70 €\" clearly shown as net subtotal. Matches VAT calculation (20% of 33.70 = 6.74). Minor OCR/format conversion risk.\n\nVat.Amount — 97% confident.\nEvidence: Line shows \"6,74 €\" as VAT for the 20% group; arithmetic consistency with net subtotal. Minor OCR/comma conversion risk."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.91,
+      "input_tokens": 2177,
+      "output_tokens": 895,
+      "total_tokens": 3072
+    },
+    "step2": {
+      "runtime_sec": 6.05,
+      "input_tokens": 2503,
+      "output_tokens": 555,
+      "total_tokens": 3058
+    },
+    "step3": {
+      "runtime_sec": 4.31,
+      "input_tokens": 3071,
+      "output_tokens": 345,
+      "total_tokens": 3416
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274772\\274708_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU66213527",
+        "ATU66213527,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        40.44,
+        "40,44"
+      ],
+      "Net.Amount": [
+        true,
+        33.7,
+        "33,70"
+      ],
+      "Vat.Amount": [
+        true,
+        6.74,
+        "6,74"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,0"
+      ],
+      "Invoice.Date": [
+        true,
+        "30.01.2024",
+        "30.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  }
+}

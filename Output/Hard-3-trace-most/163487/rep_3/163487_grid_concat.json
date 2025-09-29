@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\163487\\163487_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 384.0,
+    "Invoice.Date": "22.06.2022",
+    "Sender.VatId": "ATU24900301",
+    "Vat.Rate": 20,
+    "Net.Amount": 320.0,
+    "Vat.Amount": 64.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.88,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I'll extract invoice fields by inspecting both pages and verifying invoice indicators versus exclusion terms.\n\n1) Determine if document is an invoice\n- Page 1 contains \"Rechnung\" (German for Invoice), totals, VAT (\"MWST\"), invoice-like headers (Datum, Kunden-Nr.), and line items with price and VAT. No prominent exclusion terms like \"Mahnung\" or \"Zahlungserinnerung\". Page 2 also labeled \"RECHNUNG\" with \"Nummer\", \"Datum\", \"Zwischensumme\" and line item details. Conclusion: classify as invoice.\n\n2) Locate GrandTotal.Amount\n- Page 1 shows \"Rechnungsbetrag EUR 384,00\" (formatted with comma). Also line shows 320,00 + 64,00 VAT = 384,00. Page 2 shows subtotal 1.338,00 for multiple line items of another invoice (different header with Nummer: 20220659 and Datum: 27.06.2022). There are two different invoices merged. Need to decide which invoice to extract: schema expects a single set. The first invoice (Page 1) has invoice Date \"22.06.2022\" near top and Kunden-Nr.: 20100. The second invoice (Page 2) has Nummer 20220659 and Datum 27.06.2022. Which to use? Structured header matching: extraction should proceed only if content aligns. Both are valid invoices. Schema expects fields; multiple occurrences allowed for Vat items but top-level fields are single. Rule \"Multiple Occurrences: If multiple occurrences of a detail exist ... return each occurrence in the same structure.\" But schema only allows one Invoice.Date etc. We must not invent. Need to choose the invoice that better matches initial page—user likely expects extraction from the first invoice on page 1. I'll proceed using the invoice on Page 1.\n\n3) Extract Invoice.Date for Page 1\n- On Page 1 \"Datum 22.06.2022\" under company address. So Invoice.Date = \"22.06.2022\".\n\n4) Extract Sender.VatId\n- Page 1 shows \"Ihre UID-Nr. ATU39840703\" near top right; this appears to be recipient's UID? The header shows company Ferdinand Mayr with \"UID: ATU 24900301\" at very top? Top line: \"UIO Nr: ATU 24900301\" (OCR noise). Also under \"Ihre UID-Nr. ATU39840703\" likely refers to customer. \"Sender\" in schema is tax ID of the sender (issuer). The issuer seems to be Ferdinand Mayr (Mayr logistics) whose VAT appears as ATU24900301. Confirm: top line \"ATU   24900301\" likely sender VAT. On Page 2 the issuer Simmerer has \"Unsere UID-Nr.: ATU22736608\" and the customer shows \"Ihre UID-Nr.: ATU39840703\". To remain consistent with using Page 1 invoice, Sender.VatId = \"ATU24900301\" (remove spaces).\n\n5) Extract Net.Amount, Vat.Rate, Vat.Amount\n- Page 1 line item: net 320,00 and \"+ 20,00 % MWST von 320,00\" VAT amount 64,00. So Net.Amount = 320,00; Vat.Rate = 20 (per rule remove %); Vat.Amount = 64,00. Keep decimals and comma vs dot: schema expects number type; must convert to numeric with dot decimal. Maintain two decimals: 320.00, 64.00, GrandTotal 384.00.\n\n6) Vat grouping: single VAT group present (20%). Good.\n\n7) GrandTotal.Amount verification\n- Net 320.00 + VAT 64.00 = 384.00 matches \"Rechnungsbetrag EUR 384,00\". So GrandTotal.Amount = 384.00.\n\n8) Ensure no inference beyond visible text\n- All chosen values appear explicitly on Page 1; no guessing.\n\n9) Final decision: use invoice from Page 1 with fields:\n- GrandTotal.Amount: 384.00\n- Invoice.Date: \"22.06.2022\"\n- Sender.VatId: \"ATU24900301\"\n- Vat.Rate: 20\n- Net.Amount: 320.00\n- Vat.Amount: 64.00\n\nProceed to output JSON in next step.",
+    "step2": "I'll assess confidence per field using visible evidence and consistency.\n\n- GrandTotal.Amount = 384.00\n  Evidence: \"Rechnungsbetrag EUR 384,00\" explicitly shown and equals net 320,00 + VAT 64,00. Confidence: very high.\n\n- Invoice.Date = \"22.06.2022\"\n  Evidence: On Page 1 near header: \"Datum 22.06.2022\". Clear date formatting. Confidence: very high.\n\n- Sender.VatId = \"ATU24900301\"\n  Evidence: Top of Page 1 shows \"UIO Nr: ATU   24900301\" (OCR spacing). Also context indicates Ferdinand Mayr as issuer. Slight OCR uncertainty in label (UIO vs UID) but number matches format. Confidence: high.\n\n- Vat.Rate = 20\n  Evidence: Text shows \"+ 20,00 % MWST\". Extraction removes percent per rule. Confidence: very high.\n\n- Net.Amount = 320.00\n  Evidence: Line item shows \"320,000\" and \"320,00\" as net before VAT; used in VAT calculation. OCR variant \"320,000\" but elsewhere \"320,00\" consistent. Confidence: high.\n\n- Vat.Amount = 64.00\n  Evidence: Shown as \"64,00\" and equals 20% of 320,00. Confidence: very high.\n\nOverall note: There are multiple invoices on the pages; chosen values correspond to the invoice on Page 1 (22.06.2022). Confidence reduced only by OCR spacing/noise for Sender.VatId but still high."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.85,
+      "input_tokens": 2983,
+      "cached_input_tokens": null,
+      "output_tokens": 1060,
+      "total_tokens": 4043,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.05,
+      "input_tokens": 3962,
+      "cached_input_tokens": null,
+      "output_tokens": 342,
+      "total_tokens": 4304,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.62,
+      "input_tokens": 4604,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 4885,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\163487\\163487.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU24900301",
+        "ATU 24900301"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        384.0,
+        "384,00"
+      ],
+      "Net.Amount": [
+        true,
+        320.0,
+        "320,00"
+      ],
+      "Vat.Amount": [
+        true,
+        64.0,
+        "64,00"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "22.06.2022",
+        "22.06.2022"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 11549,
+    "cached_input_tokens": 0,
+    "output_tokens": 1683,
+    "eur_estimate": 0.001167
+  }
+}

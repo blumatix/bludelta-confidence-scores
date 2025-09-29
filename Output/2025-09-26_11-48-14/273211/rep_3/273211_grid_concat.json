@@ -1,0 +1,130 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\273211\\273211_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 45270.25,
+    "Invoice.Date": "23.01.2024",
+    "Sender.VatId": "ATU76204938",
+    "Vat.Rate": [
+      10,
+      20
+    ],
+    "Net.Amount": [
+      40984.48,
+      156.1
+    ],
+    "Vat.Amount": [
+      4098.45,
+      31.22
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (a) validate this is an invoice (presence of \"Rechnung\", invoice number, invoice date, totals), (b) locate explicit fields, and (c) extract exact text/numeric values without inferring missing data.\n\nFindings from the document:\n- Invoice indicators present: \"Rechnung\", \"Belegnummer 2024/1000000111\", \"Rechnungsdatum 23.01.2024\", line items, and totals — classify as invoice.\n- Invoice.Date: explicit \"Rechnungsdatum 23.01.2024\".\n- Grand total: explicit \"Endbetrag (EUR) 45.270,25\".\n- Sender.VatId: appears as \"Unsere USt-ID: ATU76204938\" and also \"UST-ID-Nr.: ATU76204938\" — sender VAT = ATU76204938.\n- VAT group lines present:\n  - \"Ausgangssteuer 1 = 10%: 4.098,45\" with an associated net line nearby \"40.984,48\" (appears as the net base for the 10% group).\n  - \"Ausgangssteuer 2 = 20%: 31,22\" with an associated net line \"156,10\" (appears as the net base for the 20% group).\n- VAT rates explicitly shown as 10% and 20% (will be returned as numbers without % per rule).\n- Net and VAT amounts are taken directly from the printed invoice lines (no rounding or inference).\n\nPotential ambiguities noted (will not be inferred):\n- The document shows \"Warenwert Netto 41.140,58\" and elsewhere \"40.984,48\"; I will not reconcile or infer which to use beyond the explicit VAT-group net lines cited above.\n- All extracted numeric strings will be preserved with the same decimals as on the invoice.",
+    "step2": "GrandTotal.Amount: 95% — \"Endbetrag (EUR) 45.270,25\" is explicitly printed and unambiguous.\n\nInvoice.Date: 99% — \"Rechnungsdatum 23.01.2024\" appears clearly on pages.\n\nSender.VatId: 99% — \"Unsere USt-ID: ATU76204938\" / \"UST-ID-Nr.: ATU76204938\" clearly present.\n\nVat.Rate (10): 98% — \"Ausgangssteuer 1 = 10%\" shown explicitly.\n\nNet.Amount (for 10% group): 95% — \"40.984,48\" is adjacent to the \"Ausgangssteuer 1 = 10%\" line and consistent with VAT amount.\n\nVat.Amount (for 10% group): 95% — \"4.098,45\" explicitly tied to the 10% group.\n\nVat.Rate (20): 98% — \"Ausgangssteuer 2 = 20%\" shown explicitly.\n\nNet.Amount (for 20% group): 92% — \"156,10\" appears near the 20% VAT line; formatting slightly less prominent but present.\n\nVat.Amount (for 20% group): 92% — \"31,22\" explicitly shown for the 20% group."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.56,
+      "input_tokens": 5960,
+      "cached_input_tokens": null,
+      "output_tokens": 1036,
+      "total_tokens": 6996,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 11.06,
+      "input_tokens": 6403,
+      "cached_input_tokens": null,
+      "output_tokens": 597,
+      "total_tokens": 7000,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 7.26,
+      "input_tokens": 6980,
+      "cached_input_tokens": null,
+      "output_tokens": 568,
+      "total_tokens": 7548,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\273211\\273211_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU76204938",
+        "ATU76204938"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        45270.25,
+        "45.270,25"
+      ],
+      "Net.Amount": [
+        true,
+        [
+          40984.48,
+          156.1
+        ],
+        [
+          "40.984,48",
+          "156,10"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        [
+          4098.45,
+          31.22
+        ],
+        [
+          "4.098,45",
+          "31,22"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        [
+          10,
+          20
+        ],
+        [
+          "10",
+          "20"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "23.01.2024",
+        "23.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 19343,
+    "cached_input_tokens": 0,
+    "output_tokens": 2201,
+    "eur_estimate": 0.008063
+  }
+}

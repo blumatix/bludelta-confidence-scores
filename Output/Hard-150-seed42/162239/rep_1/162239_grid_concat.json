@@ -1,0 +1,88 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\162239\\162239_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2215.07,
+    "Invoice.Date": "Nov 08, 2022",
+    "Sender.VatId": "DE264518479",
+    "Vat.Rate": 11,
+    "Net.Amount": 20.0,
+    "Vat.Amount": 2.2
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.85,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Highly likely",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification:\n- Document contains \"Invoice No.\", invoice number, invoice date, line items, totals, and tax — classify as an invoice.\n\nFields identification and choices:\n- Invoice.Date: \"Nov 08, 2022\" (explicit near top-right).\n- GrandTotal.Amount: \"2,215.07 EUR\" shown as \"Total\" at bottom — take numeric 2215.07.\n- Sender.VatId: \"USt-IdNr. DE 264518479\" at document footer — take \"DE264518479\" (no spaces).\n- VAT group evidence: \"Insurance Premium Tax (2) AT 11.00 % 2.20 EUR\" and note \"(2) Based on National Marine Cargo (net)\" with \"National Marine Cargo (net) 20.00 EUR\".\n  - Therefore Vat.Rate = 11.00 -> extract numeric 11 (per rule remove %).\n  - Net.Amount for that VAT group = 20.00 (the taxable net base shown).\n  - Vat.Amount = 2.20 (explicit).\n- No inference beyond explicit values; where amounts are explicit, use them exactly.\n\nAmbiguities considered and resolved:\n- There is a larger \"Total net premiums 3,161.26 EUR\" and rebates, but the VAT line explicitly ties the 11% tax to the National Marine Cargo net of 20.00 EUR and shows VAT 2.20 EUR — thus Net.Amount and Vat.Amount correspond to that VAT group rather than the overall invoice net.\n- Sender VAT ID taken from footer string \"USt-IdNr. DE   264518479\" concatenated without spaces.",
+    "step2": "GrandTotal.Amount — 95%: \"Total 2,215.07 EUR\" appears clearly at bottom labeled Total; numeric value unambiguous.\n\nInvoice.Date — 98%: \"Nov 08, 2022\" is explicitly printed near top-right.\n\nSender.VatId — 90%: Footer shows \"USt-IdNr. DE   264518479\"; concatenation to \"DE264518479\" is straightforward though formatting had spaces.\n\nVat.Rate — 90%: \"Insurance Premium Tax (2) AT 11.00 %\" is explicit; extracting numeric 11 follows rule to drop percent sign.\n\nNet.Amount — 85%: The VAT line references \"Based on National Marine Cargo (net)\" and \"National Marine Cargo (net) 20.00 EUR\" — mapping that 20.00 as the taxable net is reasonable and explicitly shown, but the document also lists larger net totals for premiums, so there's some ambiguity which net base the VAT line refers to.\n\nVat.Amount — 95%: VAT shown as \"2.20 EUR\" on the VAT line; clear and explicit."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 14.06,
+      "input_tokens": 1803,
+      "cached_input_tokens": null,
+      "output_tokens": 922,
+      "total_tokens": 2725,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.46,
+      "input_tokens": 2196,
+      "cached_input_tokens": null,
+      "output_tokens": 620,
+      "total_tokens": 2816,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 8.59,
+      "input_tokens": 2732,
+      "cached_input_tokens": null,
+      "output_tokens": 282,
+      "total_tokens": 3014,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\162239\\162239.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DE264518479",
+        "DE 264518479"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        2215.07,
+        "2,215.07"
+      ],
+      "Invoice.Date": [
+        true,
+        "Nov 08, 2022",
+        "Nov 08, 2022"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 3,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6731,
+    "cached_input_tokens": 0,
+    "output_tokens": 1824,
+    "eur_estimate": 0.000975
+  }
+}

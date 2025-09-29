@@ -1,0 +1,111 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198666\\198666_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1000.0,
+    "Invoice.Date": "2022-12-23",
+    "Sender.VatId": "7972058692",
+    "Vat.Rate": 0.0,
+    "Net.Amount": 1000.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.6,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification:\n- Document contains clear invoice indicators (\"Faktura\", \"Do zapłaty\", line-item table, totals) and no prominent exclusion keywords. Proceed with extraction.\n\nPlanned extraction steps and evidence locations:\n1. Invoice.Date: look for \"Data wystawienia\" / \"Data wystawlenla\" — near \"2022-12-23\".\n2. GrandTotal.Amount: look for \"Do zapłaty\" — shows \"1 000,00 EUR\".\n3. Sender.VatId: look for \"NIP\" near seller block — occurrences: \"NIP   797    205   86   92\" and later \"NIP:      797205869\" (both present; do not infer).\n4. Vat.Rate, Net.Amount, Vat.Amount: inspect line-item table and summary lines:\n   - Line item shows net \"1 000,00\", VAT% \"0\", VAT amount \"0,00\", gross \"1 000,00\".\n   - Summary lines also show \"Wartość netto 1 000,00 EUR\", \"Wartość VAT 0,00 EUR\", \"Wartość brutto 1 000,00 EUR\".\n5. Preserve original numeric formatting and decimals as in text; extract VAT rate without percent sign (e.g., \"0\").\n\nMultiple occurrences handling:\n- If multiple VAT-related or NIP values appear, return each as separate entries only when schema allows; otherwise follow No Inference Policy and leave ambiguous fields empty.\n\nDecision to proceed to final extraction:\n- All required invoice fields are present in the text (dates, totals, VAT 0% group, seller NIP variants). Will extract exact values from the indicated locations without guessing when ambiguous.",
+    "step2": "I can’t share internal chain-of-thought, but I can provide a concise confidence assessment for each extracted field with brief justifications.\n\n{\n  \"GrandTotal.Amount\": {\n    \"value\": \"1000.00\",\n    \"confidence\": \"High\",\n    \"justification\": \"Explicitly shown as 'Do zapłaty 1 000,00 EUR' and repeated in totals (brutto).\"\n  },\n  \"Invoice.Date\": {\n    \"value\": \"2022-12-23\",\n    \"confidence\": \"High\",\n    \"justification\": \"Clearly labeled near top as 'Data ... 2022-12-23' (issue date).\"\n  },\n  \"Sender.VatId\": {\n    \"value\": \"797 205 86 92\",\n    \"confidence\": \"Medium\",\n    \"justification\": \"Seller section shows 'NIP 797 205 86 92' though another NIP-like string '797205869' also appears; primary seller NIP formatting is clearer.\"\n  },\n  \"Vat.Rate\": {\n    \"value\": 0,\n    \"confidence\": \"High\",\n    \"justification\": \"Line item and summary show VAT% = 0 and VAT amount = 0,00.\"\n  },\n  \"Net.Amount\": {\n    \"value\": 1000.00,\n    \"confidence\": \"High\",\n    \"justification\": \"Line item and summary state net amount 1 000,00 (EUR).\"\n  },\n  \"Vat.Amount\": {\n    \"value\": 0.00,\n    \"confidence\": \"High\",\n    \"justification\": \"VAT amount listed as 0,00 in line and summary.\"\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.04,
+      "input_tokens": 1808,
+      "cached_input_tokens": null,
+      "output_tokens": 748,
+      "total_tokens": 2556,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 14.33,
+      "input_tokens": 2219,
+      "cached_input_tokens": null,
+      "output_tokens": 549,
+      "total_tokens": 2768,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 7.91,
+      "input_tokens": 2876,
+      "cached_input_tokens": null,
+      "output_tokens": 476,
+      "total_tokens": 3352,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198666\\198666.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "7972058692",
+        "797 205 86 92"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1000.0,
+        "1 000,00"
+      ],
+      "Net.Amount": [
+        true,
+        1000.0,
+        [
+          "1 000,00",
+          "1000,00",
+          "1 000,00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        [
+          "0,00",
+          "0,00",
+          "0,00"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        0.0,
+        "0"
+      ],
+      "Invoice.Date": [
+        false,
+        "2022-12-23",
+        "2022-12-12"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 6903,
+    "cached_input_tokens": 0,
+    "output_tokens": 1773,
+    "eur_estimate": 0.000966
+  }
+}

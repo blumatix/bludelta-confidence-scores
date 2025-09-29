@@ -1,0 +1,130 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198693\\198693_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1042.95,
+    "Invoice.Date": "31.12.2022",
+    "Sender.VatId": "ESA08496457",
+    "Vat.Rate": [
+      21,
+      21
+    ],
+    "Net.Amount": [
+      138.93,
+      723.01
+    ],
+    "Vat.Amount": [
+      29.18,
+      151.83
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.92,
+    "Sender.VatId": 0.995,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Determine if document is an invoice:\n- Contains explicit headings \"FACTURA\", \"NºFACTURA\", \"Total Factura EUR\", invoice numbers, line-item details and totals → classify as invoice.\n- No exclusion keywords like \"Mahnung\" or \"Zahlungserinnerung\" dominating → proceed.\n\n2) Identify invoice-level fields to extract per schema:\n- Grand total amount\n- Invoice date\n- Sender VAT ID\n- VAT groups: rate, net amount, VAT amount (multiple groups present)\n\n3) Locate sender VAT ID:\n- Top block shows \"NIF:          ESA08496457\" → Sender.VatId = \"ESA08496457\"\n\n4) Determine invoice date:\n- Multiple date labels found:\n  - \"FECHA OPERACIÓN: 31.12.2022\"\n  - \"FECHA EXPEDICIÓN FACTURA: 11.01.2023\"\n  - Bottom of page 2 shows \"FACTURA: 0111776875   FECHA: 31.12.2022\"\n- The document labels \"FECHA: 31.12.2022\" near the invoice number → use \"31.12.2022\" as Invoice.Date.\n\n5) Locate grand total:\n- \"Total Factura EUR 1.042,95\" (and formatted bottom shows totals) → GrandTotal.Amount = 1042.95 (convert comma decimal to dot, keep two decimals).\n\n6) Identify VAT groups and amounts:\n- Table shows two tax indicator rows:\n  - R9: Importe neto EUR 138,93 ; %IVA/IGIC 21% ; Importe IVA/IGIC 29,18 ; Total 168,11\n  - X9: Importe neto EUR 723,01 ; %IVA/IGIC 21% ; Importe IVA/IGIC 151,83 ; Total 874,84\n- Verify subtotal: 138.93 + 723.01 = 861.94 (matches SUBTOTAL shown).\n- VAT rates both 21% → per rule, extract rate without \"%\" as 21.\n- Preserve decimals exactly as in document.\n\n7) Map fields to schema:\n- GrandTotal.Amount: 1042.95 (number)\n- Invoice.Date: \"31.12.2022\" (string)\n- Sender.VatId: \"ESA08496457\" (string)\n- Vat.Rate: two entries of 21 → represent as array [21,21]\n- Net.Amount: corresponding net amounts [138.93,723.01]\n- Vat.Amount: corresponding VAT amounts [29.18,151.83]\n\n8) Ensure no inference beyond visible data and maintain original decimal precision.",
+    "step2": "GrandTotal.Amount — High (>=95%): \"Total Factura EUR 1.042,95\" appears clearly in the invoice totals section and matches sum of subtotal + VAT; decimal format converted correctly.\n\nInvoice.Date — High (>=90%): \"FECHA: 31.12.2022\" appears next to the invoice number near footer and matches \"FECHA OPERACIÓN: 31.12.2022\". Minor ambiguity with \"FECHA EXPEDICIÓN FACTURA: 11.01.2023\" noted, but primary invoice date label supports 31.12.2022.\n\nSender.VatId — Very High (>=99%): \"NIF: ESA08496457\" is explicit in the header as the sender tax identifier.\n\nVat.Rate — High (>=95%): Two VAT groups both labeled \"21%\" in the tax table; extracted as numeric 21 per instructions.\n\nNet.Amount (per VAT group) — High (>=95%): Net amounts \"138,93\" and \"723,01\" are explicitly listed in the tax table and sum to the shown subtotal 861,94.\n\nVat.Amount (per VAT group) — High (>=95%): VAT amounts \"29,18\" and \"151,83\" are explicitly listed in the tax table and align with totals shown."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 16.28,
+      "input_tokens": 2672,
+      "cached_input_tokens": null,
+      "output_tokens": 1270,
+      "total_tokens": 3942,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.81,
+      "input_tokens": 3285,
+      "cached_input_tokens": null,
+      "output_tokens": 470,
+      "total_tokens": 3755,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 8.18,
+      "input_tokens": 3863,
+      "cached_input_tokens": null,
+      "output_tokens": 565,
+      "total_tokens": 4428,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198693\\198693.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ESA08496457",
+        "ESA20006607"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1042.95,
+        "1.042,95"
+      ],
+      "Net.Amount": [
+        true,
+        [
+          138.93,
+          723.01
+        ],
+        [
+          "138,93",
+          "723,01"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        [
+          29.18,
+          151.83
+        ],
+        [
+          "29,18",
+          "151,83"
+        ]
+      ],
+      "Vat.Rate": [
+        false,
+        [
+          21,
+          21
+        ],
+        [
+          "21",
+          "21"
+        ]
+      ],
+      "Invoice.Date": [
+        false,
+        "31.12.2022",
+        "11.01.2023"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 9820,
+    "cached_input_tokens": 0,
+    "output_tokens": 2305,
+    "eur_estimate": 0.001298
+  }
+}

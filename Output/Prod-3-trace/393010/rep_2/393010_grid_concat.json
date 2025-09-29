@@ -1,0 +1,88 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\393023\\393010_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": -50.4,
+    "Invoice.Date": "05.09.2024",
+    "Sender.VatId": "CHE-412.350.609",
+    "Vat.Rate": "",
+    "Net.Amount": "",
+    "Vat.Amount": ""
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.93,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains header \"Rechnung\" and totals (\"Endtotal\", \"EUR\") → classified as invoice (not a payment reminder or report).\n- No exclusion keywords like \"Mahnung\" prominent.\n\nFields found directly in text:\n- Invoice date: \"Rechnungsdatum: 05.09.2024\" → Invoice.Date = 05.09.2024.\n- Sender VAT ID: \"Unsere MWST-Nr: CHE-412.350.609\" → Sender.VatId = CHE-412.350.609.\n- Grand total: \"Endtotal ... EUR -50.40\" and \"zahlbar ... bis 05.10.2024 ... EUR -50.40\" → GrandTotal.Amount = -50.40 (currency noted EUR; schema expects number).\n- No explicit VAT rate (e.g., \"19%\") found anywhere → Vat.Rate = \"\".\n- No explicit net/VAT breakdown lines labeled \"Netto\" and \"MwSt\" with numeric values are present; only final total shown as -50.40. Per No Inference policy, cannot assume net = total or VAT = 0. Therefore Net.Amount = \"\" and Vat.Amount = \"\".\n\nAmbiguities considered:\n- Line items list prices and a negative line amount (-50.40) and an aggregate \"8.204.00\" appears but not as labeled net/VAT totals; insufficient explicit labeling to extract Net.Amount or Vat.Amount.\n- Currency and negative sign are preserved; decimal places kept as in source.\n\nConclusion for extraction:\n- Invoice-like document confirmed.\n- Confident extractions: Invoice.Date = 05.09.2024, Sender.VatId = CHE-412.350.609, GrandTotal.Amount = -50.40.\n- Vat.Rate, Net.Amount, Vat.Amount remain empty due to lack of explicit labeled values.",
+    "step2": "Invoice.Date:\n- Evidence: Explicit label \"Rechnungsdatum: 05.09.2024\" present.\n- Risk: OCR misread unlikely given clear format.\n- Confidence: Very high (>=95%).\n\nSender.VatId:\n- Evidence: Explicit label \"Unsere MWST-Nr:                                CHE-412.350.609\".\n- Risk: Possible OCR punctuation/spacing, but VAT pattern CHE-###.###.### matches Swiss format.\n- Confidence: Very high (>=95%).\n\nGrandTotal.Amount:\n- Evidence: \"Endtotal ... EUR                          -50.40\" and repeated \"EUR                          -50.40\" under payable line.\n- Risk: Could be credit/negative balance rather than charge, but extraction was to capture total amount as shown; OCR could misplace decimals though matches typical currency format.\n- Confidence: High (≈90–95%).\n\nVat.Rate:\n- Evidence: No explicit percentage or VAT rate label found.\n- Risk: Could be implicit elsewhere, but no clear numeric percent present.\n- Confidence that extracted value is empty (i.e., no available data): High (>=95%).\n\nNet.Amount:\n- Evidence: No explicit \"Netto\" numeric value labeled with amount found.\n- Risk: Could be derivable from line items, but No Inference policy prohibits guessing.\n- Confidence that leaving empty is correct: High (>=95%).\n\nVat.Amount:\n- Evidence: No explicit VAT amount labeled.\n- Risk: Possible implicit VAT inclusion but not labeled.\n- Confidence that leaving empty is correct: High (>=95%)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.0,
+      "input_tokens": 1808,
+      "cached_input_tokens": null,
+      "output_tokens": 709,
+      "total_tokens": 2517,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.29,
+      "input_tokens": 2244,
+      "cached_input_tokens": null,
+      "output_tokens": 322,
+      "total_tokens": 2566,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.61,
+      "input_tokens": 2866,
+      "cached_input_tokens": null,
+      "output_tokens": 401,
+      "total_tokens": 3267,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\393023\\393010_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "CHE-412.350.609",
+        "CHE-412.350.609"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        -50.4,
+        "-50.40"
+      ],
+      "Invoice.Date": [
+        true,
+        "05.09.2024",
+        "05.09.2024"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 3,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6918,
+    "cached_input_tokens": 0,
+    "output_tokens": 1432,
+    "eur_estimate": 0.003999
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\273349\\273227_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 68.88,
+    "Invoice.Date": "29.11.2023",
+    "Sender.VatId": "ATU48297506",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 57.4,
+    "Vat.Amount": 11.48
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: document is an invoice (contains \"RECHNUNG\", Belegnummer, Belegdatum, totals, VAT).\n\nDetected fields and evidence:\n- Invoice.Date: \"Belegdatum: 29.11.2023\"\n- GrandTotal.Amount: \"Brutto gesamt 68,88\" (EUR)\n- Net.Amount: \"Netto gesamt 57,40\" (EUR)\n- Vat.Rate: \"Ausgangssteuer 20,00 %\" -> VAT rate = 20,00 (will be returned without %)\n- Vat.Amount: \"Ausgangssteuer ... 11,48\" -> VAT amount = 11,48 (EUR)\n- Sender.VatId: two VAT IDs present:\n  - \"Ust-Id-Nr.: ATU64131246\" (appears near customer block)\n  - \"Unsere Ust-Id.Nr.: ATU48297506\" and bottom line \"UID: ATU48297506\" (matches sender company senova)\n  -> Selected Sender.VatId = \"ATU48297506\" as sender tax ID.\n\nNo fields require inference beyond choosing the sender VAT ID from \"Unsere Ust-Id.Nr.\" versus the other Ust-Id.-Nr. No other applicable exchange rates.",
+    "step2": "Invoice.Date — Confidence: 0.99\n- Evidence: \"Belegdatum: 29.11.2023\" clearly labeled.\n\nGrandTotal.Amount — Confidence: 0.98\n- Evidence: \"Brutto gesamt 68,88\" shown as final gross total.\n\nNet.Amount — Confidence: 0.98\n- Evidence: \"Netto gesamt 57,40\" explicitly listed.\n\nVat.Rate — Confidence: 0.95\n- Evidence: \"Ausgangssteuer 20,00 %\" clearly indicates VAT rate; returned value should be 20,00 (no %).\n\nVat.Amount — Confidence: 0.97\n- Evidence: VAT line shows amount \"11,48\" associated with the 20,00 % rate.\n\nSender.VatId — Confidence: 0.90\n- Evidence: Two VAT IDs present: \"Ust-Id-Nr.: ATU64131246\" and \"Unsere Ust-Id.Nr.: ATU48297506\" / \"UID: ATU48297506\". Selected \"ATU48297506\" as sender (labeled \"Unsere\" and appears in company footer)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.52,
+      "input_tokens": 2173,
+      "cached_input_tokens": null,
+      "output_tokens": 655,
+      "total_tokens": 2828,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.38,
+      "input_tokens": 2491,
+      "cached_input_tokens": null,
+      "output_tokens": 438,
+      "total_tokens": 2929,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.66,
+      "input_tokens": 3037,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3320,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\273349\\273227_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU48297506",
+        "ATU48297506"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        68.88,
+        "68,88"
+      ],
+      "Net.Amount": [
+        true,
+        57.4,
+        "57,40"
+      ],
+      "Vat.Amount": [
+        true,
+        11.48,
+        "11,48"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "29.11.2023",
+        "29.11.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7701,
+    "cached_input_tokens": 0,
+    "output_tokens": 1376,
+    "eur_estimate": 0.004075
+  }
+}

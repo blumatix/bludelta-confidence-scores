@@ -1,0 +1,111 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\265777\\265777_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 57.0,
+    "Invoice.Date": "30-Jun-23",
+    "Sender.VatId": "F110478876",
+    "Vat.Rate": 0,
+    "Net.Amount": 57.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Step 1 — SOLUTION REASONING:\n\n1) Document classification\n- Presence of header \"INVOICE\" and \"INVOICE DATE\" → strong invoice indicator.\n- Contains invoice-like elements: Invoice Date, Due Date, Charges, Subtotal, VAT, Total, Bank transfer details.\n- No exclusion terms (\"Zahlungserinnerung\", \"Mahnung\", \"Servicebericht\") prominent.\n- Conclusion: classify as invoice and proceed with extraction.\n\n2) Identify candidate fields from text\n- Invoice Date: appears as \"INVOICE      DATEI30-Jun-23\" — OCR jammed \"DATEI\" but clearly \"30-Jun-23\".\n  - Alternative interpretation: could 30-Jun-23 belong to another date field? There's also ATA/SALES date 18-Jun-23 and ETD 17-Jun-23; context near \"INVOICE DATE\" makes 30-Jun-23 the invoice issue date. Select \"30-Jun-23\".\n- Sender VAT ID: near top under company block: \"VAT    No.   F110478876\" under JAS WORLDWIDE FINLAND OY — this is the sender VAT. No other VAT IDs labeled as sender VAT. Select \"F110478876\".\n  - Alternative: There's \"CLIENT VAT 111F125997177\" (client VAT) — but schema requests Sender.VatId, so choose the sender's VAT only.\n- Grand Total / Total Amount: bottom shows \"TOTAL      EUR                                          57,00\" and \"BALANCE DUE EUR 57,00\" → total payable 57,00 EUR. Choose 57,00.\n  - Maintain decimal places as in input (two decimals).\n- VAT group(s):\n  - Under CHARGES table: \"DOCUMENTATION ... zero Rated 57,00\" and separate lines show \"VAT 0,00\" and \"TOTAL EUR 57,00\".\n  - \"RATE SUMMARY 0% ... CHARGE EUR 57,00 VAT 0,00 TOTAL 57,00\"\n  - Therefore a single VAT rate group: rate = 0, net = 57,00, vat amount = 0,00.\n  - Alternatives considered: sometimes subtotal vs net confusion; here VAT zero-rated means invoice net equals total. Subtotal line shows 57,00 and VAT 0,00, confirming net = 57,00 and VAT = 0,00.\n\n3) Formatting and No-inference policy\n- Do not guess missing fields. All required fields have explicit evidence.\n- Numeric fields: preserve decimal places as in input (input uses comma for decimals \"57,00\" and \"0,00\"); when converting to numeric type, preserve two decimal places (57.00, 0.00).\n- VAT rate: input shows \"0%\"/ \"zero Rated\" — extract numeric 0 (rule: remove percent symbol).\n\n4) Final mapping decisions\n- GrandTotal.Amount: 57,00 → numeric 57.00\n- Invoice.Date: \"30-Jun-23\" (string)\n- Sender.VatId: \"F110478876\" (string)\n- Vat.Rate: 0 (number)\n- Net.Amount: 57,00 → numeric 57.00\n- Vat.Amount: 0,00 → numeric 0.00\n\nNo conflicting occurrences requiring multiple entries for these fields.",
+    "step2": "GrandTotal.Amount — Confidence: 99%\n- Evidence: Explicit line \"TOTAL      EUR                                          57,00\" and \"BALANCE DUE EUR    57,00\". Consistent across totals/subtotal lines.\n\nInvoice.Date — Confidence: 95%\n- Evidence: Appears near header as \"INVOICE      DATEI30-Jun-23\" (OCR artifact \"DATEI\" but context strongly indicates invoice date). Other dates present (ETD 17-Jun-23, ATA/SALES 18-Jun-23) but position aligns with invoice date.\n\nSender.VatId — Confidence: 98%\n- Evidence: Top-right company block shows \"VAT    No.   F110478876\" under JAS WORLDWIDE FINLAND OY. No conflicting sender VAT present.\n\nVat.Rate — Confidence: 99%\n- Evidence: Charges section and rate summary indicate \"zero Rated\" and \"0%\". Clear single VAT group at 0%.\n\nNet.Amount — Confidence: 99%\n- Evidence: Subtotal/charge lines show EUR 57,00 while VAT is 0,00, implying net = 57,00. Consistent with charge line.\n\nVat.Amount — Confidence: 99%\n- Evidence: VAT line shows \"0,00\" and rate summary VAT001 0,00. Clear zero VAT amount."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.71,
+      "input_tokens": 1917,
+      "cached_input_tokens": null,
+      "output_tokens": 1082,
+      "total_tokens": 2999,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.81,
+      "input_tokens": 2662,
+      "cached_input_tokens": null,
+      "output_tokens": 408,
+      "total_tokens": 3070,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.19,
+      "input_tokens": 3242,
+      "cached_input_tokens": null,
+      "output_tokens": 342,
+      "total_tokens": 3584,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\265777\\265777.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "F110478876",
+        "FI10478876"
+      ],
+      "GrandTotal.Amount": [
+        false,
+        57.0,
+        null
+      ],
+      "Net.Amount": [
+        true,
+        57.0,
+        [
+          "57,00",
+          "57,00",
+          "57,00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        [
+          "0,00",
+          "0,00",
+          "0,00"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        0,
+        "0"
+      ],
+      "Invoice.Date": [
+        false,
+        "30-Jun-23",
+        null
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7821,
+    "cached_input_tokens": 0,
+    "output_tokens": 1832,
+    "eur_estimate": 0.001032
+  }
+}

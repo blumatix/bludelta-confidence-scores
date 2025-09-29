@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231226\\231217_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1155.0,
+    "Invoice.Date": "25.09.2023",
+    "Sender.VatId": "ATU58198337",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 1050.0,
+    "Vat.Amount": 105.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification:\n- Contains header \"Rechnung\", invoice number \"40860660\", \"Fakturadatum\", line items, totals → classified as invoice (not a reminder/mahnung).\n\n2) Locate key fields:\n- Invoice date: found as \"Fakturadatum 25.09.2023\".\n- Sender VAT ID: two VAT IDs shown; label \"Unsere USt.-ID-Nr.\" corresponds to sender → \"ATU58198337\".\n- VAT rate(s): line shows \"Umsatzsteuer 10,00 %\".\n- Net amount(s): line \"Zwischensumme ... 1.050,00\" appears as net.\n- VAT amount(s): \"Umsatzsteuer 10,00 % von 1.050,00 EUR ... 105,00\".\n- Grand total: sum shown as \"1.155,00\" (appears as the total payable).\n\n3) Verify numeric formats and rules:\n- Percent given \"10,00 %\" → will extract as number 10,00 (per rule: without % but keep decimals as in input).\n- Amounts use comma as decimal separator in source; must preserve decimal places. Schema expects numbers — will convert to numeric values keeping decimals (e.g., 105,00 → 105.00).\n- No conflicting multiple VAT groups; single VAT group present.\n\n4) Missing/ambiguous checks:\n- Invoice ID (number) present but not requested by schema.\n- Currency is EUR but schema's amount fields are numeric only (no currency symbol).\n- All required schema fields are present in document.\n\nProceed to produce the structured JSON extraction next.",
+    "step2": "- GrandTotal.Amount (1.155,00): High — clearly printed total \"1.155,00\" near end of totals section.\n- Invoice.Date (\"25.09.2023\"): High — labeled \"Fakturadatum 25.09.2023\".\n- Sender.VatId (\"ATU58198337\"): High — labeled \"Unsere USt.-ID-Nr. ATU58198337\" (sender identifier).\n- Vat.Rate (10,00 → 10): High — shown as \"Umsatzsteuer 10,00 %\".\n- Net.Amount (1.050,00): High — shown as \"Zwischensumme ... 1.050,00\" corresponding to net before VAT.\n- Vat.Amount (105,00): High — shown as \"Umsatzsteuer ... 105,00\" as VAT on the net.\n\nOverall confidence: high for all extracted fields due to explicit labeled values in the invoice."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.57,
+      "input_tokens": 2033,
+      "cached_input_tokens": null,
+      "output_tokens": 791,
+      "total_tokens": 2824,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.36,
+      "input_tokens": 2423,
+      "cached_input_tokens": null,
+      "output_tokens": 458,
+      "total_tokens": 2881,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.52,
+      "input_tokens": 2925,
+      "cached_input_tokens": null,
+      "output_tokens": 349,
+      "total_tokens": 3274,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231226\\231217_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU58198337",
+        "ATU58198337"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1155.0,
+        "1.155,00"
+      ],
+      "Net.Amount": [
+        true,
+        1050.0,
+        "1.050,00"
+      ],
+      "Vat.Amount": [
+        true,
+        105.0,
+        "105,00"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "25.09.2023",
+        "25.09.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7381,
+    "cached_input_tokens": 0,
+    "output_tokens": 1598,
+    "eur_estimate": 0.004388
+  }
+}

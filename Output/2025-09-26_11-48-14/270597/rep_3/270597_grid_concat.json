@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\270610\\270597_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 468.88,
+    "Invoice.Date": "15.01.2024",
+    "Sender.VatId": "ATU67782722",
+    "Vat.Rate": 20,
+    "Net.Amount": 390.73,
+    "Vat.Amount": 78.15
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (a) verify this is an invoice, (b) locate each required field, (c) avoid guessing and preserve exact decimals.\n\n1) Document classification\n- Evidence of invoice: header \"GUTSCHRIFT\" (credit note), labels \"Rechnungsnummer\", \"Rechnungsdatum\", line with amounts, VAT % and \"zu erstattender Betrag\". No exclusion terms like \"Mahnung\". Conclusion: treat as invoice.\n\n2) Locate fields and alternatives considered\n- Invoice.Date: found \"Rechnungsdatum: 15.01.2024\" → use \"15.01.2024\".\n- GrandTotal.Amount: \"zu erstattender Betrag EUR\" shows \"468,88\" → interpret as 468.88 (preserve two decimals).\n- Net.Amount: \"Nettobetrag\" / Warenwert line shows \"390,73\" → 390.73.\n- Vat.Rate: Ust % column shows \"20 %\" → extract numeric 20 (without %).\n- Vat.Amount: Ust amount column shows \"78,15\" → 78.15.\n- Sender.VatId: two VAT IDs present:\n  - \"Ihre USt.-ID.: ATU22642807\" (appears near customer block) — this is the recipient’s VAT.\n  - Bottom company info shows \"VAT/UID-Nr: ATU67782722\" — this matches sender Puratos Austria GmbH. Per schema, Sender.VatId = sender's VAT → use \"ATU67782722\".\n\n3) No-inference checks\n- All required fields present explicitly; no guessing needed.\n- Decimal formatting preserved (two decimals). VAT rate returned as integer without percent.\n\nThese are the extracted candidates to be returned in the final JSON.",
+    "step2": "Invoice.Date — 15.01.2024\n- Confidence: 99%\n- Rationale: Explicit label \"Rechnungsdatum: 15.01.2024\" clearly matches field.\n\nGrandTotal.Amount — 468.88\n- Confidence: 95%\n- Rationale: \"zu erstattender Betrag\" column shows \"468,88\" next to EUR; context indicates total refundable amount. Minor uncertainty only if another total label intended, but none present.\n\nNet.Amount — 390.73\n- Confidence: 98%\n- Rationale: \"Nettobetrag\" / Warenwert lines show \"390,73\" associated with net value; clear match.\n\nVat.Rate — 20\n- Confidence: 99%\n- Rationale: Ust % column shows \"20 %\"; extraction removes percent sign per rules.\n\nVat.Amount — 78.15\n- Confidence: 98%\n- Rationale: Ust column lists \"78,15\" aligned with VAT amount for the net 390,73 at 20%; consistent arithmetic (390.73 * 0.20 = 78.146 → rounded display 78.15) supports correctness.\n\nSender.VatId — \"ATU67782722\"\n- Confidence: 95%\n- Rationale: Bottom company block lists \"VAT/UID-Nr: ATU67782722\" for Puratos Austria GmbH (sender). Slight risk of OCR confusion with nearby \"Ihre USt.-ID.: ATU22642807\" (customer); chosen value matches sender label."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.35,
+      "input_tokens": 1611,
+      "cached_input_tokens": null,
+      "output_tokens": 885,
+      "total_tokens": 2496,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 45.14,
+      "input_tokens": 2031,
+      "cached_input_tokens": null,
+      "output_tokens": 389,
+      "total_tokens": 2420,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 28.57,
+      "input_tokens": 2656,
+      "cached_input_tokens": null,
+      "output_tokens": 217,
+      "total_tokens": 2873,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\270610\\270597_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU67782722",
+        "ATU67782722"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        468.88,
+        "468,88"
+      ],
+      "Net.Amount": [
+        true,
+        390.73,
+        "390,73"
+      ],
+      "Vat.Amount": [
+        true,
+        78.15,
+        "78,15"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "15.01.2024",
+        "15.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6298,
+    "cached_input_tokens": 0,
+    "output_tokens": 1491,
+    "eur_estimate": 0.003965
+  }
+}

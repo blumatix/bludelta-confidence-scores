@@ -1,0 +1,100 @@
+{
+  "input_path": "..\\Documents\\274232\\274166_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 91.17,
+    "Invoice.Date": "26.01.2024",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": 10,
+    "Net.Amount": 82.88,
+    "Vat.Amount": 8.29
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 1.0,
+    "Sender.VatId": 1.0,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Determine whether document is an invoice:\n   - Contains invoice-like headers/terms: \"GUTSCHRIFT\", \"Nr:\", \"Datum:\", \"USt-Id:\", line item table, Nettowert, MWSt, Bruttobetrag → classify as invoice (no exclusion terms prominent).\n\n2) Locate candidate fields:\n   - Invoice.Date: line \"Datum:                 26.01.2024\" → candidate \"26.01.2024\".\n   - Sender.VatId: line \"USt-Id:                   ATU22642807\" → candidate \"ATU22642807\".\n   - GrandTotal.Amount: \"Bruttobetrag                                                                                              91,17\" → candidate 91,17 (EUR).\n   - Net.Amount: \"Nettowert                        gesamt                                                                   82,88\" → candidate 82,88.\n   - Vat.Amount: \"10%         MWSt            von                                 82,88                                       8,29\" → VAT amount candidate 8,29.\n   - Vat.Rate: \"10%         MWSt\" → candidate 10 (strip % per rules).\n\n3) Verify numeric formatting and rule compliance:\n   - Preserve decimals as shown (two decimals).\n   - Remove percent symbol for Vat.Rate (store as number 10).\n   - Ensure values correspond (Net 82,88 + Vat 8,29 = Brutto 91,17) — consistent.\n\n4) Check No Inference policy:\n   - All six required schema fields have explicit values in text; no guessing needed.\n\n5) Prepare to output final JSON with:\n   - GrandTotal.Amount = 91,17\n   - Invoice.Date = \"26.01.2024\"\n   - Sender.VatId = \"ATU22642807\"\n   - Vat.Rate = 10\n   - Net.Amount = 82,88\n   - Vat.Amount = 8,29",
+    "step2": "GrandTotal.Amount — 91,17\n- Evidence: \"Bruttobetrag\" followed by 91,17.\n- Confidence: 99% (clear labeled total; formatting consistent with line items and VAT sum).\n\nInvoice.Date — \"26.01.2024\"\n- Evidence: Line \"Datum:                 26.01.2024\".\n- Confidence: 100% (explicit date label).\n\nSender.VatId — \"ATU22642807\"\n- Evidence: Line \"USt-Id:                   ATU22642807\".\n- Confidence: 100% (explicit VAT ID).\n\nVat.Rate — 10\n- Evidence: \"10%         MWSt\" associated with VAT calculation.\n- Confidence: 99% (explicit percentage; returned without \"%\" per rules).\n\nNet.Amount — 82,88\n- Evidence: \"Nettowert gesamt 82,88\" shown above VAT lines.\n- Confidence: 99% (explicit net total; matches VAT and gross arithmetic).\n\nVat.Amount — 8,29\n- Evidence: \"10% MWSt von 82,88 8,29\" shows VAT amount.\n- Confidence: 99% (explicit VAT amount; matches 82,88 * 0.10 = 8,288 → rounded/displayed as 8,29)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 4.93,
+      "input_tokens": 1906,
+      "cached_input_tokens": null,
+      "output_tokens": 662,
+      "total_tokens": 2568
+    },
+    "step2": {
+      "runtime_sec": 5.91,
+      "input_tokens": 2320,
+      "cached_input_tokens": null,
+      "output_tokens": 471,
+      "total_tokens": 2791
+    },
+    "step3": {
+      "runtime_sec": 4.81,
+      "input_tokens": 2868,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3149
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274232\\274166_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU14391601,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        91.17,
+        "91,17"
+      ],
+      "Net.Amount": [
+        true,
+        82.88,
+        "82,88"
+      ],
+      "Vat.Amount": [
+        true,
+        8.29,
+        "8,29"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "26.01.2024",
+        "26.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7094,
+    "cached_input_tokens": 0,
+    "output_tokens": 1414,
+    "eur_estimate": 0.004007
+  }
+}

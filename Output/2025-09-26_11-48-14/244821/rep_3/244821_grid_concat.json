@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\244821\\244821_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 97.68,
+    "Invoice.Date": "02.11.2023",
+    "Sender.VatId": "",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 88.8,
+    "Vat.Amount": 8.88
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.3,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Unlikely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Below is a concise, non-sensitive description of the stepwise extraction plan and the evidence from the document I will use to populate each schema field.\n\n1. Document classification\n- Evidence for invoice: presence of \"Rechnung\", \"Rechnungsnummer\", \"Rechnungsdatum\", invoice totals (\"Zwischensumme\", \"Summe Netto\", \"Mehrwertsteuer\", \"Endsumme\"), VAT percent (\"10,00 %\"), and company header with UID.\n- No prominent exclusion terms (\"Zahlungserinnerung\", \"Mahnung\", \"Servicebericht\") detected.\n- Conclusion: classify as invoice and proceed with extraction.\n\n2. Fields mapping and source locations\n- Invoice.Date -> take the value labeled \"Rechnungsdatum\" (02.11.2023).\n- Sender.VatId -> take the company's UID/UID-Nr. in header/footer. Two UID-like strings appear: \"Ihre UID-Steuernummer ATU22642807\" and footer \"UID-Nr. ATU33861309\". The header line explicitly labels \"Ihre UID-Steuernummer\" — include that value; if multiple occurrences, follow rule to return occurrences? Schema requires single Sender.VatId field (string). Per rules, multiple occurrences should be returned in same structure only where allowed; here schema expects single string—ambiguity; plan: extract the sender VAT shown as \"UID-Nr. ATU33861309\" from company footer as authoritative. (If implemented, will not guess.)\n- GrandTotal.Amount -> take the \"Endsumme in EUR\" value (97,68). Keep decimals and convert to numeric (use comma to decimal point -> 97.68).\n- Vat.Rate -> extract VAT percentage shown under \"Mehrwertsteuer\" (10,00 %). Remove percent symbol and keep decimals as shown -> numeric 10.00 (or 10).\n- Net.Amount -> take \"Summe Netto\" value (88,80) -> numeric 88.80.\n- Vat.Amount -> take VAT amount listed (8,88) -> numeric 8.88.\n\n3. Validation checks\n- Preserve decimal places as in source (two decimals).\n- Do not invent missing data. If any targeted field is ambiguous or missing, leave it empty.\n- Ensure numeric fields are returned as numbers (with decimal point) matching original decimals.\n\n4. Multiple occurrences handling\n- Note two different UID lines present; follow structured-header policy to select the company VAT number associated with NovaTaste Austria GmbH (footer UID-Nr.). If the extraction step finds conflicting explicit labels, will leave Sender.VatId empty rather than guess.\n\nNext step: produce the final JSON object per schema with extracted values (or empty strings where uncertain).",
+    "step2": "GrandTotal.Amount: 90% — \"Endsumme in EUR 97,68\" present and unambiguous.\n\nInvoice.Date: 95% — \"Rechnungsdatum 02.11.2023\" explicitly labeled.\n\nSender.VatId: 30% — two UID-like values present (\"Ihre UID-Steuernummer ATU22642807\" and footer \"UID-Nr. ATU33861309\"); ambiguous which is the sender VAT.\n\nVat.Rate: 95% — \"Mehrwertsteuer 10,00 %\" explicitly shown.\n\nNet.Amount: 95% — \"Summe Netto 88,80\" clearly given.\n\nVat.Amount: 95% — VAT amount shown as \"8,88\" associated with the 10,00% VAT line."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.61,
+      "input_tokens": 2009,
+      "cached_input_tokens": null,
+      "output_tokens": 762,
+      "total_tokens": 2771,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.2,
+      "input_tokens": 2626,
+      "cached_input_tokens": null,
+      "output_tokens": 358,
+      "total_tokens": 2984,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 7.75,
+      "input_tokens": 3092,
+      "cached_input_tokens": null,
+      "output_tokens": 405,
+      "total_tokens": 3497,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\244821\\244821_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "",
+        "ATU33861309"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        97.68,
+        "97,68"
+      ],
+      "Net.Amount": [
+        true,
+        88.8,
+        "88,80"
+      ],
+      "Vat.Amount": [
+        true,
+        8.88,
+        "8,88"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "02.11.2023",
+        "02.11.2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7727,
+    "cached_input_tokens": 0,
+    "output_tokens": 1525,
+    "eur_estimate": 0.004338
+  }
+}

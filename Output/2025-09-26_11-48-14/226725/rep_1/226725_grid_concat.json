@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\226759\\226725_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1155.0,
+    "Invoice.Date": "28.08.2023",
+    "Sender.VatId": "ATU58198337",
+    "Vat.Rate": 10,
+    "Net.Amount": 1050.0,
+    "Vat.Amount": 105.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.93,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.92,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification\n- Presence of invoice indicators: header \"Rechnung\", \"Fakturadatum 28.08.2023\", invoice number \"40857787\", line items, \"Umsatzsteuer\", amounts and total — so document qualifies as an invoice.\n- No prominent exclusion terms (\"Mahnung\", \"Zahlungserinnerung\", \"Servicebericht\") found in header/upper half — do not classify as non-invoice.\n\n2) Locate candidate fields\n- Invoice.Date: \"Fakturadatum                                        28.08.2023\" → candidate date = 28.08.2023.\n- Sender.VatId: there are two USt.-ID entries:\n  - \"Ihre USt.-ID-Nr.                                ATU22642807\" (likely customer's VAT)\n  - \"Unsere          USt.-ID-Nr.                         ATU58198337\" (sender’s VAT) → sender VAT = ATU58198337.\n- Vat.Rate / Vat.Amount / Net.Amount:\n  - Net line: \"Zwischensumme ... 1.000,000 KG ... 1.050,00\" and earlier line item shows amount EUR 1.050,00 — net amount candidate = 1.050,00.\n  - VAT line: \"Umsatzsteuer            10,00      %   von     1.050,00       EUR\" and amount shown immediately after VAT line: \"105,00\" (aligned with VAT value) → VAT rate candidate = 10,00 (%), VAT amount candidate = 105,00.\n  - Grand total: final total printed as \"1.155,00\" directly below VAT calculation → GrandTotal.Amount candidate = 1.155,00.\n- Verify multiple occurrences: only one VAT group present (10,00%) — single Vat item.\n\n3) Apply rules / formatting considerations\n- No inference beyond visible text.\n- Preserve decimal places as in input (two decimals with comma). For numeric fields in final JSON, will convert to numeric values keeping the same decimal precision (i.e., 1050.00, 105.00, 1155.00) while respecting requirement to keep decimals; percentage rate extracted without percent sign as \"10\" or numeric 10.00 per schema.\n- Exchange rates: none applicable to the entire invoice — no ExchangeRate entries required.\n\n4) Potential ambiguities / confirmation\n- Ensure sender vs. customer VAT: choose \"Unsere USt.-ID-Nr. ATU58198337\" as Sender.VatId per explicit label \"Unsere\".\n- Net.Amount corresponds to \"Zwischensumme ... 1.050,00\" — treat as net.\n- Grand total displayed as 1.155,00 (net + VAT) — consistent: 1.050,00 + 105,00 = 1.155,00.\n\n5) Extraction mapping to schema\n- GrandTotal.Amount -> 1.155,00\n- Invoice.Date -> \"28.08.2023\"\n- Sender.VatId -> \"ATU58198337\"\n- Vat.Rate -> 10,00 (as number without %)\n- Net.Amount -> 1.050,00\n- Vat.Amount -> 105,00\n\nNo other fields present or required.",
+    "step2": "Invoice.Date — Confidence: 95%\n- Evidence: Explicit \"Fakturadatum                                        28.08.2023\" header-label with clear date. Low ambiguity.\n\nSender.VatId — Confidence: 95%\n- Evidence: Two VAT IDs present; label \"Unsere USt.-ID-Nr.\" clearly indicates sender VAT = \"ATU58198337\". Low ambiguity.\n\nVat.Rate — Confidence: 92%\n- Evidence: Line \"Umsatzsteuer            10,00      %   von     1.050,00\" explicitly shows 10,00%. Clear formatting; minor OCR risk on comma/decimal.\n\nNet.Amount — Confidence: 90%\n- Evidence: \"Zwischensumme ... 1.050,00\" and line-item amount \"1.050,00\" match. Interpreted as net before VAT. Moderate confidence due to formatting layout but values are consistent.\n\nVat.Amount — Confidence: 90%\n- Evidence: VAT line implies 10% of 1.050,00 = 105,00 and \"105,00\" appears near VAT line. Consistent arithmetically. Minor layout/OCR uncertainty.\n\nGrandTotal.Amount — Confidence: 93%\n- Evidence: Final total displayed as \"1.155,00\" below VAT calculation; equals net + VAT (1.050,00 + 105,00). Clear and consistent."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.25,
+      "input_tokens": 2034,
+      "cached_input_tokens": null,
+      "output_tokens": 1072,
+      "total_tokens": 3106,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.34,
+      "input_tokens": 2769,
+      "cached_input_tokens": null,
+      "output_tokens": 485,
+      "total_tokens": 3254,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.59,
+      "input_tokens": 3362,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3645,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\226759\\226725_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU58198337",
+        "ATU58198337"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1155.0,
+        "1.155,00"
+      ],
+      "Net.Amount": [
+        true,
+        1050.0,
+        "1.050,00"
+      ],
+      "Vat.Amount": [
+        true,
+        105.0,
+        "105,00"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "28.08.2023",
+        "28.08.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8165,
+    "cached_input_tokens": 0,
+    "output_tokens": 1840,
+    "eur_estimate": 0.00498
+  }
+}

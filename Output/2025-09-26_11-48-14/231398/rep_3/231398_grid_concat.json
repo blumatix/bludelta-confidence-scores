@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231421\\231398_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1118.1,
+    "Invoice.Date": "26.09.2023",
+    "Sender.VatId": "ATU18804300",
+    "Vat.Rate": 20,
+    "Net.Amount": 931.75,
+    "Vat.Amount": 186.35
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: document is an invoice (contains \"Rechnung\", invoice number, totals, VAT lines, invoice date).\n\nExtraction plan & candidate values (no final JSON yet):\n- Invoice.Date: located as \"AR-Datum: 26.09.2023\" → 26.09.2023.\n- GrandTotal.Amount: \"Summe ... EUR 1.118,10\" → numeric 1118.10.\n- Net.Amount: \"Summe ... EUR 931,75\" (base for VAT line) → numeric 931.75.\n- Vat.Amount: \"20,00% USt von EUR 931,75 ... EUR 186,35\" → numeric 186.35.\n- Vat.Rate: \"20,00% USt\" → numeric 20 (per rule: no percent symbol).\n- Sender.VatId: issuer UID shown as \"Unsere UID: ATU18804300\" (also on company footer) → \"ATU18804300\".\n\nValidation checks:\n- Confirmed invoice headers and totals present.\n- No exclusion keywords dominating.\n- Amounts converted from comma-decimal to numeric with same decimal precision preserved (two decimals).\n- No inference beyond explicit values found.",
+    "step2": "Confidence assessment for each extracted field:\n\n- Invoice.Date (\"26.09.2023\"):\n  Evidence: clearly labeled \"AR-Datum: 26.09.2023\" in header. \n  Confidence: very high (≈99%).\n\n- GrandTotal.Amount (1118.10):\n  Evidence: \"Summe ... EUR 1.118,10\" on page 1; formatting consistent with net + VAT (931,75 + 186,35 = 1.118,10). Comma used as decimal separator; converted to numeric 1118.10 preserving two decimals.\n  Confidence: very high (≈99%).\n\n- Net.Amount (931.75):\n  Evidence: \"Summe ... EUR 931,75\" appears above VAT line and matches the base for \"20,00% USt von EUR 931,75.\" Converted to numeric 931.75.\n  Confidence: very high (≈99%).\n\n- Vat.Amount (186.35):\n  Evidence: Line reads \"20,00% USt von EUR 931,75 ... EUR 186,35.\" Converted to numeric 186.35. Sum check matches totals.\n  Confidence: very high (≈99%).\n\n- Vat.Rate (20):\n  Evidence: \"20,00% USt\" explicitly shown. Per rule, percent symbol omitted and value returned as number \"20\" (or numeric 20.00?). Extracted as 20.\n  Confidence: very high (≈99%).\n\n- Sender.VatId (\"ATU18804300\"):\n  Evidence: \"Unsere UID: ATU18804300\" on page 2 and also in footer. This is the issuer VAT ID. \n  Confidence: very high (≈99%).\n\nNotes on uncertainties:\n- Minor OCR risk (commas/periods), but values cross-validated (net + VAT = grand total), reducing ambiguity."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.75,
+      "input_tokens": 2415,
+      "cached_input_tokens": null,
+      "output_tokens": 575,
+      "total_tokens": 2990,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.04,
+      "input_tokens": 2717,
+      "cached_input_tokens": null,
+      "output_tokens": 392,
+      "total_tokens": 3109,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.2,
+      "input_tokens": 3409,
+      "cached_input_tokens": null,
+      "output_tokens": 218,
+      "total_tokens": 3627,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231421\\231398_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU18804300",
+        "ATU 18804300"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1118.1,
+        "1.118,10"
+      ],
+      "Net.Amount": [
+        true,
+        931.75,
+        "931,75"
+      ],
+      "Vat.Amount": [
+        true,
+        186.35,
+        "186,35"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "26.09.2023",
+        "26.09.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8541,
+    "cached_input_tokens": 0,
+    "output_tokens": 1185,
+    "eur_estimate": 0.003929
+  }
+}

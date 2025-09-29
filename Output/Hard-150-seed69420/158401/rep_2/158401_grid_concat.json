@@ -1,0 +1,88 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\158401\\158401_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 165.0,
+    "Invoice.Date": "08/02/2022",
+    "Sender.VatId": "02577550342",
+    "Vat.Rate": "",
+    "Net.Amount": 165.0,
+    "Vat.Amount": ""
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.6,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.7
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Likely",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Very good chance"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains explicit invoice marker \"FATTURA\" (page 10) and invoice-like sections (Number, Date, Imponibile, Totale a pagare). No exclusion keywords dominating. Classified as invoice.\n\nIdentify candidate fields from text:\n- Invoice date: page 10 header \"Datadoc. 08/02/2022\" → candidate Invoice.Date = \"08/02/2022\".\n- Grand total: page 10 shows \"Totale a pagare EURO 165,00\" and \"Totale documento 165,00\" → candidate GrandTotal.Amount = 165.00.\n- Net (imponibile): page 10 \"Imponibile 165,00\" → candidate Net.Amount = 165.00.\n- VAT amount: page 10 shows \"Aliquota ART2 ImportoVA ad.2DPR 633/72\" — no numeric VAT amount present; cannot infer numeric VAT amount → candidate Vat.Amount = \"\" per No Inference rule.\n- VAT rate: presented as \"ART2\" (non-numeric legal reference), no numeric percentage → candidate Vat.Rate = \"\".\n- Sender VAT ID: determine invoice issuer. Page 10 header shows issuer \"LACERTOSUS\" and C.F./P.IVA 02577550342 (multiple pages show this). FERCAM appears as recipient. Therefore Sender.VatId = \"02577550342\".\n- Verify consistency: totals and imponibile both 165,00; VAT fields non-numeric/absent -> follow No Inference.\n\nDecisions and rules applied:\n- Obey No Inference: do not convert \"ART2\" into a numeric VAT rate or infer VAT amount = 0.\n- Preserve decimals as in source (165,00 → 165.00 numeric with two decimals).\n- Return empty strings for any missing/non-numeric-required fields.\n\nFields to output in final JSON (prepared, not outputting JSON yet):\n- GrandTotal.Amount = 165.00\n- Invoice.Date = \"08/02/2022\"\n- Sender.VatId = \"02577550342\"\n- Vat.Rate = \"\"\n- Net.Amount = 165.00\n- Vat.Amount = \"\"",
+    "step2": "GrandTotal.Amount — Confidence: 95%\n- Evidence: Page 10 shows \"Totale a pagare EURO 165,00\" and \"Totale documento 165,00\". Matches Imponibile and line amounts. Clear numeric value present.\n\nInvoice.Date — Confidence: 90%\n- Evidence: Page 10 header displays \"Datadoc. 08/02/2022\". This is the invoice/fattura date. Slight uncertainty if other dates (e.g., document numbers) could be misread, but header context strongly indicates invoice date.\n\nSender.VatId — Confidence: 85%\n- Evidence: Multiple pages list Lacertosus C.F./P.IVA 02577550342. Invoice header (page 10) shows Cod.fiscale/Partita IVA fields and earlier pages show the same VAT. Moderate-high confidence that issuer VAT is 02577550342.\n\nVat.Rate — Confidence: 60%\n- Evidence: The invoice shows \"Aliquota ART2\" (legal reference) rather than a numeric percentage. Per rules, numeric VAT rate required; decision was to leave empty. Confidence that numeric rate is absent is high, but moderate uncertainty if a numeric rate elsewhere was OCR-missed.\n\nNet.Amount — Confidence: 95%\n- Evidence: Page 10 explicitly lists \"Imponibile 165,00\", consistent with totals. Clear numeric match to Grand Total.\n\nVat.Amount — Confidence: 70%\n- Evidence: No explicit numeric VAT amount shown; VAT shown as \"Aliquota ART2\" and \"ImportoVA ad.2DPR 633/72\" without number. Decision to leave empty follows No Inference rule. Confident VAT amount is not present, but possible OCR omission of a small VAT figure introduces some uncertainty."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.8,
+      "input_tokens": 10667,
+      "cached_input_tokens": null,
+      "output_tokens": 974,
+      "total_tokens": 11641,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.94,
+      "input_tokens": 11176,
+      "cached_input_tokens": null,
+      "output_tokens": 368,
+      "total_tokens": 11544,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.51,
+      "input_tokens": 11844,
+      "cached_input_tokens": null,
+      "output_tokens": 210,
+      "total_tokens": 12054,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\158401\\158401.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "02577550342",
+        "IT00098090210"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        165.0,
+        "165,00"
+      ],
+      "Invoice.Date": [
+        false,
+        "08/02/2022",
+        "28/02/2022"
+      ]
+    },
+    "summary": {
+      "matched": 1,
+      "total": 3,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 33687,
+    "cached_input_tokens": 0,
+    "output_tokens": 1552,
+    "eur_estimate": 0.002228
+  }
+}

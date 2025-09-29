@@ -1,0 +1,130 @@
+{
+  "input_path": "C:\\Users\\jonas\\Desktop\\LLM-Confidence\\Documents\\274201\\274201_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 827.41,
+    "Invoice.Date": "29.01.2024",
+    "Sender.VatId": "ATU79411414",
+    "Vat.Rate": [
+      10,
+      20
+    ],
+    "Net.Amount": [
+      562.9,
+      173.52
+    ],
+    "Vat.Amount": [
+      56.29,
+      34.7
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Plan: identify if document is invoice → extract fields exactly as present (no guessing) → handle VAT groups separately.\n\n1) Classification\n- Document contains clear invoice indicators: \"Rechnung / Nr.: 4137876\", \"Rechnungsdatum 29.01.2024\", line items, \"Summe exkl. MwSt\", VAT lines, and \"Gesamtsumme EUR 827,41\". No exclusion terms like \"Mahnung\" or \"Zahlungserinnerung\". Therefore treat as an invoice.\n\n2) Locate Invoice.Date\n- Found \"Rechnungsdatum                                 29.01.2024\".\n- Extract Invoice.Date = \"29.01.2024\" (exact string as printed).\n\n3) Locate GrandTotal.Amount\n- Found \"Gesamtsumme                  EUR                                827,41\".\n- Grand total numeric value = 827,41 → convert to numeric representation preserving two decimals: 827.41.\n\n4) Determine Sender.VatId\n- Two VAT numbers appear:\n  - \"Ihre UID/VAT-Nr.                            ATU22642807\" (labelled \"Ihre\" = your/customer VAT).\n  - Footer: \"UID-Nr.:    ATU79411414\" associated with Wurth EF GmbH (footer company).\n- Rule: Sender.VatId = tax ID of the sender. The footer lists \"Wurth EF GmbH\" with \"UID-Nr.: ATU79411414\". Use that exact VAT: \"ATU79411414\".\n- Do not infer beyond these explicit occurrences.\n\n5) Extract VAT groups (rates, net amounts, VAT amounts)\n- Document shows two VAT lines:\n  - \"10%      MWSt         für   562,90                                 56,29\"\n    -> VAT rate 10%, net amount 562,90, VAT amount 56,29.\n  - \"20%      MWSt         für   173,52                                 34,70\"\n    -> VAT rate 20%, net amount 173,52, VAT amount 34,70.\n- Preserve decimals exactly as given.\n- Convert rates to numbers without percent sign: 10 and 20.\n- Convert amounts to numeric form keeping two decimals:\n  - Net amounts: 562.90 and 173.52.\n  - VAT amounts: 56.29 and 34.70.\n\n6) Cross-check totals\n- Sum of net amounts: 562.90 + 173.52 = 736.42 which matches \"Summe exkl. MwSt 736,42\".\n- Sum of VAT amounts: 56.29 + 34.70 = 90.99.\n- Net + VAT = 736.42 + 90.99 = 827.41 matches GrandTotal.\n\n7) No inference applied to any missing field; all extracted values come from explicit text.",
+    "step2": "GrandTotal.Amount:\n- Evidence: \"Gesamtsumme EUR 827,41\" clearly printed.\n- Internal consistency: Net (736,42) + VAT (90,99) = 827,41 matches.\n- Confidence: Very high.\n\nInvoice.Date:\n- Evidence: \"Rechnungsdatum 29.01.2024\" clearly printed.\n- Ambiguities: none.\n- Confidence: Very high.\n\nSender.VatId:\n- Evidence: Two VAT IDs present: \"Ihre UID/VAT-Nr. ATU22642807\" (labelled \"Ihre\" — your/customer) and footer \"UID-Nr.: ATU79411414\" associated with Wurth EF GmbH.\n- Determination: Sender is the footer company (Wurth EF GmbH), so UID ATU79411414 used.\n- Ambiguities: Requires selecting which UID corresponds to sender; footer context strongly indicates sender.\n- Confidence: High.\n\nVat.Rate / Net.Amount / Vat.Amount (VAT groups):\n- Evidence: Two VAT lines:\n  1) \"10% MWSt für 562,90 56,29\"\n  2) \"20% MWSt für 173,52 34,70\"\n- Internal consistency: Net sums to 736,42 (matches \"Summe exkl. MwSt\"), VAT sums to 90,99, combined equals GrandTotal.\n- Ambiguities: None in numeric values; rates converted to numbers (10, 20) per rules.\n- Confidence: Very high."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 23.14,
+      "input_tokens": 1954,
+      "cached_input_tokens": null,
+      "output_tokens": 1559,
+      "total_tokens": 3513,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.53,
+      "input_tokens": 2600,
+      "cached_input_tokens": null,
+      "output_tokens": 323,
+      "total_tokens": 2923,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 8.19,
+      "input_tokens": 3223,
+      "cached_input_tokens": null,
+      "output_tokens": 565,
+      "total_tokens": 3788,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "C:\\Users\\jonas\\Desktop\\LLM-Confidence\\Documents\\274201\\274201_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU79411414",
+        "ATU79411414"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        827.41,
+        "827,41"
+      ],
+      "Net.Amount": [
+        true,
+        [
+          562.9,
+          173.52
+        ],
+        [
+          "562,90",
+          "173,52"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        [
+          56.29,
+          34.7
+        ],
+        [
+          "56,29",
+          "34,70"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        [
+          10,
+          20
+        ],
+        [
+          "10",
+          "20"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "29.01.2024",
+        "29.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7777,
+    "cached_input_tokens": 0,
+    "output_tokens": 2447,
+    "eur_estimate": 0.005944
+  }
+}

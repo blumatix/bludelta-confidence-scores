@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\274757\\274714_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 723.99,
+    "Invoice.Date": "25.01.2024",
+    "Sender.VatId": "ATU 64424288",
+    "Vat.Rate": 10,
+    "Net.Amount": 658.17,
+    "Vat.Amount": 65.82
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.97,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification\n- Presence of keywords: \"Rechnung\" (invoice header), \"Nummer\", \"Datum\", \"Nettobetrag\", \"Mwst.\", \"Gesamtbetrag\" — strongly indicates an invoice.\n- No exclusion indicators like \"Zahlungserinnerung\" or \"Mahnung\" present.\n- Conclusion: treat as an invoice and proceed with extraction.\n\n2) Locate candidate fields in text\n- Invoice Date: \"Datum: 25.01.2024\" (header line near \"Nummer: 2400134\"). Also \"Abrechnungszeitraum: 25.01.2024\" appears but the explicit \"Datum:\" label points to invoice issue date.\n- Grand Total: \"Gesamtbetrag EUR 723,99\" labeled near payment terms.\n- Net Amount: \"Nettobetrag EUR 658,17\".\n- VAT group rate and VAT amount: \"10% Mwst. von 658,17 EUR 65,82\" indicates a 10% VAT rate applied to net 658,17 giving VAT amount 65,82.\n- Sender VAT ID: \"Unsere UID-Nr.: ATU 64424288\" is present in header.\n- Verify decimals and separators: amounts use comma as decimal separator in text (e.g., \"723,99\"); must preserve same number of decimal places when converting to numeric form. Schema requires numbers; typical conversion to dot decimal (723.99) while retaining two decimals.\n\n3) Ambiguities / alternatives considered\n- Invoice date could be interpreted as the \"Abrechnungszeitraum\" date, but the explicit \"Datum:\" label is the authoritative invoice date.\n- Multiple occurrences: date appears twice; choose the explicitly labeled \"Datum\".\n- Sender VAT ID formatting: appears as \"ATU    64424288\" with spaces — keep as string \"ATU64424288\" or \"ATU 64424288\". Schema expects string; must decide consistent representation. Prefer preserving the \"ATU 64424288\" spacing as in document vs removing spaces. Will record the exact substring \"ATU    64424288\" normalized to \"ATU 64424288\".\n- VAT rate appears as \"10%\" in text; per rules, rate should be extracted without the percent symbol (i.e., numeric 10).\n\n4) Final extraction mapping (values identified to be placed into schema)\n- Invoice.Date => \"25.01.2024\"\n- GrandTotal.Amount => 723.99 (from \"723,99\" converted to numeric with two decimals)\n- Net.Amount => 658.17 (from \"658,17\")\n- Vat.Rate => 10 (from \"10%\")\n- Vat.Amount => 65.82 (from \"65,82\")\n- Sender.VatId => \"ATU 64424288\" (normalized spacing)\n\n5) Conformity checks with rules\n- No guessing: all values appear explicitly in the invoice.\n- Decimal places preserved (two decimals).\n- VAT rate returned without \"%\" and as a number.\n- Document classified as invoice per header validation.\n\nProceed to produce the structured JSON in the next step.",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"extracted_value\": \"723.99\",\n    \"confidence\": \"95%\",\n    \"evidence\": \"Text 'Gesamtbetrag EUR 723,99' clearly labels the total payable amount.\"\n  },\n  \"Invoice.Date\": {\n    \"extracted_value\": \"25.01.2024\",\n    \"confidence\": \"98%\",\n    \"evidence\": \"Explicit 'Datum: 25.01.2024' near invoice header; also matches 'Abrechnungszeitraum: 25.01.2024'.\"\n  },\n  \"Sender.VatId\": {\n    \"extracted_value\": \"ATU 64424288\",\n    \"confidence\": \"90%\",\n    \"evidence\": \"Text 'Unsere UID-Nr.: ATU    64424288' present in header; spacing normalized.\"\n  },\n  \"Vat.Rate\": {\n    \"extracted_value\": \"10\",\n    \"confidence\": \"99%\",\n    \"evidence\": \"Line '10% Mwst. von 658,17 EUR 65,82' explicitly shows 10% VAT; extracted without percent sign per rules.\"\n  },\n  \"Net.Amount\": {\n    \"extracted_value\": \"658.17\",\n    \"confidence\": \"97%\",\n    \"evidence\": \"Line 'Nettobetrag EUR 658,17' explicitly states the net amount.\"\n  },\n  \"Vat.Amount\": {\n    \"extracted_value\": \"65.82\",\n    \"confidence\": \"97%\",\n    \"evidence\": \"Line '10% Mwst. von 658,17 EUR 65,82' explicitly provides VAT amount.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.02,
+      "input_tokens": 1765,
+      "cached_input_tokens": null,
+      "output_tokens": 914,
+      "total_tokens": 2679,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.31,
+      "input_tokens": 2430,
+      "cached_input_tokens": null,
+      "output_tokens": 549,
+      "total_tokens": 2979,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.34,
+      "input_tokens": 3056,
+      "cached_input_tokens": null,
+      "output_tokens": 282,
+      "total_tokens": 3338,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274757\\274714_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU 64424288",
+        "ATU 64424288"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        723.99,
+        "723,99"
+      ],
+      "Net.Amount": [
+        true,
+        658.17,
+        "658,17"
+      ],
+      "Vat.Amount": [
+        true,
+        65.82,
+        "65,82"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "25.01.2024",
+        "25.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7251,
+    "cached_input_tokens": 0,
+    "output_tokens": 1745,
+    "eur_estimate": 0.004614
+  }
+}

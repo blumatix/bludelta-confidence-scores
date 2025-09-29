@@ -1,0 +1,103 @@
+{
+  "input_path": "C:\\Users\\jonas\\Desktop\\LLM-Confidence\\Documents\\275096\\275073_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 627.41,
+    "Invoice.Date": "31.01.24",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 522.84,
+    "Vat.Amount": 104.57
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.8,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Below is a concise, non-sensitive outline of the extraction plan and the candidate data locations from the invoice text.\n\nPlanned extraction steps:\n1. Classify document as invoice by checking header terms (e.g., \"RECHNUNG\") — found at top.\n2. Locate Invoice Date — search for date labeled \"RE-DATUM\" or other date fields; candidate: \"31.01.24\" near RE-DATUM.\n3. Locate Grand Total — search for totals near \"GESAMTBETRAG\" or final summary; candidate: \"627,41\" adjacent to GESAMTBETRAG.\n4. Locate Net amount(s) and VAT groups — search summary table with \"NETTOBETRAG\", \"MEHRWERTSTEUER\" and amounts; candidates: \"522,84\" net, \"20,00%\" VAT rate, \"104,57\" VAT amount.\n5. Locate Sender VAT ID — search for \"UST-ID-NR.\" or \"UID Nr.\"; candidates: \"ATU22642807\" (UST-ID-NR. under company header) and another UID at bottom \"ATU66643000\" (company footer). Prefer the header \"UST-ID-NR.: ATU22642807\" as sender VAT.\n6. Apply rules: do not infer missing values; preserve decimals and VAT rate without percent sign (e.g., \"20,00\" -> \"20,00\" or numeric 20.00 depending on schema). Ensure numeric fields match input decimals and comma usage converted to period for numeric JSON as required.\n7. If multiple VAT identifiers appear, return the matching sender VAT field only once (use header UST-ID-NR.).\n\nCandidate extracted values (for verification in final step):\n- Invoice Date: 31.01.24\n- Grand Total: 627,41\n- Net Amount: 522,84\n- VAT Rate: 20,00% (candidate -> 20,00)\n- VAT Amount: 104,57\n- Sender VAT ID: ATU22642807\n\nI will now use these verified candidates to produce the final JSON extraction.",
+    "step2": "GrandTotal.Amount — 95%\n- Evidence: \"GESAMTBETRAG\" label with value \"627,41\" clearly adjacent in summary.\n- Consistency: equals NETTO + VAT (522,84 + 104,57 = 627,41). High confidence.\n\nInvoice.Date — 90%\n- Evidence: \"RE-DATUM\" appears with \"31.01.24\" near header line for invoice; standard placement.\n- Minor uncertainty: other dates present (e.g., AUFTR.-DAT: 19.01.24) but label \"RE-DATUM\" matches invoice date.\n\nSender.VatId — 80%\n- Evidence: \"UST-ID-NR.: ATU22642807\" under company header matches sender VAT label.\n- Ambiguity: footer also shows \"UID Nr. ATU66643000\" (different UID). Header UID likely sender; moderate caution due to second UID.\n\nVat.Rate — 98%\n- Evidence: Summary shows \"20,00%\" under \"MEHRWERTSTEUER\". Clear and unambiguous.\n- Rule: return without percent sign; confidence in numeric value high.\n\nNet.Amount — 98%\n- Evidence: \"NETTOBETRAG EUR 522,84\" clearly in summary; matches addition to VAT and Grand Total.\n- High confidence.\n\nVat.Amount — 98%\n- Evidence: \"104,57\" shown under MEHRWERTSTEUER column aligned with 20,00%; sums correctly.\n- High confidence."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.72,
+      "input_tokens": 2232,
+      "cached_input_tokens": null,
+      "output_tokens": 775,
+      "total_tokens": 3007,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.86,
+      "input_tokens": 2733,
+      "cached_input_tokens": null,
+      "output_tokens": 512,
+      "total_tokens": 3245,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.81,
+      "input_tokens": 3353,
+      "cached_input_tokens": null,
+      "output_tokens": 346,
+      "total_tokens": 3699,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "C:\\Users\\jonas\\Desktop\\LLM-Confidence\\Documents\\275096\\275073_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU66643000,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        627.41,
+        "627,41 *"
+      ],
+      "Net.Amount": [
+        true,
+        522.84,
+        "522,84"
+      ],
+      "Vat.Amount": [
+        true,
+        104.57,
+        "104,57"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "31.01.24",
+        "31.01.24"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 8318,
+    "cached_input_tokens": 0,
+    "output_tokens": 1633,
+    "eur_estimate": 0.004655
+  }
+}

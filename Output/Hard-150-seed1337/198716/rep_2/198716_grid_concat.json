@@ -1,0 +1,109 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198716\\198716_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 325.26,
+    "Invoice.Date": "13/01/2023",
+    "Sender.VatId": "",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 271.05,
+    "Vat.Amount": 54.21
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.6,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I can’t share my internal chain-of-thought. I will, however, provide a brief, non-sensitive summary of the planned extraction steps and the observable candidate values from the document:\n\nPlanned extraction steps (high-level):\n- Confirm document is an invoice (look for headers: \"FACTURE\", \"Total\", \"NET A PAYER\", invoice number).\n- Locate invoice date (labeled \"DATE\") and invoice identifier.\n- Identify Sender VAT ID by examining VAT/TVA labels near sender details and footer.\n- Extract VAT groups: VAT rate, taxable (Net) amount and VAT amount lines.\n- Extract Grand Total / Net à payer (total payable).\n- If multiple candidate VAT IDs or ambiguous matches exist, report alternatives and note ambiguity (no guessing; leave blank if unresolved).\n\nObserved candidate values from the text:\n- Invoice indicator present: \"FACTURE\" and \"NET A PAYER\".\n- Invoice number: O230100027 (clear).\n- Invoice date: 13/01/2023 (clear).\n- Grand total / Net à payer: 325.26 EUR (annotated \"NET A PAYER 325.26 EUR\").\n- VAT group values: Taxable (Montant HT) 271.05 and TVA 54.21; VAT rate shown as 20.00 (appears next to Code 1 and totals).\n- VAT / TVA identifiers seen:\n  - \"Identification TVA : FR 47 546650334\" (near header).\n  - Footer shows \"TVA : FR 29400177515 - SIRET:40017751500048\" (another VAT-looking value).\n  - Ambiguity: which of the two is the sender VAT ID is unclear from layout.\n\nDecision points to resolve during extraction:\n- Use the VAT ID that clearly belongs to the sender’s details; if ambiguous, do not guess—either choose the one clearly linked to sender or leave Sender.VatId empty.\n\nI will now proceed to extract fields per schema, using only clearly supported values and leaving ambiguous ones blank.",
+    "step2": "GrandTotal.Amount (325.26 EUR)\n- Confidence: High (90%)\n- Evidence: Clearly labeled \"NET A PAYER 325.26 EUR\" near totals; unambiguous numeric format.\n\nInvoice.Date (13/01/2023)\n- Confidence: High (95%)\n- Evidence: Appears next to header \"FACTURE DATE\" and near invoice number; unambiguous date format.\n\nSender.VatId\n- Candidate A: \"FR 47 546650334\" (near header line \"Identification TVA : FR 47 546650334\")\n  - Confidence: Medium (60%)\n  - Rationale: Appears adjacent to invoice header and \"Identification TVA\", suggesting invoice-level VAT ID, but layout could refer to client or other party.\n- Candidate B: \"FR 29400177515\" (footer line \"TVA : FR 29400177515 - SIRET:40017751500048\")\n  - Confidence: Medium (60%)\n  - Rationale: Located in footer with company registration info; likely the sender VAT, but OCR positioning ambiguity means it's not certain which VAT ID belongs to sender.\n- Overall determination: Ambiguous between the two; cannot be certain which is the sender VAT without layout context. (If forced to pick, footer VAT is slightly more typical for sender — but per rules, avoid guessing.)\n\nVat.Rate (20.00)\n- Confidence: High (90%)\n- Evidence: Shown in the VAT summary section next to the taxable amounts as \"20.00\"; consistent with calculated VAT (271.05 * 20% = 54.21).\n\nNet.Amount (271.05)\n- Confidence: High (90%)\n- Evidence: Shown in the taxable amounts table as Montant H.T. 271.05; aligns with VAT and total calculations.\n\nVat.Amount (54.21)\n- Confidence: High (90%)\n- Evidence: Shown as TVA 54.21 in totals; matches 20% of 271.05 (271.05 * 0.20 = 54.21) and totals (271.05 + 54.21 = 325.26)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.81,
+      "input_tokens": 2781,
+      "cached_input_tokens": null,
+      "output_tokens": 807,
+      "total_tokens": 3588,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.22,
+      "input_tokens": 3251,
+      "cached_input_tokens": null,
+      "output_tokens": 576,
+      "total_tokens": 3827,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.7,
+      "input_tokens": 3999,
+      "cached_input_tokens": null,
+      "output_tokens": 405,
+      "total_tokens": 4404,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198716\\198716.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "",
+        "FR 29400177515"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        325.26,
+        "325.26"
+      ],
+      "Net.Amount": [
+        true,
+        271.05,
+        [
+          "271.05",
+          "271.05"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        54.21,
+        [
+          "54.21",
+          "54.21"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20.00"
+      ],
+      "Invoice.Date": [
+        true,
+        "13/01/2023",
+        "13/01/2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 10031,
+    "cached_input_tokens": 0,
+    "output_tokens": 1788,
+    "eur_estimate": 0.001127
+  }
+}

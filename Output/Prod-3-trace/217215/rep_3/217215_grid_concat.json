@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\217267\\217215_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 108.0,
+    "Invoice.Date": "31.07.2023",
+    "Sender.VatId": "ATU75601939",
+    "Vat.Rate": 20,
+    "Net.Amount": 90.0,
+    "Vat.Amount": 18.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I'll extract fields by verifying invoice indicators, locating values, and considering alternatives.\n\n1) Classify document as invoice:\n- Contains \"Rechnung\" header and invoice-like sections (\"Rechnungsnummer\", \"Rechnungsdatum\", line items, totals, Mehrwertsteuer). No exclusion terms in prominent headers. Conclusion: it's an invoice.\n\n2) Identify Invoice.Date:\n- Found \"Rechnungsdatum 31.07.2023\". Use that exact string: \"31.07.2023\".\n\n3) Identify Sender.VatId:\n- Two USt-Id entries: \"Ihre USt-Id. ATU22642807\" and \"Unsere USt-Id. ATU75601939\".\n- Sender is Aptean Austria GmbH; \"Unsere USt-Id.\" corresponds to sender. Use \"ATU75601939\".\n\n4) Identify GrandTotal.Amount:\n- Totals shown: line net 90,00 EUR; Mehrwertsteuer (20,00 %) 18,00 EUR; final shown 108,00 EUR. Grand total is 108,00 EUR.\n- Preserve decimal formatting as in input (two decimals). Represent as numeric value 108.00.\n\n5) Identify VAT groups (Vat.Rate, Net.Amount, Vat.Amount):\n- One VAT group: rate \"20,00 %\" → per rule remove percent sign and return number 20.\n- Corresponding Net.Amount shown 90,00 EUR → numeric 90.00.\n- Corresponding Vat.Amount shown 18,00 EUR → numeric 18.00.\n- Confirm these sum to GrandTotal 108.00.\n\n6) Consider alternatives / missing-data checks:\n- Could \"Valutadatum 03.08.2023\" be invoice date? No—the explicit \"Rechnungsdatum\" is 31.07.2023, so use that.\n- No other VAT groups or different net/vat values found.\n- No ambiguity for sender VAT; chosen \"Unsere USt-Id.\" is correct.\n\nDecision: extract values:\n- Invoice.Date = \"31.07.2023\"\n- Sender.VatId = \"ATU75601939\"\n- GrandTotal.Amount = 108.00\n- Vat group: Vat.Rate = 20, Net.Amount = 90.00, Vat.Amount = 18.00\n\nI will now produce the final JSON in the next step.",
+    "step2": "Invoice.Date — High confidence.\nEvidence: Explicit label \"Rechnungsdatum 31.07.2023\" present.\n\nSender.VatId — High confidence.\nEvidence: Two VAT IDs shown; label \"Unsere USt-Id.\" adjacent to \"ATU75601939\" and sender is Aptean Austria GmbH.\n\nGrandTotal.Amount — High confidence.\nEvidence: Final total displayed as \"108,00 EUR\" after net 90,00 and VAT 18,00; sums consistently.\n\nVat.Rate — High confidence.\nEvidence: VAT line shows \"Mehrwertsteuer (20,00 %)\" clearly; matches VAT amount.\n\nNet.Amount — High confidence.\nEvidence: Line item and endsumme show \"90,00 EUR\" as net before VAT.\n\nVat.Amount — High confidence.\nEvidence: VAT value shown as \"18,00 EUR\" corresponding to 20% of 90,00; consistent arithmetically."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.94,
+      "input_tokens": 2121,
+      "cached_input_tokens": null,
+      "output_tokens": 817,
+      "total_tokens": 2938,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.37,
+      "input_tokens": 2665,
+      "cached_input_tokens": null,
+      "output_tokens": 325,
+      "total_tokens": 2990,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.42,
+      "input_tokens": 3162,
+      "cached_input_tokens": null,
+      "output_tokens": 217,
+      "total_tokens": 3379,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\217267\\217215_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU75601939",
+        "ATU75601939"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        108.0,
+        "108,00"
+      ],
+      "Net.Amount": [
+        true,
+        90.0,
+        "90,00"
+      ],
+      "Vat.Amount": [
+        true,
+        18.0,
+        "18,00"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "31.07.2023",
+        "31.07.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7948,
+    "cached_input_tokens": 0,
+    "output_tokens": 1359,
+    "eur_estimate": 0.0041
+  }
+}

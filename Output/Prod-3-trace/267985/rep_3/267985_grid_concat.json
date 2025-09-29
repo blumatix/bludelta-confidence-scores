@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\268002\\267985_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 17500.56,
+    "Invoice.Date": "04.01.2024",
+    "Sender.VatId": "ATU67782722",
+    "Vat.Rate": 10,
+    "Net.Amount": 15909.6,
+    "Vat.Amount": 1590.96
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification:\n1) Document contains \"RECHNUNG\" and invoice-like headers (Rechnungsnummer, Rechnungsdatum, Nettobetrag, Ust %, Gesamtbetrag) -> classify as invoice.\n\nField identification and extraction (evidence and alternatives considered):\n1) Invoice.Date: found \"Rechnungsdatum: 04.01.2024\" -> Invoice.Date = \"04.01.2024\".\n2) Invoice number exists (\"2024/7724000014\") but not requested in schema; noted only for validation.\n3) Sender.VatId: two VAT IDs present:\n   - \"Ihre USt.-ID.: ATU22642807\" (likely customer)\n   - \"VAT/UID-Nr: ATU67782722\" under Puratos Austria (sender). Schema requires sender VAT -> choose ATU67782722.\n4) Vat.Rate: In summary table shows \"10   %\" -> Vat.Rate = 10 (exclude % per rules).\n5) Net.Amount: Summary \"Netto 15.909,60\" (German format). Interpreted numeric value preserving decimals -> 15909.60.\n6) Vat.Amount: Summary \"Ust 1.590,96\" -> 1590.96.\n7) GrandTotal.Amount: Summary \"zu zahlender Betrag EUR 17.500,56\" -> 17500.56.\n8) Verified consistency: Net + Vat = 15909.60 + 1590.96 = 17500.56 matches GrandTotal.\n\nNo inference beyond explicit text; if ambiguity existed would leave fields empty (not needed here).",
+    "step2": "Invoice.Date — 98%: \"Rechnungsdatum: 04.01.2024\" appears explicitly and unambiguous.\n\nSender.VatId — 90%: Two VAT IDs present; selected \"VAT/UID-Nr: ATU67782722\" listed under Puratos (sender). Minor ambiguity because \"Ihre USt.-ID.: ATU22642807\" also appears (customer).\n\nVat.Rate — 99%: Summary shows \"10   %\" clearly; conversion to numeric \"10\" follows rule.\n\nNet.Amount — 98%: Summary \"Netto 15.909,60\" matches line-item sums and formatting; converted to 15909.60 preserving decimals.\n\nVat.Amount — 98%: Summary \"Ust 1.590,96\" explicit; converted to 1590.96 preserving decimals.\n\nGrandTotal.Amount — 99%: Summary \"zu zahlender Betrag EUR 17.500,56\" explicit and equals Net + Vat."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.7,
+      "input_tokens": 1807,
+      "cached_input_tokens": null,
+      "output_tokens": 724,
+      "total_tokens": 2531,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.14,
+      "input_tokens": 2194,
+      "cached_input_tokens": null,
+      "output_tokens": 401,
+      "total_tokens": 2595,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.88,
+      "input_tokens": 2703,
+      "cached_input_tokens": null,
+      "output_tokens": 284,
+      "total_tokens": 2987,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\268002\\267985_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU67782722",
+        "ATU67782722"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        17500.56,
+        "17.500,56"
+      ],
+      "Net.Amount": [
+        true,
+        15909.6,
+        "15.909,60"
+      ],
+      "Vat.Amount": [
+        true,
+        1590.96,
+        "1.590,96"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "04.01.2024",
+        "04.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6704,
+    "cached_input_tokens": 0,
+    "output_tokens": 1409,
+    "eur_estimate": 0.003912
+  }
+}

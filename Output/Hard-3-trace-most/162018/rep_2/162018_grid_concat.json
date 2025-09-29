@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\162018\\162018_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 133350,
+    "Invoice.Date": "2022/10/07",
+    "Sender.VatId": "",
+    "Vat.Rate": "",
+    "Net.Amount": 39920,
+    "Vat.Amount": 65200
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.85,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.05,
+    "Vat.Rate": 0.1,
+    "Net.Amount": 0.7,
+    "Vat.Amount": 0.75
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Highly likely",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost no chance",
+    "Vat.Rate": "Highly unlikely",
+    "Net.Amount": "Very good chance",
+    "Vat.Amount": "Very good chance"
+  },
+  "reasoning": {
+    "step1": "Classification: document is an invoice (contains \"INVOICE\", invoice number, create date, totals, line-item/subtotal/tax sections).\n\nRelevant extracted candidates from text:\n- Invoice number: \"703-850974\"\n- Invoice/Create date: \"2022/10/07\"\n- Grand total text: \"Y133,           350\" → interpreted as 133,350\n- Tax lines:\n  - \"CONSUMPTION TAX\" amount: \"Y65,      200\" → 65,200 (appears as VAT/consumption tax)\n  - Taxable group/subtotal: \"4,N' (SUB AMouNT) Y39,       920\" → 39,920 (appears to be taxable net amount)\n  - Exempted subgroup subtotal: Y28,230 (irrelevant for VAT group values)\n- No explicit VAT percentage/Rate present in the invoice text.\n- No sender VAT ID (Tax ID) present.\n\nAlternative interpretations considered:\n- Whether 65,200 is a VAT amount vs another tax: the line is labeled \"CONSUMPTION TAX\" and grouped under taxable/outsidetaxable sections; best evidence supports treating 65,200 as the VAT/Tax amount for the invoice.\n- Whether Net.Amount should be the taxable subtotal (39,920) or the invoice net excluding tax (GrandTotal − Tax = 68,150). The invoice explicitly shows a \"SUB AMOUNT\" of 39,920 under the taxable group, so the most direct mapping for Net.Amount (per schema expecting group net) is 39,920.\n- Sender.VatId and Vat.Rate are not present; per no-inference rule they must be left empty.\n\nDecision (fields to return in final extraction):\n- Invoice.Date: \"2022/10/07\"\n- GrandTotal.Amount: 133350\n- Vat.Amount: 65200\n- Net.Amount: 39920\n- Vat.Rate: not present → \"\"\n- Sender.VatId: not present → \"\"\n\nI will now produce the final JSON with those values (leaving missing fields empty).",
+    "step2": "Invoice.Date: 90% — \"CreateDate 2022/10/07\" is clearly labeled.\nGrandTotal.Amount: 85% — \"Y133,           350\" corresponds to 133,350 though spacing/commas are irregular.\nVat.Amount: 75% — \"CONSUMPTION TAX Y65,      200\" likely represents the invoice tax amount.\nNet.Amount: 70% — \"SUB AMouNT Y39,       920\" appears as the taxable net subtotal.\nVat.Rate: 10% — no percentage is present; low confidence (treated as missing).\nSender.VatId: 5% — no VAT/tax ID visible; treated as missing."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.04,
+      "input_tokens": 1812,
+      "cached_input_tokens": null,
+      "output_tokens": 890,
+      "total_tokens": 2702,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.95,
+      "input_tokens": 2300,
+      "cached_input_tokens": null,
+      "output_tokens": 407,
+      "total_tokens": 2707,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.34,
+      "input_tokens": 2751,
+      "cached_input_tokens": null,
+      "output_tokens": 270,
+      "total_tokens": 3021,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\162018\\162018.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "",
+        []
+      ],
+      "GrandTotal.Amount": [
+        false,
+        133350,
+        "133, 350"
+      ],
+      "Net.Amount": [
+        false,
+        39920,
+        []
+      ],
+      "Vat.Amount": [
+        false,
+        65200,
+        []
+      ],
+      "Vat.Rate": [
+        false,
+        "",
+        []
+      ],
+      "Invoice.Date": [
+        true,
+        "2022/10/07",
+        "2022/10/07"
+      ]
+    },
+    "summary": {
+      "matched": 1,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 6863,
+    "cached_input_tokens": 0,
+    "output_tokens": 1567,
+    "eur_estimate": 0.000892
+  }
+}

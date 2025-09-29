@@ -1,0 +1,106 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198401\\198401_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 211.87,
+    "Invoice.Date": "22/03/2023",
+    "Sender.VatId": "FR12314467986",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 89.37,
+    "Vat.Amount": 17.87
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.92,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.88,
+    "Net.Amount": 0.88,
+    "Vat.Amount": 0.88
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Highly likely",
+    "Net.Amount": "Highly likely",
+    "Vat.Amount": "Highly likely"
+  },
+  "reasoning": {
+    "step1": "Classification: Document is an invoice (contains \"FACTURE\", invoice number, invoice-like headers, totals).\n\nPlanned extraction fields and sources:\n- Invoice.Date: found near header \"DATE\" value \"22/03/2023\".\n- Sender.VatId: \"N° TVA Intracommunautaire: FR12314467986\".\n- GrandTotal.Amount: total shown as \"211,87\" (TTC) in the totals line.\n- VAT groups (Vat.Rate, Net.Amount, Vat.Amount): totals table line \"Montant soumis à TVA\" shows:\n  - TAUX TVA: \"20,00\" → Vat.Rate = 20,00 (will be returned as number without %; keep decimals as in source)\n  - TOTAL HT: \"89,37\" → Net.Amount = 89,37\n  - TVA: \"17,87\" → Vat.Amount = 17,87\n\nVerification notes / alternatives considered:\n- Confirmed document contains explicit invoice headers and totals; no exclusion terms in prominent header.\n- There is an additional \"Montant non soumis à TVA\" 104,63 but per schema we map VAT group entries (only the taxable group with rate 20,00 is applicable).\n- Currency symbols will be omitted; decimal separators preserved as in source (commas).",
+    "step2": "Invoice.Date — Confidence: High (≥95%)\n- Evidence: The header shows \"DATE\" with value \"22/03/2023\" clearly placed next to invoice number and email timestamp matches same date. Low ambiguity.\n\nSender.VatId — Confidence: High (≈95%)\n- Evidence: Text \"N° TVA Intracommunautaire: FR12314467986\" appears under company header. Format matches VAT ID. Minimal risk of OCR error on country code and digits, though last digits rely on OCR accuracy.\n\nGrandTotal.Amount — Confidence: High (≈90-95%)\n- Evidence: Totals table and payment line show \"211,87\" associated with \"TOTAL TTC\" and also in the VIREMENT line as MONTANT TTC 211,87 €. Clear match.\n- Risk: Comma decimal separator preserved; OCR could misread one digit but context reduces risk.\n\nVat.Rate — Confidence: Moderate-High (≈85-90%)\n- Evidence: In totals header row, under \"TAUX TVA\" value \"20,00\" is present aligned with the taxable group line. Common VAT rate and consistent with VAT amount.\n- Risk: Possible misalignment between columns in OCR; but 20% is plausible.\n\nNet.Amount — Confidence: Moderate-High (≈85-90%)\n- Evidence: The same totals row shows \"TOTAL HT\" as \"89,37\" for the taxable amount. Matches Vat.Amount and grand total arithmetic roughly (89.37 + 17.87 + 104.63 = 211.87).\n- Note: There is also \"Montant non soumis à TVA 104,63\" separate; arithmetic check supports net taxable 89,37.\n\nVat.Amount — Confidence: Moderate-High (≈85-90%)\n- Evidence: Totals row shows \"TVA\" as \"17,87\" corresponding to 20% of 89,37 (0.20 * 89.37 = 17.874 → rounds to 17.87), consistent.\n- Risk: Rounding could account for minor difference; OCR could misread final digit but consistency supports correctness.\n\nCross-field consistency check:\n- Confidence: High\n- Evidence: 89,37 (net taxable) + 17,87 (VAT) + 104,63 (non-taxable) = 211,87 (grand total). Vat.Rate 20 corresponds to VAT amount computed from net taxable. Invoice date and VAT ID are clearly labeled.\n\nOverall: fields are consistent and well-supported by the text; remaining uncertainty is standard OCR digit recognition risk."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.89,
+      "input_tokens": 2361,
+      "cached_input_tokens": null,
+      "output_tokens": 659,
+      "total_tokens": 3020,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.48,
+      "input_tokens": 2683,
+      "cached_input_tokens": null,
+      "output_tokens": 532,
+      "total_tokens": 3215,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.7,
+      "input_tokens": 3515,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 3862,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198401\\198401.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "FR12314467986",
+        "FR12314467986"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        211.87,
+        "211,87"
+      ],
+      "Net.Amount": [
+        false,
+        89.37,
+        [
+          "89,37",
+          "104,63"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        17.87,
+        "17,87"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "22/03/2023",
+        "22/03/2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 8559,
+    "cached_input_tokens": 0,
+    "output_tokens": 1538,
+    "eur_estimate": 0.000966
+  }
+}

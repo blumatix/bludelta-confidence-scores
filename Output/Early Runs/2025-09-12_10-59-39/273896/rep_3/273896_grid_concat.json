@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\273905\\273896_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 705.32,
+    "Invoice.Date": "26.01.2024",
+    "Sender.VatId": "ATU66427645",
+    "Vat.Rate": 10,
+    "Net.Amount": 641.2,
+    "Vat.Amount": 64.12
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.97,
+    "Net.Amount": 0.96,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Sorry—I can’t share my step-by-step internal chain-of-thought. I can, however, provide a brief, non-sensitive summary of the approach I will use to extract the invoice fields:\n\n- Validate document is an invoice by checking for invoice keywords (e.g., \"Rechnung\", totals, UID/VAT).\n- Locate invoice date fields and pick the clearly labeled date.\n- Locate VAT identifiers for sender (UID/UID-Nr).\n- Identify grand total (Rechnungsbetrag) and net/VAT breakdown lines (Nettobetrag, USt. lines).\n- Extract VAT rate as a number without the percent sign and preserve decimal formatting for numeric amounts.\n- If any required field is missing or ambiguous, leave that field empty per the No Inference rule.\n- Output the final result in the exact JSON schema requested.",
+    "step2": "GrandTotal.Amount\n- Extracted candidate: 705,32 € (Rechnungsbetrag)\n- Evidence: Line \"Rechnungsbetrag 705,32 €\" clearly present.\n- Confidence: 95% — clear label and amount, currency symbol present; minor OCR risk for comma/decimal.\n\nInvoice.Date\n- Extracted candidate: 26.01.2024 (Datum:)\n- Evidence: Top-right \"Datum: 26.01.2024\" visible.\n- Confidence: 98% — explicit date field; minimal ambiguity.\n\nSender.VatId\n- Extracted candidate: ATU66427645 (UID-Nr: near footer) and ATU22642807 (UID: near header)\n- Evidence: Two UID/UID-Nr occurrences: header shows \"UID: ATU22642807\" (likely sender or customer?) footer shows \"UID-Nr: ATU66427645\" next to company Unterweger Früchteküche GmbH.\n- Confidence: 85% for ATU66427645 as sender VAT — footer company matches sender; 60% for ATU22642807 being sender VAT (could be customer's UID). Overall ambiguity due to two UIDs.\n\nVat.Rate\n- Extracted candidate(s): 10 (from \"10% USt. von 641,20\")\n- Evidence: Line \"+ 10,00% USt. von 641,20\" and item Ust column shows \"10%\".\n- Confidence: 97% — explicit VAT rate shown.\n\nNet.Amount\n- Extracted candidate: 641,20 € (Nettobetrag)\n- Evidence: Line \"Nettobetrag 641,20 €\" present; matches base for 10% VAT calculation (64,12).\n- Confidence: 96% — explicit net amount and consistent with VAT amount.\n\nVat.Amount\n- Extracted candidate: 64,12 € (\"+ 10,00% USt. von 641,20\" => 64,12)\n- Evidence: Line shows \"64,12 €\" corresponding to 10% of 641,20.\n- Confidence: 97% — explicit VAT amount matching arithmetic.\n\nOverall notes: Document is clearly an invoice (\"Rechnung\"), so extraction is appropriate. Primary ambiguity is which UID corresponds to the sender; footer UID aligns with Unterweger Früchteküche GmbH (sender), header UID may be recipient."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 3.94,
+      "input_tokens": 1767,
+      "output_tokens": 367,
+      "total_tokens": 2134
+    },
+    "step2": {
+      "runtime_sec": 5.21,
+      "input_tokens": 1949,
+      "output_tokens": 571,
+      "total_tokens": 2520
+    },
+    "step3": {
+      "runtime_sec": 3.52,
+      "input_tokens": 2725,
+      "output_tokens": 409,
+      "total_tokens": 3134
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273905\\273896_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU66427645",
+        "ATU66427645"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        705.32,
+        "705,32"
+      ],
+      "Net.Amount": [
+        true,
+        641.2,
+        "641,20"
+      ],
+      "Vat.Amount": [
+        true,
+        64.12,
+        "64,12"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "26.01.2024",
+        "26.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  }
+}

@@ -1,0 +1,127 @@
+{
+  "input_path": "..\\Documents\\275138\\275095_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1651.71,
+    "Invoice.Date": "31.01.2024",
+    "Sender.VatId": "ATU 22642807",
+    "Vat.Rate": [
+      20,
+      10
+    ],
+    "Net.Amount": [
+      130.1,
+      1359.63
+    ],
+    "Vat.Amount": [
+      26.02,
+      135.96
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.88,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Highly likely",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Sorry—I can’t share my step-by-step internal chain-of-thought. I can, however, provide a concise summary of the extraction approach I will use:\n\n- Confirm document is an invoice by presence of headers like \"Rechnung\", invoice number, invoice date, USTID, totals, line items.\n- Extract Invoice.Date from \"Rechnungsdatum: 31.01.2024\".\n- Extract Sender.VatId from \"USTID: ATU 22642807\".\n- Determine GrandTotal.Amount from the invoice totals area (use the final \"Rechnungsbetrag\" value shown).\n- Identify VAT groups and extract Vat.Rate, Net.Amount, and Vat.Amount for each VAT rate present (10% and 20%), preserving decimals as in text and removing '%' from rates.\n- If any required field is missing in the text, return it as an empty string per rules.\n\nIf you want, I can now produce the final JSON extraction.",
+    "step2": "GrandTotal.Amount\n- Evidence: \"Rechnungsbetrag EUR 1.651,71\" appears near totals (final invoice amount).\n- Confidence: 90%\n\nInvoice.Date\n- Evidence: \"Rechnungsdatum: 31.01.2024\" explicitly present.\n- Confidence: 99%\n\nSender.VatId\n- Evidence: \"USTID: ATU 22642807\" clearly shown.\n- Confidence: 99%\n\nVat.Rate (20)\n- Evidence: Multiple mentions of \"MwSt (20,00 %)\" and \"Warenwert (20,00 %)\" in totals section.\n- Confidence: 98%\n\nNet.Amount for 20%\n- Evidence: Totals section shows \"Warenwert (20,00 %) 130,10\" and related lines; context indicates this is net for the 20% group.\n- Confidence: 85%\n\nVat.Amount for 20%\n- Evidence: Totals section shows \"MwSt (20,00 %) 26,02\" adjacent to the 20% group.\n- Confidence: 90%\n\nVat.Rate (10)\n- Evidence: Totals section shows \"MwSt (10,00 %)\" and \"Warenwert (10,00 %) 1.359,63\".\n- Confidence: 98%\n\nNet.Amount for 10%\n- Evidence: \"Warenwert (10,00 %) 1.359,63\" is present in totals; treated as net for 10% group.\n- Confidence: 88%\n\nVat.Amount for 10%\n- Evidence: \"MwSt (10,00 %) 135,96\" appears in the totals block.\n- Confidence: 90%\n\nNotes on uncertainties\n- Some subtotal/skonto lines overlap and multiple \"Rechnungsbetrag\" values appear (1.602,16 and 1.651,71). The final 1.651,71 is taken as Grand Total; this introduces minor ambiguity.\n- Skonto-related lines reduce confidence for mapping which net values correspond strictly to the shown VAT groups."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 5.55,
+      "input_tokens": 2527,
+      "cached_input_tokens": null,
+      "output_tokens": 520,
+      "total_tokens": 3047
+    },
+    "step2": {
+      "runtime_sec": 5.13,
+      "input_tokens": 2734,
+      "cached_input_tokens": null,
+      "output_tokens": 618,
+      "total_tokens": 3352
+    },
+    "step3": {
+      "runtime_sec": 7.57,
+      "input_tokens": 3429,
+      "cached_input_tokens": null,
+      "output_tokens": 760,
+      "total_tokens": 4189
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\275138\\275095_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU 22642807",
+        "ATU38510009"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1651.71,
+        "1.651,71"
+      ],
+      "Net.Amount": [
+        true,
+        [
+          130.1,
+          1359.63
+        ],
+        [
+          "130,10",
+          "1.359,63"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        [
+          26.02,
+          135.96
+        ],
+        [
+          "26,02",
+          "135,96"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        [
+          20,
+          10
+        ],
+        [
+          "20,00",
+          "10,00"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "31.01.2024",
+        "31.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 8690,
+    "cached_input_tokens": 0,
+    "output_tokens": 1898,
+    "eur_estimate": 0.005195
+  }
+}

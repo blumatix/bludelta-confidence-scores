@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\269974\\269885_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 849.98,
+    "Invoice.Date": "17.03.2023",
+    "Sender.VatId": "ATU64131246",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 708.32,
+    "Vat.Amount": 141.66
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.94,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.96
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Presence of invoice-like terms: \"Gutschrift\" (credit note), invoice/credit numbers, dates, totals, line items, VAT details → qualifies as invoice-like.\n- No exclusion terms (\"Zahlungserinnerung\", \"Mahnung\", \"Servicebericht\") prominent → proceed with extraction.\n\nKey candidate fields and evidence (verbatim OCR fragments):\n- Grand total: \"Endbetrag                                                                                                                                                849,98\" → candidate GrandTotal.Amount = 849,98\n- Invoice / document date: \"Gutschriftnummer/Datum 1800194763 / 17.03.2023\" and \"Datum/Beleg-Nr. 17.03.2023 / 1800194763\" → candidate Invoice.Date = \"17.03.2023\"\n- Sender VAT ID: \"IhreUst,Id. ATU64131246\" → candidate Sender.VatId = \"ATU64131246\"\n- VAT rate: \"Mehrwertsteuer                                          20,000         %                                                    708,32                       141,66\" → candidate Vat.Rate = 20,000 (original OCR shows \"20,000 %\")\n  - Following rule to remove percent symbol and preserve decimals: interpret \"20,000\" (comma decimal) as 20.000\n- Net amount: \"Summe        Netto                                                                                                                                       708,32\" → candidate Net.Amount = 708,32\n- VAT amount: aligned with the VAT line shows \"141,66\" → candidate Vat.Amount = 141,66\n\nField mapping and formatting decisions:\n- Numeric fields must preserve decimal places from input and use numeric type. Convert comma decimal separators to dot for numeric JSON values while preserving number of decimal places:\n  - 849,98 -> 849.98\n  - 708,32 -> 708.32\n  - 141,66 -> 141.66\n  - VAT rate \"20,000\" with comma for decimal -> 20.000 (three decimal places preserved as in OCR: \"20,000\")\n- Invoice.Date kept as string in original dd.mm.yyyy format: \"17.03.2023\"\n- Sender.VatId kept as string exactly: \"ATU64131246\"\n\nNo inference beyond visible text; if any field were missing, would be returned as empty string.",
+    "step2": "GrandTotal.Amount (849.98)\n- Evidence: \"Endbetrag ... 849,98\" clearly labeled as end amount on page 2.\n- Consistency: Matches Net + VAT (708,32 + 141,66 = 849,98).\n- Risk factors: OCR comma/decimal conversion only.\n- Confidence: 98%\n\nInvoice.Date (\"17.03.2023\")\n- Evidence: Appears twice: \"Gutschriftnummer/Datum 1800194763 / 17.03.2023\" and \"Datum/Beleg-Nr. 17.03.2023 / 1800194763\".\n- Consistency: Logical placement for document date.\n- Risk factors: None significant.\n- Confidence: 99%\n\nSender.VatId (\"ATU64131246\")\n- Evidence: Labeled \"IhreUst,Id. ATU64131246\" on page 1.\n- Consistency: Format matches Austrian VAT (ATU...).\n- Risk factors: OCR punctuation could conflate characters, but string looks clear.\n- Confidence: 95%\n\nVat.Rate (20.000)\n- Evidence: VAT line shows \"Mehrwertsteuer 20,000 % ...\" on page 2.\n- Consistency: VAT amount (141,66) corresponds to 20% of net (708,32 × 0.20 = 141,664 → rounded to 141,66).\n- Risk factors: OCR uses comma as decimal separator; representation chosen preserves three decimals as in OCR (\"20,000\").\n- Confidence: 94%\n\nNet.Amount (708.32)\n- Evidence: \"Summe Netto 708,32\" on page 2.\n- Consistency: Net + VAT equals Grand Total.\n- Risk factors: OCR comma/decimal conversion only.\n- Confidence: 98%\n\nVat.Amount (141.66)\n- Evidence: Appears on VAT line after amounts: \"708,32 141,66\".\n- Consistency: Matches 20% of net when rounded.\n- Risk factors: Minor rounding (141,664 → 141,66) but matches printed value.\n- Confidence: 96%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 14.86,
+      "input_tokens": 2253,
+      "cached_input_tokens": null,
+      "output_tokens": 1003,
+      "total_tokens": 3256,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.36,
+      "input_tokens": 2791,
+      "cached_input_tokens": null,
+      "output_tokens": 512,
+      "total_tokens": 3303,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.12,
+      "input_tokens": 3539,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3822,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\269974\\269885_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU64131246",
+        "ATU64393169"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        849.98,
+        "849,98"
+      ],
+      "Net.Amount": [
+        true,
+        708.32,
+        "708,32"
+      ],
+      "Vat.Amount": [
+        true,
+        141.66,
+        "141,66"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,000"
+      ],
+      "Invoice.Date": [
+        true,
+        "17.03.2023",
+        "17.03.2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 8583,
+    "cached_input_tokens": 0,
+    "output_tokens": 1798,
+    "eur_estimate": 0.004999
+  }
+}

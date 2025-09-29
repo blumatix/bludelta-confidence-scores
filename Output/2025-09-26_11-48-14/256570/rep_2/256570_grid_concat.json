@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\256570\\256570_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2278.44,
+    "Invoice.Date": "30.11.2023",
+    "Sender.VatId": "ATU73461826",
+    "Vat.Rate": 20,
+    "Net.Amount": 1898.7,
+    "Vat.Amount": 379.74
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Below is a concise, non-sensitive summary of the extraction steps and rationale I will use:\n\n- Document classification: presence of \"Rechnung\", \"Rechnungsdatum\", invoice number and line-item table indicates this is an invoice (no exclusion terms dominate).\n- Identify invoice date: read the \"Rechnungsdatum: 30.11.2023\".\n- Identify VAT/UID candidates: two UID entries appear: \"UID-Nr.: ATU72180025\" (near Mag. Rudolf Trauner) and \"ATU 73461826\" (near DRT Immobilien GmbH). The invoice issuer is DRT Immobilien GmbH (company block adjacent to invoice header), so I will treat ATU73461826 as Sender.VatId.\n- Extract totals: locate Netto (1.898,70 €), Brutto/Gesamtsumme (2.278,44 €) and USt (379,74 €). Convert comma decimals to dot decimals for numeric fields, preserving two decimal places.\n- Extract VAT rate: found \"20 %\" — remove percent symbol and record as number 20.\n- Apply No Inference rule: only extract values explicitly present; if any required field were missing, return empty string for that field.\n- Prepare final JSON following the schema, with numeric fields as numbers and strings for date/VAT-ID.",
+    "step2": "GrandTotal.Amount: 95% — Clearly shown as \"Gesamtsumme Brutto 2.278.44 €\" (matches line-item Brutto).\n\nInvoice.Date: 99% — Explicit \"Rechnungsdatum: 30.11.2023\".\n\nSender.VatId: 90% — Two UID entries present; the sender company block \"DRT Immobilien GmbH\" is adjacent to \"ATU 73461826\", making this the most likely sender VAT ID.\n\nVat.Rate: 98% — \"20 %\" appears multiple times next to VAT/USt lines; extracted as 20.\n\nNet.Amount: 98% — Netto shown as \"1.898,70 €\" corresponding to totals and line-item net.\n\nVat.Amount: 98% — USt shown as \"379,74 €\" matching Brutto−Netto."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.8,
+      "input_tokens": 1300,
+      "cached_input_tokens": null,
+      "output_tokens": 865,
+      "total_tokens": 2165,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.21,
+      "input_tokens": 1636,
+      "cached_input_tokens": null,
+      "output_tokens": 374,
+      "total_tokens": 2010,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.85,
+      "input_tokens": 2118,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 2465,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\256570\\256570_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU73461826",
+        "ATU72180025"
+      ],
+      "GrandTotal.Amount": [
+        false,
+        2278.44,
+        "2.278.44"
+      ],
+      "Net.Amount": [
+        true,
+        1898.7,
+        "1.898,70"
+      ],
+      "Vat.Amount": [
+        true,
+        379.74,
+        "379,74"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "30.11.2023",
+        "30.11.2023"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 5054,
+    "cached_input_tokens": 0,
+    "output_tokens": 1586,
+    "eur_estimate": 0.003856
+  }
+}

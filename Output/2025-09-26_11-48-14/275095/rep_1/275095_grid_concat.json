@@ -1,0 +1,130 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\275138\\275095_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": "",
+    "Invoice.Date": "31.01.2024",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": [
+      20,
+      10
+    ],
+    "Net.Amount": [
+      130.1,
+      1359.63
+    ],
+    "Vat.Amount": [
+      26.02,
+      135.96
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.92,
+    "Vat.Amount": 0.92
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: matches invoice indicators (header \"Rechnung\", Rechnungs-Nr., Rechnungsdatum, USTID, line items, totals). No exclusion terms dominate.\n\nExtraction plan (steps taken and findings):\n1. Invoice date: located \"Rechnungsdatum: 31.01.2024\" → candidate Invoice.Date = \"31.01.2024\".\n2. Sender VAT ID: located \"USTID: ATU         22642807\" → candidate Sender.VatId = \"ATU22642807\" (preserve format without spaces).\n3. VAT rates / groups: document shows two VAT groups labeled 20,00 % and 10,00 % (also labels \"(H)\" = reduced rate, \"(V)\" = full rate). Candidate Vat.Rate values: 20 and 10 (per rule: no % sign).\n4. Net and VAT amounts per group:\n   - For 20.00% group: lines show \"Warenwert (20,00 %) 130,10\" and \"MwSt (20,00 %) 26,02\" → candidate Net.Amount (20%) = 130,10 ; Vat.Amount (20%) = 26,02.\n   - For 10.00% group: lines show \"Warenwert (10,00 %) 1.359,63\" and \"MwSt (10,00 %) 135,96\" → candidate Net.Amount (10%) = 1.359,63 ; Vat.Amount (10%) = 135,96.\n   (Keep decimal formatting as in source.)\n5. Grand total ambiguity: two \"Rechnungsbetrag\" values appear:\n   - \"Rechnungsbetrag EUR 1.602,16\"\n   - \"Rechnungsbetrag EUR 1.651,71\"\n   I cannot infer which is the final total without assuming context; per No Inference rule, this remains ambiguous and must be left empty unless a single clear GrandTotal is determinable.\n6. Verification: all extracted numeric values preserved decimals and percent values would be recorded without '%' as required.\n\nConclusion: invoice; fields found for Invoice.Date, Sender.VatId, two VAT groups with matching Net.Amount and Vat.Amount; GrandTotal ambiguous (two differing values) so cannot be filled by inference.",
+    "step2": "Invoice.Date (\"31.01.2024\")\n- Evidence: Explicit label \"Rechnungsdatum: 31.01.2024\".\n- Ambiguity: None.\n- Confidence: Very high.\n\nSender.VatId (\"ATU22642807\")\n- Evidence: \"USTID: ATU         22642807\" clearly printed; spaces present in OCR but contiguous value reconstructable.\n- Ambiguity: Minor formatting normalization (removed spaces).\n- Confidence: High.\n\nVat.Rate entries (20 and 10)\n- Evidence: Multiple occurrences: \"Warenwert (20,00 %)\", \"MwSt (20,00 %)\" and \"Warenwert (10,00 %)\", \"MwSt (10,00 %)\".\n- Ambiguity: None about rates themselves; rule requires returning numbers without %.\n- Confidence: Very high.\n\nNet.Amount for 20% group (\"130,10\")\n- Evidence: Line \"Warenwert (20,00 %)                130,10\".\n- Ambiguity: OCR layout could misplace numbers but pairing with the 20% label is explicit.\n- Confidence: High.\n\nVat.Amount for 20% group (\"26,02\")\n- Evidence: Line \"MwSt (20,00 %)                   26,02\".\n- Ambiguity: Low.\n- Confidence: High.\n\nNet.Amount for 10% group (\"1.359,63\")\n- Evidence: Line \"Warenwert (10,00 %)                1.359,63\".\n- Ambiguity: Low; large value consistent with subtotal and other numbers.\n- Confidence: High.\n\nVat.Amount for 10% group (\"135,96\")\n- Evidence: Line \"MwSt (10,00 %)                135,96\".\n- Ambiguity: Low.\n- Confidence: High.\n\nGrandTotal.Amount (left empty)\n- Evidence: Two distinct \"Rechnungsbetrag\" values present: \"1.602,16\" and \"1.651,71\".\n- Ambiguity: Cannot determine which is final total (possible inclusion/exclusion of skonto or other adjustments). Per No Inference rule, must not choose.\n- Confidence in leaving empty: Very high."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.36,
+      "input_tokens": 2527,
+      "cached_input_tokens": null,
+      "output_tokens": 988,
+      "total_tokens": 3515,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.2,
+      "input_tokens": 3050,
+      "cached_input_tokens": null,
+      "output_tokens": 459,
+      "total_tokens": 3509,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 9.63,
+      "input_tokens": 3809,
+      "cached_input_tokens": null,
+      "output_tokens": 754,
+      "total_tokens": 4563,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\275138\\275095_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU38510009"
+      ],
+      "GrandTotal.Amount": [
+        false,
+        "",
+        "1.651,71"
+      ],
+      "Net.Amount": [
+        true,
+        [
+          130.1,
+          1359.63
+        ],
+        [
+          "130,10",
+          "1.359,63"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        [
+          26.02,
+          135.96
+        ],
+        [
+          "26,02",
+          "135,96"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        [
+          20,
+          10
+        ],
+        [
+          "20,00",
+          "10,00"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "31.01.2024",
+        "31.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 9386,
+    "cached_input_tokens": 0,
+    "output_tokens": 2201,
+    "eur_estimate": 0.005873
+  }
+}

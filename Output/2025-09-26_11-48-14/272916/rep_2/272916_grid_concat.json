@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\272923\\272916_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1122.91,
+    "Invoice.Date": "16.01.2024",
+    "Sender.VatId": "ATU71559324",
+    "Vat.Rate": 20,
+    "Net.Amount": 935.76,
+    "Vat.Amount": 187.15
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.8,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.92,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (1) verify the document is an invoice, (2) locate candidate fields, (3) check for ambiguous elements (no guessing), and (4) prepare values respecting formats/constraints.\n\nFindings and justification (concise):\n- Document classification: contains \"Rechnung\", \"Datum\", invoice number, line items, totals → classified as invoice.\n- Invoice date: \"Datum: 16.01.2024\" → invoice date present.\n- Totals:\n  - \"Gesamtbetrag: €   935,76\" appears as the net total before VAT (labelled Gesamtbetrag).\n  - \"zuzüglich 20% MWSt (aus Einzelposition): €    187,15\" → VAT amount 187,15 and VAT rate 20%.\n  - \"Endbetrag: €    1   122,91\" → grand total (payable) 1.122,91.\n- Sender VAT / UID: two UID occurrences:\n  - \"UID Nr.: ATU64131246\" appears near the recipient/company block (ambiguous).\n  - At bottom company info line: \"UID ATU 71559324\" appears with Firmenbuch and bank details (aligned with sender header LINHART). Per no-inference rule, use only UID clearly associated with sender. The bottom block is sender company info, so candidate Sender.VatId = \"ATU71559324\".\n- No other VAT rate groups present; single VAT group 20%.\n- Decimal preservation: amounts shown with two decimals; will keep same precision.\n- No exchange rates present.\n- Ambiguities: the \"UID Nr.: ATU64131246\" location is ambiguous (likely customer) — will not use it for Sender.VatId.\n\nNext step: produce final JSON with these extracted values (numbers converted to numeric form, VAT rate as number, empty strings where data missing).",
+    "step2": "Confidence assessment for each extracted field:\n\n- GrandTotal.Amount (1,122.91)\n  - Evidence: \"Endbetrag: €    1   122,91\" clearly labeled as final amount payable.\n  - Confidence: High (≈95%).\n\n- Invoice.Date (\"16.01.2024\")\n  - Evidence: \"Datum:                 16.01.2024\" explicit.\n  - Confidence: Very High (≈99%).\n\n- Sender.VatId (\"ATU71559324\")\n  - Evidence: Two UIDs present: \"UID Nr.: ATU64131246\" near header and \"UID ATU 71559324\" in bottom company info with Firmenbuch and bank details. The bottom block corresponds to company registration/bank (sender).\n  - Ambiguity: Possible that the top UID is sender and bottom is another entity, but contextual clues (Firmenbuch, bank) strongly link ATU71559324 to sender.\n  - Confidence: Moderate-High (≈80%).\n\n- Vat.Rate (20)\n  - Evidence: \"zuzüglich 20% MWSt\" explicitly states 20% VAT.\n  - Confidence: Very High (≈99%).\n\n- Net.Amount (935.76)\n  - Evidence: \"Gesamtbetrag: €   935,76\" presented before VAT; likely net amount.\n  - Ambiguity: Label \"Gesamtbetrag\" sometimes means gross, but the document separately shows VAT and Endbetrag, so this is net.\n  - Confidence: High (≈92%).\n\n- Vat.Amount (187.15)\n  - Evidence: \"zuzüglich 20% MWSt (aus Einzelposition): €    187,15\" explicit VAT monetary amount.\n  - Confidence: Very High (≈99%)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 18.25,
+      "input_tokens": 1692,
+      "cached_input_tokens": null,
+      "output_tokens": 1226,
+      "total_tokens": 2918,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.61,
+      "input_tokens": 2133,
+      "cached_input_tokens": null,
+      "output_tokens": 371,
+      "total_tokens": 2504,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.89,
+      "input_tokens": 2804,
+      "cached_input_tokens": null,
+      "output_tokens": 282,
+      "total_tokens": 3086,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\272923\\272916_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU71559324",
+        "ATU 71559324"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1122.91,
+        "1 122,91"
+      ],
+      "Net.Amount": [
+        true,
+        935.76,
+        "935,76"
+      ],
+      "Vat.Amount": [
+        true,
+        187.15,
+        "187,15"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "16.01.2024",
+        "16.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6629,
+    "cached_input_tokens": 0,
+    "output_tokens": 1879,
+    "eur_estimate": 0.004709
+  }
+}

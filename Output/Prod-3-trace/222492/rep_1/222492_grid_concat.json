@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\222492\\222492_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 62.86,
+    "Invoice.Date": "07.08.2023",
+    "Sender.VatId": "ATU22888702",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 52.38,
+    "Vat.Amount": 10.48
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Found document is an invoice (contains \"Rechnung\", \"Rechnungsdatum\", invoice number, totals, UID/VAT info, line items). Extraction plan and evidence (concise):\n\n- Confirm invoice indicators:\n  - Title \"Rechnung 202302593\" — invoice number present.\n  - \"Rechnungsdatum: 07.08.2023\" — invoice date present.\n  - Totals section shows \"Nettobetrag 52,38 EUR\", \"+ 20,00% USt. von 52,38 10,48 EUR\", \"Rechnungsbetrag 62,86 EUR\" — net, VAT rate, VAT amount, grand total present.\n  - Sender VAT: document header shows \"UID: AT U22888702\" and separately \"Ihre UID-Nr.: ATU22642807\" (the latter is customer VAT). Sender VAT likely \"ATU22888702\" from footer/company info.\n- Exclusion check: No exclusion keywords (\"Mahnung\", \"Zahlungserinnerung\") prominently present — treat as invoice.\n- Fields mapping to schema:\n  - Invoice.Date -> \"07.08.2023\" (from \"Rechnungsdatum: 07.08.2023\").\n  - GrandTotal.Amount -> 62,86 (currency removed; preserve decimal format).\n  - Net.Amount -> 52,38.\n  - Vat.Rate -> 20,00 -> per rules, remove % sign and keep decimals? Schema expects number; extract as 20,00 -> will represent numeric with same decimals if allowed.\n  - Vat.Amount -> 10,48.\n  - Sender.VatId -> \"ATU22888702\" (footer: \"UID: AT U22888702\" — remove space to match standard).\n- Uncertainties checked:\n  - Two UID entries: \"Ihre UID-Nr.: ATU22642807\" is customer VAT; footer \"UID: AT U22888702\" matches company footer and business registration — choose footer as Sender.VatId.\n  - VAT rate formatting \"20,00%\" appears as \"20,00% USt.\" Rule: return rate without \"%\" (so \"20,00\" or numeric 20.00). Schema type is number; preserve decimals as in input.\n- No inference beyond visible values; if any field missing, would leave empty.\n\nWill produce final JSON with those extracted values.",
+    "step2": "I can’t share internal chain-of-thought. Below is a concise confidence assessment for each extracted field (value source noted):\n\n- GrandTotal.Amount (62,86): 95% — explicit \"Rechnungsbetrag 62,86 EUR\".\n- Invoice.Date (\"07.08.2023\"): 99% — explicit \"Rechnungsdatum: 07.08.2023\".\n- Sender.VatId (\"ATU22888702\"): 85% — footer shows \"UID: AT U22888702\"; customer UID also present, so slight ambiguity.\n- Vat.Rate (20,00): 99% — explicit \"+ 20,00% USt.\" on invoice.\n- Net.Amount (52,38): 99% — explicit \"Nettobetrag 52,38 EUR\".\n- Vat.Amount (10,48): 99% — explicit \"10,48 EUR\" associated with the VAT line."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.01,
+      "input_tokens": 2380,
+      "cached_input_tokens": null,
+      "output_tokens": 760,
+      "total_tokens": 3140,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.09,
+      "input_tokens": 2931,
+      "cached_input_tokens": null,
+      "output_tokens": 518,
+      "total_tokens": 3449,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.13,
+      "input_tokens": 3429,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3712,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\222492\\222492_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU22888702",
+        "AT U22888702"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        62.86,
+        "62,86"
+      ],
+      "Net.Amount": [
+        true,
+        52.38,
+        "52,38"
+      ],
+      "Vat.Amount": [
+        true,
+        10.48,
+        "10,48"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "07.08.2023",
+        "07.08.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8740,
+    "cached_input_tokens": 0,
+    "output_tokens": 1561,
+    "eur_estimate": 0.004623
+  }
+}

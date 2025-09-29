@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\273699\\273688_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 666.0,
+    "Invoice.Date": "2. Nov 2023",
+    "Sender.VatId": "ATU65980977",
+    "Vat.Rate": 20,
+    "Net.Amount": 555.0,
+    "Vat.Amount": 111.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.75,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Very good chance",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (1) verify this is an invoice by checking for invoice keywords and headers; (2) locate invoice date and totals; (3) identify the sender VAT ID; (4) extract VAT rate, net amount, VAT amount, and grand total preserving decimal places and without inferring missing data; (5) prefer sender UID at the company footer over any other UID shown for the customer.\n\nFindings and decisions:\n- Invoice indicators present: \"Rechnung Nr.: 2402148\", \"Rechnungsbetrag\", \"Nettobetrag\", \"20 % Ust.\", line-item table — document qualifies as an invoice.\n- Invoice date: found as \"Wels, am 2. Nov 2023\" → use \"2. Nov 2023\" (exact string from document).\n- Grand total: \"Rechnungsbetrag EUR 666,00\" → numeric 666.00.\n- Net amount: \"Nettobetrag EUR 555,00\" → numeric 555.00.\n- VAT amount: \"20 % Ust. EUR 111,00\" → numeric 111.00.\n- VAT rate: \"20 % Ust.\" → numeric 20 (no percent sign).\n- Sender VAT ID: footer shows \"UID-Nummer: ATU   65980977\" associated with the company — use \"ATU65980977\".\n- Note: There is another UID (\"Ihre UID-Nr.: ATU64131246\") near customer info, but per schema Sender.VatId must be the sender's VAT ID, so I selected the footer UID.\n\nNo values were inferred beyond these explicit matches.",
+    "step2": "GrandTotal.Amount — High confidence (≈95%): \"Rechnungsbetrag EUR 666,00\" is explicit and unambiguous.\n\nInvoice.Date — High confidence (≈90%): \"Wels, am 2. Nov 2023\" clearly indicates the invoice issue date; minor formatting ambiguity only.\n\nSender.VatId — Medium confidence (≈75%): Footer shows \"UID-Nummer: ATU 65980977\" linked to company; another UID (ATU64131246) appears near customer info, creating some ambiguity about which UID is sender vs. recipient.\n\nVat.Rate — High confidence (≈95%): \"20 % Ust.\" explicitly stated.\n\nNet.Amount — High confidence (≈95%): \"Nettobetrag EUR 555,00\" explicitly stated.\n\nVat.Amount — High confidence (≈95%): \"20 % Ust. EUR 111,00\" explicitly stated."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.49,
+      "input_tokens": 2047,
+      "cached_input_tokens": null,
+      "output_tokens": 922,
+      "total_tokens": 2969,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.71,
+      "input_tokens": 2440,
+      "cached_input_tokens": null,
+      "output_tokens": 453,
+      "total_tokens": 2893,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.43,
+      "input_tokens": 2937,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3218,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\273699\\273688_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU65980977",
+        "ATU 65980977"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        666.0,
+        "666,00"
+      ],
+      "Net.Amount": [
+        true,
+        555.0,
+        "555,00"
+      ],
+      "Vat.Amount": [
+        true,
+        111.0,
+        "111,00"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        false,
+        "2. Nov 2023",
+        "23.10.2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7424,
+    "cached_input_tokens": 0,
+    "output_tokens": 1656,
+    "eur_estimate": 0.004498
+  }
+}

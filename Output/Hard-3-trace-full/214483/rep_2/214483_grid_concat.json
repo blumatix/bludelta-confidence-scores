@@ -1,0 +1,113 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\214483\\214483_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 7498.78,
+    "Invoice.Date": "15/12/2022",
+    "Sender.VatId": "LAJ160818355",
+    "Vat.Rate": 16,
+    "Net.Amount": 1020.0,
+    "Vat.Amount": 163.2
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.93,
+    "Vat.Amount": 0.93
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains explicit invoice indicators (\"Factura\", \"CFDI\", \"Total\", \"I.V.A.\", \"Total Factura\").\n- No exclusion headers (\"Zahlungserinnerung\", \"Mahnung\", \"Servicebericht\") dominating.\n-> Treat as invoice.\n\nCandidate invoice-level fields found:\n- Grand total: \"Total Factura (GXT + CFDI) : 7,498.78\" (page 1). Also \"Saldo CFDI : 7,498.78\" — consistent. Select 7,498.78 as GrandTotal.Amount.\n- Invoice date: \"Fecha Emisión : 15/12/2022 10:27:01\" (page 1). Use date string \"15/12/2022\".\n- Sender VAT/Tax ID: Emisor RFC : \"LAJ160818355\" (page 1). Use as Sender.VatId.\n\nVAT group extraction:\n- VAT rate appears as \"I.V.A. 16 %\", and multiple line items show Tasa 0.160000 (16%). Use Vat.Rate = 16 (without %).\n- Net amount for VAT group: The invoice shows \"Total Ingresos : 1,020.00\" and \"I.V.A. 16 % : 163.20\" with \"Total Servicios CFDI : 1,183.20\" (page 1). The taxable net base for that VAT group is 1,020.00. So Net.Amount = 1020.00 and Vat.Amount = 163.20.\n\nVerify alternatives:\n- Could net be entire invoice subtotal (7,498.78) — but VAT amount shown (163.20) corresponds only to the service group (1,020.00 net). Other charges (6,315.58) are listed as \"Gastos por Cuenta de Terceros\" likely non-taxable or separate. Therefore choose the VAT group tied to 16% with net 1,020.00 and VAT 163.20.\n\nMissing/No-inference checks:\n- All chosen values explicitly present in text; no guessing used.\n- Keep decimal precision as in source.\n\nPlanned mapping to schema:\n- GrandTotal.Amount: 7,498.78 (number)\n- Invoice.Date: \"15/12/2022\" (string)\n- Sender.VatId: \"LAJ160818355\" (string)\n- Vat.Rate: 16 (number)\n- Net.Amount: 1020.00 (number)\n- Vat.Amount: 163.20 (number)",
+    "step2": "{\n  \"GrandTotal.Amount\": 0.98,\n  \"Invoice.Date\": \"0.98\",\n  \"Sender.VatId\": \"0.99\",\n  \"Vat.Rate\": 0.95,\n  \"Net.Amount\": 0.93,\n  \"Vat.Amount\": 0.93\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.11,
+      "input_tokens": 15746,
+      "cached_input_tokens": null,
+      "output_tokens": 982,
+      "total_tokens": 16728,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 10.4,
+      "input_tokens": 16327,
+      "cached_input_tokens": null,
+      "output_tokens": 904,
+      "total_tokens": 17231,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.98,
+      "input_tokens": 16699,
+      "cached_input_tokens": null,
+      "output_tokens": 219,
+      "total_tokens": 16918,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\214483\\214483.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "LAJ160818355",
+        "LAJ160818355"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        7498.78,
+        "7,498.78"
+      ],
+      "Net.Amount": [
+        false,
+        1020.0,
+        [
+          "1,020.00",
+          "1,780.00",
+          "48.95",
+          "163.79"
+        ]
+      ],
+      "Vat.Amount": [
+        false,
+        163.2,
+        [
+          "163.20",
+          "284.80",
+          "7.83",
+          "26.21"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        16,
+        "16"
+      ],
+      "Invoice.Date": [
+        true,
+        "15/12/2022",
+        "15/12/2022"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 48772,
+    "cached_input_tokens": 0,
+    "output_tokens": 2105,
+    "eur_estimate": 0.003175
+  }
+}

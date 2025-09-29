@@ -1,0 +1,121 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\267980\\267951_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 73.66,
+    "Invoice.Date": "4.01.2024",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": [
+      10,
+      0
+    ],
+    "Net.Amount": [
+      66.96,
+      0.0
+    ],
+    "Vat.Amount": [
+      6.7,
+      0.0
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.96
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will extract fields only if this is an invoice-like document.\n\n1) Document classification\n- Contains invoice keywords: \"GUTSCHRIFT\" (credit note/invoice), \"Rechnung\" (appears in \"Rechnung mailen an\"), \"USt-Id\", \"Nettowert\", \"Bruttobetrag\", \"MWSt\" — qualifies as invoice-like.\n- No dominant exclusion terms like \"Mahnung\" or \"Zahlungserinnerung\" in header — proceed with extraction.\n\n2) Identify candidate values from text\n- Invoice date: \"Datum: 4.01.2024\" → candidate \"4.01.2024\".\n- Sender VAT ID occurrences:\n  - Top: \"USt-Id: ATU22642807\"\n  - Bottom: \"USt-IdNr. ATU14391601\"\n  Two occurrences; schema allows only one Sender.VatId. Prefer the prominent header \"USt-Id: ATU22642807\" as sender VAT, but note ambiguity between the two.\n- Totals:\n  - Nettowert gesamt: \"66,96\"\n  - 10% MWSt von 66,96: VAT amount \"6,70\"\n  - Bruttobetrag: \"73,66\" → Grand total.\n  - Also a 00% MWSt line: Net \"0,00\" Vat \"0,00\" (include as separate VAT group if schema supports multiple VAT entries).\n- VAT rates:\n  - 10% and 00% appear; extract rates without % → \"10\" and \"00\" (follow rule to remove %; keep same decimals where applicable).\n- Numeric formatting: input uses comma as decimal separator. Schema requires numbers (type number). Must represent numeric values with decimal points; preserve decimals. (Will convert commas to dot when producing final numeric values.)\n\n3) Handling schema constraints and rules\n- Vat groups: create entries for 10% (Net 66.96, Vat 6.70) and 0% (Net 0.00, Vat 0.00).\n- GrandTotal.Amount: 73.66 (from Bruttobetrag).\n- Invoice.Date: \"4.01.2024\" (string).\n- Sender.VatId: choose \"ATU22642807\" (prominent header); acknowledge there is a second VAT number but will not infer which to prefer beyond prominence.\n- No inference for missing fields—every value pulled directly from text.\n- Maintain decimals as in source (two decimals).\n\n4) Final mapping planned\n- GrandTotal.Amount → 73.66\n- Invoice.Date → \"4.01.2024\"\n- Sender.VatId → \"ATU22642807\"\n- Vat.Rate → array entries: 10 and 00\n- Net.Amount → corresponding numeric values 66.96 and 0.00\n- Vat.Amount → corresponding numeric values 6.70 and 0.00\n\nI will now produce the JSON extraction per the schema.",
+    "step2": "GrandTotal.Amount (73.66)\n- Evidence: \"Bruttobetrag                                                                                             73,66\"\n- Ambiguities: none apparent.\n- Confidence: 98%\n\nInvoice.Date (\"4.01.2024\")\n- Evidence: \"Datum:                     4.01.2024\"\n- Ambiguities: date format clear; could be day.month.year.\n- Confidence: 99%\n\nSender.VatId (\"ATU22642807\")\n- Evidence: \"USt-Id:                   ATU22642807\" near top.\n- Ambiguities: a second VAT appears at bottom \"USt-IdNr. ATU14391601\" (company registration block). Unclear which is intended as sender VAT; top one is labeled \"USt-Id\" and is prominent.\n- Confidence: 85%\n\nVat.Rate ([\"10\",\"00\"])\n- Evidence: \"10%         MWSt\" and \"00%          MWSt\" lines present.\n- Ambiguities: formatting shows \"10% MWSt\" clearly; \"00% MWSt\" appears for a zero-tax group. Representing \"00\" rather than \"0\" follows source but unusual.\n- Confidence: 90% for 10, 95% for 00 (presence of both is explicit)\n\nNet.Amount ([66.96, 0.00])\n- Evidence: \"Nettowert                        gesamt ... 66,96\" and a line \"00% MWSt ... 0,00\"\n- Ambiguities: the 66,96 is labeled \"Nettowert gesamt\"; 0,00 is explicit.\n- Confidence: 95%\n\nVat.Amount ([6.70, 0.00])\n- Evidence: \"10%         MWSt             von                                66,96                                       6,70\" and \"00% ... 0,00\"\n- Ambiguities: none significant.\n- Confidence: 96%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.55,
+      "input_tokens": 1904,
+      "cached_input_tokens": null,
+      "output_tokens": 1019,
+      "total_tokens": 2923,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.32,
+      "input_tokens": 2586,
+      "cached_input_tokens": null,
+      "output_tokens": 472,
+      "total_tokens": 3058,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 9.19,
+      "input_tokens": 3294,
+      "cached_input_tokens": null,
+      "output_tokens": 629,
+      "total_tokens": 3923,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\267980\\267951_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU14391601,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        73.66,
+        "73,66"
+      ],
+      "Net.Amount": [
+        false,
+        [
+          66.96,
+          0.0
+        ],
+        "66,96"
+      ],
+      "Vat.Amount": [
+        false,
+        [
+          6.7,
+          0.0
+        ],
+        "6,70"
+      ],
+      "Vat.Rate": [
+        false,
+        [
+          10,
+          0
+        ],
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "4.01.2024",
+        "4.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 2,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7784,
+    "cached_input_tokens": 0,
+    "output_tokens": 2120,
+    "eur_estimate": 0.00538
+  }
+}

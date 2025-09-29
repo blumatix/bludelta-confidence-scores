@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\268557\\268557_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 116.48,
+    "Invoice.Date": "08.01.2024",
+    "Sender.VatId": "ATU38510009",
+    "Vat.Rate": 20,
+    "Net.Amount": 97.07,
+    "Vat.Amount": 19.41
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains header \"Rechnung\" and invoice-like fields (Rechnungs-Nr., Rechnungsdatum, Zwischensumme, MwSt, Rechnungsbetrag) → classify as invoice.\n- No exclusion terms prominent.\n\nKey data candidates in text:\n- Rechnungsdatum: \"08.01.2024\"\n- Two \"Rechnungsbetrag\" values appear:\n  - \"Rechnungsbetrag EUR 116,48\"\n  - \"Rechnungsbetrag EUR 112,99\" (labelled near Skonto; likely discounted total if paid early)\n- Zwischensumme / Warenwert / Net: \"Zwischensumme EUR 97,07\" and \"Warenwert (20,00 %) 97,07\"\n- MwSt (20,00 %) amount: \"19,41\"\n- Skonto (3,00 %) amount: \"Skonto (MwSt 20,00 %) 3,49\" and resulting \"112,99\" (97.07+19.41-3.49 = 112.99)\n- Sender VAT IDs:\n  - Near Günthart GmbH contact block: \"ATU38510009\" (appears next to company info) → likely sender VAT ID\n  - Elsewhere: \"USTID: ATU 22642807\" near customer block → likely customer VAT ID; do not use for sender\n\nDecisions and verification:\n- GrandTotal.Amount: Two totals present. \"116,48\" is the full invoice gross total (Net 97.07 + VAT 19.41). \"112,99\" is the payable amount if paying within discount period (after 3% skonto). Schema field \"Total payable amount on the invoice\" — invoice explicitly shows \"Rechnungsbetrag EUR 116,48\" and separately the discounted \"Rechnungsbetrag EUR 112,99\". To avoid inference, choose the explicit main gross \"Rechnungsbetrag EUR 116,48\" as GrandTotal.Amount, and do not infer which the payer will use.\n- Invoice.Date: take exact string \"08.01.2024\".\n- Sender.VatId: choose \"ATU38510009\" found in sender/company block.\n- Vat.Rate: indicated as \"20,00 %\" → extract numeric \"20\" (rule: no % sign).\n- Net.Amount: \"97,07\" → convert to number keeping decimals as in input => 97.07.\n- Vat.Amount: \"19,41\" → 19.41.\n- Ensure numeric fields use dot as decimal separator for JSON numbers.\n\nNo fields are being guessed beyond explicit values. Multiple occurrences considered and resolved using header context (supplier block vs customer block).",
+    "step2": "GrandTotal.Amount — Confidence: 90%\n- Evidence: Explicit label \"Rechnungsbetrag EUR 116,48\" appears prominently; alternative discounted Rechnungsbetrag EUR 112,99 also present but context (Skonto) indicates it's conditional. Choosing 116,48 as main total is well supported.\n\nInvoice.Date — Confidence: 99%\n- Evidence: Explicit \"Rechnungsdatum: 08.01.2024\" clearly printed.\n\nSender.VatId — Confidence: 85%\n- Evidence: \"ATU38510009\" appears in the Günthart GmbH contact block (sender). Another VAT \"ATU 22642807\" appears near customer (USTID). Sender VAT selection is consistent but OCR spacing and placement could cause minor ambiguity.\n\nVat.Rate — Confidence: 95%\n- Evidence: Multiple mentions of \"(20,00 %)\" and \"MwSt (20,00 %)\" clearly indicate 20% VAT rate.\n\nNet.Amount — Confidence: 95%\n- Evidence: \"Zwischensumme EUR 97,07\" and \"Warenwert (20,00 %) 97,07\" match net amount; consistent with VAT calculation.\n\nVat.Amount — Confidence: 95%\n- Evidence: \"MwSt (20,00 %) 19,41\" explicitly listed; matches 20% of 97,07 (19,414 → rounded/displayed 19,41).\n\nNotes on uncertainties:\n- GrandTotal ambiguity due to presence of two \"Rechnungsbetrag\" lines (full vs. discounted) is main residual uncertainty.\n- Sender VAT ID could be mis-associated if OCR blocks shifted, but placement strongly favors ATU38510009."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 17.63,
+      "input_tokens": 2218,
+      "cached_input_tokens": null,
+      "output_tokens": 1398,
+      "total_tokens": 3616,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.11,
+      "input_tokens": 2831,
+      "cached_input_tokens": null,
+      "output_tokens": 414,
+      "total_tokens": 3245,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.51,
+      "input_tokens": 3481,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3762,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\268557\\268557_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU38510009",
+        "ATU38510009"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        116.48,
+        "116,48"
+      ],
+      "Net.Amount": [
+        true,
+        97.07,
+        "97,07"
+      ],
+      "Vat.Amount": [
+        true,
+        19.41,
+        "19,41"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "08.01.2024",
+        "08.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8530,
+    "cached_input_tokens": 0,
+    "output_tokens": 2093,
+    "eur_estimate": 0.005497
+  }
+}

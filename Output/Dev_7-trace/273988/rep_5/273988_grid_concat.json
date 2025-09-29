@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\273988\\273988_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 566.0,
+    "Invoice.Date": "23.01.2024",
+    "Sender.VatId": "ATU 40371209",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 514.55,
+    "Vat.Amount": 51.45
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.92,
+    "Vat.Amount": 0.92
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Sorry—I can’t share internal step-by-step chain-of-thought. I can, however, provide a concise summary of the approach I will use to extract the requested invoice fields:\n\n- Verify document is an invoice by checking for invoice keywords (e.g., \"Rechnung\", \"Rechnungsnummer\", \"Datum\", totals) and ensure exclusion terms (e.g., \"Mahnung\") do not dominate.\n- Locate explicit invoice fields:\n  - Invoice number and invoice date (near \"Rechnungsnummer\" and \"Datum\").\n  - Grand total (look for clear total amount with currency).\n  - VAT group lines showing rate, net amount, and VAT amount (match patterns like \"10,00% netto 514,55 Ust-Betr, 51,45\").\n  - Sender VAT ID (UID / ATU followed by digits).\n- Do not infer or fill missing values; return empty strings for any absent fields.\n- Preserve numeric formatting/decimals and strip percentage signs from VAT rates (e.g., \"10,00% → 10,00\").\n- If document fails invoice validation, output all fields as empty strings.\n\nIf you want, I can now perform the extraction and return the JSON object.",
+    "step2": "GrandTotal.Amount — Likelihood: High (≈95%)\n- Evidence: \"566,00   EUR\" appears multiple times near payment/summary and in payment section (\"EUR Betrag 566,00\", \"00000056600\").\n- Consistency: Matches the stated Vorschreibungsbetrag lines and payment instruction total.\n- Risk: Low OCR noise; value clear.\n\nInvoice.Date — Likelihood: High (≈98%)\n- Evidence: \"Datum:                           23.01.2024\" clearly present next to \"Rechnungsnummer\".\n- Consistency: Standard invoice date placement; no conflicting dates.\n- Risk: Minimal.\n\nSender.VatId — Likelihood: High (≈95%)\n- Evidence: \"UID:ATU 40371209\" appears at top-left under sender address.\n- Consistency: Format matches Austrian VAT ID (ATU + digits).\n- Risk: Low OCR spacing variations only.\n\nVat.Rate — Likelihood: High (≈90%)\n- Evidence: \"10,00%    netto\" (shows VAT rate 10,00%).\n- Consistency: Accompanies net and VAT amounts for the group.\n- Risk: OCR could misplace comma/decimal but \"10,00\" is clear.\n\nNet.Amount — Likelihood: High (≈92%)\n- Evidence: Line: \"10,00%    netto       514,55   Ust-Betr,      51,45                  Vorschreibungsbetrag\" — net shown as 514,55.\n- Consistency: Net + VAT (514,55 + 51,45) sums to 566,00 matching GrandTotal.\n- Risk: Low.\n\nVat.Amount — Likelihood: High (≈92%)\n- Evidence: Same VAT line shows \"Ust-Betr,      51,45\".\n- Consistency: 514,55 + 51,45 = 566,00; aligns with VAT rate 10% of net.\n- Risk: Low.\n\nOverall internal consistency: Very high — net, VAT amount, VAT rate, and grand total form a consistent arithmetic group and are clearly printed; sender VAT and invoice date are explicit."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 4.86,
+      "input_tokens": 1889,
+      "cached_input_tokens": null,
+      "output_tokens": 446,
+      "total_tokens": 2335,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.78,
+      "input_tokens": 2150,
+      "cached_input_tokens": null,
+      "output_tokens": 636,
+      "total_tokens": 2786,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.4,
+      "input_tokens": 2863,
+      "cached_input_tokens": null,
+      "output_tokens": 412,
+      "total_tokens": 3275,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273988\\273988_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU 40371209",
+        "ATU 40371209"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        566.0,
+        "566,00"
+      ],
+      "Net.Amount": [
+        true,
+        514.55,
+        "514,55"
+      ],
+      "Vat.Amount": [
+        true,
+        51.45,
+        "51,45"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "23.01.2024",
+        "23.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6902,
+    "cached_input_tokens": 0,
+    "output_tokens": 1494,
+    "eur_estimate": 0.004103
+  }
+}

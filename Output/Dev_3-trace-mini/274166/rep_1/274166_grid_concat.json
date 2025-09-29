@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\274232\\274166_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 91.17,
+    "Invoice.Date": "26.01.2024",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": 10,
+    "Net.Amount": 82.88,
+    "Vat.Amount": 8.29
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Classify document as invoice:\n- Contains header \"GUTSCHRIFT\" (credit note/invoice-like), \"Datum\", \"USt-Id\", Nettowert, MWSt, Bruttobetrag, line item and totals → qualifies as invoice. No exclusion keywords like \"Mahnung\" or \"Zahlungserinnerung\" prominently.\n\n2) Locate fields:\n- Sender.VatId: found \"USt-Id: ATU22642807\".\n- Invoice.Date: \"Datum: 26.01.2024\".\n- GrandTotal.Amount: \"Bruttobetrag 91,17\" (EUR).\n- Net.Amount: \"Nettowert gesamt 82,88\" (EUR).\n- Vat.Rate and Vat.Amount: line shows \"10% MWSt von 82,88 8,29\" → VAT rate 10, VAT amount 8,29.\n\n3) Verify consistency and rules:\n- No conflicting totals; net (82,88) + VAT (8,29) = 91,17 matches Bruttobetrag.\n- Preserve decimal places as in input (two decimals).\n- Rate should be returned without '%' → \"10\".\n- No need to infer missing values.\n\n4) Prepare final extraction values (numeric values use dot as decimal separator for JSON numbers):\n- Sender.VatId = \"ATU22642807\"\n- Invoice.Date = \"26.01.2024\"\n- GrandTotal.Amount = 91.17\n- Net.Amount = 82.88\n- Vat.Rate = 10\n- Vat.Amount = 8.29",
+    "step2": "GrandTotal.Amount — High confidence.\n- Evidence: \"Bruttobetrag 91,17\" clearly printed. Matches Net + VAT (82,88 + 8,29 = 91,17). Decimal format preserved.\n\nInvoice.Date — High confidence.\n- Evidence: \"Datum: 26.01.2024\" clearly printed.\n\nSender.VatId — High confidence.\n- Evidence: \"USt-Id: ATU22642807\" explicitly present.\n\nVat.Rate — High confidence.\n- Evidence: Line shows \"10% MWSt\" associated with the VAT calculation; rate to be returned without \"%\" → 10.\n\nNet.Amount — High confidence.\n- Evidence: \"Nettowert gesamt 82,88\" explicitly printed and used in VAT calculation.\n\nVat.Amount — High confidence.\n- Evidence: \"10% MWSt von 82,88 8,29\" explicitly printed; matches arithmetic (82,88 * 0.10 = 8,288 → rounds to 8,29 as shown).\n\nOverall internal consistency: high (Net + Vat = Grand Total; explicit labels present)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.64,
+      "input_tokens": 1906,
+      "cached_input_tokens": null,
+      "output_tokens": 981,
+      "total_tokens": 2887,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.67,
+      "input_tokens": 2255,
+      "cached_input_tokens": null,
+      "output_tokens": 363,
+      "total_tokens": 2618,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.1,
+      "input_tokens": 2759,
+      "cached_input_tokens": null,
+      "output_tokens": 217,
+      "total_tokens": 2976,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274232\\274166_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU14391601,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        91.17,
+        "91,17"
+      ],
+      "Net.Amount": [
+        true,
+        82.88,
+        "82,88"
+      ],
+      "Vat.Amount": [
+        true,
+        8.29,
+        "8,29"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "26.01.2024",
+        "26.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 6920,
+    "cached_input_tokens": 0,
+    "output_tokens": 1561,
+    "eur_estimate": 0.004223
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\173905\\173905_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 42.0,
+    "Invoice.Date": "19.12.2022",
+    "Sender.VatId": "DE249123346",
+    "Vat.Rate": 0,
+    "Net.Amount": 42.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.8,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Highly likely",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (1) verify this is an invoice, (2) locate each required field in the text, (3) note ambiguous or missing values, and (4) prepare the extracted values.\n\n1) Document classification\n- Multiple invoice indicators present: header \"Rechnung\", invoice number \"90310750\", date \"19.12.2022\", totals (\"Gesamtsumme\", \"Endbetrag EUR 42,00\"), VAT/USt IDs, line items with quantity/price/sum. No exclusion terms like \"Mahnung\" dominant. Conclusion: document is an invoice.\n\n2) Locate required fields\n- Invoice.Date: Found \"19.12.2022\" near header line with Telefon/Fax/Datum — clear invoice date.\n- GrandTotal.Amount: \"Endbetrag EUR 42,00\" and \"Gesamtsumme: Nettowert 42,00\" indicate total payable 42,00 EUR.\n- Sender.VatId: Two VAT-like IDs present: \"Ihre USt-IdNr. ATU47239901\" (appears under customer block) and \"USt-IdNr. DE249123346\" near totals. Need to determine which is sender (invoice issuer). Header shows ipm Werbemittel GmbH at top-left (issuer) and DACHSER-Austria as recipient; \"Ihre USt-IdNr. ATU47239901\" uses \"Ihre\" (your) suggesting recipient. \"USt-IdNr. DE249123346\" near totals and company contact block aligns with sender. Therefore Sender.VatId = \"DE249123346\".\n- Vat.Rate, Net.Amount, Vat.Amount: The invoice shows \"zzgl. % MwSt. 0,00 0,00\" and multiple mentions \"Steuerfreie, innergemeinschaftliche Lieferung\" (tax-exempt intra-community supply). The line \"zzgl. % MwSt. 0,00 0,00\" implies VAT rate is 0 (or no VAT applied). Net amount is shown as 42,00 and VAT amount is 0,00. There is a display: Nettowert 42,00, VAT 0,00, Endbetrag 42,00. So VAT group: Rate = 0 (extract without %), Net.Amount = 42,00, Vat.Amount = 0,00.\n\n3) Ambiguities and rules check\n- Ensure no inference beyond text: all values cited explicitly. VAT rate presented as \"% MwSt.\" with zero amounts and text indicating tax-free intra-community supply—using \"0\" for rate follows displayed zero. Decimal formatting: input uses comma; schema requires numbers but preserves decimals—will convert numeric values preserving decimals (42,00 → 42.00 etc.) in final extraction as numbers with same decimal precision. (Final output will adhere to schema formatting.)\n\n4) Ready to produce final JSON with:\n- GrandTotal.Amount = 42.00 (from \"42,00\")\n- Invoice.Date = \"19.12.2022\"\n- Sender.VatId = \"DE249123346\"\n- Vat.Rate = 0\n- Net.Amount = 42.00\n- Vat.Amount = 0.00\n\nI will now produce the final JSON extraction.",
+    "step2": "GrandTotal.Amount — High confidence (~95%)\n- Evidence: \"Endbetrag EUR 42,00\" and \"Gesamtsumme: Nettowert 42,00\" both state 42,00 as total payable. No other total conflicts. Clear numeric match.\n\nInvoice.Date — High confidence (~98%)\n- Evidence: \"Datum 19.12.2022\" appears prominently near header. Unambiguous date format and placement.\n\nSender.VatId — Medium-high confidence (~85%)\n- Evidence: Two VAT IDs present: \"Ihre USt-IdNr. ATU47239901\" and \"USt-IdNr. DE249123346\". Context: \"Ihre USt-IdNr.\" likely refers to recipient; \"USt-IdNr. DE249123346\" is near totals and company contact block (issuer). That placement supports DE249123346 as sender VAT. Slight uncertainty due to layout ambiguity.\n\nVat.Rate — Medium confidence (~80%)\n- Evidence: Invoice shows \"zzgl. % MwSt. 0,00 0,00\" and repeated \"Steuerfreie, innergemeinschaftliche Lieferung\" (tax-exempt intra-community supply). Interpreting VAT rate as 0 is consistent with zero VAT amounts. Minor ambiguity whether rate is explicitly printed as \"0%\" or implied by tax-free statement.\n\nNet.Amount — High confidence (~95%)\n- Evidence: \"Nettowert 42,00\" shown explicitly. Matches Endbetrag and line item sum.\n\nVat.Amount — High confidence (~95%)\n- Evidence: VAT shown as 0,00 next to \"zzgl. % MwSt.\" and tax-free statements confirm VAT amount zero."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.2,
+      "input_tokens": 1932,
+      "cached_input_tokens": null,
+      "output_tokens": 935,
+      "total_tokens": 2867,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.44,
+      "input_tokens": 2658,
+      "cached_input_tokens": null,
+      "output_tokens": 349,
+      "total_tokens": 3007,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.13,
+      "input_tokens": 3307,
+      "cached_input_tokens": null,
+      "output_tokens": 216,
+      "total_tokens": 3523,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\173905\\173905.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DE249123346",
+        "DE249123346"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        42.0,
+        "42,00"
+      ],
+      "Net.Amount": [
+        true,
+        42.0,
+        "42,00"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "19.12.2022",
+        "19.12.2022"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 5,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7897,
+    "cached_input_tokens": 0,
+    "output_tokens": 1500,
+    "eur_estimate": 0.00092
+  }
+}

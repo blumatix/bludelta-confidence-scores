@@ -1,0 +1,203 @@
+{
+  "input_path": "..\\Documents\\273905\\273897_grid_concat.txt",
+  "n_paths": 1,
+  "final_answer": {
+    "Invoice.Date": {
+      "value": "26.01.2024",
+      "sum_confidence": 0.99,
+      "vote_count": 1,
+      "avg_confidence": 0.99
+    },
+    "Net.Amount": {
+      "value": 10908.42,
+      "sum_confidence": 0.99,
+      "vote_count": 1,
+      "avg_confidence": 0.99
+    },
+    "Vat.Rate": {
+      "value": 10,
+      "sum_confidence": 0.99,
+      "vote_count": 1,
+      "avg_confidence": 0.99
+    },
+    "Sender.VatId": {
+      "value": "ATU66427645",
+      "sum_confidence": 0.95,
+      "vote_count": 1,
+      "avg_confidence": 0.95
+    },
+    "GrandTotal.Amount": {
+      "value": 11999.26,
+      "sum_confidence": 0.98,
+      "vote_count": 1,
+      "avg_confidence": 0.98
+    },
+    "Vat.Amount": {
+      "value": 1090.84,
+      "sum_confidence": 0.99,
+      "vote_count": 1,
+      "avg_confidence": 0.99
+    }
+  },
+  "runs": [
+    {
+      "input_path": "..\\Documents\\273905\\273897_grid_concat.txt",
+      "answer": {
+        "GrandTotal.Amount": 11999.26,
+        "Invoice.Date": "26.01.2024",
+        "Sender.VatId": "ATU66427645",
+        "Vat.Rate": 10,
+        "Net.Amount": 10908.42,
+        "Vat.Amount": 1090.84
+      },
+      "confidence_numeric": {
+        "GrandTotal.Amount": 0.98,
+        "Invoice.Date": 0.99,
+        "Sender.VatId": 0.95,
+        "Vat.Rate": 0.99,
+        "Net.Amount": 0.99,
+        "Vat.Amount": 0.99
+      },
+      "confidence_verbal": {
+        "GrandTotal.Amount": "Almost certain",
+        "Invoice.Date": "Almost certain",
+        "Sender.VatId": "Almost certain",
+        "Vat.Rate": "Almost certain",
+        "Net.Amount": "Almost certain",
+        "Vat.Amount": "Almost certain"
+      },
+      "reasoning": {
+        "step1": "I will extract invoice fields only if the document is an invoice. Evidence it is an invoice:\n- Title \"Rechnung 202400569\" and invoice-like headers, line items, totals, VAT lines → classify as invoice.\n\nIdentified candidate values with source lines:\n- Invoice.Date: \"Datum: 26.01.2024\" (page 1 header).\n- GrandTotal.Amount: \"Rechnungsbetrag 11.999,26 €\" (page 2).\n- Net.Amount: \"Nettobetrag 10.908,42 €\" (page 2).\n- Vat groups: \"+   10,00% USt. von 10.908,42    1.090,84 €\" → Vat.Rate = 10, Vat.Amount = 1.090,84; there is also \"+ 20,00% USt. von 0,00\" but VAT amount 0,00 and net 0,00.\n- Sender VAT ID: two UID lines present:\n  - Near top: \"UID: ATU22642807\" (appears with Bäko-Österreich — likely recipient/customer).\n  - Bottom: \"UID-Nr: ATU66427645\" next to Unterweger Früchteküche GmbH (supplier). Sender = Unterweger Früchteküche GmbH → Sender.VatId = \"ATU66427645\".\n\nNo inference beyond explicit text; I will output empty fields for any missing data.",
+        "step2": "GrandTotal.Amount — 11.999,26\n- Confidence: 98%\n- Evidence: Text \"Rechnungsbetrag                                                        11.999,26          €\" (page 2). Clear labeled total; formatting matches invoice total.\n\nInvoice.Date — 26.01.2024\n- Confidence: 99%\n- Evidence: Header \"Datum:                               26.01.2024\" (page 1). Explicit invoice/date field.\n\nSender.VatId — ATU66427645\n- Confidence: 95%\n- Evidence: Bottom of pages shows supplier info \"Unterweger Früchteküche GmbH\" with \"UID-Nr:    ATU66427645\". High confidence sender VAT matches supplier block. (Note: another UID ATU22642807 appears near Bäko-Österreich — likely customer; not used for Sender.)\n\nVat.Rate — 10\n- Confidence: 99%\n- Evidence: VAT line \"+   10,00%         USt.    von       10.908,42\" (page 2). Explicit percentage; rule requires returning without % (10).\n\nNet.Amount — 10.908,42\n- Confidence: 99%\n- Evidence: \"Nettobetrag                                                            10.908,42          €\" (page 2). Matches base for 10% VAT line.\n\nVat.Amount — 1.090,84\n- Confidence: 99%\n- Evidence: VAT line shows \"1.090,84         €\" corresponding to 10% of 10.908,42. Also explicit in invoice.\n\nAdditional VAT group (20.00%):\n- Net: 0,00; Vat.Amount: 0,00; Rate: 20\n- Confidence: 95%\n- Evidence: Line \"+   20,00%         USt.    von      0,00\" (page 2) explicitly present; amounts zero."
+      },
+      "llm_logs": {
+        "step1": {
+          "runtime_sec": 9.88,
+          "input_tokens": 2941,
+          "cached_input_tokens": null,
+          "output_tokens": 1019,
+          "total_tokens": 3960,
+          "timed_out": false
+        },
+        "step2": {
+          "runtime_sec": 5.87,
+          "input_tokens": 3263,
+          "cached_input_tokens": null,
+          "output_tokens": 599,
+          "total_tokens": 3862,
+          "timed_out": false
+        },
+        "step3": {
+          "runtime_sec": 7.36,
+          "input_tokens": 3939,
+          "cached_input_tokens": null,
+          "output_tokens": 540,
+          "total_tokens": 4479,
+          "timed_out": false
+        }
+      },
+      "evaluation": {
+        "ground_truth_path": "..\\Documents\\273905\\273897_test.json",
+        "per_field": {
+          "Sender.VatId": [
+            true,
+            "ATU66427645",
+            "ATU66427645"
+          ],
+          "GrandTotal.Amount": [
+            true,
+            11999.26,
+            "11.999,26"
+          ],
+          "Net.Amount": [
+            true,
+            10908.42,
+            "10.908,42"
+          ],
+          "Vat.Amount": [
+            true,
+            1090.84,
+            "1.090,84"
+          ],
+          "Vat.Rate": [
+            true,
+            10,
+            "10,00"
+          ],
+          "Invoice.Date": [
+            true,
+            "26.01.2024",
+            "26.01.2024"
+          ]
+        },
+        "summary": {
+          "matched": 6,
+          "total": 6,
+          "all_match": true
+        }
+      },
+      "cost": {
+        "input_tokens": 10143,
+        "cached_input_tokens": 0,
+        "output_tokens": 2158,
+        "eur_estimate": 0.005965
+      }
+    }
+  ],
+  "vote_debug": {
+    "Invoice.Date": {
+      "sum_conf_per_value": {
+        "26.01.2024": 0.99
+      },
+      "counts": {
+        "26.01.2024": 1
+      }
+    },
+    "Net.Amount": {
+      "sum_conf_per_value": {
+        "10908.42": 0.99
+      },
+      "counts": {
+        "10908.42": 1
+      }
+    },
+    "Vat.Rate": {
+      "sum_conf_per_value": {
+        "10": 0.99
+      },
+      "counts": {
+        "10": 1
+      }
+    },
+    "Sender.VatId": {
+      "sum_conf_per_value": {
+        "ATU66427645": 0.95
+      },
+      "counts": {
+        "ATU66427645": 1
+      }
+    },
+    "GrandTotal.Amount": {
+      "sum_conf_per_value": {
+        "11999.26": 0.98
+      },
+      "counts": {
+        "11999.26": 1
+      }
+    },
+    "Vat.Amount": {
+      "sum_conf_per_value": {
+        "1090.84": 0.99
+      },
+      "counts": {
+        "1090.84": 1
+      }
+    }
+  },
+  "cost": {
+    "input_tokens": 10143,
+    "cached_input_tokens": 0,
+    "output_tokens": 2158,
+    "eur_estimate": 0.005965
+  }
+}

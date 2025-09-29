@@ -1,0 +1,124 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\215898\\215898_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 14455.0,
+    "Invoice.Date": "24-Dec-2022",
+    "Sender.VatId": "24AEBPB6411",
+    "Vat.Rate": 9,
+    "Net.Amount": 12250.0,
+    "Vat.Amount": 2205.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.3,
+    "Vat.Rate": 0.8,
+    "Net.Amount": 0.8,
+    "Vat.Amount": 0.55
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Unlikely",
+    "Vat.Rate": "Highly likely",
+    "Net.Amount": "Highly likely",
+    "Vat.Amount": "Better than even"
+  },
+  "reasoning": {
+    "step1": "Classification: document contains invoice indicators (title \"TAX INVOICE\", \"Invoice No.\", \"Invoice Date\", totals, GST/CGST/SGST), so proceed with extraction.\n\nPlanned extraction steps and observations:\n- Invoice.Date:\n  - Found \"Invoice Date. : 24-Dec-2022\" — clear match -> 24-Dec-2022.\n- GrandTotal.Amount:\n  - \"TotalRupee ... Fourteen Thousand Four Hundred Fifty Five only. 14,455.00\" and table shows TOTAL 12,250.00 plus taxes 2,205.00 = 14,455.00. Use 14455.00 (preserve decimals as in source: 14,455.00).\n- Sender.VatId:\n  - Occurrences: header has \"GSTIN/UIN:me 24AEBPB6411 Code M :12ZV\" and footer \"Company's PAN No. : AEBPB6411 M\". OCR is noisy; GSTIN appears as \"24AEBPB6411\" (possible missing characters). This is ambiguous; avoid inferring missing characters. Two candidate strings: \"24AEBPB6411\" and \"AEBPB6411\". Note uncertainty to resolve before final extraction.\n- VAT groups (Vat.Rate, Net.Amount, Vat.Amount):\n  - Two VAT lines in table:\n    1) HSN 00996712: Taxable Value 8,000.00, Rate 9% (CGST 9% = 720.00, SGST 9% = 720.00) — VAT amount for group typically sum of both = 1,440.00. Rate to record per rule without \"%\" -> 9. Net.Amount 8000.00, Vat.Amount 1440.00.\n    2) HSN 996719: Taxable Value 3,500.00, Rate 9% (CGST 315.00 + SGST 315.00 = 630.00). Net.Amount 3500.00, Vat.Amount 630.00.\n  - Table totals: Total taxable 12,250.00, total tax 2,205.00 (matches 1,440.00 + 630.00 = 2,070.00 — note discrepancy: OCR shows 2,205.00 elsewhere; but line sums give 2,070.00; invoice also lists CGST/SGST each 1,102.50 in one place summing 2,205.00). Two conflicting representations:\n    - Per HSN lines summed = 1,440.00 + 830.00? (OCR shows for second HSN Vat total 830.00 in one place) There is inconsistent OCR. Need to choose consistent evidence: the printed \"Total ... 12,250.00\" and adjacent \"1,102.50\" for CGST and same for SGST (1,102.50 each) give total tax 2,205.00. That implies overall VAT split across groups yielding totals of 1,102.50 CGST and 1,102.50 SGST.\n  - To comply with no inference and decimal preservation: will flag ambiguity and prefer VAT group values that are explicitly shown per HSN lines:\n    - HSN 00996712: Net 8,000.00, Vat.Amount 1,440.00, Rate 9.\n    - HSN 996719: Net 3,500.00, Vat.Amount 830.00 (OCR shows 830.00 near this line).\n  - Note: these two Vat.Amounts sum to 2,270.00 or 2,270? (1,440 + 830 = 2,270) which doesn't match other totals; multiple OCR inconsistencies documented.\n  \nDecision points to resolve before final JSON:\n- Confirm exact Sender.VatId string (choose either \"24AEBPB6411\" or leave empty if uncertain).\n- Decide which VAT group totals to trust (HSN line-level amounts vs. aggregated CGST/SGST totals). Current best-evidence extraction candidates:\n  - Vat.Item[0]: Rate=9, Net.Amount=8000.00, Vat.Amount=1440.00\n  - Vat.Item[1]: Rate=9, Net.Amount=3500.00, Vat.Amount=830.00\n- GrandTotal.Amount candidate: 14455.00 (explicit, consistent with words and numeric total).\n- Invoice.Date candidate: 24-Dec-2022.\n\nNext step (final extraction): produce JSON per schema using the selected candidates above, or leave ambiguous fields empty per no-inference rule if you prefer strictness (noted Sender.VatId ambiguity).",
+    "step2": "GrandTotal.Amount — Confidence: High (≈95%)\n- Evidence: Numeric \"14,455.00\" appears clearly near \"TotalRupee Fourteen Thousand Four Hundred Fifty Five only.\" and table totals add taxes to reach that value. Textual words match numeric amount. OCR noise present elsewhere but this field is consistently shown.\n\nInvoice.Date — Confidence: High (≈95%)\n- Evidence: Explicit line \"Invoice Date. : 24-Dec-2022\" on page 1. Clear, unambiguous format.\n\nSender.VatId — Confidence: Low–Medium (≈30%)\n- Evidence/conflict: Multiple noisy occurrences:\n  - \"GSTIN/UIN:me 24AEBPB6411 Code M :12ZV\" (OCR noise \"me\" and spacing).\n  - Footer shows \"Company's PAN No. : AEBPB6411 M\".\n- Uncertainty: OCR may have inserted/missed characters (leading \"24\" might be state code or part of GSTIN). Cannot reliably reconstruct full GSTIN without inferring; extracted candidates differ. Low confidence.\n\nVat.Rate (per VAT item) — Confidence: Medium–High (≈80%)\n- Evidence: Multiple places show \"CGST @ 9%\" and \"SGST @ 9%\" and HSN lines show \"Rate 9%\". Rate 9 is consistently present. OCR percent symbol present but rule requires dropping \"%\". Some OCR noise but rate 9 is reliable.\n\nVat.Net.Amount (per VAT item) — Confidence: Medium (≈70%)\n- Evidence:\n  - HSN line 00996712 shows Taxable Value \"8,000.00\" — clear.\n  - HSN line 996719 shows \"3,500.00\" — readable.\n- Uncertainty: Slight OCR formatting issues but numeric values are consistent with subtotal \"Total 12,250.00\". Reasonably reliable.\n\nVat.Amount (per VAT item) — Confidence: Medium–Low (≈55%)\n- Evidence/conflict:\n  - For HSN 00996712, entries show CGST 720.00 + SGST 720.00 => 1,440.00 (consistent).\n  - For HSN 996719, OCR shows CGST 315.00 + SGST 315.00 => 630.00 in one area, but elsewhere a figure \"830.00\" appears near that HSN line. Aggregate tax totals in different parts show 2,205.00 (1,102.50 + 1,102.50) which conflicts with per-HSN sums.\n- Uncertainty: Inconsistent OCR/aggregation across the document. The 1,440.00 for first group is reliable; second group VAT could be 630.00 or 830.00 depending on which OCR fragment is trusted. Moderate-low confidence overall."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.91,
+      "input_tokens": 5307,
+      "cached_input_tokens": null,
+      "output_tokens": 1373,
+      "total_tokens": 6680,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.24,
+      "input_tokens": 6343,
+      "cached_input_tokens": null,
+      "output_tokens": 588,
+      "total_tokens": 6931,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.05,
+      "input_tokens": 7231,
+      "cached_input_tokens": null,
+      "output_tokens": 476,
+      "total_tokens": 7707,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\215898\\215898.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "24AEBPB6411",
+        "24AEBPB6411M1ZV"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        14455.0,
+        "14,455.00"
+      ],
+      "Net.Amount": [
+        false,
+        12250.0,
+        [
+          "750.00",
+          "8.000.00",
+          "750.00",
+          "8.000.00",
+          "3,500.00",
+          "3,500.00"
+        ]
+      ],
+      "Vat.Amount": [
+        false,
+        2205.0,
+        [
+          "67.50",
+          "720.00",
+          "67.50",
+          "720.00",
+          "315.00",
+          "315.00"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        9,
+        [
+          "9",
+          "9",
+          "9",
+          "9",
+          "9",
+          "9"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "24-Dec-2022",
+        "24-Dec-2022"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 18881,
+    "cached_input_tokens": 0,
+    "output_tokens": 2437,
+    "eur_estimate": 0.001797
+  }
+}

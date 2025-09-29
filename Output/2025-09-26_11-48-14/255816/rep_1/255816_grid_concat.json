@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\255824\\255816_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 136.04,
+    "Invoice.Date": "27.11.2023",
+    "Sender.VatId": "ATU52286707",
+    "Vat.Rate": 10,
+    "Net.Amount": 123.67,
+    "Vat.Amount": 12.37
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.8,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (1) verify the document is an invoice, (2) locate invoice-like headers and fields, (3) extract only explicitly present values without guessing, and (4) preserve original numeric formatting/decimals.\n\nObservations and candidate extractions found in the text:\n- Invoice indicators: the document contains \"RECHNUNG\", \"Faktura Nr. 9610245157\", \"UID : ATU22642807\", \"Warenwert\", \"MWST\", totals and line items — classify as an invoice.\n- Invoice date: \"vom 27.11.2023\" → candidate Invoice.Date = \"27.11.2023\".\n- Sender VAT ID: two UIDs appear: \"UID : ATU22642807\" (near buyer address) and \"UID: ATU52286707\" (in company footer for Mars Austria OG). The header \"Mars Austria OG ...\" indicates sender; candidate Sender.VatId = \"ATU52286707\".\n- Grand total: a total line shows \"EUR 136,04\" → candidate GrandTotal.Amount = 136,04 (preserve decimals as in source).\n- VAT group(s): shows \"10 % MWST    12,37\" and \"Warenwert 123,67\". Candidate VAT group: Vat.Rate = 10, Net.Amount = 123,67, Vat.Amount = 12,37.\n\nI will not infer or fill missing fields beyond these explicit occurrences.",
+    "step2": "GrandTotal.Amount (136,04)\n- Evidence: \"EUR 136,04\" appears aligned with totals section under Warenwert/MWST and final EUR figure.\n- Consistency: Warenwert 123,67 + MWST 12,37 = 136,04 exactly.\n- Confidence: High\n\nInvoice.Date (\"27.11.2023\")\n- Evidence: \"vom 27.11.2023\" next to \"Faktura Nr. 9610245157\".\n- Placement: Typical invoice date location.\n- Confidence: High\n\nSender.VatId (\"ATU52286707\")\n- Evidence: Two UIDs present: \"UID : ATU22642807\" (near buyer block) and \"UID: ATU52286707\" (footer with Mars Austria OG registration info). Sender is Mars Austria OG, footer UID matches sender declaration.\n- Ambiguity: Presence of second UID requires choosing the one tied to sender; footer explicitly names Mars Austria.\n- Confidence: Medium–High\n\nVat.Rate (10)\n- Evidence: \"10 %    MWST\" appears in VAT summary.\n- Formatting: Rate present as percentage; rule requires returning without %.\n- Confidence: High\n\nNet.Amount (123,67)\n- Evidence: \"Warenwert 123,67\" corresponds to net amount before VAT.\n- Consistency: Adds with VAT amount to GrandTotal.\n- Confidence: High\n\nVat.Amount (12,37)\n- Evidence: \"10 %    MWST   12,37\" line shows VAT amount.\n- Consistency: 10% of 123,67 = 12,367 → rounded/presented as 12,37; matches displayed VAT.\n- Confidence: High"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.27,
+      "input_tokens": 2004,
+      "cached_input_tokens": null,
+      "output_tokens": 564,
+      "total_tokens": 2568,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.75,
+      "input_tokens": 2359,
+      "cached_input_tokens": null,
+      "output_tokens": 423,
+      "total_tokens": 2782,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.7,
+      "input_tokens": 3018,
+      "cached_input_tokens": null,
+      "output_tokens": 345,
+      "total_tokens": 3363,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\255824\\255816_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU52286707",
+        "ATU52286707"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        136.04,
+        "136,04"
+      ],
+      "Net.Amount": [
+        true,
+        123.67,
+        "123,67"
+      ],
+      "Vat.Amount": [
+        true,
+        12.37,
+        "12,37"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "27.11.2023",
+        "27.11.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7381,
+    "cached_input_tokens": 0,
+    "output_tokens": 1332,
+    "eur_estimate": 0.003928
+  }
+}

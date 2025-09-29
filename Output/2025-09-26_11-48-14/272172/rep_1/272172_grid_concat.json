@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\272180\\272172_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2469.84,
+    "Invoice.Date": "19.01.2024",
+    "Sender.VatId": "ATU34760103",
+    "Vat.Rate": 20,
+    "Net.Amount": 2058.2,
+    "Vat.Amount": 411.64
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will determine whether this document is an invoice and then extract the requested fields without guessing.\n\n1) Classification as invoice\n- Presence of explicit invoice indicators: the document includes \"Rechnung-Nr.\" (invoice number), line items with dates/quantities/prices, \"MwSt.\" (VAT), a total and payment terms. No exclusion terms like \"Mahnung\" or \"Zahlungserinnerung\" appear. Conclusion: this is an invoice.\n\n2) Locate Grand Total\n- Near bottom: presentation \"2   058,20                  +         20    %     MwSt.                           411,64                         2   469,84\"\n- The final number appears to be the invoice total including VAT: 2,469.84 EUR. Also a payment-by amount \"Zahlung bis 02.02.24: 2   346,35 EUR\" (discounted with 5% Skonto). According to schema, GrandTotal.Amount is total payable amount on the invoice — use the full total including VAT: 2469.84 (keep decimals as in input).\n\n3) Locate Invoice Date\n- Top-right: \"Datum: 19.01.2024\" — Invoice.Date = \"19.01.2024\" (use same string format).\n\n4) Sender VAT ID\n- Header shows company and later footer shows \"UID: ATU    34760103\" and earlier near recipient block \"UID-Nr.: ATU34760103\" next to sender info. Sender.VatId = \"ATU34760103\" (exact string).\n\n5) VAT groups (Vat.Rate, Net.Amount, Vat.Amount)\n- The footer line shows net + VAT group: \"2   058,20                  +         20    %     MwSt.                           411,64                         2   469,84\"\n- This indicates a single VAT group with:\n  - Vat.Rate = 20 (per rule, no % symbol)\n  - Net.Amount = 2058.20 (as in input)\n  - Vat.Amount = 411.64\n\n6) Verify no other VAT groups or exchange rates\n- No other exchange rates present; all line items appear subject to 20% VAT and there are no separate exchange rates for entire invoice. So only one VAT group to return.\n\n7) Ensure numeric types and decimals preserved\n- GrandTotal.Amount: 2469.84 (two decimals)\n- Net.Amount: 2058.20 (two decimals)\n- Vat.Amount: 411.64 (two decimals)\n- Vat.Rate: 20 (integer number)\n- Invoice.Date and Sender.VatId as strings.\n\n8) No inference beyond visible data; fields filled only from explicit text.",
+    "step2": "{\n  \"GrandTotal.Amount\": 2469.84,\n  \"Invoice.Date\": \"19.01.2024\",\n  \"Sender.VatId\": \"ATU34760103\",\n  \"Vat.Rate\": 20,\n  \"Net.Amount\": 2058.20,\n  \"Vat.Amount\": 411.64\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.55,
+      "input_tokens": 2191,
+      "cached_input_tokens": null,
+      "output_tokens": 637,
+      "total_tokens": 2828,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.37,
+      "input_tokens": 2811,
+      "cached_input_tokens": null,
+      "output_tokens": 525,
+      "total_tokens": 3336,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.84,
+      "input_tokens": 3188,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3471,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\272180\\272172_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU34760103",
+        "ATU34760103"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        2469.84,
+        "2 469,84"
+      ],
+      "Net.Amount": [
+        true,
+        2058.2,
+        "2 058,20"
+      ],
+      "Vat.Amount": [
+        true,
+        411.64,
+        "411,64"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "19.01.2024",
+        "19.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8190,
+    "cached_input_tokens": 0,
+    "output_tokens": 1445,
+    "eur_estimate": 0.004302
+  }
+}

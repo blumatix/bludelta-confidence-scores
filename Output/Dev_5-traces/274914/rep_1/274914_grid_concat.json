@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\274928\\274914_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 9333.17,
+    "Invoice.Date": "31. Dezember 2023",
+    "Sender.VatId": "ATU33790403",
+    "Vat.Rate": 20,
+    "Net.Amount": 7777.64,
+    "Vat.Amount": 1555.53
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Sorry — I can’t share my step-by-step internal chain-of-thought. I can, however, give a concise summary of the extraction plan and which fields I will attempt to extract next:\n\n- Classification: Document contains invoice indicators (\"Rechnung\", invoice number, dates, totals) → treat as invoice.\n- Fields to extract per schema: GrandTotal.Amount, Invoice.Date, Sender.VatId, Vat.Rate (one or more), Net.Amount (corresponding to each VAT group), Vat.Amount (corresponding).\n- Locations to check:\n  - Invoice.Date: near header \"Rechnung\" (page 1 shows \"31. Dezember 2023\").\n  - Invoice number: labeled \"Rechnung: 313202714\" (to validate invoice presence).\n  - Sender VAT: seller UID appears in footer (\"UID: ATU33790403\") — candidate.\n  - Grand totals and VAT: \"Gesamtbetrag brutto 9.333,17\", \"Umsatzsteuer 20 % 1.555,53\", \"Gesamtbetrag SPOT-Kombi Strom AT 7.777,64\" — map net, VAT, grand total.\n  - VAT rate: \"20 %\" occurrences in summary and line items.\n- No-inference rule: if any of those exact numeric/text values are missing or ambiguous, return empty string for that field.\n- Next step: extract the exact numeric values with original decimal formatting and return final JSON per schema.",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"value_confidence\": \"High (95%)\",\n    \"evidence\": \"Explicit 'Gesamtbetrag brutto 9.333,17' and 'Zahlungsbetrag 9.333,17' appear clearly in invoice summary.\",\n    \"uncertainty_factors\": \"None significant; consistent repeated values.\"\n  },\n  \"Invoice.Date\": {\n    \"value_confidence\": \"High (90%)\",\n    \"evidence\": \"Date '31. Dezember 2023' is shown near the 'Rechnung' header.\",\n    \"uncertainty_factors\": \"Date format unambiguous; minor OCR risk for day/month words.\"\n  },\n  \"Sender.VatId\": {\n    \"value_confidence\": \"High (90%)\",\n    \"evidence\": \"Seller UID appears in footer as 'UID: ATU33790403'.\",\n    \"uncertainty_factors\": \"Multiple UIDs present (network operator also lists UID), but seller footer UID clearly labeled for Salzburg AG.\"\n  },\n  \"Vat.Rate\": {\n    \"value_confidence\": \"High (95%)\",\n    \"evidence\": \"Multiple occurrences of '20 %' for VAT in summary and line items; 'Umsatzsteuer 20 %' shown.\",\n    \"uncertainty_factors\": \"Single VAT rate throughout; OCR could misplace percent symbol but numeric '20' is clear.\"\n  },\n  \"Net.Amount\": {\n    \"value_confidence\": \"High (90%)\",\n    \"evidence\": \"Net total shown as 'Gesamtbetrag SPOT-Kombi Strom AT 7.777,64' which corresponds to net amount before VAT.\",\n    \"uncertainty_factors\": \"Labeling uses 'Gesamtbetrag' for net section; consistent with VAT and gross figures.\"\n  },\n  \"Vat.Amount\": {\n    \"value_confidence\": \"High (95%)\",\n    \"evidence\": \"'Umsatzsteuer 20 % 1.555,53' is explicitly listed in the invoice summary.\",\n    \"uncertainty_factors\": \"None significant; matches Gross - Net arithmetic (9.333,17 - 7.777,64 = 1.555,53).\"\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 6.52,
+      "input_tokens": 6021,
+      "cached_input_tokens": null,
+      "output_tokens": 563,
+      "total_tokens": 6584,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.49,
+      "input_tokens": 6335,
+      "cached_input_tokens": null,
+      "output_tokens": 731,
+      "total_tokens": 7066,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.47,
+      "input_tokens": 7079,
+      "cached_input_tokens": null,
+      "output_tokens": 348,
+      "total_tokens": 7427,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274928\\274914_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU33790403",
+        "ATU33790403,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        9333.17,
+        "9.333,17"
+      ],
+      "Net.Amount": [
+        true,
+        7777.64,
+        "7.777,64"
+      ],
+      "Vat.Amount": [
+        true,
+        1555.53,
+        "1.555,53"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "31. Dezember 2023",
+        "31. Dezember 2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 19435,
+    "cached_input_tokens": 0,
+    "output_tokens": 1642,
+    "eur_estimate": 0.007116
+  }
+}

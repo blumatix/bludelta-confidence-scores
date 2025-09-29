@@ -1,0 +1,100 @@
+{
+  "input_path": "..\\Documents\\274211\\274189_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 7417.34,
+    "Invoice.Date": "25.1.2024",
+    "Sender.VatId": "ATU73971516",
+    "Vat.Rate": 10,
+    "Net.Amount": 6743.04,
+    "Vat.Amount": 674.3
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.96,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.92,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.96,
+    "Vat.Amount": 0.96
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Plan:\n- Verify document is an invoice: presence of \"Rechnung\", invoice number, invoice date, line items, totals — proceed.\n- Extract visible fields without guessing; if missing leave empty.\n\nField evidence and extraction decision:\n- Invoice.Date: found \"Rechnung 37217 vom 25.1.2024\" → Invoice.Date = \"25.1.2024\".\n- GrandTotal.Amount: \"Rechnungsbetrag 7.417,34\" → numeric value 7417.34 (preserve two decimals).\n- Net.Amount: \"Zwischensumme 6.743,04\" → numeric value 6743.04.\n- Vat.Amount: \"+ 10% USt. von 6.743,04 674,30\" → numeric value 674.30.\n- Vat.Rate: shown as \"10%\" → extract as 10 (no percent sign).\n- Sender.VatId: \"UID-Nummer: ATU73971516\" (sender block) → \"ATU73971516\".\n\nNo other conflicting occurrences found. Will not infer or alter decimals.",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"value_evidence\": \"Line: \\\"Rechnungsbetrag                                                                      7.417,34\\\"\",\n    \"consistency_checks\": \"Matches Zwischensumme (6.743,04) + VAT (674,30) = 7.417,34\",\n    \"confidence_percent\": 96\n  },\n  \"Invoice.Date\": {\n    \"value_evidence\": \"Line: \\\"Rechnung 37217 vom 25.1.2024\\\"\",\n    \"consistency_checks\": \"Clear date label associated with invoice number; LFS-Datum also shows 25.1.2024 reinforcing date\",\n    \"confidence_percent\": 98\n  },\n  \"Sender.VatId\": {\n    \"value_evidence\": \"Line: \\\"UID-Nummer:                                                              ATU73971516\\\"\",\n    \"consistency_checks\": \"UID-Nummer appears under sender/company block; formatting matches Austrian VAT ID pattern (ATU...)\",\n    \"confidence_percent\": 92\n  },\n  \"Vat.Rate\": {\n    \"value_evidence\": \"Line items and VAT line show \\\"10% USt.\\\" and line item USt. column shows \\\"10%\\\"\",\n    \"consistency_checks\": \"VAT rate used to compute VAT amount (10% of 6.743,04 = 674,304 -> rounded to 674,30) consistent\",\n    \"confidence_percent\": 99\n  },\n  \"Net.Amount\": {\n    \"value_evidence\": \"Line: \\\"Zwischensumme                                                                        6.743,04\\\"\",\n    \"consistency_checks\": \"Used as VAT base in VAT line (+10% USt. von 6.743,04) and sums to grand total with VAT\",\n    \"confidence_percent\": 96\n  },\n  \"Vat.Amount\": {\n    \"value_evidence\": \"Line: \\\"+   10%      USt.     von     6.743,04                                                  674,30\\\"\",\n    \"consistency_checks\": \"10% of 6.743,04 yields 674,304 which matches presented VAT amount rounded to 674,30\",\n    \"confidence_percent\": 96\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 5.58,
+      "input_tokens": 1943,
+      "cached_input_tokens": null,
+      "output_tokens": 554,
+      "total_tokens": 2497
+    },
+    "step2": {
+      "runtime_sec": 7.19,
+      "input_tokens": 2184,
+      "cached_input_tokens": null,
+      "output_tokens": 662,
+      "total_tokens": 2846
+    },
+    "step3": {
+      "runtime_sec": 4.82,
+      "input_tokens": 2923,
+      "cached_input_tokens": null,
+      "output_tokens": 411,
+      "total_tokens": 3334
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274211\\274189_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU73971516",
+        "ATU73971516"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        7417.34,
+        "7.417,34"
+      ],
+      "Net.Amount": [
+        true,
+        6743.04,
+        "6.743,04"
+      ],
+      "Vat.Amount": [
+        true,
+        674.3,
+        "674,30"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "25.1.2024",
+        "25.1.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7050,
+    "cached_input_tokens": 0,
+    "output_tokens": 1627,
+    "eur_estimate": 0.004366
+  }
+}

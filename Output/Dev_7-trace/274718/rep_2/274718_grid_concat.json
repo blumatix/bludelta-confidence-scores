@@ -1,0 +1,130 @@
+{
+  "input_path": "..\\Documents\\274743\\274718_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 9124.83,
+    "Invoice.Date": "29.01.2024",
+    "Sender.VatId": "ATU71679515",
+    "Vat.Rate": [
+      10,
+      20
+    ],
+    "Net.Amount": [
+      4365.41,
+      3602.4
+    ],
+    "Vat.Amount": [
+      436.54,
+      720.48
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains \"Rechnung\", invoice number/date \"920243117 / 29.01.2024\", totals, line items and VAT lines → classified as invoice.\n\nKey fields located:\n- Invoice Date: \"29.01.2024\" (from \"Nummer/Datum: 920243117 / 29.01.2024\").\n- Sender VAT: two UID values present:\n  - \"Ihre UID-Nummer: ATU22642807\" (addressed to customer) and\n  - Bottom footer \"USt-Id.Nr ATU71679515\" (S. Spitz GmbH sender). According to header/footer context, sender VAT = ATU71679515.\n- Grand total: \"Endbetrag: 7.967,81  1.157,02  9.124,83\" → Endbetrag (total payable) = 9.124,83.\n- Net amount: Warenwert / Nettobetrag total shown = 7.967,81.\n- VAT groups: two VAT rates with nets and VAT amounts:\n  - 10%: Net 4.365,41; VAT 436,54.\n  - 20%: Net 3.602,4; VAT 720,48.\n- VAT rates must be given without \"%\" (10 and 20). Preserve decimals as in source.\n\nNo inference beyond explicit text. Missing any other fields → would be left empty.",
+    "step2": "GrandTotal.Amount — 95% — \"Endbetrag: ... 9.124,83\" clearly printed as total payable on page 1; formatting matches invoice total.\n\nInvoice.Date — 99% — \"Nummer/Datum: 920243117 / 29.01.2024\" explicitly shows 29.01.2024 as the invoice date.\n\nSender.VatId — 90% — Footer shows \"USt-Id.Nr ATU71679515\" (company S. Spitz GmbH) which is the sender VAT; another UID (ATU22642807) appears as \"Ihre UID-Nummer\" (customer). Slight ambiguity due to two UIDs, but context favors ATU71679515 as sender.\n\nVat.Rate (10) — 99% — VAT group header \"10 %\" with corresponding net/VAT lines present.\n\nNet.Amount (for 10%) — 98% — Net shown as \"4.365,41\" under the 10% group (Warenwert / Nettobetrag lines).\n\nVat.Amount (for 10%) — 99% — VAT shown as \"436,54\" for the 10% group.\n\nVat.Rate (20) — 99% — VAT group header \"20 %\" with corresponding net/VAT lines present.\n\nNet.Amount (for 20%) — 97% — Net shown as \"3.602,4\" under the 20% group; note the input shows one decimal place (3.602,4), preserved.\n\nVat.Amount (for 20%) — 99% — VAT shown as \"720,48\" for the 20% group.\n\nConsistency check — 98% — Sum of net amounts (4.365,41 + 3.602,4 = 7.967,81) matches displayed Warenwert/Nettobetrag and added VATs produce the Endbetrag (7.967,81 + 1.157,02 = 9.124,83)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.34,
+      "input_tokens": 2344,
+      "cached_input_tokens": null,
+      "output_tokens": 882,
+      "total_tokens": 3226,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.29,
+      "input_tokens": 2657,
+      "cached_input_tokens": null,
+      "output_tokens": 737,
+      "total_tokens": 3394,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 7.69,
+      "input_tokens": 3343,
+      "cached_input_tokens": null,
+      "output_tokens": 696,
+      "total_tokens": 4039,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274743\\274718_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU71679515",
+        "ATU71679515"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        9124.83,
+        "9.124,83"
+      ],
+      "Net.Amount": [
+        true,
+        [
+          4365.41,
+          3602.4
+        ],
+        [
+          "4.365,41",
+          "3.602,4"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        [
+          436.54,
+          720.48
+        ],
+        [
+          "436,54",
+          "720,48"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        [
+          10,
+          20
+        ],
+        [
+          "10",
+          "20"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "29.01.2024",
+        "29.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8344,
+    "cached_input_tokens": 0,
+    "output_tokens": 2315,
+    "eur_estimate": 0.005841
+  }
+}

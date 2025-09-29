@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\273721\\273693_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 102.64,
+    "Invoice.Date": "19.01.2024",
+    "Sender.VatId": "ATU64131246",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 88.6,
+    "Vat.Amount": 17.72
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.96,
+    "Vat.Amount": 0.96
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification\n- Presence of header \"Rechnung\", invoice number, dates, line items, totals -> qualifies as an invoice.\n- No exclusion indicators like \"Zahlungserinnerung\" or \"Mahnung\" dominating -> proceed with extraction.\n\n2) Locate candidate fields in text\n- Invoice date: \"Datum 19.01.2024\" (page 1, near top).\n- Sender VAT ID: \"Ihre Ust-Id-Nr. ATU64131246\" (page 1).\n- VAT group: line \"R2    - 20,00%       USt    auf   88,60\" and nearby \"17,72 EUR\" indicate a VAT rate 20.00% on net 88,60 producing VAT 17,72.\n- Totals:\n  - \"Gesamtbetrag Brutto 106,32 EUR\" (gross total before cash discount).\n  - \"Skonto brutto 4,00-% ... 3,68- EUR\" and then \"Zahlbetrag 102,64 EUR\" — the actual amount to be paid after discount.\n- Net amount for VAT group explicitly shown as \"Gesamtbetrag Netto 88,60 EUR\" (above VAT line).\n- VAT amount shown as \"17,72 EUR\".\n  \n3) Field mapping decisions and alternatives\n- GrandTotal.Amount: two plausible candidates: Gesamtbetrag Brutto 106,32 (gross total) or Zahlbetrag 102,64 (amount payable after skonto). Schema description: \"Total payable amount on the invoice\" -> choose Zahlbetrag 102,64 EUR. (Alternative 106,32 noted but rejected because not the payable amount.)\n- Invoice.Date: unambiguous \"19.01.2024\".\n- Sender.VatId: unambiguous \"ATU64131246\".\n- Vat.Rate: VAT line shows \"20.00%\" (formatted \"20.00%\"); per rule extract without \"%\" and preserve decimals -> 20.00.\n- Net.Amount and Vat.Amount: use values from the VAT grouping: Net 88,60 and VAT 17,72 (preserve decimals as in source).\n  \n4) Numeric formatting and rules\n- Convert comma decimals to numeric dot for JSON numbers while keeping same decimal precision from source:\n  - 102,64 -> 102.64 (two decimals)\n  - 88,60 -> 88.60\n  - 17,72 -> 17.72\n  - Vat.Rate 20,00% -> 20.00 (number)\n- Do not invent or fill any missing field values beyond these explicit occurrences.\n\n5) Final extraction candidates (evidence)\n- GrandTotal.Amount = 102.64 (from \"Zahlbetrag 102,64 EUR\")\n- Invoice.Date = \"19.01.2024\"\n- Sender.VatId = \"ATU64131246\"\n- Vat.Rate = 20.00 (from \"20.00%\")\n- Net.Amount = 88.60 (from \"Gesamtbetrag Netto 88,60 EUR\")\n- Vat.Amount = 17.72 (from \"17,72 EUR\" on VAT line)\n\nNo other VAT groups or exchange rates for the entire invoice were found.",
+    "step2": "Invoice.Date — 19.01.2024\n- Confidence: 99%\n- Evidence: Explicit \"Datum 19.01.2024\" near invoice header; unambiguous.\n\nSender.VatId — ATU64131246\n- Confidence: 99%\n- Evidence: Explicit \"Ihre Ust-Id-Nr.                          ATU64131246\" in header.\n\nGrandTotal.Amount — 102.64\n- Confidence: 90%\n- Evidence: \"Zahlbetrag 102,64 EUR\" appears as the amount payable after 4% skonto; alternative candidate \"Gesamtbetrag Brutto 106,32 EUR\" is present but represents gross before discount, so chosen value matches schema definition (\"Total payable amount on the invoice\").\n\nVat.Rate — 20.00\n- Confidence: 98%\n- Evidence: Line \"R2    - 20,00%       USt    auf   88,60\" indicates a 20.00% VAT rate applied to the net group.\n\nNet.Amount — 88.60\n- Confidence: 96%\n- Evidence: \"Gesamtbetrag Netto 88,60 EUR\" directly precedes the VAT line showing the 20% calculation.\n\nVat.Amount — 17.72\n- Confidence: 96%\n- Evidence: VAT line shows \"17,72 EUR\" as VAT corresponding to 20% on 88,60; consistent with calculation (88.60 * 0.20 = 17.72)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 17.44,
+      "input_tokens": 2662,
+      "cached_input_tokens": null,
+      "output_tokens": 1252,
+      "total_tokens": 3914,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.17,
+      "input_tokens": 3345,
+      "cached_input_tokens": null,
+      "output_tokens": 570,
+      "total_tokens": 3915,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.51,
+      "input_tokens": 3928,
+      "cached_input_tokens": null,
+      "output_tokens": 219,
+      "total_tokens": 4147,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273721\\273693_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU64131246",
+        "ATU69710958,"
+      ],
+      "GrandTotal.Amount": [
+        false,
+        102.64,
+        "106,32"
+      ],
+      "Net.Amount": [
+        true,
+        88.6,
+        "88,60"
+      ],
+      "Vat.Amount": [
+        true,
+        17.72,
+        "17,72"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20.00"
+      ],
+      "Invoice.Date": [
+        true,
+        "19.01.2024",
+        "19.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 9935,
+    "cached_input_tokens": 0,
+    "output_tokens": 2041,
+    "eur_estimate": 0.005717
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198773\\198773_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 470.0,
+    "Invoice.Date": "2023-02-15",
+    "Sender.VatId": "PL 7010600366",
+    "Vat.Rate": "",
+    "Net.Amount": 470.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 1.0,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Plan: verify document is an invoice, locate required fields, consider alternatives, and decide extraction per rules.\n\n1) Invoice classification\n- Document contains clear invoice indicators: \"Faktura / Rechnung\", invoice number, invoice date, totals, line item, \"Do zapłaty / Fälliger\". Classify as invoice.\n\n2) Locate Invoice.Date\n- Found \"Data wystawienia / Erstellungsdatum: Warszawa, 2023-02-15\". Extract date: 2023-02-15.\n\n3) Locate Sender.VatId\n- Seller section shows \"NIP / Steuemummer PL 7010600366\". Also seller name Landi Sp. z o.o. Use PL 7010600366 as Sender.VatId.\n\n4) Locate monetary totals\n- Grand total / amount due: \"Do zapłaty / Fälliger 470,00 EUR\" and repeated \"Wartość brutto / Bruttobetrag 470,00 EUR\". Use 470.00 (preserve decimals as in EUR representation elsewhere).\n- Net amount: \"Wartość netto / Nettobetrag 470.00 EUR\" — use 470.00.\n- VAT amount: \"Wartość VAT / MwSt.-Wert 0,00 EUR\" — use 0.00.\n\nNote on number formatting: input shows both \"470,00\" and \"470.00\"; preserve decimal precision as in the explicit \"470.00 EUR\" net line (two decimals).\n\n5) Locate Vat.Rate\n- The VAT column and line item are marked \"np / N/A\" (not applicable) and VAT amount is 0.00. Per No Inference rule, do not convert \"np / N/A\" to a numeric rate. Therefore leave Vat.Rate empty.\n\n6) Consistency check and alternatives considered\n- Alternative: set Vat.Rate = 0 because VAT amount is zero. Rejected due to explicit \"np / N/A\" and rule to avoid inference when unclear; prefer empty for missing numeric rate.\n- Currency conversions and PLN exchange rates present but are per-invoice exchange rate; rule allows exchange rates only in ExchangeRate.Item (not part of schema). No exchange rate fields required in schema.\n\nDecision: extract the following concrete field values for final output:\n- Invoice.Date: \"2023-02-15\"\n- Sender.VatId: \"PL 7010600366\"\n- GrandTotal.Amount: 470.00\n- Net.Amount: 470.00\n- Vat.Amount: 0.00\n- Vat.Rate: \"\" (empty)",
+    "step2": "GrandTotal.Amount — Evidence: \"Do zapłaty / Fälliger 470,00 EUR\" and \"Wartość brutto / Bruttobetrag 470,00 EUR\". Consistency across document. Confidence: 98%\n\nInvoice.Date — Evidence: \"Data wystawienia / Erstellungsdatum: Warszawa, 2023-02-15\". Explicit date. Confidence: 100%\n\nSender.VatId — Evidence: Seller block shows \"NIP / Steuemummer PL 7010600366\" associated with Landi Sp. z o.o. Clear tax ID. Confidence: 95%\n\nNet.Amount — Evidence: \"Wartość netto / Nettobetrag 470.00 EUR\" explicitly printed. Matches totals. Confidence: 98%\n\nVat.Amount — Evidence: \"Wartość VAT / MwSt.-Wert 0,00 EUR\" and line item marked \"np / N/A\" with VAT 0,00. Explicit zero. Confidence: 99%\n\nVat.Rate — Evidence: VAT column shows \"np / N/A\" (not applicable). No numeric percentage present. Per no-inference rule left empty. Confidence that leaving empty is correct: 95%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.84,
+      "input_tokens": 5107,
+      "cached_input_tokens": null,
+      "output_tokens": 1058,
+      "total_tokens": 6165,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.46,
+      "input_tokens": 5700,
+      "cached_input_tokens": null,
+      "output_tokens": 255,
+      "total_tokens": 5955,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.25,
+      "input_tokens": 6255,
+      "cached_input_tokens": null,
+      "output_tokens": 280,
+      "total_tokens": 6535,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198773\\198773.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "PL 7010600366",
+        "PL7010600366"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        470.0,
+        [
+          "470,00",
+          "470,00"
+        ]
+      ],
+      "Net.Amount": [
+        false,
+        470.0,
+        [
+          "2 248,81",
+          "470,00",
+          "470.00",
+          "470,00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        [
+          "0,00",
+          "0,00",
+          "0,00",
+          "0,00"
+        ]
+      ],
+      "Vat.Rate": [
+        false,
+        "",
+        []
+      ],
+      "Invoice.Date": [
+        true,
+        "2023-02-15",
+        "2023-02-15"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 17062,
+    "cached_input_tokens": 0,
+    "output_tokens": 1593,
+    "eur_estimate": 0.001411
+  }
+}

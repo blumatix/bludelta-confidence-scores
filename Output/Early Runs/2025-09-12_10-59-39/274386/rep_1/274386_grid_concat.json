@@ -1,0 +1,109 @@
+{
+  "input_path": "..\\Documents\\274415\\274386_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 946.93,
+    "Invoice.Date": "29.01.2024",
+    "Sender.VatId": "ATU38297008",
+    "Vat.Rate": [
+      0,
+      10
+    ],
+    "Net.Amount": [
+      382.08,
+      513.5
+    ],
+    "Vat.Amount": [
+      0,
+      51.35
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 1.0,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will identify invoice indicators, locate required fields, consider alternatives, and decide the most supported extraction.\n\n1) Confirm document is an invoice\n- Presence of explicit labels: \"Rechnungsnummer\", \"Datum\", \"Kundennummer\", \"Vorschreibungsbetrag\", \"Betrag\", IBAN/BIC, \"Rechnung\" — strong invoice indicators.\n- No exclusion headers like \"Zahlungserinnerung\" or \"Mahnung\" in prominent positions.\n=> Classify as invoice and proceed.\n\n2) Locate GrandTotal.Amount\n- Lines show \"Vorschreibungsbetrag 946,93 EUR\" and \"Betrag: EUR 946,93\".\n- Clear total payable = 946,93.\n- Extract as numeric with same decimals: 946.93.\n\n3) Locate Invoice.Date\n- Found \"Datum: 29.01.2024\".\n- Extract exact string \"29.01.2024\".\n\n4) Determine Sender.VatId\n- Top contact block for \"Gemeinde Wals-Siezenheim\" shows \"UID: ATU    38297008\".\n- Another \"UID-Nummer: ATU37102103\" appears near customer block (likely recipient or different party).\n- Prefer the municipality UID from the sender header: \"ATU38297008\" (remove extra spaces).\n- Extract \"ATU38297008\".\n\n5) Extract VAT groups (rates, net amounts, VAT amounts)\n- Invoice shows two VAT group lines:\n  a) \"0,00 % netto 382,08 Ust-Betr. 0,00\"\n  b) \"10,00 % netto 513,50 Ust-Betr. 51,35\"\n- Rates: 0 and 10 (per rule: omit % sign).\n- Net amounts: 382,08 and 513,50 -> numeric with same decimals: 382.08 and 513.50.\n- VAT amounts: 0,00 and 51,35 -> 0.00 and 51.35.\n- These correspond to the invoice-wide VAT groups; include both.\n\n6) Verify no inference used\n- All extracted values are directly present in text; where multiple UIDs existed I selected the sender header UID based on placement (sender contact block). No guessing beyond textual evidence.\n\nConclusion: proceed to output JSON with:\n- GrandTotal.Amount: 946.93\n- Invoice.Date: \"29.01.2024\"\n- Sender.VatId: \"ATU38297008\"\n- Vat.Rate: [0,10]\n- Net.Amount: [382.08,513.50]\n- Vat.Amount: [0.00,51.35]",
+    "step2": "GrandTotal.Amount — 98% confident. Evidence: \"Vorschreibungsbetrag 946,93 EUR\" and \"Betrag: EUR 946,93\" both explicitly state the total.\n\nInvoice.Date — 100% confident. Evidence: Clear label \"Datum: 29.01.2024\".\n\nSender.VatId — 90% confident. Evidence: Header shows \"UID:   ATU    38297008\" for Gemeinde Wals-Siezenheim; minor uncertainty due to another UID \"ATU37102103\" present elsewhere.\n\nVat.Rate — 99% confident. Evidence: Two VAT lines shown as \"0,00 %\" and \"10,00 %\"; extraction removes the percent sign per rules.\n\nNet.Amount — 99% confident. Evidence: Corresponding net amounts \"382,08\" (for 0,00%) and \"513,50\" (for 10,00%) are explicitly printed.\n\nVat.Amount — 99% confident. Evidence: Corresponding VAT amounts \"0,00\" and \"51,35\" printed next to net lines."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.41,
+      "input_tokens": 1909,
+      "output_tokens": 1392,
+      "total_tokens": 3301
+    },
+    "step2": {
+      "runtime_sec": 5.26,
+      "input_tokens": 2476,
+      "output_tokens": 422,
+      "total_tokens": 2898
+    },
+    "step3": {
+      "runtime_sec": 6.32,
+      "input_tokens": 2975,
+      "output_tokens": 499,
+      "total_tokens": 3474
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274415\\274386_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU38297008",
+        "ATU 38297008"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        946.93,
+        "946,93"
+      ],
+      "Net.Amount": [
+        false,
+        [
+          382.08,
+          513.5
+        ],
+        "513,50"
+      ],
+      "Vat.Amount": [
+        false,
+        [
+          0,
+          51.35
+        ],
+        "51,35"
+      ],
+      "Vat.Rate": [
+        false,
+        [
+          0,
+          10
+        ],
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "29.01.2024",
+        "29.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  }
+}

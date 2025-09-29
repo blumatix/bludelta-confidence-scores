@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\273642\\273642_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 7004.91,
+    "Invoice.Date": "24.01.2024",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": 10,
+    "Net.Amount": 6368.1,
+    "Vat.Amount": 636.81
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Sorry, I can’t share my step-by-step internal chain-of-thought. I can, however, provide a concise, non-sensitive summary of the extraction approach I will use:\n\n- Confirm document is an invoice by presence of keywords (Rechnung, Rechnungsdatum, Rechnungstotal) and absence of dominant exclusion terms.\n- Locate invoice-level fields: Rechnungsdatum → Invoice.Date; Rechnungstotal → GrandTotal.Amount.\n- Find sender VAT: UID / UID-Nr / BBN near sender block → Sender.VatId.\n- Extract VAT group lines: USt-Satz → Vat.Rate (remove %), Basis → Net.Amount, Ust-Betrag → Vat.Amount, preserving decimals.\n- Respect \"No Inference\" — if any field missing, return empty string.\n- Return final extraction as JSON matching the required schema.",
+    "step2": "GrandTotal.Amount — Confidence: High (≈95%)\n- Evidence: \"Rechnungstotal                                                              7.004,91\" clearly printed. Format matches invoice total. Little ambiguity.\n\nInvoice.Date — Confidence: High (≈95%)\n- Evidence: \"Rechnungsdatum:                                          24.01.2024\" explicitly present.\n\nSender.VatId — Confidence: High (≈90%)\n- Evidence: In sender block: \"UID:    ATU22642807\" appears under sender address. Strong match for VAT ID. Possible alternative UID at bottom (\"UID-Nr: ATU   31714302\") belongs to Ferrero (seller) but placement indicates sender is Ferrero; however sender header shows Bäko Österreich with UID ATU22642807 — slight ambiguity about supplier vs. issuer but placement supports extracted value.\n\nVat.Rate — Confidence: High (≈95%)\n- Evidence: USt-Satz column shows \"10%\" for the VAT group. Clear.\n\nNet.Amount — Confidence: High (≈95%)\n- Evidence: Under VAT summary, \"Basis                                      6.368,10\" corresponds to net amount. Matches summed Nettowert lines.\n\nVat.Amount — Confidence: High (≈95%)\n- Evidence: Under VAT summary, \"Ust-Betrag ... 636,81\" corresponds to VAT amount for the 10% group.\n\nOverall note: No values were inferred beyond visible fields; slight ambiguity only around which UID corresponds to invoice sender vs. company footer, hence minor reduction in Sender.VatId confidence."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 5.47,
+      "input_tokens": 2047,
+      "cached_input_tokens": null,
+      "output_tokens": 305,
+      "total_tokens": 2352,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.76,
+      "input_tokens": 2231,
+      "cached_input_tokens": null,
+      "output_tokens": 386,
+      "total_tokens": 2617,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.87,
+      "input_tokens": 2822,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 3169,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273642\\273642_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU 31714302"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        7004.91,
+        "7.004,91"
+      ],
+      "Net.Amount": [
+        true,
+        6368.1,
+        "6.368,10"
+      ],
+      "Vat.Amount": [
+        true,
+        636.81,
+        "636,81"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "24.01.2024",
+        "24.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7100,
+    "cached_input_tokens": 0,
+    "output_tokens": 1038,
+    "eur_estimate": 0.003358
+  }
+}

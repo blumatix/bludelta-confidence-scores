@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\226104\\226104_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 199.0,
+    "Invoice.Date": "22.08.2023",
+    "Sender.VatId": "ATU55640701",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 181.45,
+    "Vat.Amount": 17.55
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.8,
+    "Vat.Rate": 0.8,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Highly likely",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Summary of extraction approach and candidate values (no final JSON):\n\n- Document classification: contains \"Rechnung\", invoice number, totals, line items → classify as invoice (no exclusion terms prominent).\n- Candidate Invoice.Date: \"22.08.2023\" (appears near header line \"Mils bei Imst, 22.08.2023 16:16:37\" and also as service date; primary invoice date candidate: 22.08.2023).\n- Candidate Invoice.Number: \"58209\" (visible as \"Rechnung: 58209\").\n- Sender VAT candidates: two UIDs present:\n  - \"ATU34774508\" (near top under \"Firma ABF Strassensanierungs GmbH\")\n  - \"ATU55640701\" (bottom, Trofana Erlebnisdorf und Gastronomie GmbH — likely invoice issuer)\n  -> Likely Sender.VatId = \"ATU55640701\" (issuer).\n- Grand total candidates: \"Summe 199,00 €\" and \"Offen 199,00 €\" — GrandTotal.Amount candidate = 199,00.\n- VAT groups visible (table):\n  - Group A: Rate \"0,001\" with Netto \"6,00\" and MwSt \"0,00\" (Brutto 6,00) — corresponds to the Kurtaxe item.\n  - Group B: Rate \"10,00\" with Netto \"175,45\" and MwSt \"17,55\" (Brutto 193,00).\n  - Summary line shows Netto \"181,45\", MwSt \"17,55\", Brutto \"199,00\".\n- Candidate Net.Amount (invoice total net): \"181,45\"\n- Candidate Vat.Amount (invoice total VAT): \"17,55\"\n- Candidate Vat.Rate(s): \"0,001\" and \"10,00\" (rates should be returned without %; keep decimals as in source).\n\nNotes/ambiguities to resolve in final extraction:\n- Choose which UID is the sender VAT (bottom company appears to be issuer).\n- VAT fields: multiple VAT groups exist; schema requires how to represent multiple entries—will follow instruction to include multiple occurrences for VAT-rate/net/vat amounts.",
+    "step2": "- Document classification (is invoice): High confidence. Evidence: term \"Rechnung\", invoice number, line items, totals, VAT/MwSt table.\n\n- Invoice.Date (\"22.08.2023\"): High confidence. Appears in header \"Mils bei Imst, 22.08.2023 16:16:37\" and matches service dates; clearest invoice issue date is 22.08.2023.\n\n- Sender.VatId (\"ATU55640701\"): Medium-high confidence. Two UIDs present: ATU34774508 (associated with \"ABF Strassensanierungs GmbH\" at top) and ATU55640701 (associated with \"Trofana Erlebnisdorf und Gastronomie GmbH\" at bottom). The bottom company includes contact/bank details and reads like the invoice issuer, so ATU55640701 is likely the sender VAT. Small risk if top company is actually issuer.\n\n- GrandTotal.Amount (199,00): High confidence. \"Summe 199,00 €\" / \"Offen 199,00 €\" and Brutto total 199,00 consistent across lines.\n\n- Vat.Rate entries (\"0,001\" and \"10,00\"): Medium confidence. The table shows a rate \"0,001\" (likely intended as 0.00 or 0.1%?) and \"10,00\". OCR could have introduced formatting; rates are present as shown. Return them as-is per rule.\n\n- Net.Amount total (181,45): High confidence. Table summary shows Netto 181,45 corresponding to Brutto 199,00 and MwSt 17,55.\n\n- Vat.Amount total (17,55): High confidence. Table shows MwSt 17,55 matching Netto 181,45 -> Brutto 199,00.\n\nNotes on uncertainties:\n- Possible OCR misread of VAT rate \"0,001\" — may be intended as \"0,00\" or \"0,01\". Provided with medium caution.\n- Sender.VatId ambiguity between two UIDs; chosen bottom UID as issuer based on layout."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 16.44,
+      "input_tokens": 1727,
+      "cached_input_tokens": null,
+      "output_tokens": 1360,
+      "total_tokens": 3087,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.38,
+      "input_tokens": 2238,
+      "cached_input_tokens": null,
+      "output_tokens": 437,
+      "total_tokens": 2675,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.86,
+      "input_tokens": 2975,
+      "cached_input_tokens": null,
+      "output_tokens": 539,
+      "total_tokens": 3514,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\226104\\226104_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU55640701",
+        "ATU55640701"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        199.0,
+        "199,00"
+      ],
+      "Net.Amount": [
+        false,
+        181.45,
+        "175,45"
+      ],
+      "Vat.Amount": [
+        true,
+        17.55,
+        "17,55"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "22.08.2023",
+        "22.08.2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 6940,
+    "cached_input_tokens": 0,
+    "output_tokens": 2336,
+    "eur_estimate": 0.005568
+  }
+}

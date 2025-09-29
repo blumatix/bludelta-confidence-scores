@@ -1,0 +1,112 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198553\\198553_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 94334.65,
+    "Invoice.Date": "26/12/2022",
+    "Sender.VatId": "FR24814948220",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 78612.21,
+    "Vat.Amount": 15722.44
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I'll extract fields by verifying invoice indicators, locating relevant lines, and considering alternatives.\n\n1) Document classification\n- Contains \"Facture\", invoice number \"04440\", invoice-like headers (Client, Mode de règlement), line items, totals (\"Total HT\", \"Total TVA\", \"Total TTC\"), due date and payment amount. No exclusion headers like \"Mahnung\" or \"Zahlungserinnerung\". Conclusion: document is an invoice.\n\n2) Locate invoice date\n- Line with invoice header shows: \"04440 ... 26/12/2022\". Alternative possibilities: no other explicit date found. Accept \"26/12/2022\" as Invoice.Date.\n\n3) Sender VAT ID\n- Sender block shows \"N° Intracom : FR24814948220\". Siret is present but VAT (intracom) is FR24814948220. Use that as Sender.VatId.\n- Alternative: could consider Siret (81494822000029), but schema requests VAT ID; intracom FR24... is appropriate.\n\n4) Grand total\n- \"Total TTC                                94334.65\" and Net à payer / Echéance lines show 94334.65. Use 94334.65 as GrandTotal.Amount.\n\n5) VAT grouping (Vat.Rate, Net.Amount, Vat.Amount)\n- Near totals: a small table shows:\n  - \"Montant HT 78612.21\"\n  - A column \"Montant TVA\" 15722.44\n  - A line with \"20.00\" (likely VAT rate).\n- Alternatives: multiple VAT lines? Only one VAT group visible with rate 20.00, Net 78612.21, VAT 15722.44.\n- Per rules, extract rate without % as number 20.00 (preserve decimals as in source). Net.Amount 78612.21. Vat.Amount 15722.44.\n\n6) No inference or filling missing fields beyond visible data.\n- All values are taken directly from text; no guessing.\n\nSummary of extracted values to return later:\n- Invoice.Date = \"26/12/2022\"\n- Sender.VatId = \"FR24814948220\"\n- GrandTotal.Amount = 94334.65\n- Vat.Rate = 20.00\n- Net.Amount = 78612.21\n- Vat.Amount = 15722.44",
+    "step2": "I'll evaluate confidence for each extracted field based on textual evidence and consistency.\n\n1) Invoice.Date = \"26/12/2022\"\n- Evidence: Appears on the invoice header line next to the invoice number (\"04440 ... 26/12/2022\").\n- Alternatives/ambiguities: No other clear invoice issue date present.\n- Confidence: High (≈95%).\n\n2) Sender.VatId = \"FR24814948220\"\n- Evidence: Text includes \"N° Intracom :FR24814948220\" in the sender block. This matches a VAT intracommunity number format (FR + numeric).\n- Alternatives/ambiguities: Siret is also present (81494822000029) but schema requests VAT ID; intracom label is explicit.\n- Confidence: High (≈95%).\n\n3) GrandTotal.Amount = 94334.65\n- Evidence: \"Total TTC                                94334.65\" and \"Net à payer ... 94334.65\" and due amount line showing 15/02/2023 94334.65.\n- Alternatives/ambiguities: None significant; amounts match across lines.\n- Confidence: Very high (≈99%).\n\n4) Vat.Rate = 20.00\n- Evidence: In the VAT summary area a left value \"20.00\" appears aligned with the HT/TVA amounts; common French VAT 20%. The digit format includes two decimals in the OCR.\n- Alternatives/ambiguities: Could represent quantity or another label, but its placement near the VAT table suggests VAT rate.\n- Confidence: High (≈90%).\n\n5) Net.Amount = 78612.21\n- Evidence: VAT summary shows \"Montant HT 78612.21\" near the VAT table.\n- Alternatives/ambiguities: OCR spacing/characters could confuse digits, but number appears consistent with Total TTC minus TVA (94334.65 - 15722.44 = 78612.21).\n- Confidence: Very high (≈99%).\n\n6) Vat.Amount = 15722.44\n- Evidence: VAT summary shows \"15722.44\" labeled as \"Montant TVA\" and arithmetic matches Total TTC - HT.\n- Alternatives/ambiguities: None significant.\n- Confidence: Very high (≈99%)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.46,
+      "input_tokens": 2410,
+      "cached_input_tokens": null,
+      "output_tokens": 814,
+      "total_tokens": 3224,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.91,
+      "input_tokens": 2951,
+      "cached_input_tokens": null,
+      "output_tokens": 471,
+      "total_tokens": 3422,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.09,
+      "input_tokens": 3722,
+      "cached_input_tokens": null,
+      "output_tokens": 158,
+      "total_tokens": 3880,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198553\\198553.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "FR24814948220",
+        "FR24814948220"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        94334.65,
+        [
+          "94334.65",
+          "94334.65"
+        ]
+      ],
+      "Net.Amount": [
+        true,
+        78612.21,
+        [
+          "78612.21",
+          "78612.21"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        15722.44,
+        [
+          "15722.44",
+          "15722.44"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20.00"
+      ],
+      "Invoice.Date": [
+        true,
+        "26/12/2022",
+        "26/12/2022"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 9083,
+    "cached_input_tokens": 0,
+    "output_tokens": 1443,
+    "eur_estimate": 0.000959
+  }
+}

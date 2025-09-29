@@ -1,0 +1,106 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198458\\198458_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 926.09,
+    "Invoice.Date": "27.03.2023",
+    "Sender.VatId": "CHE-369.882.889",
+    "Vat.Rate": 19,
+    "Net.Amount": 0,
+    "Vat.Amount": 0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.85,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.75,
+    "Net.Amount": 0.75,
+    "Vat.Amount": 0.75
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Highly likely",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Very good chance",
+    "Net.Amount": "Very good chance",
+    "Vat.Amount": "Very good chance"
+  },
+  "reasoning": {
+    "step1": "Plan: verify document is an invoice, locate each required field, consider alternatives, avoid guessing.\n\n1) Invoice classification:\n- Multiple invoice indicators present: \"RECHNUNG/INVOICE\", \"INVOICE-No\", \"INVOICE-Date\", \"TOTAL\", line items with Rates/Amounts. No exclusion keywords (e.g., \"Mahnung\", \"Zahlungserinnerung\") in header. Conclusion: treat as invoice.\n\n2) Locate Invoice.Date:\n- There is \"INVOICE-Date\" row with values: \"27.03.2023\" and also header top-right \"Hamburg, 27. March 2023\". Both match; choose \"27.03.2023\" as invoice date (explicit INVOICE-Date).\n\n3) Locate Sender.VatId:\n- In the INVOICE header row the column \"Your VAT-ID\" shows \"CHE-369.882.889\". This appears to be sender VAT ID. Capture exactly as \"CHE-369.882.889\".\n\n4) Locate GrandTotal.Amount:\n- Search for explicit total payable. There's a summary block showing \"NO VAT ON 926.09 ... 19% ... 926.09\". Looks like total amount EUR 926.09. No other gross total visible. No currency symbol required per schema; GrandTotal.Amount should be numeric. Candidate: 926.09.\n\n- Verify other totals: line item amounts include EUR and USD items. USD items (709.60 and 157.69) sum = 867.29 USD; converted? But invoice final shows 926.09 EUR as total amount — plausibly sum after conversion. No other grand total present. Accept 926.09.\n\n5) Locate Vat.Rate, Net.Amount, Vat.Amount:\n- The summary table shows columns: \"NO VAT ON 926.09\" and \"VAT ON 0 ... 19% ... 926.09\". Interpretation options:\n  a) All 926.09 is \"NO VAT ON\" (i.e., VAT-exempt) and VAT ON total 0; then VAT rate 19% applied to 0 → Net.Amount and Vat.Amount would be 0 for the VAT-applicable group, and Net.Amount 926.09 for non-VAT group. \n  b) Alternatively, the layout could indicate \"NO VAT ON 926.09\" and separately a VAT group with 0 amount at 19%. The line reads: \"NO VAT ON 926.09      0      19%      926.09\" — ambiguous but likely means: No VAT on 926.09 (i.e., taxable base 0), VAT rate column shows 19% for taxable rows but taxable amount 0, total amount remains 926.09.\n\n- Schema expects Vat.Rate (number), Net.Amount, Vat.Amount. Instruction: \"Vat.Item is an array\" — multiple entries allowed. Relevant extraction: there is a VAT group showing rate 19% with VATable amount 0 and VAT amount 0. Also there is a non-VAT group (no VAT) with amount 926.09 (net). To conform: provide Vat.Rate entries for 19 with Net.Amount 0 and Vat.Amount 0; but also need to represent the non-VAT amount — schema does not have a separate non-VAT field, but Vat.Item entries are expected. So include two VAT items:\n  - Item 1: Vat.Rate = 19, Net.Amount = 0, Vat.Amount = 0\n  - Item 2: Vat.Rate = \"\"? But rule says Vat.Rate must be number or empty. For non-VAT group, rate not applicable; could leave Vat.Rate empty and set Net.Amount = 926.09 and Vat.Amount = 0. However schema’s Vat.Rate type allows \"\" as valid. So second item: Vat.Rate = \"\", Net.Amount = 926.09, Vat.Amount = 0.\n\n- Maintain decimals as in input: 926.09 and 0.00? Input shows \"926.09\" and \"0\" — keep same decimals: use 926.09 and 0.\n\n6) Confirm no contradictions:\n- Sender VAT ID captured.\n- Invoice.Date captured.\n- GrandTotal.Amount 926.09 consistent with summary.\n- VAT grouping reflected via two Vat.Item entries as reasoned, no inference beyond visible values.\n\nNext step would be to output final JSON with fields populated accordingly.",
+    "step2": "GrandTotal.Amount — Confidence: 85%\n- Evidence: Summary block shows \"NO VAT ON 926.09\" and final column repeats \"926.09\". No other explicit grand total is present. Some ambiguity due to USD line items and potential conversions, but 926.09 appears as the invoice total in EUR.\n\nInvoice.Date — Confidence: 99%\n- Evidence: \"INVOICE-Date\" field clearly shows \"27.03.2023\". Matches header \"Hamburg, 27. March 2023\".\n\nSender.VatId — Confidence: 95%\n- Evidence: Under the invoice header row the column \"Your VAT-ID\" lists \"CHE-369.882.889\". Format matches a Swiss VAT ID. High confidence.\n\nVat.Rate(s), Net.Amount(s), Vat.Amount(s) — Confidence: 75%\n- Evidence: Summary table shows \"NO VAT ON 926.09\" and a VAT group with \"0\" taxable amount and \"19%\". Interpreted as:\n  - VATable group: Rate 19, Net 0, VAT 0 (clear).\n  - Non-VAT group: no rate, Net 926.09, VAT 0 (inferred mapping of \"NO VAT ON 926.09\" into a Vat.Item with empty rate).\n- Ambiguity: table layout is concise and could be interpreted differently; mapping non-VAT amount into the Vat.Item array with empty rate is a schema-driven choice. Decimals preserved as shown."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 14.43,
+      "input_tokens": 2256,
+      "cached_input_tokens": null,
+      "output_tokens": 1177,
+      "total_tokens": 3433,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.73,
+      "input_tokens": 3224,
+      "cached_input_tokens": null,
+      "output_tokens": 312,
+      "total_tokens": 3536,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.81,
+      "input_tokens": 3836,
+      "cached_input_tokens": null,
+      "output_tokens": 535,
+      "total_tokens": 4371,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198458\\198458.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "CHE-369.882.889",
+        "DE-118597456"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        926.09,
+        "926.09"
+      ],
+      "Net.Amount": [
+        true,
+        0,
+        "0"
+      ],
+      "Vat.Amount": [
+        true,
+        0,
+        "0"
+      ],
+      "Vat.Rate": [
+        true,
+        19,
+        "19"
+      ],
+      "Invoice.Date": [
+        false,
+        "27.03.2023",
+        [
+          "27.03.2023",
+          "27. March 2023"
+        ]
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 9316,
+    "cached_input_tokens": 0,
+    "output_tokens": 2024,
+    "eur_estimate": 0.001174
+  }
+}

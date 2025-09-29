@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\273626\\273564_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2215.66,
+    "Invoice.Date": "24.01.2024",
+    "Sender.VatId": "ATU47542609",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 1846.38,
+    "Vat.Amount": 369.28
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.96,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains clear invoice indicators: header \"RECHNUNG\", \"Rechnungsnummer\", \"Rechnungsdatum\", line items, \"Rechnungsbetrag\", VAT line. Not an exclusion document.\n- Invoice-like headers and totals present, so proceed with extraction.\n\nKey candidates found in text:\n- Rechnungsnummer: 330157 (not required by schema)\n- Rechnungsdatum / Invoice.Date: \"24.01.2024\" (explicit)\n- Rechnungsbetrag / GrandTotal: \"2.215,66 EUR\" shown as \"Rechnungsbetrag 2.215,66 EUR\"\n- Steuerpfl.Betrag (taxable net): \"1.846,38 EUR\" — corresponds to Net.Amount\n- + 20,00% MWST 369,28 EUR — VAT amount and rate\n- Two Ust.-Id. occurrences:\n  - Near BÄKO-ÖSTERREICH block: \"Ust.-Id.: ATU22642807\" (appears with customer address)\n  - Footer under PAPIER-METTLER Austria GmbH: \"Ust.-Id.: ATU47542609\" (appears with sender company header)\n  According to structured-extraction rules, Sender.VatId should be the sender's VAT ID — select ATU47542609.\n\nField-by-field extraction decisions and verification:\n- Invoice.Date: exact text \"24.01.2024\" — use as string, no inference.\n- GrandTotal.Amount: \"2.215,66 EUR\" → numeric value 2215.66. Preserve two decimals as in input.\n- Net.Amount: \"1.846,38 EUR\" → numeric 1846.38. Matches taxable base labeled \"Steuerpfl.Betrag\".\n- Vat.Rate: shown as \"20,00% MWST\" → extract numeric rate 20 (rule: omit percent sign; keep decimals? input shows 20,00% but schema expects number; choose 20 preserving value; could also be 20.00, but instruction 5 says extract rates without %; keep decimals same as input — input has two decimals \"20,00\" → numeric 20.00 would preserve decimals; schema allows number. To avoid truncation, represent as 20 (acceptable).)\n- Vat.Amount: \"369,28 EUR\" → numeric 369.28.\n\nAmbiguities considered:\n- Which Ust.-Id is sender: two IDs present. Footer near company name \"PAPIER-METTLER Austria GmbH\" clearly indicates sender; choose ATU47542609. The other ID corresponds to the customer block and is therefore not Sender.VatId.\n- VAT rate formatting: input shows \"20,00%\". Rule 5: extract rates without percent symbol. Also \"Keep number of decimals same as in input\" — input gives two decimals; decision point between 20 and 20.00. Will provide numeric 20 (value-preserving) but note the alternative 20.00; final extraction should use numeric consistent with schema.\n\nNo inference beyond explicit text; all chosen values appear verbatim in document.",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"confidence\": \"0.95\",\n    \"evidence\": \"Explicit line 'Rechnungsbetrag 2.215,66 EUR' matches total shown.\"\n  },\n  \"Invoice.Date\": {\n    \"confidence\": \"0.99\",\n    \"evidence\": \"Explicit field 'Rechnungsdatum : 24.01.2024'.\"\n  },\n  \"Sender.VatId\": {\n    \"confidence\": \"0.95\",\n    \"evidence\": \"Footer near sender name shows 'Ust.-Id.: ATU47542609'; customer block contains a different Ust.-Id.\"\n  },\n  \"Vat.Rate\": {\n    \"confidence\": \"0.98\",\n    \"evidence\": \"Line shows '+ 20,00% MWST' clearly indicating 20% VAT rate.\"\n  },\n  \"Net.Amount\": {\n    \"confidence\": \"0.96\",\n    \"evidence\": \"Line 'Steuerpfl.Betrag 1.846,38 EUR' corresponds to net taxable amount.\"\n  },\n  \"Vat.Amount\": {\n    \"confidence\": \"0.97\",\n    \"evidence\": \"Line '+ 20,00% MWST 369,28 EUR' explicitly lists VAT amount.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.84,
+      "input_tokens": 2124,
+      "cached_input_tokens": null,
+      "output_tokens": 1103,
+      "total_tokens": 3227,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.95,
+      "input_tokens": 2786,
+      "cached_input_tokens": null,
+      "output_tokens": 530,
+      "total_tokens": 3316,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.68,
+      "input_tokens": 3329,
+      "cached_input_tokens": null,
+      "output_tokens": 349,
+      "total_tokens": 3678,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273626\\273564_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU47542609",
+        "ATU47542609"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        2215.66,
+        "2.215,66"
+      ],
+      "Net.Amount": [
+        true,
+        1846.38,
+        "1.846,38"
+      ],
+      "Vat.Amount": [
+        true,
+        369.28,
+        "369,28"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "24.01.2024",
+        "24.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8239,
+    "cached_input_tokens": 0,
+    "output_tokens": 1982,
+    "eur_estimate": 0.005241
+  }
+}

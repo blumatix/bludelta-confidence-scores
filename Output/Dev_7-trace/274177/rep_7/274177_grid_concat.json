@@ -1,0 +1,130 @@
+{
+  "input_path": "..\\Documents\\274201\\274177_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1352.56,
+    "Invoice.Date": "29.01.2024",
+    "Sender.VatId": "ATU79411414",
+    "Vat.Rate": [
+      20,
+      10
+    ],
+    "Net.Amount": [
+      665.1,
+      504.04
+    ],
+    "Vat.Amount": [
+      133.02,
+      50.4
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.8,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Reasoning steps and extraction paths considered:\n\n1. Determine if document is an invoice\n- Evidence for invoice: multiple invoice indicators present: \"Rechnung / Nr.: 4137873\", \"Rechnungsdatum 29.01.2024\", line items with quantities/prices, totals, \"Gesamtsumme EUR 1 352,56\".\n- No exclusion indicators like \"Zahlungserinnerung\" or \"Mahnung\" as prominent headers.\n- Conclusion: classify as invoice — proceed with extraction.\n\n2. Identify Invoice.Date\n- Explicit text: \"Rechnungsdatum                                     29.01.2024\".\n- Extraction: Invoice date = \"29.01.2024\".\n- Alternative considered: use \"Auftragsnummer ... vom 29.01.2024\" — same date, but prefer the explicit Rechnungsdatum field.\n\n3. Identify GrandTotal.Amount\n- Explicit text: \"Gesamtsumme                  EUR                             1  352,56\".\n- Need numeric value preserving decimals and no currency symbol.\n- Interpretation of spacing/thousands separators: \"1  352,56\" -> 1352.56.\n- Extraction: Grand total = 1352.56.\n- Alternative parsing: ensure comma is decimal separator; convert to dot for numeric.\n\n4. Identify Net.Amount and VAT groups\n- Text shows payment summary block:\n  - \"Summe exkl. MwSt                                1   169,14\"\n  - Then two VAT lines:\n    - \"20%      MWSt         für   665,10                               133,02\"\n    - \"10%      MWSt         für   504,04                                 50,40\"\n- Interpretations:\n  - The VAT lines show for each rate: the taxable base amount (\"für 665,10\") and the VAT amount (133,02) for 20%; and base 504,04 with VAT 50,40 for 10%.\n  - Verify sums: taxable bases 665.10 + 504.04 = 1,169.14 (matches \"Summe exkl. MwSt 1,169.14\"). VAT amounts 133.02 + 50.40 = 183.42. Net + VAT = 1,169.14 + 183.42 = 1,352.56 (matches GrandTotal). Consistent.\n- Extraction choices:\n  - The schema expects Net.Amount and Vat.Amount; developer note allows multiple Vat.Rate, Net.Amount, Vat.Amount entries (Vat.Item array). So extract both VAT groups.\n- Values to extract (preserve decimals as in input):\n  - VAT group 1: Vat.Rate = 20 (drop % per rules), Net.Amount = 665.10, Vat.Amount = 133.02.\n  - VAT group 2: Vat.Rate = 10, Net.Amount = 504.04, Vat.Amount = 50.40.\n- Alternative edge cases considered:\n  - If \"Summe exkl. MwSt 1 169,14\" were intended as a single net amount, but given two VAT group lines that sum to it, better to return both group nets.\n\n5. Identify Sender.VatId\n- There are multiple VAT IDs in the document:\n  - Under header, \"Ihre UID/VAT-Nr.                               ATU22642807\" — this is the customer's VAT (Ihre = your). But \"Sender.VatId\" per schema is \"Tax ID of the sender (VAT)\". Need the invoice sender's VAT.\n  - At bottom in footer: \"UID-Nr.:    ATU79411414\" associated with \"Wurth EF GmbH...\" (the sender of the invoice).\n  - The invoice header shows BÄKO-Österreich as provider, but the footer shows Wurth EF GmbH contact and UID ATU79411414. Which is the sender on the invoice? The invoice header includes sender name \"BÄKO-Österreich\" at top; but the UID under \"Ihre UID/VAT-Nr.\" is clearly labeled \"Ihre\" (your). So sender VAT likely the company's own VAT in footer: ATU79411414.\n- Ambiguity considered: could the invoice sender be BÄKO-Österreich with different VAT; however only explicit VAT for sender appears as \"UID-Nr.: ATU79411414\" in footer. Choose that as Sender.VatId.\n- Extraction: Sender.VatId = \"ATU79411414\".\n- If strict interpretation considered sender at top, no explicit VAT near top except GLN. But follow presence of \"UID-Nr.\" for Wurth EF GmbH.\n\n6. Ensure no inference or guessing\n- All fields selected are explicitly present in the text and mappings are direct.\n- No values are fabricated.\n\n7. Final consistency checks\n- Grand total computed from net and VAT groups equals reported Gesamtsumme (1,169.14 + 183.42 = 1,352.56) — consistent.\n- Date corresponds to explicit Rechnungsdatum.\n- VAT rates extracted without percent symbols per rule.\n\nConclusion: extracted values to populate final JSON:\n- Invoice.Date = \"29.01.2024\"\n- GrandTotal.Amount = 1352.56\n- Sender.VatId = \"ATU79411414\"\n- Vat groups:\n  - Vat.Rate = 20 ; Net.Amount = 665.10 ; Vat.Amount = 133.02\n  - Vat.Rate = 10 ; Net.Amount = 504.04 ; Vat.Amount = 50.40",
+    "step2": "I can’t provide my internal chain-of-thought, but here is a concise confidence assessment for each extracted field with brief evidence.\n\n- GrandTotal.Amount: 95% — matches explicit \"Gesamtsumme EUR 1 352,56\" (converted to numeric 1352.56); consistent with net+VAT.\n- Invoice.Date: 99% — explicit \"Rechnungsdatum 29.01.2024\".\n- Sender.VatId: 80% — \"UID-Nr.: ATU79411414\" appears in footer for Wurth EF GmbH; header shows \"Ihre UID/VAT-Nr. ATU22642807\" (customer), so chosen footer UID for sender with moderate confidence due to document showing multiple UIDs.\n- Vat.Rate (20): 98% — explicit \"20% MWSt\" line.\n- Net.Amount (for 20%): 98% — explicit \"für 665,10\" corresponding to 20% group; sums consistently to total net.\n- Vat.Amount (for 20%): 98% — explicit \"133,02\" on 20% line; arithmetic matches.\n- Vat.Rate (10): 98% — explicit \"10% MWSt\" line.\n- Net.Amount (for 10%): 98% — explicit \"für 504,04\" corresponding to 10% group.\n- Vat.Amount (for 10%): 98% — explicit \"50,40\" on 10% line; arithmetic matches."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 16.41,
+      "input_tokens": 2529,
+      "cached_input_tokens": null,
+      "output_tokens": 1610,
+      "total_tokens": 4139,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.1,
+      "input_tokens": 3698,
+      "cached_input_tokens": null,
+      "output_tokens": 576,
+      "total_tokens": 4274,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 8.0,
+      "input_tokens": 4287,
+      "cached_input_tokens": null,
+      "output_tokens": 694,
+      "total_tokens": 4981,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274201\\274177_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU79411414",
+        "ATU79411414"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1352.56,
+        "1 352,56"
+      ],
+      "Net.Amount": [
+        true,
+        [
+          665.1,
+          504.04
+        ],
+        [
+          "665,10",
+          "504,04"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        [
+          133.02,
+          50.4
+        ],
+        [
+          "133,02",
+          "50,40"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        [
+          20,
+          10
+        ],
+        [
+          "20",
+          "10"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "29.01.2024",
+        "29.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 10514,
+    "cached_input_tokens": 0,
+    "output_tokens": 2880,
+    "eur_estimate": 0.007295
+  }
+}

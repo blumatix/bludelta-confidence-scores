@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\208402\\208402_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 852.0,
+    "Invoice.Date": "4/24/23",
+    "Sender.VatId": "",
+    "Vat.Rate": "",
+    "Net.Amount": "",
+    "Vat.Amount": ""
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Plan:\n- Identify whether document is an invoice by checking for invoice keywords and headers — confirmed (\"INVOICE\", \"INVOICE DATE\", \"TOTAL AMT\", line items).\n- Locate explicit fields requested by schema.\n- Apply No Inference Policy: only record values explicitly present; leave fields empty if not found.\n- Verify numeric formats preserved (decimals as in text) and VAT rate should be percentage without % if present.\n\nFindings:\n- Grand total explicitly shown as \"$852.00\" and \"PAY THIS AMOUNT: $852.00\" → GrandTotal.Amount = 852.00.\n- Invoice date shown as \"INVOICE DATE: 4/24/23\" → Invoice.Date = \"4/24/23\".\n- No VAT identification number for sender is present → Sender.VatId = \"\".\n- No VAT percentage/Tax rate labeled; \"FUEL SURCHARGE ( 36.0% OF $575.00 )\" is not a VAT rate → Vat.Rate = \"\" (do not treat 36.0 as VAT).\n- No explicit Net amount (subtotal excluding VAT) labeled on the invoice → Net.Amount = \"\".\n- No explicit VAT amount shown → Vat.Amount = \"\".\n\nNo other candidate values meet the schema or can be inferred without guessing.",
+    "step2": "GrandTotal.Amount — Confidence: High (≈95%)\n- Evidence: \"TOTAL AMT: $852.00\" and \"PAY THIS AMOUNT: $852.00\" explicitly present and consistent.\n- Potential issues: currency symbol removed per schema; numeric format preserved. Very unlikely to be different.\n\nInvoice.Date — Confidence: High (≈90%)\n- Evidence: \"INVOICE DATE: 4/24/23\" explicitly present.\n- Potential issues: date format ambiguity (MM/DD/YY vs DD/MM/YY) but context (US addresses) supports MM/DD/YY. Still returning string as-is per schema.\n\nSender.VatId — Confidence: High that empty is correct (≈95%)\n- Evidence: No VAT or tax ID label or number appears for sender (MTI, INC). Many other identifiers present (phone, address) but no VAT.\n- Potential issues: none apparent; leaving empty follows No Inference policy.\n\nVat.Rate — Confidence: High that empty is correct (≈95%)\n- Evidence: No VAT percentage labeled; the only percent shown is \"FUEL SURCHARGE (36.0% OF $575.00)\" which is not VAT and thus must not be used.\n- Potential issues: none apparent.\n\nNet.Amount — Confidence: High that empty is correct (≈95%)\n- Evidence: No explicit net/subtotal field or label found; only line item rates and total amount are present.\n- Potential issues: subtotal could be computed (575+207+70 = 852) but schema forbids inference — leaving empty is correct.\n\nVat.Amount — Confidence: High that empty is correct (≈95%)\n- Evidence: No VAT amount shown anywhere on the invoice.\n- Potential issues: none apparent."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.86,
+      "input_tokens": 1603,
+      "cached_input_tokens": null,
+      "output_tokens": 525,
+      "total_tokens": 2128,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.81,
+      "input_tokens": 1919,
+      "cached_input_tokens": null,
+      "output_tokens": 359,
+      "total_tokens": 2278,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.16,
+      "input_tokens": 2578,
+      "cached_input_tokens": null,
+      "output_tokens": 264,
+      "total_tokens": 2842,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\208402\\208402.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "",
+        []
+      ],
+      "GrandTotal.Amount": [
+        true,
+        852.0,
+        "852.00"
+      ],
+      "Net.Amount": [
+        false,
+        "",
+        []
+      ],
+      "Vat.Amount": [
+        false,
+        "",
+        []
+      ],
+      "Vat.Rate": [
+        false,
+        "",
+        []
+      ],
+      "Invoice.Date": [
+        true,
+        "4/24/23",
+        "4/24/23"
+      ]
+    },
+    "summary": {
+      "matched": 2,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 6100,
+    "cached_input_tokens": 0,
+    "output_tokens": 1148,
+    "eur_estimate": 0.000707
+  }
+}

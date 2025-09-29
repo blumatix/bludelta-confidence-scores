@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\274772\\274708_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 40.44,
+    "Invoice.Date": "30.01.2024",
+    "Sender.VatId": "ATU66213527",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 33.7,
+    "Vat.Amount": 6.74
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will:\n- Classify document as invoice (contains \"Rechnung\", invoice number, totals, VAT).\n- Identify invoice number R1041560 (used as reference but not required in schema).\n- Extract invoice date from \"Druckdatum 30.01.2024\" → \"30.01.2024\".\n- Determine Grand Total from \"Rechnungsendbetrag 40,44 €\" → 40.44.\n- Extract net and VAT group from \"Zwischensumme 33,70 €\" and \"+ 20,0 % Ust. von 33,70 € 6,74 €\":\n  - Vat.Rate = 20.0 (remove percent sign, preserve decimal).\n  - Net.Amount = 33.70.\n  - Vat.Amount = 6.74.\n- Identify sender VAT: choose UID presented with company details near bank info \"UID-Nummer: ATU66213527\" → \"ATU66213527\".\n- Apply No Inference rule elsewhere; if any field not clearly present, would be left empty.\n- Preserve decimal formatting (commas converted to dot for numeric values).",
+    "step2": "GrandTotal.Amount — High confidence (~95%):\n- Evidence: Explicit text \"Rechnungsendbetrag 40,44 €\".\n- Consistency: Matches Zwischensumme + VAT amount.\n\nInvoice.Date — High confidence (~90%):\n- Evidence: \"Druckdatum 30.01.2024\" present; likely invoice issue date.\n- Minor uncertainty if a different field labeled \"Rechnungsdatum\" exists (it does not).\n\nSender.VatId — High confidence (~90%):\n- Evidence: UID-Nummer entries present; company bank block includes \"UID-Nummer: ATU66213527\" which is the sender’s VAT.\n- Minor ambiguity: another UID appears at top (\"UID-Nr ATU22642807\") under \"Rechnungsanschrift\" but context indicates recipient; chosen UID aligns with company contact block.\n\nVat.Rate — High confidence (~95%):\n- Evidence: \"+ 20,0 % Ust. von 33,70 €\" clearly indicates 20.0% VAT.\n- Converted to numeric without percent symbol as required.\n\nNet.Amount — High confidence (~95%):\n- Evidence: \"Zwischensumme 33,70 €\" corresponds to net before VAT.\n\nVat.Amount — High confidence (~95%):\n- Evidence: VAT line shows \"6,74 €\" as VAT on 33,70 € at 20.0%."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.53,
+      "input_tokens": 1714,
+      "cached_input_tokens": null,
+      "output_tokens": 1009,
+      "total_tokens": 2723,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.99,
+      "input_tokens": 2002,
+      "cached_input_tokens": null,
+      "output_tokens": 421,
+      "total_tokens": 2423,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.31,
+      "input_tokens": 2383,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 2666,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274772\\274708_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU66213527",
+        "ATU66213527,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        40.44,
+        "40,44"
+      ],
+      "Net.Amount": [
+        true,
+        33.7,
+        "33,70"
+      ],
+      "Vat.Amount": [
+        true,
+        6.74,
+        "6,74"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,0"
+      ],
+      "Invoice.Date": [
+        true,
+        "30.01.2024",
+        "30.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6099,
+    "cached_input_tokens": 0,
+    "output_tokens": 1713,
+    "eur_estimate": 0.000904
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\192188\\192158_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 960.96,
+    "Invoice.Date": "19.05.2023",
+    "Sender.VatId": "ATU66427645",
+    "Vat.Rate": 10,
+    "Net.Amount": 873.6,
+    "Vat.Amount": 87.36
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.6,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Sorry — I can’t share my internal step-by-step chain-of-thought. I can, however, provide a concise, non-sensitive summary of the approach I will use to extract the requested invoice fields:\n\n- Classify document as invoice by checking for invoice keywords (e.g., \"Rechnung\", invoice numbers, totals). Confirm no dominant exclusion terms.\n- Locate invoice-level fields: invoice date, invoice number, totals, VAT breakdowns, sender VAT/UID.\n- Extract GrandTotal.Amount from the labeled \"Rechnungsbetrag\" value.\n- Extract Invoice.Date from the \"Datum\" field.\n- Extract Sender.VatId from any \"UID\"/\"UID-Nr\"/\"UID:\" occurrences near sender details.\n- Extract VAT groups: for each VAT line (e.g., \"+ 10,00% USt. von 873,60 87,36 €\"), parse Vat.Rate (as number without %), Net.Amount (base amount), and Vat.Amount (VAT amount), preserving decimals.\n- If any required field is missing or ambiguous, leave that field empty (no inference).\n- Return only the final JSON matching the provided schema when requested.\n\nWhen you want the extracted JSON, tell me to proceed and I will output it.",
+    "step2": "GrandTotal.Amount — Confidence: High. Evidence: \"Rechnungsbetrag 960,96 €\" clearly present.\n\nInvoice.Date — Confidence: High. Evidence: \"Datum: 19.05.2023\" at top.\n\nSender.VatId — Confidence: Medium. Evidence: Two UID values appear: \"UID: ATU22642807\" near the Bäko-Österreich block and \"UID-Nr: ATU66427645\" near Unterweger Früchteküche GmbH footer. The invoice issuer/sender is likely Unterweger Früchteküche GmbH (footer), so ATU66427645 is probable sender VAT, but header UID could belong to the purchaser.\n\nVat.Rate — Confidence: High for 10, Medium for 20. Evidence: VAT summary lists \"+   10,00% USt. von 873,60 87,36 €\" and \"+   20,00% USt. von 0,00\". 10% clearly applied; 20% appears but with zero base.\n\nNet.Amount — Confidence: High for 10% = 873,60; High for 20% = 0,00. Evidence: Net base amounts shown in VAT summary.\n\nVat.Amount — Confidence: High for 10% = 87,36; High for 20% = 0,00. Evidence: VAT amounts shown in VAT summary."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 5.44,
+      "input_tokens": 2054,
+      "cached_input_tokens": null,
+      "output_tokens": 386,
+      "total_tokens": 2440,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.78,
+      "input_tokens": 2359,
+      "cached_input_tokens": null,
+      "output_tokens": 873,
+      "total_tokens": 3232,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.14,
+      "input_tokens": 2956,
+      "cached_input_tokens": null,
+      "output_tokens": 473,
+      "total_tokens": 3429,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\192188\\192158_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU66427645",
+        "ATU66427645"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        960.96,
+        "960,96"
+      ],
+      "Net.Amount": [
+        true,
+        873.6,
+        "873,60"
+      ],
+      "Vat.Amount": [
+        true,
+        87.36,
+        "87,36"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        [
+          "10,00",
+          "10%",
+          "10%",
+          "10%",
+          "10%",
+          "10%"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "19.05.2023",
+        "19.05.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7369,
+    "cached_input_tokens": 0,
+    "output_tokens": 1732,
+    "eur_estimate": 0.004618
+  }
+}

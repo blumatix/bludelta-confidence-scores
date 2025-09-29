@@ -1,0 +1,100 @@
+{
+  "input_path": "..\\Documents\\274819\\274811_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": "",
+    "Invoice.Date": "19.01.2024",
+    "Sender.VatId": "ATU73284625",
+    "Vat.Rate": 20,
+    "Net.Amount": 542.08,
+    "Vat.Amount": 108.42
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.0,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.96,
+    "Vat.Amount": 0.96
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost no chance",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I cannot provide internal chain-of-thought. Below is a concise, non-sensitive summary of the extraction plan and evidence from the text, plus any ambiguities to resolve before final JSON.\n\n1) Document classification\n- Invoice indicators present: \"Rechnung\", \"Rechnungsdatum\", \"Rechnungsnummer\", \"UIDNr.\", line items, \"Total excl. VAT\", \"Umsatzsteuer\".\n- No exclusion indicators dominating.\n- Conclusion: treat as an invoice and proceed to extraction.\n\n2) Fields and evidence\n- Invoice.Date: \"Rechnungsdatum 19.01.2024\" → value: \"19.01.2024\".\n- Sender.VatId: footer shows \"UIDNr. ATU73284625\" for SKIDATA AUSTRIA GmbH → value: \"ATU73284625\".\n- Vat.Rate: table shows \"U20 20%\" → value: \"20\" (without % per rule).\n- Net.Amount: \"Total excl. VAT 542,08\" / \"Nettowarenwert 542,08\" → value: 542,08.\n- Vat.Amount: \"Umsatzsteuer 108,42\" and line \"Mehrwertsteuerbetrag 108,42\" → value: 108,42.\n- GrandTotal.Amount: no explicit printed \"Gesamt\" numeric value; page shows Net 542,08 and VAT 108,42. Two possible treatments:\n  a) Do not infer: leave GrandTotal.Amount empty (\"\"), per No Inference Policy.\n  b) Compute sum 542,08 + 108,42 = 650,50 and use that as GrandTotal.Amount (if computation allowed).\n- Note: Follow Rule 2 (No Inference). For strict compliance, choose option (a) unless explicit instruction to compute totals is allowed.\n\n3) Proceeding choice\n- I will await your instruction whether to compute GrandTotal as the sum (650,50) or to leave it empty per No Inference Policy before producing the final JSON.",
+    "step2": "GrandTotal.Amount\n- Confidence: Low\n- Evidence: No explicit \"Gesamt\" numeric value shown in document. Only Net (542,08) and VAT (108,42) are printed. Any total would require arithmetic inference (542,08 + 108,42 = 650,50), but No Inference Policy prohibits computing/making that value if not explicitly present.\n\nInvoice.Date\n- Confidence: High\n- Evidence: Clear labeled field \"Rechnungsdatum 19.01.2024\" appears on both pages.\n\nSender.VatId\n- Confidence: High\n- Evidence: Footer shows \"UIDNr.  ATU73284625\" associated with SKIDATA AUSTRIA GmbH (sender), explicitly present.\n\nVat.Rate\n- Confidence: High\n- Evidence: Line \"U20                         20%\" and \"Mehrwertsteuer 20%\" grouping indicate VAT rate 20%. Per rule, percentage symbol would be removed, leaving \"20\".\n\nNet.Amount\n- Confidence: High\n- Evidence: \"Nettowarenwert 542,08\" and \"Total excl. VAT 542,08\" clearly printed.\n\nVat.Amount\n- Confidence: High\n- Evidence: \"Umsatzsteuer 108,42\" and the VAT table showing \"Mehrwertsteuerbetrag 108,42\" explicitly present."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.66,
+      "input_tokens": 2183,
+      "cached_input_tokens": null,
+      "output_tokens": 1002,
+      "total_tokens": 3185
+    },
+    "step2": {
+      "runtime_sec": 6.13,
+      "input_tokens": 2616,
+      "cached_input_tokens": null,
+      "output_tokens": 409,
+      "total_tokens": 3025
+    },
+    "step3": {
+      "runtime_sec": 4.29,
+      "input_tokens": 3166,
+      "cached_input_tokens": null,
+      "output_tokens": 341,
+      "total_tokens": 3507
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274819\\274811_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU73284625",
+        "ATU73284625"
+      ],
+      "GrandTotal.Amount": [
+        false,
+        "",
+        "542,08"
+      ],
+      "Net.Amount": [
+        true,
+        542.08,
+        "542,08"
+      ],
+      "Vat.Amount": [
+        true,
+        108.42,
+        "108,42"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "19.01.2024",
+        "19.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7965,
+    "cached_input_tokens": 0,
+    "output_tokens": 1752,
+    "eur_estimate": 0.004783
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198773\\198773_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 470.0,
+    "Invoice.Date": "2023-02-15",
+    "Sender.VatId": "PL 7010600366",
+    "Vat.Rate": "",
+    "Net.Amount": 470.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.85,
+    "Net.Amount": 0.97,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Highly likely",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Brief, non-sensitive plan and verification steps I will use to extract the invoice fields:\n\n- Confirm document is an invoice by checking presence of “Faktura / Rechnung”, invoice number, invoice date, totals and VAT lines. Verify no dominant exclusion headers (e.g., Mahnung).\n- Locate Invoice.Date from lines labelled \"Data wystawienia / Erstellungsdatum\" or similar.\n- Locate GrandTotal.Amount from lines showing \"Razem / Gesamtbetrag\" or \"Do zapłaty\" with currency and numeric total.\n- Locate Sender.VatId from seller block labelled \"NIP / Steuernummer\" or similar (also check page 2/3 for USt-IdNr).\n- Identify VAT groups: find Vat.Rate (percent without %), Net.Amount and Vat.Amount from the VAT summary table lines (e.g., \"Wartość netto\", \"Wartość VAT\", \"Wartość brutto\", and line item VAT percent like \"np / N/A\" meaning no VAT).\n- Preserve numeric formatting and decimals exactly as in source; do not infer missing values.\n- If invoice criteria fail, return all fields empty.\n\nNow I will extract the fields accordingly.",
+    "step2": "GrandTotal.Amount — Confidence: 95%\nEvidence: \"Do zapłaty / Fälliger 470,00 EUR\" and multiple \"470,00\" totals (Razem / Gesamtbetrag, Wartość brutto). Consistent across document.\n\nInvoice.Date — Confidence: 98%\nEvidence: \"Data wystawienia / Erstellungsdatum: Warszawa, 2023-02-15\".\n\nSender.VatId — Confidence: 95%\nEvidence: Seller block shows \"NIP / Steuemummer PL 7010600366\" (Polish VAT ID for Landi Sp. z o.o.).\n\nVat.Rate — Confidence: 85%\nEvidence/issues: VAT column marked \"np / N/A\" (not applicable). No numeric percent present; this indicates VAT not applied. Because no explicit numeric percentage appears, per No Inference rule this field should be left empty rather than filled with \"0\".\n\nNet.Amount — Confidence: 97%\nEvidence: VAT summary shows \"Wartość netto / Nettobetrag 470,00 EUR\" and table line item net value 470,00.\n\nVat.Amount — Confidence: 97%\nEvidence: VAT summary and line items show \"Wartość VAT / MwSt.-Wert 0,00 EUR\" and VAT column values 0,00."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 6.7,
+      "input_tokens": 5107,
+      "cached_input_tokens": null,
+      "output_tokens": 449,
+      "total_tokens": 5556,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 11.73,
+      "input_tokens": 5411,
+      "cached_input_tokens": null,
+      "output_tokens": 724,
+      "total_tokens": 6135,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.65,
+      "input_tokens": 5987,
+      "cached_input_tokens": null,
+      "output_tokens": 344,
+      "total_tokens": 6331,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198773\\198773.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "PL 7010600366",
+        "PL7010600366"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        470.0,
+        [
+          "470,00",
+          "470,00"
+        ]
+      ],
+      "Net.Amount": [
+        false,
+        470.0,
+        [
+          "2 248,81",
+          "470,00",
+          "470.00",
+          "470,00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        [
+          "0,00",
+          "0,00",
+          "0,00",
+          "0,00"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "2023-02-15",
+        "2023-02-15"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 5,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 16505,
+    "cached_input_tokens": 0,
+    "output_tokens": 1517,
+    "eur_estimate": 0.001356
+  }
+}

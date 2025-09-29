@@ -1,0 +1,109 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198271\\198271_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 380.0,
+    "Invoice.Date": "2023-03-13",
+    "Sender.VatId": "PL9731061682",
+    "Vat.Rate": "",
+    "Net.Amount": 380.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will analyze the document step by step, identify invoice vs non-invoice, locate required fields, consider alternatives, and decide what to extract.\n\n1) Document classification (invoice vs non-invoice)\n- Evidence for invoice:\n  - Contains \"Faktura FS 250/03/2023\" (clear invoice header).\n  - Shows typical invoice elements: \"Data wystawienia\", totals (\"Razem do zapłaty\"), seller/buyer blocks, bank details.\n- No exclusion indicators dominate (no \"Zahlungserinnerung\" or \"Mahnung\" as prominent header).\n=> Classify as invoice. Proceed with extraction.\n\n2) Locate requested schema fields\nSchema requires: GrandTotal.Amount, Invoice.Date, Sender.VatId, Vat.Rate, Net.Amount, Vat.Amount.\n\n3) Extract Invoice.Date\n- Found label \"Data wystawienia\" with value \"2023-03-13\".\n=> Invoice.Date = \"2023-03-13\".\n\n4) Extract Sender.VatId\n- Seller block shows \"VAT UE: PL9731061682\" and also \"NIP: 9731061682\".\n- The VAT ID clearly printed: PL9731061682.\n=> Sender.VatId = \"PL9731061682\".\n\n5) Extract GrandTotal.Amount\n- Bottom right shows \"Razem do zapłaty: 380.00\" and \"Pozostało do zapłaty przelewem: 380.00 EUR\".\n- Currency is EUR; schema asks numeric amount (no currency symbol).\n=> GrandTotal.Amount = 380.00 (numeric).\n\n6) VAT groups present and ambiguity about Vat.Rate / Net.Amount / Vat.Amount\n- There are two VAT summary lines:\n  a) \"Podatek VAT NP EUR 380.00 0.00 380.00\" — indicates VAT classification NP (non-taxable), currency EUR, Net 380.00, VAT amount 0.00, Gross 380.00.\n  b) \"Podatek VAT NP PLN 1776.50 0.00 1776.50\" — same but in PLN: Net 1776.50, VAT 0.00, Gross 1776.50.\n- The invoice uses reverse charge (\"Obowiązek uiszczenia podatku VAT ciąży na usługobiorcy\" and \"Uwagi: REVERSE CHARGE\") and marks VAT as NP (no standard percent).\n- Vat.Rate: no numeric percentage is given — it's \"NP\". Per \"No Inference Policy\", do not guess a numeric VAT % (e.g., 0 or 23). So Vat.Rate should be left empty.\n- The schema appears to allow multiple VAT group entries, but the provided JSON schema fields are single-valued. To prepare for final extraction decisions, note both group values exist. Possible approaches:\n  - Option A: Populate Net.Amount and Vat.Amount with the invoice currency (EUR) amounts (Net = 380.00, Vat = 0.00) and leave Vat.Rate empty.\n  - Option B: Report PLN group instead (Net = 1776.50, Vat = 0.00) — less consistent with GrandTotal (which is in EUR).\n  - Option C: Attempt to provide both groups — but schema does not define an array field; however instructions mention multiple occurrences allowed for VAT items. Given final output must follow schema exactly, choose the most consistent single set with GrandTotal: use EUR values.\n\n7) Decimal preservation and format\n- Preserve decimals as in source: 380.00 and 0.00 and 1776.50.\n\n8) Final extraction decisions to use in the JSON output (consistent with evidence and no inference):\n- GrandTotal.Amount: 380.00 (number)\n- Invoice.Date: \"2023-03-13\"\n- Sender.VatId: \"PL9731061682\"\n- Vat.Rate: \"\" (empty, because only \"NP\" indicated; no numeric percent)\n- Net.Amount: 380.00 (use EUR net amount matching GrandTotal)\n- Vat.Amount: 0.00 (VAT amount for that group)\n\nNote: The document also shows a PLN conversion line (1776.50 PLN) corresponding to the same item; per schema and consistency with GrandTotal, I select the EUR group for Net.Amount/Vat.Amount.",
+    "step2": "GrandTotal.Amount (380.00)\n- Evidence: Explicit \"Razem do zapłaty: 380.00\" and \"Pozostało do zapłaty przelewem: 380.00 EUR\".\n- Consistency: Matches line item gross 380.00 EUR.\n- Confidence: Very high.\n\nInvoice.Date (\"2023-03-13\")\n- Evidence: Label \"Data wystawienia\" with value \"2023-03-13\".\n- Consistency: Standard invoice issue date; no conflicting dates (other dates are delivery/loading).\n- Confidence: Very high.\n\nSender.VatId (\"PL9731061682\")\n- Evidence: Seller block shows \"VAT UE: PL9731061682\" and \"NIP: 9731061682\".\n- Consistency: VAT ID format with country code PL matches seller location.\n- Confidence: Very high.\n\nVat.Rate (\"\")\n- Evidence: VAT summary lines show \"VAT NP\" (non-taxable / reverse charge) and VAT amounts 0.00; no numeric percentage present.\n- Consistency: Invoice indicates reverse charge; no percent to extract.\n- Confidence in leaving empty: Very high.\n\nNet.Amount (380.00)\n- Evidence: VAT summary shows EUR line with Net 380.00 corresponding to the item; gross equals 380.00 due to VAT 0.00.\n- Consistency: Matches GrandTotal and line item.\n- Confidence: Very high.\n\nVat.Amount (0.00)\n- Evidence: VAT summary lines show VAT amount 0.00 for both EUR and PLN lines.\n- Consistency: Matches reverse charge / NP classification.\n- Confidence: Very high."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 25.89,
+      "input_tokens": 2752,
+      "cached_input_tokens": null,
+      "output_tokens": 1546,
+      "total_tokens": 4298,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.14,
+      "input_tokens": 3705,
+      "cached_input_tokens": null,
+      "output_tokens": 345,
+      "total_tokens": 4050,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.58,
+      "input_tokens": 4350,
+      "cached_input_tokens": null,
+      "output_tokens": 279,
+      "total_tokens": 4629,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198271\\198271.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "PL9731061682",
+        "PL9731061682"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        380.0,
+        "380.00"
+      ],
+      "Net.Amount": [
+        false,
+        380.0,
+        [
+          "380.00",
+          "1776.50"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        [
+          "0.00",
+          "0.00"
+        ]
+      ],
+      "Vat.Rate": [
+        false,
+        "",
+        []
+      ],
+      "Invoice.Date": [
+        true,
+        "2023-03-13",
+        "2023-03-13"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 10807,
+    "cached_input_tokens": 0,
+    "output_tokens": 2170,
+    "eur_estimate": 0.0013
+  }
+}

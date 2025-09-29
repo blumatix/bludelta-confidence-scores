@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\275132\\275123_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1135.01,
+    "Invoice.Date": "31.01.2024",
+    "Sender.VatId": "ATU26011605",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 1031.83,
+    "Vat.Amount": 103.18
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.92,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will locate invoice indicators (headers, totals, VAT lines) and extract only explicitly present values without guessing. Key findings and choices:\n\n- Document classification: contains \"RECHNUNG\", invoice-like headers, line items, totals → treated as invoice.\n- Invoice.Date: two dates present (\"Ausstellungsdatum 30.01.2024\" and \"Rechnungsdatum 31.01.2024\"). \"Rechnungsdatum\" corresponds to invoice date → select \"31.01.2024\".\n- Sender.VatId: seller UID shown as \"UID ATU26011605\" (also an \"Ihre Ust-Nr. ATU22642807\" which is the customer's VAT) → choose \"ATU26011605\" for sender.\n- GrandTotal.Amount: \"Endbetrag: 1.135,01 EUR\" and repeated \"01.03.2024 1.135,01\" → total is 1,135.01.\n- VAT group: \"Mehrwertsteuer: A 10,00% MwSt. auf 1.031,83 EUR 103,18 EUR\" — extract VAT rate, net amount and VAT amount exactly as shown:\n  - Vat.Rate: 10,00% → extract numeric rate \"10.00\" (without percent).\n  - Net.Amount: 1.031,83 EUR → 1031.83.\n  - Vat.Amount: 103,18 EUR → 103.18.\n\nI will not infer or fill any missing fields beyond these explicit values.",
+    "step2": "GrandTotal.Amount — Confidence: 98%\n- Evidence: Explicit \"Endbetrag: 1.135,01 EUR\" and repeated \"01.03.2024 1.135,01\". Clear total amount formatting matches.\n\nInvoice.Date — Confidence: 95%\n- Evidence: Two dates present: \"Ausstellungsdatum 30.01.2024\" and \"Rechnungsdatum 31.01.2024\". \"Rechnungsdatum\" is standard invoice date; low residual uncertainty only from presence of two dates.\n\nSender.VatId — Confidence: 92%\n- Evidence: Seller UID appears as \"UID ATU26011605\" in footer. There is another VAT-like number \"Ihre Ust-Nr. ATU22642807\" (customer), but context clearly labels ATU26011605 as seller UID.\n\nVat.Rate — Confidence: 99%\n- Evidence: Explicit line: \"Mehrwertsteuer: A 10,00% MwSt.\" Direct, unambiguous percentage.\n\nNet.Amount — Confidence: 98%\n- Evidence: Same VAT line: \"auf 1.031,83 EUR\" corresponds to net base for the 10,00% group. Clear numeric format.\n\nVat.Amount — Confidence: 99%\n- Evidence: Same VAT line: \"103,18 EUR\" explicitly given as VAT amount for that group."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.67,
+      "input_tokens": 1795,
+      "cached_input_tokens": null,
+      "output_tokens": 901,
+      "total_tokens": 2696,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.6,
+      "input_tokens": 2167,
+      "cached_input_tokens": null,
+      "output_tokens": 415,
+      "total_tokens": 2582,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.39,
+      "input_tokens": 2542,
+      "cached_input_tokens": null,
+      "output_tokens": 302,
+      "total_tokens": 2844,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\275132\\275123_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU26011605",
+        "ATU26011605,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1135.01,
+        "1.135,01"
+      ],
+      "Net.Amount": [
+        true,
+        1031.83,
+        "1.031,83"
+      ],
+      "Vat.Amount": [
+        true,
+        103.18,
+        "103,18"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "31.01.2024",
+        "31.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6504,
+    "cached_input_tokens": 0,
+    "output_tokens": 1618,
+    "eur_estimate": 0.000891
+  }
+}

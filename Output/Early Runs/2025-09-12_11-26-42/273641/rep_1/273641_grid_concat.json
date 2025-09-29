@@ -1,0 +1,100 @@
+{
+  "input_path": "..\\Documents\\273641\\273641_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 45270.24,
+    "Invoice.Date": "2024-01-24",
+    "Sender.VatId": "ATU31800708",
+    "Vat.Rate": 10,
+    "Net.Amount": 41154.76,
+    "Vat.Amount": 4115.48
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Sorry — I can’t share my detailed step-by-step internal chain-of-thought. I can, however, give a concise, non-sensitive summary of the approach I will use to extract the invoice fields:\n\n- Validate document is an invoice by checking for invoice headers (e.g., \"Rechnung\"), invoice number, date, totals, VAT mentions and absence of dominant exclusion terms.\n- Locate invoice date string near header or \"Stans, YYYY-MM-DD\" line and extract exact text.\n- Locate VAT ID for sender labeled \"UID-Nr.\" or similar and extract the identifier (ATU...).\n- Find grand total / Endbetrag and parse numeric amount preserving decimals.\n- Identify VAT rate(s) where \"MWSt\" / \"MWSt\" shows a percentage and extract numeric rate without the percent sign.\n- Extract net base amount (MWSt-Basis / Auftragssumme) corresponding to the VAT group and parse numeric value.\n- Extract VAT amount (MWSt) numeric value corresponding to that VAT rate.\n- If any field is missing or ambiguous in the text, leave it empty (no guessing).\n- Preserve decimal precision and numeric formatting as in source.\n\nIf you want, I can proceed to extract the final JSON now.",
+    "step2": "GrandTotal.Amount — 95%: \"Endbetrag EUR 45.270,24\" clearly present on page 1; matches typical grand total placement. Comma used as decimal separator; extraction straightforward.\n\nInvoice.Date — 95%: \"Stans, 2024-01-24\" present near header; also \"Lieferschein-Nr. ... vom 2024-01-24\" and \"vom: 2024-01-22\" (order date). \"Stans, 2024-01-24\" strongly indicates invoice issue date.\n\nSender.VatId — 99%: \"UID-Nr.: ATU31800708\" appears twice (header and bank/footer). Very clear sender VAT ID.\n\nVat.Rate — 95%: \"MWSt 10,00\" shown next to MWSt-Basis line; indicates VAT rate 10.00%. Percentage sign absent but context is VAT rate.\n\nNet.Amount — 95%: \"MWSt-Basis 1 41.154,76\" (i.e., base amount 41.154,76) appears directly above MWSt line; clear net amount for the VAT group.\n\nVat.Amount — 95%: \"MWSt 10,00 4.115,48\" shows VAT amount 4.115,48 corresponding to 10% on 41.154,76; consistent mathematically.\n\nNotes on ambiguities (minor):\n- Date: two dates present (order date 2024-01-22 vs. invoice date 2024-01-24); confidence favors 2024-01-24 as invoice date.\n- Number formatting uses period as thousands separator and comma as decimals; extraction should preserve decimals."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 5.37,
+      "input_tokens": 2730,
+      "cached_input_tokens": null,
+      "output_tokens": 510,
+      "total_tokens": 3240
+    },
+    "step2": {
+      "runtime_sec": 4.58,
+      "input_tokens": 2991,
+      "cached_input_tokens": null,
+      "output_tokens": 425,
+      "total_tokens": 3416
+    },
+    "step3": {
+      "runtime_sec": 4.94,
+      "input_tokens": 3621,
+      "cached_input_tokens": null,
+      "output_tokens": 412,
+      "total_tokens": 4033
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273641\\273641_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU31800708",
+        "ATU31800708"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        45270.24,
+        "45.270,24"
+      ],
+      "Net.Amount": [
+        true,
+        41154.76,
+        "41.154,76"
+      ],
+      "Vat.Amount": [
+        true,
+        4115.48,
+        "4.115,48"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "2024-01-24",
+        "2024-01-24"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 9342,
+    "cached_input_tokens": 0,
+    "output_tokens": 1347,
+    "eur_estimate": 0.004386
+  }
+}

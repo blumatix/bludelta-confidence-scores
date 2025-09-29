@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\270953\\270938_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 293.39,
+    "Invoice.Date": "15.01.2024",
+    "Sender.VatId": "ATU73666623",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 266.72,
+    "Vat.Amount": 26.67
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains header \"RECHNUNG\" (German for Invoice) and typical invoice elements (Rechnungs-Nr., Rechnungsdatum, Lieferdatum, position lines, totals). No exclusion headers like \"Mahnung\" or \"Zahlungserinnerung\". Therefore classify as an invoice and proceed.\n\nIdentify target fields per schema: GrandTotal.Amount, Invoice.Date, Sender.VatId, Vat.Rate, Net.Amount, Vat.Amount. Note Vat fields may be multiple entries if multiple VAT groups—here appears single VAT group 10.00%.\n\nSearch and verify each field in text:\n\n1) Invoice.Date:\n- Look for \"Rechnungsdatum:\" — line shows \"Rechnungsdatum: 15.01.2024\". Clear date. Candidate value \"15.01.2024\". No ambiguity.\n\n2) Sender.VatId:\n- Sender is HARIBO Austria GmbH & Co KG. Look for VAT (USt-Id-Nr. / UID-Nr.). Text shows \"Haribo USt-Id-Nr.: ATU73666623\" near top and \"UID-Nr.: ATU 73666623\" near bottom. Both match. Use \"ATU73666623\" (without space). No inference needed.\n\n3) GrandTotal.Amount:\n- Locate invoice totals. Toward bottom a totals block shows:\n  - steuerpfl. Betrag 266,72\n  - Steuersatz 10,00 %\n  - Steuer 26,67\n  - Summe 293,39\n  - Endbetrag 293,39\n- \"Endbetrag\" / \"Summe\" likely equals grand total payable. So GrandTotal = 293,39. Must output numeric type preserving decimals and comma vs dot: schema expects number; input uses comma as decimal separator. Need to convert to number with decimal point: 293.39. Keep two decimals as in input.\n\n4) Vat.Rate, Net.Amount, Vat.Amount:\n- The VAT group shows Steuersatz 10,00 % and Steuer 26,67 and steuerpfl. Betrag 266,72. Interpretation:\n  - Net amount (steuerpfl. Betrag) = 266,72 → numeric 266.72\n  - VAT amount (Steuer) = 26,67 → numeric 26.67\n  - VAT rate = 10,00 % → numeric 10 (per rules: extract without %). But schema's Vat.Rate is number; keep decimal places as input? Input shows \"10,00 %\", so could be 10.00 or 10. Rule 5: extract rates without percentage symbol; do not specify decimal handling—however Rule 7: keep number of decimal places same as input. Input has two decimal places \"10,00\" so use 10.00. But schema allows number; earlier instruction \"Treat them as entries in the Vat.Item Array\"—developer note: Vat.Item array but schema doesn't define it; however top schema fields are single Vat.Rate, Net.Amount, Vat.Amount possibly expecting single values or arrays? The final schema lists these keys singular but earlier said Vat.Item array—contradiction. The instructions: \"Important: Vat.Item is an array, so you are allowed to have multiple entries for Vat.Rate, Net.Amount and Vat.Amount Treat them as entries in the Vat.Item Array\" But schema doesn't include Vat.Item. Given required fields include Vat.Rate, Net.Amount, Vat.Amount. Likely they expect single or array? But must adhere to schema exactly. It says values can be number or \"\". So provide single numbers corresponding to the VAT group. Choose Vat.Rate = 10 (or 10.00). Following Rule 7, keep decimals as in input: 10,00 -> 10.00. Net.Amount = 266.72, Vat.Amount = 26.67.\n\nDouble-check no other VAT groups present: Line items show Ust. (%) 10,00 for each. Only one group present. Good.\n\nNo other required fields. Confirm no need to guess invoice currency. If any field missing? All found.\n\nPlan for final JSON: include numeric types for amounts and vat rate with decimals preserved (two decimal places). Invoice.Date string as \"15.01.2024\". Sender.VatId as \"ATU73666623\".",
+    "step2": "GrandTotal.Amount — Confidence: High (≈95%)\n- Evidence: Totals block shows \"Summe 293,39\" and \"Endbetrag 293,39\". These clearly indicate the invoice total payable.\n- Ambiguity: Comma decimal in source; conversion to numeric dot is straightforward.\n\nInvoice.Date — Confidence: Very High (≈99%)\n- Evidence: Explicit label \"Rechnungsdatum: 15.01.2024\".\n- Ambiguity: None.\n\nSender.VatId — Confidence: Very High (≈99%)\n- Evidence: \"Haribo USt-Id-Nr.: ATU73666623\" and bottom \"UID-Nr.: ATU 73666623\" (same ID).\n- Ambiguity: Minor formatting spacing in second instance; identifier is consistent.\n\nVat.Rate — Confidence: High (≈95%)\n- Evidence: Totals block shows \"Steuersatz 10,00 %\". Line items also show Ust. (%) 10,00.\n- Ambiguity: Should be reported without % and preserving decimals; interpretation as 10.00 is faithful to input.\n\nNet.Amount — Confidence: High (≈95%)\n- Evidence: Totals block labels \"steuerpfl. Betrag 266,72\" which corresponds to taxable net amount.\n- Ambiguity: Could be interpreted as subtotal before rounding; but context and alignment indicate it's the net amount for VAT group.\n\nVat.Amount — Confidence: High (≈95%)\n- Evidence: Totals block shows \"Steuer 26,67\" directly corresponding to VAT amount for the 10,00 % group.\n- Ambiguity: Rounding nuances possible but value is explicit."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 14.7,
+      "input_tokens": 2317,
+      "cached_input_tokens": null,
+      "output_tokens": 964,
+      "total_tokens": 3281,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.97,
+      "input_tokens": 3264,
+      "cached_input_tokens": null,
+      "output_tokens": 349,
+      "total_tokens": 3613,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.86,
+      "input_tokens": 3913,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 4260,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\270953\\270938_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU73666623",
+        "ATU73666623"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        293.39,
+        "293,39"
+      ],
+      "Net.Amount": [
+        true,
+        266.72,
+        "266,72"
+      ],
+      "Vat.Amount": [
+        true,
+        26.67,
+        "26,67"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "15.01.2024",
+        "15.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 9494,
+    "cached_input_tokens": 0,
+    "output_tokens": 1660,
+    "eur_estimate": 0.00496
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\233392\\233392_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1027.15,
+    "Invoice.Date": "03.10.2023",
+    "Sender.VatId": "ATU61609708",
+    "Vat.Rate": 20,
+    "Net.Amount": 855.96,
+    "Vat.Amount": 171.19
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification\n- Presence of \"RECHNUNG\", \"Fakturendatum\", \"NETTOBETRAG\", \"RECHNUNGSBETRAG\", line items and totals → clearly an invoice.\n- No exclusion keywords (\"Zahlungserinnerung\", \"Mahnung\", \"Servicebericht\") prominent → proceed with extraction.\n\n2) Locate invoice date\n- Found \"Fakturendatum: 03.10.2023\" (upper right). Alternative could be other dates, but no other date labeled as invoice date. Conclusion: Invoice.Date = \"03.10.2023\".\n\n3) Locate sender VAT ID\n- Top block shows \"ATU61609708\" near company info; bottom also lists \"Ust - Idnr.: ATU61609708\". Recipient UID is \"ATU22642807\" (Ihre UID-Nr.), so sender VAT is ATU61609708. Conclusion: Sender.VatId = \"ATU61609708\".\n\n4) Locate grand total\n- \"RECHNUNGSBETRAG EUR 1.027,15\" line at bottom. This is the invoice total payable. Alternative: check for any other total; none. Conclusion: GrandTotal.Amount = 1027.15 (numeric representation preserves two decimals).\n\n5) Locate net amount and VAT total\n- \"NETTOBETRAG EUR 855,96\" and \"UST GESAMT EUR 171,19\" appear as net and total VAT. These sum to 1.027,15 as expected. Conclusion: Net.Amount = 855.96, Vat.Amount = 171.19.\n\n6) Determine VAT rate(s)\n- There are three MWSt. lines: \"MWSt. 10,00 %\", \"MWSt. 13,00 %\", and \"MWSt. 20,00 % Bem: 855,96 Ust. 171,19\".\n- The 20% line explicitly ties the net (Bem: 855,96) and VAT (Ust. 171,19) to 20%, and the amounts match 20% (855.96 * 0.20 = 171.192 → 171.19 displayed). The 10% and 13% lines have no amounts shown (likely zero). Therefore the applicable VAT rate for the invoice totals is 20.\n- Per rule to return rates without percent sign, Vat.Rate = 20.\n\n7) Check rules and ambiguities\n- No need to infer missing numeric fields—each required field is explicitly present.\n- Maintain decimal precision as in input (two decimal places).\n- Multiple VAT rate lines exist, but only 20% applies to the invoice totals; include that as the VAT rate tied to the Net.Amount and Vat.Amount.\n\nFinal extraction decisions to output:\n- Invoice.Date = \"03.10.2023\"\n- Sender.VatId = \"ATU61609708\"\n- GrandTotal.Amount = 1027.15\n- Vat.Rate = 20\n- Net.Amount = 855.96\n- Vat.Amount = 171.19",
+    "step2": "- GrandTotal.Amount (1027.15): Very high confidence. Evidence: explicit line \"RECHNUNGSBETRAG EUR 1.027,15\" matches NETTO + UST sum. No conflicting totals present.\n\n- Invoice.Date (\"03.10.2023\"): Very high confidence. Evidence: explicit \"Fakturendatum: 03.10.2023\". No other invoice-date-like values to conflict.\n\n- Sender.VatId (\"ATU61609708\"): Very high confidence. Evidence: appears twice near sender info (\"ATU61609708\" and \"Ust - Idnr.: ATU61609708\"). Recipient UID is different, so identification is unambiguous.\n\n- Vat.Rate (20): High confidence. Evidence: three VAT lines (10.00%, 13.00%, 20.00%) present; the 20% line explicitly references \"Bem: 855,96 Ust. 171,19\", which matches the extracted Net and Vat amounts. 10% and 13% lines show no amounts, indicating they do not apply to invoice totals.\n\n- Net.Amount (855.96): Very high confidence. Evidence: explicit \"NETTOBETRAG EUR 855,96\" and it sums with VAT to the grand total.\n\n- Vat.Amount (171.19): Very high confidence. Evidence: explicit \"UST GESAMT EUR 171,19\" and matches 20% of the net when rounded/displayed in the invoice."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 14.34,
+      "input_tokens": 1922,
+      "cached_input_tokens": null,
+      "output_tokens": 1353,
+      "total_tokens": 3275,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.66,
+      "input_tokens": 2618,
+      "cached_input_tokens": null,
+      "output_tokens": 443,
+      "total_tokens": 3061,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.0,
+      "input_tokens": 3233,
+      "cached_input_tokens": null,
+      "output_tokens": 218,
+      "total_tokens": 3451,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\233392\\233392_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU61609708",
+        "ATU61609708"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1027.15,
+        "1.027,15"
+      ],
+      "Net.Amount": [
+        true,
+        855.96,
+        "855,96"
+      ],
+      "Vat.Amount": [
+        true,
+        171.19,
+        "171,19"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "03.10.2023",
+        "03.10.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7773,
+    "cached_input_tokens": 0,
+    "output_tokens": 2014,
+    "eur_estimate": 0.005194
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\275144\\275075_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 77.0,
+    "Invoice.Date": "31.01.2024",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": 10,
+    "Net.Amount": 70.0,
+    "Vat.Amount": 7.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I can’t share my step-by-step internal chain-of-thought. I can, however, provide a concise, non-sensitive summary of findings and the plan for extraction:\n\n- Document classification: Invoice (contains \"RECHNUNG\", invoice number, invoice date, totals).\n- Fields identified:\n  - Invoice.Date: \"31.01.2024\"\n  - Sender.VatId: \"ATU22642807\" (USt-Id at top)\n  - GrandTotal.Amount (Bruttobetrag): 77,00\n  - Net.Amount (Nettowert gesamt): 70,00\n  - Vat.Amount (MWSt total): 7,00\n  - Vat.Rate: 10 (present as \"10% MWSt\"; will output without %)\n- Notes/ambiguities:\n  - Footer also contains another USt-IdNr. \"ATU14391601\"; top USt-Id is used as Sender.VatId per position in document.\n  - Numeric formatting will preserve decimals as in source (e.g., \"77,00\" kept).",
+    "step2": "Invoice.Date — 31.01.2024\n- Evidence: \"Datum: 31.01.2024\" near top under RECHNUNG.\n- Consistency check: fits typical invoice date field.\n- Confidence: 98%\n\nSender.VatId — ATU22642807\n- Evidence: \"USt-Id: ATU22642807\" shown near top of document.\n- Ambiguity: footer contains another VAT (USt-IdNr. ATU14391601). Top-positioned \"USt-Id\" is more likely the sender’s VAT, but presence of second VAT creates minor uncertainty.\n- Confidence: 85%\n\nGrandTotal.Amount — 77,00\n- Evidence: \"Bruttobetrag 77,00\" and \"fällig ... Bruttobetrag 77,00\" shown.\n- Consistency check: matches Nettowert (70,00) + Vat.Amount (7,00).\n- Confidence: 99%\n\nNet.Amount — 70,00\n- Evidence: \"Nettowert gesamt 70,00\" printed.\n- Consistency check: 10% VAT on 70,00 = 7,00; net + vat = grand total 77,00.\n- Confidence: 99%\n\nVat.Amount — 7,00\n- Evidence: \"10% MWSt von 70,00 7,00\" appears.\n- Consistency check: 7,00 corresponds to 10% of 70,00 and sums to grand total.\n- Confidence: 99%\n\nVat.Rate — 10\n- Evidence: \"10% MWSt\" clearly indicated for the VAT line.\n- Extraction rule applied: percent sign removed per instructions.\n- Confidence: 99%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 6.93,
+      "input_tokens": 1962,
+      "cached_input_tokens": null,
+      "output_tokens": 681,
+      "total_tokens": 2643,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.82,
+      "input_tokens": 2202,
+      "cached_input_tokens": null,
+      "output_tokens": 563,
+      "total_tokens": 2765,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.64,
+      "input_tokens": 2842,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3123,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\275144\\275075_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU14391601,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        77.0,
+        "77,00"
+      ],
+      "Net.Amount": [
+        true,
+        70.0,
+        "70,00"
+      ],
+      "Vat.Amount": [
+        true,
+        7.0,
+        "7,00"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "31.01.2024",
+        "31.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7006,
+    "cached_input_tokens": 0,
+    "output_tokens": 1525,
+    "eur_estimate": 0.00418
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\274711\\274706_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 15017.89,
+    "Invoice.Date": "2024-01-29",
+    "Sender.VatId": "ATU31800708",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 13652.63,
+    "Vat.Amount": 1365.26
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (1) verify this is an invoice by checking for invoice headers, invoice number, date, totals and VAT lines; (2) locate explicit values for the required schema fields without guessing; (3) preserve numeric formats and percent values per rules; (4) leave any missing field empty.\n\nFindings from the document:\n- Invoice indicators present: title \"Rechnung\", invoice number \"2401682\" (visible near header).\n- Invoice date: \"Stans, 2024-01-29\" and multiple \"vom: 2024-01-23\" (issue date most likely 2024-01-29 appears as document date).\n- Sender VAT ID: \"ATU31800708\" appears multiple times (Darbo-UID-Nr.).\n- Grand total / Endbetrag: \"Endbetrag EUR 15.017,89\" (15.017,89 with period as thousands separator and comma decimal).\n- VAT group line: \"MWSt-Basis 1 13.652,63  MWSt 10,00  1.365,26\" — indicates VAT rate 10 (presented as \"10,00\") with VAT amount 1.365,26 and net base 13.652,63.\n- Net.Amount corresponds to MWSt-Basis value 13.652,63; Vat.Rate corresponds to 10 (extract without %); Vat.Amount corresponds to 1.365,26.\n- Verify decimal formatting: values use comma as decimal separator in document. Schema expects number type; will convert to numeric form preserving decimals (e.g., 15017.89, 13652.63, 1365.26) but will keep same number of decimal places.\n- No other invoice-exclusion terms (Mahnung, Zahlungserinnerung) dominate; document is an invoice.\n\nPlanned extraction mapping:\n- GrandTotal.Amount <- Endbetrag EUR 15.017,89\n- Invoice.Date <- 2024-01-29 (from \"Stans, 2024-01-29\")\n- Sender.VatId <- ATU31800708\n- Vat.Item (single group):\n  - Vat.Rate <- 10\n  - Net.Amount <- 13.652,63\n  - Vat.Amount <- 1.365,26\n\nI will now prepare the final JSON (not shown here yet) according to the schema, converting numeric strings to numbers while preserving decimal places.",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"confidence\": \"High\",\n    \"reason\": \"Explicit 'Endbetrag EUR 15.017,89' printed on page 3 matching invoice totals.\"\n  },\n  \"Invoice.Date\": {\n    \"confidence\": \"High\",\n    \"reason\": \"Date 'Stans, 2024-01-29' appears near header and invoice metadata; clear issuance date format.\"\n  },\n  \"Sender.VatId\": {\n    \"confidence\": \"High\",\n    \"reason\": \"Sender UID shown multiple times as 'ATU31800708' (Darbo-UID-Nr.) in header and footer.\"\n  },\n  \"Vat.Rate\": {\n    \"confidence\": \"High\",\n    \"reason\": \"VAT line shows 'MWSt 10,00' indicating a 10% VAT group applicable to the invoice.\"\n  },\n  \"Net.Amount\": {\n    \"confidence\": \"High\",\n    \"reason\": \"MWSt-Basis listed as '13.652,63' directly associated with the VAT group on page 3.\"\n  },\n  \"Vat.Amount\": {\n    \"confidence\": \"High\",\n    \"reason\": \"VAT amount printed as '1.365,26' next to the VAT rate and base on the VAT summary line.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.05,
+      "input_tokens": 4218,
+      "output_tokens": 701,
+      "total_tokens": 4919
+    },
+    "step2": {
+      "runtime_sec": 5.03,
+      "input_tokens": 4734,
+      "output_tokens": 467,
+      "total_tokens": 5201
+    },
+    "step3": {
+      "runtime_sec": 4.06,
+      "input_tokens": 5278,
+      "output_tokens": 350,
+      "total_tokens": 5628
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274711\\274706_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU31800708",
+        "ATU31800708"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        15017.89,
+        "15.017,89"
+      ],
+      "Net.Amount": [
+        true,
+        13652.63,
+        "13.652,63"
+      ],
+      "Vat.Amount": [
+        true,
+        1365.26,
+        "1.365,26"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "2024-01-29",
+        "2024-01-29"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  }
+}

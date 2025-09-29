@@ -1,0 +1,94 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\172374\\172374_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1202.07,
+    "Invoice.Date": "16-12-22",
+    "Sender.VatId": "ATU62333479",
+    "Vat.Rate": 0,
+    "Net.Amount": 1202.07,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.92,
+    "Vat.Rate": 0.8,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.75
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Highly likely",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Very good chance"
+  },
+  "reasoning": {
+    "step1": "I will validate whether the document is an invoice by checking for invoice indicators and absence of exclusion terms, then extract exact text values without guessing. Key findings and extraction plan:\n\n- Document classification: multiple occurrences of \"RECHNUNG\", \"Rechnungsnummer\", \"Datum\", \"GESAMTBETRAG\"/\"BETRAG\", and UID/UID-NR. No prominent exclusion terms like \"Mahnung\" or \"Zahlungserinnerung\". Classified as an invoice.\n\n- Candidate fields found:\n  - Rechnungsnummer: \"03745923\" (invoice number present near header).\n  - Datum (Invoice Date): \"16-12-22\" (appears near header).\n  - UID-NR./Sender VAT ID: \"ATU62333479\" (labelled \"IHRE UID-NR.\").\n  - Grand total: two totals appear: \"GESAMTBETRAG EUR 1202.07\" on page 2 and earlier running subtotal/ÜBERTRAG 802.15; the explicit labeled GESAMTBETRAG is 1202.07 — treat as GrandTotal.Amount.\n  - VAT grouping: The invoice shows VAT-related note \"VT4 Exempt/zero rate - Art. 144 EU VAT Directive\" and line entries with NET amounts and codes (NET). There is no explicit VAT percentage or VAT amount numeric lines visible for the whole invoice; VAT may be zero/exempt.\n  - Net amount: aggregate NET line items summed on pages show NET subtotals: page1 shows \"353.42 NET\", \"150.75 NET\", \"297.98 NET\" summing to 802.15 ÜBERTRAG; page2 adds \"399.92 NET\" to yield GESAMTBETRAG 1202.07. So Net total for invoice is 1202.07 if VAT is zero; however the invoice labels GESAMTBETRAG EUR 1202.07—likely total payable.\n  - VAT amount and VAT rate: VT4 indicates exempt/zero rate; no explicit VAT amount printed (implies 0.00 and rate 0). But per No Inference rule, I will not invent values—only extract explicit text. The text \"Exempt/zero rate\" implies rate = 0 and VAT amount may be absent.\n\nExtraction decisions to apply to final JSON:\n- Use exact invoice date \"16-12-22\".\n- Use Sender.VatId as \"ATU62333479\".\n- Use GrandTotal.Amount from explicit \"GESAMTBETRAG EUR 1202.07\" -> 1202.07.\n- Net.Amount: explicit aggregated NET shown as 1202.07 (GESAMTBETRAG equals NET when VAT exempt); but because no explicit separate VAT amount appears, Net.Amount will be 1202.07 as shown.\n- Vat.Rate: presence of \"Exempt/zero rate\" corresponds to 0 (without % sign).\n- Vat.Amount: no explicit VAT numeric line; per No Inference, but \"zero rate\" implies VAT amount is 0. I will represent Vat.Amount as 0.0 only if treating \"zero\" as explicit; else empty. Given \"Exempt/zero rate\" is textual explicit, I will set Vat.Rate = 0 and Vat.Amount = 0.00.\n\nI will produce the final JSON with:\n- GrandTotal.Amount: 1202.07\n- Invoice.Date: \"16-12-22\"\n- Sender.VatId: \"ATU62333479\"\n- Vat.Rate: 0\n- Net.Amount: 1202.07\n- Vat.Amount: 0.00",
+    "step2": "GrandTotal.Amount — Confidence: High (≈95%)\n- Evidence: Explicit label \"GESAMTBETRAG EUR 1202.07\" appears on page 2.\n- Consistency: Matches running totals (ÜBERTRAG 802.15 on page 1 plus additional NET 399.92 on page 2 ≈ 1202.07).\n- Risk: OCR errors possible but number appears clearly formatted and consistent.\n\nInvoice.Date — Confidence: High (≈90%)\n- Evidence: \"Datum 16-12-22\" appears in header on both pages.\n- Consistency: Typical invoice date placement and format.\n- Risk: Two-digit year could be ambiguous but matches context.\n\nSender.VatId — Confidence: High (≈92%)\n- Evidence: Labeled \"IHRE UID-NR.: ATU62333479\" in header.\n- Consistency: Format matches Austrian VAT (ATU...) and appears clearly.\n- Risk: OCR could misread characters, but string looks intact.\n\nVat.Rate — Confidence: Moderate-High (≈80%)\n- Evidence: Text \"VT4 Exempt/zero rate - Art. 144 EU VAT Directive\" indicates zero VAT rate.\n- Consistency: Invoice shows NET totals and no VAT amount lines, consistent with zero rate.\n- Risk: Could be a VAT code not intended as blanket rate; interpretation that rate = 0 is reasonable but infers numeric 0 from text \"zero\".\n\nNet.Amount — Confidence: High (≈90%)\n- Evidence: NET subtotals shown (page1 NET 353.42 + 150.75 + 297.98 = 802.15 ÜBERTRAG; page2 additional NET 399.92 yields 1202.07 GESAMTBETRAG). \"GESAMTBETRAG\" equals 1202.07.\n- Consistency: If VAT is exempt, Net total equals GrandTotal.Amount; numbers in document support this.\n- Risk: If GESAMTBETRAG includes other fees not NET, then Net could differ; but displayed NET subtotals sum to the total.\n\nVat.Amount — Confidence: Moderate (≈75%)\n- Evidence: \"Exempt/zero rate\" suggests VAT amount is zero; no explicit VAT numeric amount printed.\n- Consistency: Absence of VAT lines and presence of zero-rate note align with VAT amount = 0.00.\n- Risk: The document does not explicitly print \"VAT amount: 0.00\"; assigning 0.00 infers numeric value from \"zero\" text. OCR could hide a VAT amount elsewhere, though unlikely given layout."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.38,
+      "input_tokens": 3062,
+      "cached_input_tokens": null,
+      "output_tokens": 834,
+      "total_tokens": 3896,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.21,
+      "input_tokens": 3878,
+      "cached_input_tokens": null,
+      "output_tokens": 544,
+      "total_tokens": 4422,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.47,
+      "input_tokens": 4722,
+      "cached_input_tokens": null,
+      "output_tokens": 282,
+      "total_tokens": 5004,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\172374\\172374.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU62333479",
+        [
+          "ATU 19069709",
+          "ATU 19069709"
+        ]
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1202.07,
+        "1202.07"
+      ],
+      "Invoice.Date": [
+        true,
+        "16-12-22",
+        [
+          "16-12-22",
+          "16-12-22"
+        ]
+      ]
+    },
+    "summary": {
+      "matched": 2,
+      "total": 3,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 11662,
+    "cached_input_tokens": 0,
+    "output_tokens": 1660,
+    "eur_estimate": 0.001164
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\252701\\252668_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 3782.53,
+    "Invoice.Date": "14.11.2023",
+    "Sender.VatId": "ATU14398702",
+    "Vat.Rate": 20,
+    "Net.Amount": 3915.33,
+    "Vat.Amount": 783.42
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I'll analyze the document step by step, exploring alternatives and verifying fields before extraction.\n\n1) Document classification — invoice vs non-invoice\n- Positive invoice indicators present: words like \"Fakturanummer\", \"Fakturadatum\", \"Rechnungsempfänger-Nr.\", \"Brutto-Verkauf\", \"Netto-Verkauf\", \"Umsatzsteuer\", \"Endbetrag\", \"Gutschrift/Preisgutschrift\". Multiple invoice-like headers and totals appear.\n- No prominent exclusion indicators (e.g., \"Zahlungserinnerung\", \"Mahnung\", \"Servicebericht\") in headers/upper half.\n- Conclusion: document qualifies as an invoice (credit/price note) and should be processed.\n\n2) Locate Invoice.Date\n- Found \"Fakturadatum\" with value \"14.11.2023\" (page 1, right block).\n- Alternative date fields present: Lieferdatum 14.11.2023 and Auftragsdatum 14.11.2023, but \"Fakturadatum\" is explicit invoice date.\n- Invoice.Date = \"14.11.2023\".\n\n3) Determine Sender.VatId (VAT ID of sender)\n- Two UID values visible:\n  a) Under \"Ihre Daten:\" – \"UID-Nr.: ATU22642807\"\n  b) In footer company block (EDUSCHO (Austria) GmbH) – \"UID ATU14398702\"\n- Identify sender: top and footer show EDUSCHO (Austria) GmbH as the issuing company. The footer explicitly pairs EDUSCHO with UID ATU14398702. The \"Ihre Daten: UID-Nr.: ATU22642807\" likely refers to the customer/recipient.\n- Therefore Sender.VatId = \"ATU14398702\".\n- Note alternative considered: ATU22642807 might be recipient, so not used.\n\n4) Determine GrandTotal.Amount\n- Look for final payable/Endbetrag. On page 2 totals block, \"Endbetrag 3.782,53\" is the invoice final amount.\n- Ensure decimal conversion: input uses comma as decimal separator. Keep same decimals but convert to numeric format for JSON number: 3782.53.\n- GrandTotal.Amount = 3782.53.\n\n5) Determine VAT rate(s) (Vat.Rate)\n- \"Mehrwertsteuerkennzeichen: 2=20%\" is present.\n- Totals show a 20% group (Umsatzsteuer 783,42-). Only one VAT rate applies across the document totals.\n- Vat.Rate = 20 (per rule: no % sign).\n\n6) Determine Net.Amount and Vat.Amount for VAT group\n- Totals block shows:\n  - \"Netto-Verkauf 3.915,33\"\n  - \"Umsatzsteuer 783,42-\" (presented as negative in layout but it's VAT amount)\n- Interpret Net.Amount = 3915.33 and Vat.Amount = 783.42 (numeric, positive).\n- Cross-check consistency: Net + VAT = 3915.33 + 783.42 = 4698.75 which matches \"Brutto-Verkauf 4.698,75\" on totals — consistent.\n- Note Endbetrag differs from Brutto because discounts/adjustments lead to Endbetrag 3.782,53; but VAT group net and VAT amounts are those listed under totals.\n\n7) No inference beyond visible data\n- All chosen values directly supported by explicit fields in the text.\n- Where alternatives existed (which UID to pick), I used header/footer association to choose the sender VAT.\n\nSummary of selected values for extraction:\n- Invoice.Date: \"14.11.2023\"\n- Sender.VatId: \"ATU14398702\"\n- GrandTotal.Amount: 3782.53\n- Vat.Rate: 20\n- Net.Amount: 3915.33\n- Vat.Amount: 783.42\n\nI have validated consistency between Brutto/Net/VAT totals and confirmed invoice classification.",
+    "step2": "I'll evaluate confidence for each extracted field based on text evidence and consistency.\n\n1) Invoice.Date = \"14.11.2023\"\n- Evidence: Explicit label \"Fakturadatum 14.11.2023\" present.\n- Ambiguity: Same date also appears as Lieferdatum and Auftragsdatum but label \"Fakturadatum\" is explicit.\n- Confidence: Very high.\n\n2) Sender.VatId = \"ATU14398702\"\n- Evidence: Footer block for EDUSCHO (Austria) GmbH includes \"UID ATU14398702\" adjacent to company details (issuer). Another UID \"ATU22642807\" appears under \"Ihre Daten:\" likely referring to recipient.\n- Ambiguity: Two UIDs present; choice depends on correct association of footer block with sender — footer strongly indicates issuer.\n- Confidence: High.\n\n3) GrandTotal.Amount = 3782.53\n- Evidence: \"Endbetrag 3.782,53\" shown in totals. Matches expected final payable after adjustments.\n- Ambiguity: There is also \"Brutto-Verkauf 4.698,75\" and other totals; interpretation as Grand Total relies on understanding \"Endbetrag\" = final amount due.\n- Confidence: High.\n\n4) Vat.Rate = 20\n- Evidence: \"Mehrwertsteuerkennzeichen: 2=20%\" and totals shown under 20% column.\n- Ambiguity: No other VAT rates indicated for whole-invoice totals.\n- Confidence: Very high.\n\n5) Net.Amount = 3915.33\n- Evidence: Totals list \"Netto-Verkauf 3.915,33\" aligning with Brutto minus VAT.\n- Ambiguity: There are multiple net-like values (Netto-Einkauf etc.), but \"Netto-Verkauf\" is the invoice net sales used with VAT total.\n- Confidence: High.\n\n6) Vat.Amount = 783.42\n- Evidence: Totals show \"Umsatzsteuer 783,42-\" (VAT amount). Net + VAT = Brutto (3915.33 + 783.42 = 4698.75) confirming consistency.\n- Ambiguity: Presentation uses a trailing minus sign for some totals in layout; value interpreted as positive VAT amount for the group.\n- Confidence: Very high."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 14.8,
+      "input_tokens": 3060,
+      "cached_input_tokens": null,
+      "output_tokens": 1542,
+      "total_tokens": 4602,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.62,
+      "input_tokens": 3945,
+      "cached_input_tokens": null,
+      "output_tokens": 487,
+      "total_tokens": 4432,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.12,
+      "input_tokens": 4732,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 5015,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\252701\\252668_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU14398702",
+        "ATU14398702"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        3782.53,
+        "3.782,53"
+      ],
+      "Net.Amount": [
+        false,
+        3915.33,
+        "3.152,11"
+      ],
+      "Vat.Amount": [
+        false,
+        783.42,
+        "630,42"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "14.11.2023",
+        "14.11.2023"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 11737,
+    "cached_input_tokens": 0,
+    "output_tokens": 2312,
+    "eur_estimate": 0.006582
+  }
+}

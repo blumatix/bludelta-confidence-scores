@@ -1,0 +1,112 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198590\\198590_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 198.0,
+    "Invoice.Date": "28/02/2023",
+    "Sender.VatId": "FR 09 350 019 261",
+    "Vat.Rate": 0,
+    "Net.Amount": 198.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.8,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains \"Facture\", invoice number, invoice date, totals, line items → classify as invoice.\n\nKey text locations:\n- Invoice number and date header: \"N° 000115075 Date 28/02/2023\"\n- Grand total block: \"A payer EUR 198,00\"\n- Net/HT and VAT block: \"Total H.T. 198,00\", VAT line \"VATEX 0,00 198,00 0,00\"\n- Sender VAT in footer: \"Code TVA FR 09 350 019 261.\"\n- Another \"ID TVA FR47546650334\" appears near client area (do not assume sender).\n\nExtraction decisions (no guessing, prefer exact matched sender VAT from footer):\n- GrandTotal.Amount: taken from \"A payer EUR 198,00\" and total lines → 198,00\n- Invoice.Date: exact string \"28/02/2023\"\n- Sender.VatId: use footer \"Code TVA FR 09 350 019 261\" (exact as presented)\n- Vat.Rate: VAT group shows VATEX with 0,00 → rate = 0 (preserve input decimals as number 0.00)\n- Net.Amount: \"Total H.T. 198,00\" → 198.00\n- Vat.Amount: VAT amount shown \"0,00\" → 0.00\n\nNo alternative interpretations chosen:\n- Did not use \"ID TVA FR47546650334\" (likely client) for Sender.VatId to avoid incorrect inference.\n- VAT rate taken from VATEX line (0,00) rather than assuming standard percent.\n\nFields left empty: none, because all required fields are present in the invoice.",
+    "step2": "GrandTotal.Amount — 95%: \"A payer EUR 198,00\" and repeated totals (198,00) strongly support this.\n\nInvoice.Date — 99%: Explicit header \"Date 28/02/2023\" is clear.\n\nSender.VatId — 80%: Footer shows \"Code TVA FR 09 350 019 261\" (likely sender). There is another VAT-like ID \"FR47546650334\" near client area, causing some ambiguity.\n\nVat.Rate — 90%: VAT group shows \"VATEX ... 0,00\" and no percent listed; interpreted as 0% (consistent with VAT-exempt line).\n\nNet.Amount — 98%: \"Total H.T. 198,00\" explicitly matches invoice net amount.\n\nVat.Amount — 98%: VAT amount shown as \"0,00\" in VAT grouping and totals."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.57,
+      "input_tokens": 2252,
+      "cached_input_tokens": null,
+      "output_tokens": 875,
+      "total_tokens": 3127,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.94,
+      "input_tokens": 2662,
+      "cached_input_tokens": null,
+      "output_tokens": 445,
+      "total_tokens": 3107,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.46,
+      "input_tokens": 3151,
+      "cached_input_tokens": null,
+      "output_tokens": 349,
+      "total_tokens": 3500,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198590\\198590.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "FR 09 350 019 261",
+        [
+          "FR 09 350 019 261",
+          "FR 09 350 019 261"
+        ]
+      ],
+      "GrandTotal.Amount": [
+        true,
+        198.0,
+        "198,00"
+      ],
+      "Net.Amount": [
+        true,
+        198.0,
+        [
+          "198,00",
+          "198,00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        [
+          "0,00",
+          "0,00"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        0,
+        "0,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "28/02/2023",
+        "28/02/2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8065,
+    "cached_input_tokens": 0,
+    "output_tokens": 1669,
+    "eur_estimate": 0.000987
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\253051\\252998_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2145.0,
+    "Invoice.Date": "16.11.2023",
+    "Sender.VatId": "ATU14391601",
+    "Vat.Rate": 10,
+    "Net.Amount": 1950.0,
+    "Vat.Amount": 195.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.6,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: document is an invoice (contains \"RECHNUNG\", invoice number, invoice date, totals, line items).\n\nExtractable fields found with evidence:\n- Invoice.Date: \"Datum: 16.11.2023\"\n- GrandTotal.Amount: \"Bruttobetrag 2.145,00\" -> 2145.00\n- VAT groups present: \"10% MWSt von 1.950,00 195,00\" and \"00% MWSt von 0,00 0,00\"\n  - Primary VAT group to report: Rate 10, Net.Amount 1.950,00, Vat.Amount 195,00\n- Sender VAT ID candidates:\n  - \"USt-Id: ATU22642807\" (appears near top, possibly customer)\n  - \"USt-IdNr. ATU14391601\" appears in the sender/footer block with STAMAG contact details\n  - According to visible sender/footer association, use \"ATU14391601\" as Sender.VatId\n\nNo other required fields (per schema) are inferred or filled. Missing/ambiguous items not guessed.",
+    "step2": "GrandTotal.Amount — Confidence: High\n- Evidence: \"Bruttobetrag 2.145,00\" clearly printed; matches net + VAT lines.\n\nInvoice.Date — Confidence: High\n- Evidence: \"Datum: 16.11.2023\" explicitly labeled.\n\nVat.Rate / Net.Amount / Vat.Amount (10% group) — Confidence: High\n- Evidence: Line shows \"10% MWSt von 1.950,00 195,00\" directly associating 10% with net 1.950,00 and VAT 195,00.\n\nVat.Rate / Net.Amount / Vat.Amount (0% group) — Confidence: High\n- Evidence: \"00% MWSt von 0,00 0,00\" explicitly present.\n\nSender.VatId — Confidence: Medium\n- Evidence ambiguity: two USt-Id values appear: \"USt-Id: ATU22642807\" near top and \"USt-IdNr. ATU14391601\" in the sender/footer block. The footer ID is typical for the invoice issuer, but the presence of a second USt-Id creates ambiguity; thus not fully certain which is the sender VAT ID."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.99,
+      "input_tokens": 1987,
+      "cached_input_tokens": null,
+      "output_tokens": 885,
+      "total_tokens": 2872,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.5,
+      "input_tokens": 2279,
+      "cached_input_tokens": null,
+      "output_tokens": 510,
+      "total_tokens": 2789,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.22,
+      "input_tokens": 2833,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 3180,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\253051\\252998_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU14391601",
+        "ATU14391601,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        2145.0,
+        "2.145,00"
+      ],
+      "Net.Amount": [
+        true,
+        1950.0,
+        "1.950,00"
+      ],
+      "Vat.Amount": [
+        true,
+        195.0,
+        "195,00"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "16.11.2023",
+        "16.11.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7099,
+    "cached_input_tokens": 0,
+    "output_tokens": 1742,
+    "eur_estimate": 0.004575
+  }
+}

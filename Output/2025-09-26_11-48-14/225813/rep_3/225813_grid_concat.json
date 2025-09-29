@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\225856\\225813_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 38792.83,
+    "Invoice.Date": "2023-08-22",
+    "Sender.VatId": "ATU31800708",
+    "Vat.Rate": 10,
+    "Net.Amount": 35266.21,
+    "Vat.Amount": 3526.62
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.92,
+    "Net.Amount": 0.93,
+    "Vat.Amount": 0.93
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will extract and validate invoice fields by locating invoice headers and totals, confirming this is an invoice (not a reminder), and mapping OCR values exactly without guessing.\n\nStep 1 — Document classification\n- Found clear invoice indicators: title \"Rechnung\", invoice number \"2315189\", line items, totals (\"Auftragssumme\", \"MWSt-Basis\", \"MWSt\", \"Endbetrag\"). No exclusion terms (\"Mahnung\", \"Zahlungserinnerung\") dominating. Classify as invoice.\n\nStep 2 — Identify candidate fields and choices\n- Grand total: \"Endbetrag EUR 38.792,83\" appears on page 4. Interpret European formatting: 38.792,83 -> 38792.83.\n- Invoice date: Two dates present: \"vom: 2023-08-14\" (order date) and \"Stans, 2023-08-22\". The latter is the invoice issue place/date line; select \"2023-08-22\".\n- Sender VAT ID: \"Darbo-UID-Nr.: ATU31800708\" clearly labeled.\n- VAT rate: Listed as \"MWSt 10,00\" (10%); extract numeric \"10\".\n- Net amount: \"MWSt-Basis 35.266,21\" -> 35266.21.\n- VAT amount: \"MWSt 3.526,62\" -> 3526.62.\n\nStep 3 — Apply rules\n- No inference beyond visible data.\n- Preserve decimal places as in source (two decimals).\n- Remove thousand separators and convert comma decimal to dot for numeric fields.\n- VAT rate returned without percent symbol.\n\nThese are the validated extractions to return.",
+    "step2": "GrandTotal.Amount — Confidence: High (≈95%)\n- Evidence: \"Endbetrag EUR 38.792,83\" explicitly printed on page 4.\n- Consistency: Matches format used elsewhere (thousand separator dot, decimal comma). No competing total present.\n- Risk: OCR misread of digits unlikely; conversion from \"38.792,83\" to numeric 38792.83 straightforward.\n\nInvoice.Date — Confidence: High (≈90%)\n- Evidence: Two candidate dates: \"vom: 2023-08-14\" (order date) and \"Stans, 2023-08-22\" shown near header. \"Stans, 2023-08-22\" is typical invoice issue date placement.\n- Consistency: \"Stans, 2023-08-22\" located near top-right area with invoice number.\n- Risk: Ambiguity between order and issue date; chosen date is most likely invoice date.\n\nSender.VatId — Confidence: Very High (≈99%)\n- Evidence: \"Darbo-UID-Nr.: ATU31800708\" clearly labeled; matches company header.\n- Consistency: UID/UID-Nr. is standard VAT identifier format for Austria (ATU...).\n- Risk: negligible.\n\nVat.Rate — Confidence: High (≈92%)\n- Evidence: On page 4: \"MWSt 10,00\" next to MWSt-Basis line, indicating 10% VAT group.\n- Consistency: VAT amount (3.526,62) corresponds to 10% of MWSt-Basis (35.266,21 → 3.526,621) rounding matches displayed 3.526,62.\n- Risk: Could be multiple VAT groups elsewhere, but only one MWSt group shown for invoice total.\n\nNet.Amount (MWSt-Basis) — Confidence: High (≈93%)\n- Evidence: \"MWSt-Basis 1 35.266,21\" printed on page 4 as base for VAT.\n- Consistency: Numeric conversion from \"35.266,21\" → 35266.21; VAT amount aligns with 10%.\n- Risk: OCR token \"1\" before value may be extraneous but base amount is clear.\n\nVat.Amount — Confidence: High (≈93%)\n- Evidence: \"MWSt 10,00 3.526,62\" printed; numeric conversion to 3526.62.\n- Consistency: Equals 10% of Net.Amount within rounding.\n- Risk: minimal.\n\nOverall: all fields have strong direct textual evidence and internal consistency (Net * Rate ≈ Vat; Net + Vat ≈ Grand Total). Small risks from OCR formatting and date ambiguity only."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.44,
+      "input_tokens": 5423,
+      "cached_input_tokens": null,
+      "output_tokens": 741,
+      "total_tokens": 6164,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.42,
+      "input_tokens": 5827,
+      "cached_input_tokens": null,
+      "output_tokens": 561,
+      "total_tokens": 6388,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.7,
+      "input_tokens": 6688,
+      "cached_input_tokens": null,
+      "output_tokens": 284,
+      "total_tokens": 6972,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\225856\\225813_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU31800708",
+        "ATU31800708"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        38792.83,
+        "38.792,83"
+      ],
+      "Net.Amount": [
+        true,
+        35266.21,
+        "35.266,21"
+      ],
+      "Vat.Amount": [
+        true,
+        3526.62,
+        "3.526,62"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "2023-08-22",
+        "2023-08-22"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 17938,
+    "cached_input_tokens": 0,
+    "output_tokens": 1586,
+    "eur_estimate": 0.00669
+  }
+}

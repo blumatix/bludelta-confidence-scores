@@ -1,0 +1,100 @@
+{
+  "input_path": "..\\Documents\\274800\\274797_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 93.42,
+    "Invoice.Date": "29.01.2024",
+    "Sender.VatId": "ATU69710958",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 77.85,
+    "Vat.Amount": 15.57
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.92,
+    "Net.Amount": 0.94,
+    "Vat.Amount": 0.94
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Below is a concise, non-sensitive summary of the extraction steps I will follow to produce the structured invoice data:\n\n1. Confirm document is an invoice by checking for invoice indicators (\"Rechnung\", \"Nummer\", \"Datum\", totals, line items) and absence of dominating exclusion terms.\n2. Locate invoice-level headers/fields: invoice number, invoice date, and verify invoice-like sections exist.\n3. Extract GrandTotal.Amount from the invoice's final \"Gesamtbetrag Brutto\" value (preserve decimals).\n4. Extract Invoice.Date from the \"Datum\" field (use the exact string as printed).\n5. Find Sender.VatId from sender/company VAT identifiers (e.g., \"Ust-Id-Nr.\" or \"Ust.-ID-Nr.\").\n6. Identify VAT groups: for each VAT group line showing rate, net amount, and VAT amount (e.g., \"20.00% ... 15,57 EUR\"), extract Vat.Rate (without %), Net.Amount, Vat.Amount, preserving decimal formatting.\n7. If a single overall net amount is present (\"Gesamtbetrag Netto\"), extract Net.Amount accordingly; otherwise leave empty if ambiguous.\n8. Apply No Inference: if any required field is missing or ambiguous, return that field as an empty string.\n9. Produce final JSON matching the required schema with numeric types for amounts/rates and empty strings for missing values.",
+    "step2": "GrandTotal.Amount — Confidence: 95% — Evidence: \"Gesamtbetrag Brutto 93,42 EUR\" clearly printed; decimal format preserved.\n\nInvoice.Date — Confidence: 99% — Evidence: \"Datum 29.01.2024\" appears at top of invoice.\n\nSender.VatId — Confidence: 90% — Evidence: \"Ihre Ust-Id-Nr. ATU64131246\" visible; alternate company VAT \"Ust.-ID-Nr. ATU69710958\" also present (company header). Ambiguity: two VAT IDs present (one labeled \"Ihre Ust-Id-Nr.\" vs. company header), so lower confidence which is intended sender VAT.\n\nVat.Rate — Confidence: 92% — Evidence: \"R2  -  20,00% USt auf 77,85\" clearly indicates a 20.00% VAT group.\n\nNet.Amount — Confidence: 94% — Evidence: \"Gesamtbetrag Netto 77,85 EUR\" clearly printed matching the VAT group base.\n\nVat.Amount — Confidence: 94% — Evidence: \"15,57 EUR\" shown next to \"20.00% ... 15,57 EUR\" indicating VAT amount for that net group."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 5.12,
+      "input_tokens": 2970,
+      "output_tokens": 492,
+      "total_tokens": 3462
+    },
+    "step2": {
+      "runtime_sec": 5.54,
+      "input_tokens": 3277,
+      "output_tokens": 455,
+      "total_tokens": 3732
+    },
+    "step3": {
+      "runtime_sec": 13.84,
+      "input_tokens": 3809,
+      "output_tokens": 603,
+      "total_tokens": 4412
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274800\\274797_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU69710958",
+        "ATU69710958,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        93.42,
+        "93,42"
+      ],
+      "Net.Amount": [
+        false,
+        77.85,
+        [
+          "77,85",
+          "77,85"
+        ]
+      ],
+      "Vat.Amount": [
+        false,
+        15.57,
+        [
+          "15,57",
+          "15,57"
+        ]
+      ],
+      "Vat.Rate": [
+        false,
+        20.0,
+        [
+          "20.00",
+          "20,00"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "29.01.2024",
+        "29.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  }
+}

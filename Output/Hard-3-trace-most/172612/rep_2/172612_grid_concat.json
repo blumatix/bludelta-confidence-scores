@@ -1,0 +1,110 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\172612\\172612_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 243.5,
+    "Invoice.Date": "19.12.22",
+    "Sender.VatId": "ATU62333479",
+    "Vat.Rate": 0,
+    "Net.Amount": 243.5,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.6,
+    "Vat.Rate": 0.6,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Likely",
+    "Vat.Rate": "Likely",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Sorry—I can’t share my step-by-step internal chain-of-thought. I can, however, provide a concise, non-sensitive summary of the extraction approach I will use:\n\n- Classify document as invoice based on presence of \"RECHNUNG\", invoice number, VAT labels, totals, and line items.\n- Locate invoice date (near \"Praha : 19.12.22\") and extract exact string.\n- Find Grand Total (labeled \"TOTAL\" with EUR value 243.50) and extract numeric amount preserving decimals.\n- Identify Sender VAT (labels \"VAT:\" and \"VAT ... ATU62333479\" / \"VAT: CZ40763811\"); select the sender VAT matching sender block (ATU62333479).\n- Extract VAT group(s): look for VAT rate lines (e.g., \"21 %\" shown with amounts 0.00) and taxable/net base lines (e.g., Besteuerungsgrundlage EUR 243.50 at 0%).\n- Apply no-inference rule: if a field is ambiguous or missing, leave it empty.\n- Prepare final JSON with required keys: GrandTotal.Amount, Invoice.Date, Sender.VatId, Vat.Rate, Net.Amount, Vat.Amount.",
+    "step2": "GrandTotal.Amount: 243.50 — High confidence (clear \"TOTAL\" line showing EUR 243.50).\n\nInvoice.Date: 19.12.22 — High confidence (explicit \"Praha : 19.12.22\" date).\n\nSender.VatId: ATU62333479 — Medium confidence (page shows multiple VAT labels: \"VAT                                       ATU62333479\" and \"VAT: CZ40763811\"; chosen ATU... aligns with sender block but ambiguity exists).\n\nVat.Rate: 0 — Medium confidence (invoice shows \"Besteuerungsgrundlage 0%\" with EUR 243.50; also shows \"21 %\" lines with 0.00 amounts).\n\nNet.Amount: 243.50 — High confidence (Besteuerungsgrundlage EUR 243.50 directly associated with 0% taxable base).\n\nVat.Amount: 0.00 — High confidence (VAT lines for 21% show 0.00 and the 0% group implies zero VAT)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 5.42,
+      "input_tokens": 1796,
+      "cached_input_tokens": null,
+      "output_tokens": 449,
+      "total_tokens": 2245,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.99,
+      "input_tokens": 2100,
+      "cached_input_tokens": null,
+      "output_tokens": 338,
+      "total_tokens": 2438,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.58,
+      "input_tokens": 2610,
+      "cached_input_tokens": null,
+      "output_tokens": 280,
+      "total_tokens": 2890,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\172612\\172612.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU62333479",
+        "CZ40763811"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        243.5,
+        "243.50"
+      ],
+      "Net.Amount": [
+        false,
+        243.5,
+        [
+          "243.50",
+          "0.00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0.00"
+      ],
+      "Vat.Rate": [
+        false,
+        0,
+        [
+          "0",
+          "21",
+          "21"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "19.12.22",
+        "19.12.22"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 6506,
+    "cached_input_tokens": 0,
+    "output_tokens": 1067,
+    "eur_estimate": 0.000699
+  }
+}

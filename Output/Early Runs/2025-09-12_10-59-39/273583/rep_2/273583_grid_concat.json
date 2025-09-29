@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\273608\\273583_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 3712.72,
+    "Invoice.Date": "25.01.2024",
+    "Sender.VatId": "ATU69898649",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 3375.2,
+    "Vat.Amount": 337.52
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will identify invoice indicators, check for exclusion terms, and extract fields strictly per rules.\n\n1) Document classification\n- Invoice indicators present: header \"RECHNUNG\" (German for Invoice), \"Nr. 420071 vom 25.01.2024\", \"Warenwert\", \"Mwst\", \"Gesamt EUR\", invoice number and dates, line items, totals.  \n- Exclusion indicators (\"Zahlungserinnerung\", \"Mahnung\", \"Servicebericht\") do not appear prominently.  \n=> Document qualifies as an invoice.\n\n2) Locate candidate fields and alternatives\n- Invoice.Date:\n  - Found \"Nr. 420071 vom 25.01.2024\" near the top. Also line \"Lieferschein-Nr.: 410076 vom 15.01.2024\" (delivery note date is 15.01.2024), but the invoice issue date is \"vom 25.01.2024\".  \n  - Choose Invoice.Date = \"25.01.2024\" (exact string as on invoice).\n\n- Sender.VatId:\n  - Two UID occurrences: \"Ihre UID-Nummer: ATU22642807\" (this is labeled \"Ihre\" = your UID, i.e., the recipient/customer).  \n  - At bottom in banking block: \"UID:ATU69898649\" associated with BREGANZIA (sender).  \n  - Per schema Sender.VatId should be the sender's tax ID → choose \"ATU69898649\".\n\n- GrandTotal.Amount:\n  - Totals section shows:\n    - \"von 3,375.20 10.0% Mwst = EUR 337.52 Warenwert 3,375.20\"\n    - \"+ Mwst 337.52\"\n    - \"Gesamt EUR 3,712.72\"\n  - Grand total is \"3,712.72\". Keep decimals as in input → 3712.72 (number).\n\n- Vat.Rate, Net.Amount, Vat.Amount:\n  - VAT rate shown as \"10.0% Mwst\" next to net 3,375.20 and VAT amount 337.52.\n  - Per rules, Vat.Rate should be numeric without \"%\" and keep decimals → 10.0.\n  - Net.Amount is the Warenwert = 3,375.20 → numeric 3375.20 (preserve decimals).\n  - Vat.Amount is 337.52 → numeric 337.52.\n\n3) Verify no inference beyond visible text\n- All chosen values are explicitly present in the invoice text; no guessing applied.\n- The customer UID (ATU22642807) is ignored for Sender.VatId since it's labeled \"Ihre UID-Nummer\".\n- Exchange rates none; irrelevant.\n\n4) Final mapping planned\n- GrandTotal.Amount: 3712.72\n- Invoice.Date: \"25.01.2024\"\n- Sender.VatId: \"ATU69898649\"\n- Vat.Rate: 10.0\n- Net.Amount: 3375.20\n- Vat.Amount: 337.52\n\nThese values are directly supported by the invoice text; no other plausible alternatives override them.",
+    "step2": "GrandTotal.Amount = 3712.72\n- Confidence: 98%\n- Evidence: Explicit line \"Gesamt EUR 3,712.72\". Clear total with matching addition of Warenwert + Mwst.\n\nInvoice.Date = \"25.01.2024\"\n- Confidence: 99%\n- Evidence: Header shows \"Nr. 420071 vom 25.01.2024\" (invoice number with issue date). Distinct from Lieferschein date (15.01.2024).\n\nSender.VatId = \"ATU69898649\"\n- Confidence: 95%\n- Evidence: Bottom banking block lists \"UID:ATU69898649\" associated with BREGANZIA (sender). There is another UID \"ATU22642807\" labeled \"Ihre UID-Nummer\" (customer), so sender UID choice is clear.\n\nVat.Rate = 10.0\n- Confidence: 98%\n- Evidence: Shown as \"10.0% Mwst\" next to net amount. Extracted numeric without percent per rules.\n\nNet.Amount = 3375.20\n- Confidence: 99%\n- Evidence: Shown as \"Warenwert 3,375.20\" and used in VAT calculation. Matches formatting and addition.\n\nVat.Amount = 337.52\n- Confidence: 99%\n- Evidence: Explicit \"Mwst = EUR 337.52\" and \"+ Mwst 337.52\" lines, consistent with 10% of net (3375.20 * 0.10 = 337.52)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.28,
+      "input_tokens": 2011,
+      "output_tokens": 989,
+      "total_tokens": 3000
+    },
+    "step2": {
+      "runtime_sec": 3.63,
+      "input_tokens": 2687,
+      "output_tokens": 392,
+      "total_tokens": 3079
+    },
+    "step3": {
+      "runtime_sec": 4.23,
+      "input_tokens": 3284,
+      "output_tokens": 285,
+      "total_tokens": 3569
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273608\\273583_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU69898649",
+        "ATU69898649"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        3712.72,
+        "3,712.72"
+      ],
+      "Net.Amount": [
+        true,
+        3375.2,
+        "3,375.20"
+      ],
+      "Vat.Amount": [
+        true,
+        337.52,
+        "337.52"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10.0"
+      ],
+      "Invoice.Date": [
+        true,
+        "25.01.2024",
+        "25.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  }
+}

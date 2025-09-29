@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\273900\\273890_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 460.01,
+    "Invoice.Date": "26-01-2024",
+    "Sender.VatId": "ATU43349701",
+    "Vat.Rate": 10,
+    "Net.Amount": 418.19,
+    "Vat.Amount": 41.82
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will identify invoice indicators, verify fields, and consider alternatives before extraction.\n\n1) Document classification\n- Presence of \"RECHNUNG\" (German for Invoice) at top — strong invoice indicator.\n- Contains invoice-like elements: invoice header, company contact, UID numbers, line item, Auftragssumme, Mehrwertsteuer, Endbetrag — confirms invoice.\n- No exclusion terms like \"Mahnung\" or \"Zahlungserinnerung\" dominate. So treat as invoice.\n\n2) Locate candidate values and consider ambiguous alternatives\n- Invoice Date: two dates appear:\n  - \"Ihr Auftrag: 32401072 vom: 25-01-2024\" — this refers to the order date.\n  - \"Wien am 26-01-2024\" — typical phrasing for invoice issue place/date. Choose 26-01-2024 as Invoice.Date.\n- Sender VAT (Sender.VatId):\n  - There is \"Ihre UID: ATU22642807\" — \"Ihre\" means \"your\" (customer UID) so likely customer VAT.\n  - Later: \"UID-Nr.: ATU 43349701\" near company info and other company registration fields — this aligns with sender (SENNA) details. Choose ATU43349701 as Sender.VatId.\n- Grand Total (GrandTotal.Amount):\n  - \"Endbetrag EUR 460,01\" — use 460.01 as numeric value. Alternative sums present: Auftragssumme 418,19 is subtotal; Endbetrag is final. Choose 460.01.\n- Net.Amount and Vat.Amount and Vat.Rate:\n  - \"Auftragssumme 418,19\" appears as net sum.\n  - \"+ 10 % Mehrwertsteuer 41,82\" shows VAT rate and VAT amount.\n  - So Vat.Rate = 10 (per rule: no % symbol), Net.Amount = 418.19, Vat.Amount = 41.82.\n- Verify no other VAT groups or exchange rates for entire invoice: only single VAT group 10% applies to whole invoice, so include that single group.\n\n3) Formatting and rules checks\n- No guessing: each chosen field has explicit textual evidence.\n- Preserve decimal places as in input (two decimals).\n- Convert commas to decimal points for numeric fields (418,19 -> 418.19; 41,82 -> 41.82; 460,01 -> 460.01).\n- Vat.Rate returned as number 10 (not \"10%\").\n- Sender.VatId returned as string without extra spacing: \"ATU43349701\".\n\nConclusion: proceed to output JSON with these extracted values:\n- Invoice.Date = \"26-01-2024\"\n- Sender.VatId = \"ATU43349701\"\n- GrandTotal.Amount = 460.01\n- Vat.Rate = 10\n- Net.Amount = 418.19\n- Vat.Amount = 41.82",
+    "step2": "Invoice.Date — 26-01-2024\n- Evidence: Text shows \"Wien am 26-01-2024\" which is standard invoice place/date formatting. Alternative date (25-01-2024) is labeled as \"vom:\" for the order. \n- Confidence: 95%\n\nSender.VatId — ATU43349701\n- Evidence: Near company/legal info block appears \"UID-Nr.: ATU 43349701\" adjacent to FN, DVR, Bankverbindung — clearly sender company identifiers. Another UID (\"Ihre UID: ATU22642807\") refers to the customer and thus excluded.\n- Confidence: 98%\n\nGrandTotal.Amount — 460.01\n- Evidence: \"Endbetrag EUR 460,01\" clearly labeled as the final payable amount. Subtotal (\"Auftragssumme 418,19\") is distinct from end amount.\n- Confidence: 99%\n\nVat.Rate — 10\n- Evidence: Line shows \"+ 10 % Mehrwertsteuer 41,82\" indicating a single VAT rate applied to the invoice. Per rule, percent sign omitted -> \"10\".\n- Confidence: 99%\n\nNet.Amount — 418.19\n- Evidence: \"Auftragssumme 418,19\" immediately precedes the VAT line and corresponds to net amount before VAT.\n- Confidence: 98%\n\nVat.Amount — 41.82\n- Evidence: \"+ 10 % Mehrwertsteuer 41,82\" explicitly gives VAT amount. Matches 10% of 418.19 (~41.819 → rounded/displayed 41.82).\n- Confidence: 99%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 14.48,
+      "input_tokens": 1981,
+      "cached_input_tokens": null,
+      "output_tokens": 1127,
+      "total_tokens": 3108,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.43,
+      "input_tokens": 2604,
+      "cached_input_tokens": null,
+      "output_tokens": 406,
+      "total_tokens": 3010,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.64,
+      "input_tokens": 3215,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3496,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273900\\273890_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU43349701",
+        "ATU 43349701"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        460.01,
+        "460,01"
+      ],
+      "Net.Amount": [
+        true,
+        418.19,
+        "418,19"
+      ],
+      "Vat.Amount": [
+        true,
+        41.82,
+        "41,82"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "26-01-2024",
+        "26-01-2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7800,
+    "cached_input_tokens": 0,
+    "output_tokens": 1814,
+    "eur_estimate": 0.004854
+  }
+}

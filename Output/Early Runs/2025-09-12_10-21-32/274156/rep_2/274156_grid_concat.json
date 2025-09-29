@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\274216\\274156_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1267.2,
+    "Invoice.Date": "26.01.2024",
+    "Sender.VatId": "ATU35980300",
+    "Vat.Rate": 10,
+    "Net.Amount": 1152.0,
+    "Vat.Amount": 115.2
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.96,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not produce internal chain-of-thought. Below is a concise, non-sensitive summary of the extraction reasoning and decisions I will use to produce the structured output:\n\n- Document classification: The document contains multiple invoice indicators (\"RECHNUNG\", invoice number, invoice date, totals, VAT/UST, line items). No exclusion terms (e.g., \"Mahnung\") dominate. Therefore it is an invoice.\n\n- Key field locations identified:\n  - Invoice Date: found near header \"RECHNUNG ... 26.01.2024\".\n  - Sender VAT ID: the seller header lists \"UID-Nr   ATU    35980300\" for Mondelez Österreich GmbH — treat as sender VAT.\n  - Totals block: a summary table near the bottom lists \"Nettowert 1.152,00\", \"UST 115,20\", \"inkl.UST 1.267,20\" and \"UST % 10,00\". Interpretation:\n    - Net.Amount = 1.152,00\n    - Vat.Amount = 115,20\n    - GrandTotal.Amount = 1.267,20 (labeled \"Fakturabetrag\" / inkl. UST)\n    - Vat.Rate = 10 (drop percent sign per rules)\n- Number formatting: Input uses comma as decimal separator and thousands separator; when producing numeric fields I will preserve decimal precision and convert to numeric representations (keeping same decimals). I will not infer or fill any missing values.\n- No conflicting multiple occurrences for these fields were found; use the values above as the most directly labeled totals.\n\nI will now produce the structured JSON extraction using these values.",
+    "step2": "GrandTotal.Amount = 1.267,20 — Confidence: 95%\n- Evidence: Labeled \"inkl.UST\" and \"Fakturabetrag\" with value 1.267,20 in totals block.\n\nInvoice.Date = 26.01.2024 — Confidence: 98%\n- Evidence: Date appears adjacent to header \"RECHNUNG\" as \"26.01.2024\".\n\nSender.VatId = ATU 35980300 — Confidence: 95%\n- Evidence: Seller header shows \"UID-Nr   ATU    35980300\" for Mondelez Österreich GmbH.\n\nVat.Rate = 10 — Confidence: 96%\n- Evidence: Totals block lists \"UST % 10,00\"; per rules percentage returned without symbol as \"10\".\n\nNet.Amount = 1.152,00 — Confidence: 95%\n- Evidence: Totals block labeled \"Nettowert\" shows 1.152,00.\n\nVat.Amount = 115,20 — Confidence: 95%\n- Evidence: Totals block labeled \"UST\" shows 115,20.\n\nOverall consistency note: Net (1.152,00) + Vat (115,20) = 1.267,20 matches GrandTotal; invoice-format headers and absence of exclusion keywords support classification as invoice."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.62,
+      "input_tokens": 1710,
+      "output_tokens": 732,
+      "total_tokens": 2442
+    },
+    "step2": {
+      "runtime_sec": 4.66,
+      "input_tokens": 2065,
+      "output_tokens": 535,
+      "total_tokens": 2600
+    },
+    "step3": {
+      "runtime_sec": 4.23,
+      "input_tokens": 2613,
+      "output_tokens": 347,
+      "total_tokens": 2960
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274216\\274156_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU35980300",
+        "ATU 35980300"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1267.2,
+        "1.267,20"
+      ],
+      "Net.Amount": [
+        true,
+        1152.0,
+        "1.152,00"
+      ],
+      "Vat.Amount": [
+        true,
+        115.2,
+        "115,20"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "26.01.2024",
+        "26.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\187305\\187305_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 3236.1,
+    "Invoice.Date": "04/05/2023",
+    "Sender.VatId": "ATU19424905",
+    "Vat.Rate": 10,
+    "Net.Amount": 2941.91,
+    "Vat.Amount": 294.19
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.97,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.96
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Below is a concise, non-sensitive stepwise solution reasoning and the extracted candidate values to be used for final extraction.\n\n1) Document classification:\n- Found invoice indicators: headings \"RECHNUNGSDATUM\", \"Rechnung\", \"NETTO-WARENWERT\", \"BRUTTO\", VAT/MWST, totals. No exclusion keywords like \"Mahnung\" or \"Zahlungserinnerung\". Classify as invoice.\n\n2) Header-based validation:\n- Invoice-like sections present (invoice header, sums by VAT rate, NETTO/BRUTTO). Proceed with extraction.\n\n3) Locate fields:\n- Invoice date: \"RECHNUNGSDATUM: 04/05/2023\" (keep as string exactly).\n- Sender VAT ID: \"UID-Nr.: ATU19424905\" near Metro header.\n- Net amount: \"NETTO-WARENWERT: 2941,91\" and repeated \"NETTO GESAMTSUMME 2941,91\".\n- VAT amount: \"MEHRWERTSTEUER 10,00 % | 294,19\".\n- VAT rate: \"10,00 %\" → extract as number 10 (without % per rules).\n- Grand total: \"BRUTTO GESAMTSUMME 3236,10\" / \"SUMME EUR 3236,10\" → 3236,10.\n\n4) Formatting decisions per rules:\n- Numeric fields retain decimal places as in document: use comma-to-dot conversion for JSON numeric values (2941,91 → 2941.91; 294,19 → 294.19; 3236,10 → 3236.10).\n- VAT rate returned as number without percent: 10.\n- Invoice.Date returned as the string exactly as shown: \"04/05/2023\".\n- Sender.VatId exactly: \"ATU19424905\".\n\n5) No inference beyond visible data; all required fields are present in the text.\n\nCandidate extracted values:\n- Invoice.Date: \"04/05/2023\"\n- Sender.VatId: \"ATU19424905\"\n- Net.Amount: 2941.91\n- Vat.Amount: 294.19\n- Vat.Rate: 10\n- GrandTotal.Amount: 3236.10\n\nI will now await instruction to output the final JSON.",
+    "step2": "Invoice.Date — Evidence: \"RECHNUNGSDATUM: 04/05/2023\" appears twice in header. Confidence: 0.95\n\nSender.VatId — Evidence: \"UID-Nr.: ATU19424905\" shown near sender header (METRO). No other VAT-like IDs for sender. Confidence: 0.95\n\nNet.Amount — Evidence: \"NETTO-WARENWERT: 2941,91\" and \"NETTO GESAMTSUMME 2941,91\" in summary. Value consistent across document. Confidence: 0.98\n\nVat.Rate — Evidence: Summary shows \"MEHRWERTSTEUER 10,00 %\". VAT grouping table lists 10,00% for Handelsware. Only one VAT rate with nonzero amount. Confidence: 0.97\n\nVat.Amount — Evidence: \"MEHRWERTSTEUER 10,00 % | 294,19\" and lines showing MWST 294,19 corresponding to 10% of net. Matches arithmetic (2941.91 * 0.10 = 294.191 → shown 294,19). Confidence: 0.96\n\nGrandTotal.Amount — Evidence: \"BRUTTO GESAMTSUMME 3236,10\" and \"SUMME EUR 3236,10\". Net plus VAT equals shown gross (2941,91 + 294,19 = 3236,10). Confidence: 0.99"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.74,
+      "input_tokens": 4083,
+      "cached_input_tokens": null,
+      "output_tokens": 825,
+      "total_tokens": 4908,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.47,
+      "input_tokens": 4635,
+      "cached_input_tokens": null,
+      "output_tokens": 380,
+      "total_tokens": 5015,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 8.51,
+      "input_tokens": 5251,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 5534,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\187305\\187305_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU19424905",
+        "ATU19424905"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        3236.1,
+        "3236,10"
+      ],
+      "Net.Amount": [
+        true,
+        2941.91,
+        "2941,91"
+      ],
+      "Vat.Amount": [
+        true,
+        294.19,
+        "294,19"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "04/05/2023",
+        "04/05/2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 13969,
+    "cached_input_tokens": 0,
+    "output_tokens": 1488,
+    "eur_estimate": 0.005647
+  }
+}

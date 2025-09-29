@@ -1,0 +1,130 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\230462\\230353_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 20423.49,
+    "Invoice.Date": "22.09.2023",
+    "Sender.VatId": "ATU39103108",
+    "Vat.Rate": [
+      10,
+      20
+    ],
+    "Net.Amount": [
+      17585.57,
+      899.47
+    ],
+    "Vat.Amount": [
+      1758.56,
+      179.89
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.97,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "- Document classification: contains \"Rechnung\" and invoice-like headers, invoice number, dates, line items, totals → classified as invoice.\n\n- Key explicit values found:\n  - Invoice number: 1119104110 (header)\n  - Invoice date: 22.09.2023 (header near \"Datum\")\n  - Sender VAT ID: ATU39103108 (header \"VAT Registration n°\")\n  - VAT groups: two VAT rates visible: 10,00 % and 20,00 %\n  - VAT group nets and VAT amounts (from totals table on page 4):\n    - For 10,00 %: Net = 17.585,57 (i.e. 17585.57), VAT = 1.758,56 (i.e. 1758.56)\n    - For 20,00 %: Net = 899,47 (i.e. 899.47), VAT = 179,89 (i.e. 179.89)\n    - Sum net = 18.485,04 (i.e. 18485.04); sum VAT = 1.938,45 (i.e. 1938.45)\n  - Grand total (gross) = 20.423,49 (i.e. 20423.49) — appears as Gesamtsumme brutto and on payment lines.\n\n- Validation / consistency checks:\n  - 17585.57 + 899.47 = 18485.04 (matches shown total net).\n  - 1758.56 + 179.89 = 1938.45 (matches shown total VAT).\n  - 18485.04 + 1938.45 = 20423.49 (matches grand total).\n\n- Decisions per extraction rules:\n  - Preserve decimal places as in source.\n  - Do not infer missing values; only explicit values used.\n  - Multiple VAT groups are present (10 and 20) with corresponding net and VAT amounts; these will be reported as the VAT groups extracted.\n  - Grand total taken as gross total 20.423,49 -> 20423.49.\n\nI will now produce the structured JSON extraction.",
+    "step2": "{\n  \"GrandTotal.Amount\": 20423.49,\n  \"Invoice.Date\": \"22.09.2023\",\n  \"Sender.VatId\": \"ATU39103108\",\n  \"Vat.Rate\": [\n    10,\n    20\n  ],\n  \"Net.Amount\": [\n    17585.57,\n    899.47\n  ],\n  \"Vat.Amount\": [\n    1758.56,\n    179.89\n  ]\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 16.97,
+      "input_tokens": 6153,
+      "cached_input_tokens": null,
+      "output_tokens": 1735,
+      "total_tokens": 7888,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.14,
+      "input_tokens": 6655,
+      "cached_input_tokens": null,
+      "output_tokens": 618,
+      "total_tokens": 7273,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.86,
+      "input_tokens": 7061,
+      "cached_input_tokens": null,
+      "output_tokens": 440,
+      "total_tokens": 7501,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\230462\\230353_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU39103108",
+        "ATU39103108"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        20423.49,
+        "20.423,49"
+      ],
+      "Net.Amount": [
+        true,
+        [
+          17585.57,
+          899.47
+        ],
+        [
+          "899,47",
+          "17.585,57"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        [
+          1758.56,
+          179.89
+        ],
+        [
+          "179,89",
+          "1.758,56"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        [
+          10,
+          20
+        ],
+        [
+          "20,00",
+          "10,00"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "22.09.2023",
+        "22.09.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 19869,
+    "cached_input_tokens": 0,
+    "output_tokens": 2793,
+    "eur_estimate": 0.009203
+  }
+}

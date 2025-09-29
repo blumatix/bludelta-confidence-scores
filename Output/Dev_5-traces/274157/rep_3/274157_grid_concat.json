@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\274226\\274157_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 813.05,
+    "Invoice.Date": "26.01.2024",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 677.54,
+    "Vat.Amount": 135.51
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.7,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Very good chance",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Detected document as an invoice (contains \"Rechnung\", invoice-like headers, invoice number, totals). Key evidence and extraction plan:\n\n- Document classification: Invoice (presence of \"Rechnung\", \"Rechnungsendbetrag\", line items, totals).\n- Invoice Number: R1039518 (appears in header).\n- Invoice Date: 26.01.2024 (Druckdatum / appears with invoice header).\n- Grand total: \"Rechnungsendbetrag 813,05 €\" → GrandTotal.Amount = 813,05 (retain decimals as in source).\n- Net amount: \"Zwischensumme 677,54 €\" → Net.Amount = 677,54.\n- VAT amount: \"+ 20,0 % Ust. von 677,54 € 135,51 €\" → Vat.Amount = 135,51.\n- VAT rate: \"20,0 %\" → Vat.Rate = 20,0 (will remove percent sign per rules; keep decimal formatting).\n- Sender VAT ID: Header shows \"UID-Nr ATU22642807\" adjacent to sender block (hollu Systemhygiene GmbH) → Sender.VatId = \"ATU22642807\".\n- Confirmed multiple other UID entries in document footer (e.g., ATU66213527) but header UID corresponds to sender; will use header UID per structured header matching.\n- No exchange rates present.\n- All extracted numeric values will preserve original decimal formatting; if any field absent, it will be left empty per rules.\n\nWill now produce the final JSON with these extracted values.",
+    "step2": "GrandTotal.Amount: 95% — Clear label \"Rechnungsendbetrag 813,05 €\" on page 1; numeric format matches.\n\nInvoice.Date: 95% — \"Druckdatum 26.01.2024\" appears near invoice header and also printed with invoice number on page 2; strong evidence date is 26.01.2024.\n\nSender.VatId: 70% — Header shows \"UID-Nr ATU22642807\" adjacent to Rechnungsanschrift (hollu Systemhygiene GmbH), but footer lists a different UID (ATU66213527). Ambiguity which UID is sender vs. other entity lowers confidence.\n\nVat.Rate: 98% — Explicit line \"+ 20,0 % Ust. von 677,54 €\" clearly indicates 20,0% VAT rate.\n\nNet.Amount: 98% — \"Zwischensumme 677,54 €\" explicitly shown; matches base for VAT calculation.\n\nVat.Amount: 98% — \"135,51 €\" shown next to the VAT line and equals 20% of 677,54 (consistent), so very likely correct."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.31,
+      "input_tokens": 3204,
+      "cached_input_tokens": null,
+      "output_tokens": 653,
+      "total_tokens": 3857,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.37,
+      "input_tokens": 3544,
+      "cached_input_tokens": null,
+      "output_tokens": 568,
+      "total_tokens": 4112,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.69,
+      "input_tokens": 4061,
+      "cached_input_tokens": null,
+      "output_tokens": 300,
+      "total_tokens": 4361,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274226\\274157_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU66213527,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        813.05,
+        "813,05"
+      ],
+      "Net.Amount": [
+        true,
+        677.54,
+        "677,54"
+      ],
+      "Vat.Amount": [
+        true,
+        135.51,
+        "135,51"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,0"
+      ],
+      "Invoice.Date": [
+        true,
+        "26.01.2024",
+        "26.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 10809,
+    "cached_input_tokens": 0,
+    "output_tokens": 1521,
+    "eur_estimate": 0.005009
+  }
+}

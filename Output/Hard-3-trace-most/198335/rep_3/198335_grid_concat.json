@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198335\\198335_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 660.0,
+    "Invoice.Date": "27.03.2023",
+    "Sender.VatId": "SK2023690581",
+    "Vat.Rate": 0,
+    "Net.Amount": 660.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Step 1: Document classification\n- Presence of header \"RECHNUNG\" and multiple invoice-like elements (Rechnung Nr., Ausstellungsdatum, Fälligkeitsdatum, Total Preis, VAT IDs, pricing lines) → classify as invoice.\n- No prominent exclusion terms (\"Mahnung\", \"Zahlungserinnerung\", \"Servicebericht\") → proceed with extraction.\n\nStep 2: Identify candidate fields and verify sources\n- Invoice.Date: Look for \"Ausstellungsdatum\" / \"Datum des Versands\" / dates near header.\n  - Found \"Ausstellungsdatum: 27.03.2023\" and \"Datum des Versands: 27.03.2023\". Both consistent. Choose \"27.03.2023\" as invoice issue date.\n- Sender.VatId: Look for VAT ID for supplier.\n  - Found \"VAT ID: SK2023690581\" under supplier block. Use \"SK2023690581\".\n- GrandTotal.Amount: Look for total payable amount.\n  - Multiple occurrences: \"Total Preis: 660.00EUR\", \"Total 660.00 EUR\" and \"Totalpreis 660.00 EUR\". All indicate 660.00 EUR. Use numeric 660.00.\n- VAT grouping (Vat.Rate, Net.Amount, Vat.Amount):\n  - Found MWSt table showing \"% MWSt Summe MWSt\" with line \"0% 660.00 EUR\" and elsewhere \"Total ... 660.00 EUR 0.00 EUR\".\n  - Interpretation options:\n    - Option A: VAT rate = 0, Net = 660.00, VAT amount = 0.00 (consistent with \"Ohne Umsatzsteuer laut §15\" and explicit \"0.00 EUR\" VAT).\n    - Option B: Treat 660.00 as gross with VAT 0% so Net = 660.00 and VAT amount 0.00 — effectively same numeric results.\n  - Choose Vat.Rate = 0, Net.Amount = 660.00, Vat.Amount = 0.00, preserving two decimals as in source.\n\nStep 3: Verify no inference beyond text\n- Invoice date taken directly from labeled \"Ausstellungsdatum\".\n- Sender VAT ID exactly as printed.\n- Monetary amounts taken from explicit \"Total\" / \"Totalpreis\" lines and MWSt summary.\n- VAT rate taken from explicit \"0%\" line; remove percent symbol per rules -> \"0\".\n\nStep 4: Check formatting and decimals\n- Preserve decimals as in input: 660.00 and 0.00.\n- GrandTotal.Amount as number 660.00; Vat.Rate as number 0; Net.Amount 660.00; Vat.Amount 0.00.\n- Invoice.Date as string \"27.03.2023\".\n\nConclusion: fields to output (no final JSON here yet) are:\n- GrandTotal.Amount = 660.00\n- Invoice.Date = \"27.03.2023\"\n- Sender.VatId = \"SK2023690581\"\n- Vat.Rate = 0\n- Net.Amount = 660.00\n- Vat.Amount = 0.00",
+    "step2": "GrandTotal.Amount — Confidence: High (≈95%)\n- Evidence: Multiple explicit mentions \"Total Preis: 660.00EUR\", \"Total 660.00 EUR\", \"Totalpreis 660.00 EUR\".\n- Consistency: Same numeric repeated; aligns with MWSt summary showing 660.00 at 0% VAT.\n- Risk: OCR could misread decimals/currency, but repetition reduces risk.\n\nInvoice.Date — Confidence: High (≈90%)\n- Evidence: Labeled \"Ausstellungsdatum: 27.03.2023\" and \"Datum des Versands: 27.03.2023\" (both match).\n- Consistency: Two matching date fields. Chosen \"Ausstellungsdatum\" is standard invoice issue date.\n- Risk: Potential ambiguity if another date intended as issue date, but label is clear.\n\nSender.VatId — Confidence: High (≈90%)\n- Evidence: Under supplier block: \"VAT ID: SK2023690581\".\n- Consistency: Format SK + numbers consistent with Slovak VAT ID; appears near supplier details.\n- Risk: OCR spacing could confuse characters but string is plausible.\n\nVat.Rate — Confidence: High (≈90%)\n- Evidence: MWSt summary shows \"0%\" and text \"Ohne Umsatzsteuer laut §15\" indicating VAT-exempt/0%.\n- Consistency: Matches VAT amount 0.00 and net/gross equality.\n- Risk: Could be multiple VAT lines, but visible summary explicitly lists 0%.\n\nNet.Amount — Confidence: High (≈90%)\n- Evidence: MWSt summary line \"0% 660.00 EUR\" implies net amount 660.00 at 0% VAT; total lines match.\n- Consistency: Net equals grand total when VAT = 0.\n- Risk: If 660.00 were gross and net different (not indicated), but summary supports net = 660.00.\n\nVat.Amount — Confidence: Very High (≈98%)\n- Evidence: Explicit \"0.00 EUR\" appears near Total and MWSt summary; 0% VAT implies zero VAT amount.\n- Consistency: All monetary lines consistent with zero VAT.\n- Risk: Minimal; OCR misread unlikely for explicit zero amount."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.71,
+      "input_tokens": 1980,
+      "cached_input_tokens": null,
+      "output_tokens": 1043,
+      "total_tokens": 3023,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.66,
+      "input_tokens": 2686,
+      "cached_input_tokens": null,
+      "output_tokens": 462,
+      "total_tokens": 3148,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.7,
+      "input_tokens": 3448,
+      "cached_input_tokens": null,
+      "output_tokens": 217,
+      "total_tokens": 3665,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198335\\198335.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "SK2023690581",
+        "SK2023690581"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        660.0,
+        "660.00"
+      ],
+      "Net.Amount": [
+        false,
+        660.0,
+        []
+      ],
+      "Vat.Amount": [
+        false,
+        0.0,
+        []
+      ],
+      "Vat.Rate": [
+        false,
+        0,
+        []
+      ],
+      "Invoice.Date": [
+        true,
+        "27.03.2023",
+        "27.03.2023"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 8114,
+    "cached_input_tokens": 0,
+    "output_tokens": 1722,
+    "eur_estimate": 0.001008
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\212798\\212767_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 23790.8,
+    "Invoice.Date": "27.07.2023",
+    "Sender.VatId": "ATU16040004",
+    "Vat.Rate": 10,
+    "Net.Amount": 21628.0,
+    "Vat.Amount": 2162.8
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will extract invoice fields by locating invoice headers and verified invoice elements, then mapping exact textual values without inference.\n\n1) Confirm document is an invoice\n- Found clear invoice indicators: \"Rechnung / Invoice\", \"Fakturadatum / Invoice Date\", line items, \"Zwischensumme\", \"Umsatzsteuer\", and \"Gesamtbetrag / Total Amount\". No exclusion terms (e.g., \"Mahnung\") dominate. Proceed with extraction.\n\n2) Invoice.Date\n- Located \"Fakturadatum / Invoice Date\" with value \"27.07.2023\". Use exactly that string.\n\n3) Sender.VatId\n- Located \"Unsere USt.-ID-Nr.\" / \"Our VAT No.\" with value \"ATU16040004\". Use exactly that string.\n\n4) Vat groups (rates, net, vat amounts)\n- Found \"Umsatzsteuer 10,00 % von 21.628,00 EUR\" and corresponding VAT line showing VAT amount \"2.162,80\". Interpret:\n  - Vat.Rate: 10,00 → numeric 10.00 (remove percent sign per rules, preserve decimals as in input).\n  - Net.Amount: 21.628,00 → numeric 21628.00 (preserve decimals and grouping).\n  - Vat.Amount: 2.162,80 → numeric 2162.80\n\n5) GrandTotal.Amount\n- Located \"Gesamtbetrag / Total Amount\" with value \"23.790,80\". Convert to numeric 23790.80 (preserve decimals).\n\n6) No inference rule\n- All extracted values taken verbatim from locations above. If any field missing, would leave empty; here all required fields are present.\n\n7) Decimal and formatting rules\n- Preserve decimal places as in source (two decimals), remove grouping punctuation to yield numeric values consistent with schema.\n\nThese are the identified source locations and the extracted candidate values to fill the schema.",
+    "step2": "GrandTotal.Amount — confidence: high (≈99%)\n- Evidence: \"Gesamtbetrag / Total Amount\" clearly shown with value \"23.790,80\" on page 2. Matches subtotal + VAT: 21.628,00 + 2.162,80 = 23.790,80, providing internal arithmetic consistency.\n\nInvoice.Date — confidence: high (≈99%)\n- Evidence: \"Fakturadatum / Invoice Date\" explicitly printed as \"27.07.2023\" on both pages. Clear label and unambiguous format.\n\nSender.VatId — confidence: high (≈99%)\n- Evidence: Label \"Unsere USt.-ID-Nr.\" / \"Our VAT No.\" with value \"ATU16040004\" visible in header area. Standard VAT ID format for Austria (ATU...), explicit mapping.\n\nVat.Rate — confidence: high (≈98%)\n- Evidence: \"Umsatzsteuer 10,00 % von 21.628,00 EUR\" explicitly shows 10,00 %. The percent sign is present in the text; rule requires removing symbol — conversion to numeric 10.00 is straightforward. Low residual risk from OCR comma/period ambiguity is minimal here.\n\nNet.Amount — confidence: high (≈98%)\n- Evidence: Net amount is shown as \"21.628,00\" next to the VAT line (\"von 21.628,00 EUR\") and matches the sum of line item values on page 1 (21.628,00). Numeric interpretation (decimal comma) consistent with document locale. Minor OCR risk in grouping separator interpretation, but internal sums match.\n\nVat.Amount — confidence: high (≈99%)\n- Evidence: VAT amount displayed as \"2.162,80\" on the VAT line and arithmetic matches net × 10% = 2.162,80. Clear label and consistent.\n\nOverall consistency\n- The three monetary values (Net 21.628,00; VAT 2.162,80; Total 23.790,80) are internally consistent arithmetically, supporting correctness. Minor OCR punctuation ambiguity (commas vs periods) was resolved using document locale conventions; confidence remains high."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.44,
+      "input_tokens": 2895,
+      "cached_input_tokens": null,
+      "output_tokens": 661,
+      "total_tokens": 3556,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.37,
+      "input_tokens": 3347,
+      "cached_input_tokens": null,
+      "output_tokens": 516,
+      "total_tokens": 3863,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.21,
+      "input_tokens": 4099,
+      "cached_input_tokens": null,
+      "output_tokens": 284,
+      "total_tokens": 4383,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\212798\\212767_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU16040004",
+        "ATU16040004"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        23790.8,
+        "23.790,80"
+      ],
+      "Net.Amount": [
+        true,
+        21628.0,
+        "21.628,00"
+      ],
+      "Vat.Amount": [
+        true,
+        2162.8,
+        "2.162,80"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "27.07.2023",
+        "27.07.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 10341,
+    "cached_input_tokens": 0,
+    "output_tokens": 1461,
+    "eur_estimate": 0.004803
+  }
+}

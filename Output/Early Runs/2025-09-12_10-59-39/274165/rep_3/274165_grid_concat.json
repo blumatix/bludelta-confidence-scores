@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\274205\\274165_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 910.01,
+    "Invoice.Date": "26.01.2024",
+    "Sender.VatId": "ATU76204938",
+    "Vat.Rate": 10,
+    "Net.Amount": 827.28,
+    "Vat.Amount": 82.73
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 1.0,
+    "Sender.VatId": 1.0,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (1) verify this is an invoice, (2) locate required fields, (3) confirm exact text/number matches, and (4) prepare extraction without guessing.\n\n1) Document classification\n- Invoice indicators present: headings \"Rechnung\", \"Rechnungsdatum\", \"Gesamtbetrag\"/\"Endbetrag\", line items, VAT percent \"10%\". No exclusion keywords (e.g., \"Mahnung\") prominently present. Conclusion: treat as invoice.\n\n2) Locate fields (candidates from text)\n- Invoice.Date: \"26.01.2024\" (label: Rechnungsdatum).\n- Sender.VatId: \"ATU76204938\" (label: Unsere USt-ID).\n- GrandTotal.Amount: \"910,01\" EUR (label: Endbetrag (EUR) 910,01).\n- Vat.Rate: \"10\" (shown as \"10%\"; will extract without %).\n- Net.Amount: \"827,28\" (label: Warenwert Netto / Nettowert / Warenwert Netto 827,28).\n- Vat.Amount: \"82,73\" (label: Ausgangssteuer 1 = 10%: 82,73).\n\n3) Verification / ambiguity checks\n- Net and VAT amounts appear grouped under \"Warenwert Netto 827,28\" and \"Ausgangssteuer 1 = 10%: 82,73\" with Endbetrag 910,01; sums match (827.28 + 82.73 = 910.01).\n- Currency is EUR; numbers use comma decimals in source. Will preserve decimal precision and convert to numeric format in final JSON per schema (decimal values preserved).\n- No conflicting multiple VAT group values found.\n\nI will now produce the final JSON extraction.",
+    "step2": "GrandTotal.Amount (910,01)\n- Evidence: \"Endbetrag (EUR) 910,01\" shown near totals.\n- Consistency: Equals Net (827,28) + VAT (82,73).\n- Confidence: 98%\n\nInvoice.Date (\"26.01.2024\")\n- Evidence: \"Rechnungsdatum 26.01.2024\" at top.\n- Ambiguity: None.\n- Confidence: 100%\n\nSender.VatId (\"ATU76204938\")\n- Evidence: \"Unsere USt-ID: ATU76204938\" and repeated \"UST-ID-Nr.: ATU76204938\".\n- Ambiguity: None.\n- Confidence: 100%\n\nVat.Rate (10)\n- Evidence: VAT group labeled \"Ausgangssteuer 1 = 10%:\" and line-item MWST column shows \"10%\".\n- Extraction rule: percent sign removed => \"10\".\n- Confidence: 99%\n\nNet.Amount (827,28)\n- Evidence: \"Warenwert Netto 827,28\" / \"Nettowert 827,28\" near totals.\n- Consistency: Net + VAT = Grand Total.\n- Confidence: 98%\n\nVat.Amount (82,73)\n- Evidence: \"Ausgangssteuer 1 = 10%: 82,73\" shown as VAT amount.\n- Consistency: Matches arithmetic with Net and Grand Total.\n- Confidence: 99%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 6.76,
+      "input_tokens": 2205,
+      "output_tokens": 624,
+      "total_tokens": 2829
+    },
+    "step2": {
+      "runtime_sec": 5.6,
+      "input_tokens": 2580,
+      "output_tokens": 432,
+      "total_tokens": 3012
+    },
+    "step3": {
+      "runtime_sec": 3.9,
+      "input_tokens": 3153,
+      "output_tokens": 345,
+      "total_tokens": 3498
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274205\\274165_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU76204938",
+        "ATU76204938"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        910.01,
+        "910,01"
+      ],
+      "Net.Amount": [
+        true,
+        827.28,
+        "827,28"
+      ],
+      "Vat.Amount": [
+        true,
+        82.73,
+        "82,73"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "26.01.2024",
+        "26.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  }
+}

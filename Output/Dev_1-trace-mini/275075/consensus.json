@@ -1,0 +1,203 @@
+{
+  "input_path": "..\\Documents\\275144\\275075_grid_concat.txt",
+  "n_paths": 1,
+  "final_answer": {
+    "Invoice.Date": {
+      "value": "31.01.2024",
+      "sum_confidence": 0.99,
+      "vote_count": 1,
+      "avg_confidence": 0.99
+    },
+    "Net.Amount": {
+      "value": 70.0,
+      "sum_confidence": 0.98,
+      "vote_count": 1,
+      "avg_confidence": 0.98
+    },
+    "Vat.Rate": {
+      "value": 10,
+      "sum_confidence": 0.98,
+      "vote_count": 1,
+      "avg_confidence": 0.98
+    },
+    "Sender.VatId": {
+      "value": "ATU22642807",
+      "sum_confidence": 0.99,
+      "vote_count": 1,
+      "avg_confidence": 0.99
+    },
+    "GrandTotal.Amount": {
+      "value": 77.0,
+      "sum_confidence": 0.98,
+      "vote_count": 1,
+      "avg_confidence": 0.98
+    },
+    "Vat.Amount": {
+      "value": 7.0,
+      "sum_confidence": 0.98,
+      "vote_count": 1,
+      "avg_confidence": 0.98
+    }
+  },
+  "runs": [
+    {
+      "input_path": "..\\Documents\\275144\\275075_grid_concat.txt",
+      "answer": {
+        "GrandTotal.Amount": 77.0,
+        "Invoice.Date": "31.01.2024",
+        "Sender.VatId": "ATU22642807",
+        "Vat.Rate": 10,
+        "Net.Amount": 70.0,
+        "Vat.Amount": 7.0
+      },
+      "confidence_numeric": {
+        "GrandTotal.Amount": 0.98,
+        "Invoice.Date": 0.99,
+        "Sender.VatId": 0.99,
+        "Vat.Rate": 0.98,
+        "Net.Amount": 0.98,
+        "Vat.Amount": 0.98
+      },
+      "confidence_verbal": {
+        "GrandTotal.Amount": "Almost certain",
+        "Invoice.Date": "Almost certain",
+        "Sender.VatId": "Almost certain",
+        "Vat.Rate": "Almost certain",
+        "Net.Amount": "Almost certain",
+        "Vat.Amount": "Almost certain"
+      },
+      "reasoning": {
+        "step1": "Plan to extract fields:\n\n1) Verify document is an invoice: presence of header \"RECHNUNG\", invoice number, invoice date, totals — so classify as invoice.\n\n2) Locate Invoice.Date: found \"Datum: 31.01.2024\".\n\n3) Locate Sender.VatId: found \"USt-Id: ATU22642807\".\n\n4) Locate GrandTotal.Amount: find final payable \"Bruttobetrag 77,00\" → Grand total 77,00.\n\n5) Locate Net.Amount and Vat.Amount groups:\n   - \"Nettowert gesamt 70,00\"\n   - \"10% MWSt von 70,00 7,00\" → VAT rate 10, Vat.Amount 7,00, Net.Amount 70,00.\n   - There is also \"00% MWSt von 0,00 0,00\" but it carries zero values (no separate amounts).\n\n6) Apply rules:\n   - Preserve decimals as in source (two decimals, comma decimal separator to be converted to dot for numeric fields).\n   - VAT rate should be returned without '%' (i.e., 10).\n   - Do not infer missing data; all extracted values are explicit.\n\nNext step: produce JSON with fields populated accordingly.",
+        "step2": "{\n  \"GrandTotal.Amount\": {\n    \"confidence\": \"98%\",\n    \"evidence\": \"Bruttobetrag 77,00 clearly shown near totals.\"\n  },\n  \"Invoice.Date\": {\n    \"confidence\": \"99%\",\n    \"evidence\": \"Datum: 31.01.2024 present at top.\"\n  },\n  \"Sender.VatId\": {\n    \"confidence\": \"99%\",\n    \"evidence\": \"USt-Id: ATU22642807 explicitly listed.\"\n  },\n  \"Vat.Rate\": {\n    \"confidence\": \"98%\",\n    \"evidence\": \"10% MWSt appears in totals section (VAT rate applied).\"\n  },\n  \"Net.Amount\": {\n    \"confidence\": \"98%\",\n    \"evidence\": \"Nettowert gesamt 70,00 shown in totals.\"\n  },\n  \"Vat.Amount\": {\n    \"confidence\": \"98%\",\n    \"evidence\": \"10% MWSt von 70,00 yields 7,00 listed as VAT amount.\"\n  }\n}"
+      },
+      "llm_logs": {
+        "step1": {
+          "runtime_sec": 7.06,
+          "input_tokens": 1962,
+          "cached_input_tokens": null,
+          "output_tokens": 524,
+          "total_tokens": 2486,
+          "timed_out": false
+        },
+        "step2": {
+          "runtime_sec": 6.86,
+          "input_tokens": 2237,
+          "cached_input_tokens": null,
+          "output_tokens": 545,
+          "total_tokens": 2782,
+          "timed_out": false
+        },
+        "step3": {
+          "runtime_sec": 4.14,
+          "input_tokens": 2731,
+          "cached_input_tokens": null,
+          "output_tokens": 281,
+          "total_tokens": 3012,
+          "timed_out": false
+        }
+      },
+      "evaluation": {
+        "ground_truth_path": "..\\Documents\\275144\\275075_reference.json",
+        "per_field": {
+          "Sender.VatId": [
+            false,
+            "ATU22642807",
+            "ATU14391601,"
+          ],
+          "GrandTotal.Amount": [
+            true,
+            77.0,
+            "77,00"
+          ],
+          "Net.Amount": [
+            true,
+            70.0,
+            "70,00"
+          ],
+          "Vat.Amount": [
+            true,
+            7.0,
+            "7,00"
+          ],
+          "Vat.Rate": [
+            true,
+            10,
+            "10"
+          ],
+          "Invoice.Date": [
+            true,
+            "31.01.2024",
+            "31.01.2024"
+          ]
+        },
+        "summary": {
+          "matched": 5,
+          "total": 6,
+          "all_match": false
+        }
+      },
+      "cost": {
+        "input_tokens": 6930,
+        "cached_input_tokens": 0,
+        "output_tokens": 1350,
+        "eur_estimate": 0.00386
+      }
+    }
+  ],
+  "vote_debug": {
+    "Invoice.Date": {
+      "sum_conf_per_value": {
+        "31.01.2024": 0.99
+      },
+      "counts": {
+        "31.01.2024": 1
+      }
+    },
+    "Net.Amount": {
+      "sum_conf_per_value": {
+        "70.0": 0.98
+      },
+      "counts": {
+        "70.0": 1
+      }
+    },
+    "Vat.Rate": {
+      "sum_conf_per_value": {
+        "10": 0.98
+      },
+      "counts": {
+        "10": 1
+      }
+    },
+    "Sender.VatId": {
+      "sum_conf_per_value": {
+        "ATU22642807": 0.99
+      },
+      "counts": {
+        "ATU22642807": 1
+      }
+    },
+    "GrandTotal.Amount": {
+      "sum_conf_per_value": {
+        "77.0": 0.98
+      },
+      "counts": {
+        "77.0": 1
+      }
+    },
+    "Vat.Amount": {
+      "sum_conf_per_value": {
+        "7.0": 0.98
+      },
+      "counts": {
+        "7.0": 1
+      }
+    }
+  },
+  "cost": {
+    "input_tokens": 6930,
+    "cached_input_tokens": 0,
+    "output_tokens": 1350,
+    "eur_estimate": 0.00386
+  }
+}

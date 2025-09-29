@@ -1,0 +1,112 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\270947\\270947_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 70116.05,
+    "Invoice.Date": "15.01.2024",
+    "Sender.VatId": "ATU14391601",
+    "Vat.Rate": "",
+    "Net.Amount": 63473.89,
+    "Vat.Amount": 6642.16
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.8,
+    "Vat.Rate": 0.4,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Less than even",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will extract invoice data step by step, considering alternatives and verifying each field against the text.\n\n1) Classify document as invoice\n- Evidence: Multiple occurrences of the header \"RECHNUNG\" and invoice-like elements (Nr: 553.091, Datum: 15.01.2024, line items, totals). Conclusion: document is an invoice.\n\n2) Invoice.Date\n- Locate \"Datum:                 15.01.2024\" (pages 1–5). Extracted value: \"15.01.2024\".\n\n3) Sender.VatId\n- Two VAT-like IDs found:\n  a) Top of page 1: \"USt-Id:                   ATU22642807\"\n  b) Footer pages: \"USt-IdNr. ATU14391601\" associated with STAMAG company details.\n- Determine sender (invoice issuer) is STAMAG (company header/footer). The footer VAT “USt-IdNr. ATU14391601” is the seller’s VAT number. Select Sender.VatId = \"ATU14391601\".\n- Note: ATU22642807 appears near the top but is not labeled as the sender’s USt-IdNr in the footer; thus it likely refers to the buyer or another party.\n\n4) GrandTotal.Amount\n- Locate \"Bruttobetrag                                                                                70.116,05\" (page 5).\n- Extract numeric value preserving decimals -> 70,116.05 → JSON number 70116.05.\n\n5) Net.Amount\n- Locate \"Nettowert gesamt                                                      63.473,89\" (page 5).\n- Extract numeric value -> 63,473.89 → JSON number 63473.89.\n\n6) VAT groups and Vat.Amount / Vat.Rate\n- The invoice shows two VAT groups (page 5):\n  a) \"20% MWSt von 2.947,75    589,55\" → net 2,947.75 with VAT 589.55 at 20%.\n  b) \"10% MWSt von 60.526,14   6.052,61\" → net 60,526.14 with VAT 6,052.61 at 10%.\n- Total VAT amounts sum: 589.55 + 6,052.61 = 6,642.16.\n- Because the schema expects Vat.Rate but the document contains multiple VAT rates, the extraction must acknowledge multiple groups. The document explicitly contains rates 20 and 10 with their net bases and VAT amounts as above.\n- For final fields:\n  - Vat.Amount: use total VAT 6,642.16 (sum of both VAT amounts present).\n  - Vat.Rate: multiple rates exist (20 and 10). The schema expects a single value; do not infer a single dominant rate. To avoid guessing, leave Vat.Rate empty (\"\") while preserving detailed VAT amounts by summation in Vat.Amount.\n\n7) Verify consistency\n- Net 63,473.89 + VAT 6,642.16 = 70,116.05 matches the Bruttobetrag found → consistent.\n\n8) No-inference policy\n- Wherever ambiguity existed (e.g., which USt-Id is sender), selected the footer \"USt-IdNr. ATU14391601\" since it's clearly tied to STAMAG in the footer. For Vat.Rate, because multiple explicit rates exist, and schema expects a single value, I will leave Vat.Rate empty rather than guessing a single rate.\n\nExtracted values confirmed from the invoice text:\n- Invoice.Date = \"15.01.2024\"\n- Sender.VatId = \"ATU14391601\"\n- GrandTotal.Amount = 70116.05\n- Net.Amount = 63473.89\n- Vat.Amount = 6642.16\n- Vat.Rate = \"\"",
+    "step2": "I will provide concise confidence estimates (0–100%) with brief evidence lines for each extracted field.\n\n- GrandTotal.Amount: 95% — Exact match to \"Bruttobetrag 70.116,05\" on page 5; arithmetic consistency with net + VAT.\n- Invoice.Date: 99% — Clear \"Datum: 15.01.2024\" shown repeatedly on pages.\n- Sender.VatId: 80% — Footer shows \"USt-IdNr. ATU14391601\" tied to STAMAG; another VAT-like ID (ATU22642807) appears near top creating some ambiguity.\n- Vat.Rate: 40% — Document contains multiple explicit VAT rates (20% and 10%); schema expects a single value, so left empty to avoid incorrect inference.\n- Net.Amount: 95% — Exact match to \"Nettowert gesamt 63.473,89\" on page 5; matches arithmetic.\n- Vat.Amount: 95% — Sum of shown VAT lines (589,55 + 6.052,61 = 6.642,16) matches net + VAT = gross; values explicitly present."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 27.29,
+      "input_tokens": 6116,
+      "cached_input_tokens": null,
+      "output_tokens": 2417,
+      "total_tokens": 8533,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.08,
+      "input_tokens": 6980,
+      "cached_input_tokens": null,
+      "output_tokens": 378,
+      "total_tokens": 7358,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.05,
+      "input_tokens": 7530,
+      "cached_input_tokens": null,
+      "output_tokens": 282,
+      "total_tokens": 7812,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\270947\\270947_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU14391601",
+        "ATU14391601,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        70116.05,
+        "70.116,05"
+      ],
+      "Net.Amount": [
+        false,
+        63473.89,
+        [
+          "60.526,14",
+          "2.947,75"
+        ]
+      ],
+      "Vat.Amount": [
+        false,
+        6642.16,
+        [
+          "6.052,61",
+          "589,55"
+        ]
+      ],
+      "Vat.Rate": [
+        false,
+        "",
+        [
+          "10",
+          "20"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "15.01.2024",
+        "15.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 20626,
+    "cached_input_tokens": 0,
+    "output_tokens": 3077,
+    "eur_estimate": 0.009861
+  }
+}

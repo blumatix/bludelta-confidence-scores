@@ -1,0 +1,116 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198304\\198304_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1100.0,
+    "Invoice.Date": "2023-02-22",
+    "Sender.VatId": "PL 6921133130",
+    "Vat.Rate": 0,
+    "Net.Amount": 1100.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.92,
+    "Vat.Rate": 0.94,
+    "Net.Amount": 0.93,
+    "Vat.Amount": 0.96
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will determine whether this is an invoice and extract the required fields by checking for invoice indicators, locating explicit values, and avoiding inference.\n\n1) Document classification\n- Indicators found: the German word \"Rechnung\" appears near \"Rechnung 120/2023\" → strong invoice indicator.\n- Other invoice elements present: an invoice-like number \"120/2023\", a date \"2023-02-22\" labeled \"Verkaufsdatum\", monetary totals shown as \"1 100,00\" EUR and PLN conversion, VAT indications \"Podatek VAT UE 0%\" and \"Mehrwertsteuer ... 0,00\".\n- No prominent exclusion terms like \"Mahnung\" or \"Zahlungserinnerung\" in header. Conclusion: document qualifies as an invoice.\n\n2) Locate fields required by schema\n- Invoice.Date: found as \"2023-02-22\" under \"Verkaufsdatum\" / Verkaufsdatüm — explicit; use exactly as in document: \"2023-02-22\".\n- Sender.VatId: found near seller block: \"Ust.   Id. Nr: PL   6921133130\". Extract the VAT identifier as presented (keeping country code): \"PL 6921133130\".\n- GrandTotal.Amount: Gesamtsumme in EUR shown as \"1 100,00\". The invoice also repeats \"Gesamtsumme: in EUR 1 100,00\". Interpret numeric value as 1100.00 (preserve two decimals as in input).\n- Net.Amount: line shows net/ taxable base as \"1 100,00\" (same amount since VAT 0%). Use 1100.00.\n- Vat.Rate: shown explicitly as \"Podatek VAT UE 0%\" and \"Mehrwertsteuer ... 0,00\" — VAT rate is 0%. Per rules, return numeric without percent sign: 0.\n- Vat.Amount: VAT monetary amount shown as \"0,00\" (EUR) — use 0.00.\n\n3) Verify no missing/inferred values\n- All extracted fields are explicitly present in the text. No need to guess other formats or currencies beyond what is shown.\n- Use numeric values with two decimal places matching the input formatting.\n\n4) Multiple occurrences / consistency check\n- Currency conversions to PLN are present (5221,59 PLN) but exchange rates are per-invoice average; however exchange rate is not part of required schema so ignored.\n- There is only one VAT group visible (0%) so single Vat group entries suffice.\n\nBased on these findings, the values to return will be:\n- Invoice.Date: \"2023-02-22\"\n- Sender.VatId: \"PL 6921133130\"\n- GrandTotal.Amount: 1100.00\n- Net.Amount: 1100.00\n- Vat.Rate: 0\n- Vat.Amount: 0.00",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"confidence\": \"95%\",\n    \"justification\": \"Multiple explicit occurrences of 'Gesamtsumme: in EUR 1 100,00' and 'offen bleibt: EUR 1 100,00' consistently indicate total 1,100.00 EUR.\"\n  },\n  \"Invoice.Date\": {\n    \"confidence\": \"90%\",\n    \"justification\": \"Clear date '2023-02-22' appears near 'Verkaufsdatum' and matches transport/load dates context.\"\n  },\n  \"Sender.VatId\": {\n    \"confidence\": \"92%\",\n    \"justification\": \"Seller block shows 'Ust. Id. Nr: PL 6921133130' explicitly; formatting preserved.\"\n  },\n  \"Vat.Rate\": {\n    \"confidence\": \"94%\",\n    \"justification\": \"Text indicates 'Podatek VAT UE 0%' and VAT lines show 0.00, consistently implying 0%.\"\n  },\n  \"Net.Amount\": {\n    \"confidence\": \"93%\",\n    \"justification\": \"Net base shown as 1 100,00 EUR in line items and VAT group (same as gross due to 0% VAT).\"\n  },\n  \"Vat.Amount\": {\n    \"confidence\": \"96%\",\n    \"justification\": \"VAT amount explicitly printed as 0,00 (EUR) in VAT summary lines.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 14.84,
+      "input_tokens": 3405,
+      "cached_input_tokens": null,
+      "output_tokens": 1051,
+      "total_tokens": 4456,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.93,
+      "input_tokens": 4055,
+      "cached_input_tokens": null,
+      "output_tokens": 429,
+      "total_tokens": 4484,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.5,
+      "input_tokens": 4656,
+      "cached_input_tokens": null,
+      "output_tokens": 284,
+      "total_tokens": 4940,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198304\\198304.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "PL 6921133130",
+        "PL 6921133130"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1100.0,
+        "1 100,00"
+      ],
+      "Net.Amount": [
+        false,
+        1100.0,
+        [
+          "1 100,00",
+          "5221,59",
+          "1 100,00",
+          "5221,59"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        [
+          "0,00",
+          "0,00",
+          "0,00",
+          "0,00"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        0,
+        [
+          "0",
+          "0"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "2023-02-22",
+        "2023-02-22"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 12116,
+    "cached_input_tokens": 0,
+    "output_tokens": 1764,
+    "eur_estimate": 0.001223
+  }
+}

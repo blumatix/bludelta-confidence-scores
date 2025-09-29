@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\274406\\274369_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 4523.04,
+    "Invoice.Date": "31.12.2023",
+    "Sender.VatId": "ATU75601939",
+    "Vat.Rate": 20,
+    "Net.Amount": 3769.2,
+    "Vat.Amount": 753.84
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Determine if document is an invoice:\n- Presence of headings \"Rechnung\", \"Belegnummer\", \"Rechnungsnummer\", \"Datum\", \"Nettowert\", \"MwSt. %\", \"Endbetrag\" and line items => strong invoice indicators.\n- No exclusion terms like \"Zahlungserinnerung\" or \"Mahnung\" as prominent headers. Conclusion: document is an invoice.\n\n2) Locate Invoice.Date:\n- OCR shows \"Datum 31.12.2023\" on page 1. Accept as Invoice.Date = \"31.12.2023\".\n\n3) Locate Sender.VatId:\n- Two USt-Id lines: \"Ihre USt-Id. ATU37102103\" and \"Unsere USt-Id. ATU75601939\".\n- Sender = issuing company (Aptean Austria GmbH). \"Unsere USt-Id. ATU75601939\" corresponds to sender VAT. So Sender.VatId = \"ATU75601939\".\n\n4) Locate GrandTotal.Amount:\n- Page 3 shows columns \"Nettowert MwSt. % Endbetrag\" and value row: \"3.769,20 20,00 753,84 4.523,04\".\n- Endbetrag 4.523,04 appears to be total payable. So GrandTotal.Amount = 4523.04 (preserve decimals; convert comma to dot for numeric).\n\n5) Locate VAT groups (Vat.Rate, Net.Amount, Vat.Amount):\n- The summary row shows MwSt. % = 20,00, Nettowert = 3.769,20, MwSt amount = 753,84.\n- Therefore one VAT group: Vat.Rate = 20 (per rule remove %), Net.Amount = 3769.20, Vat.Amount = 753.84.\n- Confirm no other VAT groups present. None found.\n\n6) Verify No Inference policy:\n- All extracted fields are explicitly present in text; no guessing required.\n\n7) Ensure numeric types and decimal formatting:\n- Keep same decimal places as input: Net 3.769,20 -> 3769.20 (two decimals); Vat 753.84; GrandTotal 4523.04.\n- Vat.Rate should be number 20 (no percent symbol).\n\n8) Final mapping readiness:\n- Fields to output per schema: GrandTotal.Amount (number), Invoice.Date (string), Sender.VatId (string), Vat.Rate (number or array per note but schema expects fields — will provide single numeric for Vat.Rate and corresponding Net.Amount and Vat.Amount as per allowed array note).",
+    "step2": "Invoice.Date — High confidence (≈95%)\n- Evidence: Explicit \"Datum 31.12.2023\" on page 1.\n\nSender.VatId — High confidence (≈95%)\n- Evidence: \"Unsere USt-Id. ATU75601939\" appears under invoice sender details (Aptean Austria GmbH).\n\nGrandTotal.Amount — High confidence (≈95%)\n- Evidence: Summary row on page 3 shows \"Endbetrag 4.523,04\" clearly as total payable.\n\nVat.Rate — High confidence (≈95%)\n- Evidence: Summary shows \"MwSt. % 20,00\" for the VAT rate applicable to the invoice.\n\nNet.Amount — High confidence (≈95%)\n- Evidence: Summary shows \"Nettowert 3.769,20\" corresponding to net total before VAT.\n\nVat.Amount — High confidence (≈95%)\n- Evidence: Summary shows VAT amount \"753,84\" in the same summary row.\n\nUncertainties:\n- All values are explicitly printed; main residual risk is OCR errors (low here)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.8,
+      "input_tokens": 2591,
+      "output_tokens": 612,
+      "total_tokens": 3203
+    },
+    "step2": {
+      "runtime_sec": 3.71,
+      "input_tokens": 3146,
+      "output_tokens": 352,
+      "total_tokens": 3498
+    },
+    "step3": {
+      "runtime_sec": 3.86,
+      "input_tokens": 3639,
+      "output_tokens": 347,
+      "total_tokens": 3986
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274406\\274369_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU75601939",
+        "ATU75601939"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        4523.04,
+        "4.523,04"
+      ],
+      "Net.Amount": [
+        true,
+        3769.2,
+        "3.769,20"
+      ],
+      "Vat.Amount": [
+        true,
+        753.84,
+        "753,84"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "31.12.2023",
+        "31.12.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  }
+}

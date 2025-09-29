@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\272934\\272865_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 322.8,
+    "Invoice.Date": "03.10.2023",
+    "Sender.VatId": "ATU19170607",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 269.0,
+    "Vat.Amount": 53.8
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.85,
+    "Sender.VatId": 0.3,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Highly likely",
+    "Sender.VatId": "Unlikely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: Invoice (contains header \"Rechnung\", Beleg-Nr., Datum, totals).\n\nPlanned extraction steps (brief, non-sensitive):\n- Locate invoice header fields: Beleg-Nr., Datum. Found \"Datum: 03.10.2023\" (invoice date candidate).\n- Locate sender VAT: found \"Ihre Ust.Id.: ATU48581100\" (sender VAT candidate).\n- Locate totals block near end of page 1:\n  - Nettobetrag: \"269,00 EUR\" (net amount candidate).\n  - MwSt 20,00 % and corresponding VAT amount: \"53,80 EUR\" (VAT rate candidate: 20,00; VAT amount candidate: 53,80).\n  - Gesamtbetrag: \"322,80 EUR\" (grand total candidate).\n- Verify currency not required in schema; extract numeric values preserving decimal places as in source.\n- Rate value will be returned without the percent symbol (e.g., \"20,00\" -> 20.00 in numeric form).\n- No exclusion indicators (e.g., \"Mahnung\") dominating; proceed with extraction.\n\nPotential ambiguities to resolve in final extraction:\n- Decimal separator in source is comma; convert to numeric format with decimal point while preserving decimal precision.\n- Ensure Vat.Rate returned as number (20.00) without \"%\" per rules.\n\nNo fields appear missing for the required schema based on the document content.",
+    "step2": "GrandTotal.Amount — 95%\n- Evidence: \"Gesamtbetrag 322,80 EUR\" clearly printed. Low ambiguity.\n\nInvoice.Date — 85%\n- Evidence: \"Datum: 03.10.2023\" appears as Beleg/Invoice date. Another date \"Datum: 07.09.2023\" (likely order date) creates minor ambiguity.\n\nSender.VatId — 30%\n- Ambiguity: Two VAT IDs present: \"Ihre Ust.Id.: ATU48581100\" (appears to reference the customer—\"Ihre\") and footer \"Ust-Id-Nr. ATU 191 706 07\" (company ACO). Schema requires sender VAT; footer one likely sender, but context is ambiguous. Low confidence.\n\nVat.Rate — 95%\n- Evidence: \"MwSt 20,00 %\" shown in totals. Clear.\n\nNet.Amount — 95%\n- Evidence: \"Nettobetrag 269,00 EUR\" in totals. Clear.\n\nVat.Amount — 95%\n- Evidence: VAT line shows \"53,80 EUR\" corresponding to 20% on 269,00. Clear."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.77,
+      "input_tokens": 2329,
+      "cached_input_tokens": null,
+      "output_tokens": 745,
+      "total_tokens": 3074,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 10.12,
+      "input_tokens": 2673,
+      "cached_input_tokens": null,
+      "output_tokens": 694,
+      "total_tokens": 3367,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.37,
+      "input_tokens": 3219,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 3566,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\272934\\272865_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU19170607",
+        "ATU 191 706 07"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        322.8,
+        "322,80"
+      ],
+      "Net.Amount": [
+        true,
+        269.0,
+        "269,00"
+      ],
+      "Vat.Amount": [
+        true,
+        53.8,
+        "53,80"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "03.10.2023",
+        "03.10.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8221,
+    "cached_input_tokens": 0,
+    "output_tokens": 1786,
+    "eur_estimate": 0.004898
+  }
+}

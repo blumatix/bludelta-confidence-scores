@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\273900\\273890_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 460.01,
+    "Invoice.Date": "26-01-2024",
+    "Sender.VatId": "ATU43349701",
+    "Vat.Rate": 10,
+    "Net.Amount": 418.19,
+    "Vat.Amount": 41.82
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.85,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.97,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Highly likely",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Plan:\n- Identify whether document is an invoice: presence of \"RECHNUNG\", totals, VAT—yes.\n- Locate fields required by schema and avoid guessing.\n\nExtraction paths and decisions:\n1) GrandTotal.Amount\n- Found \"Endbetrag EUR 460,01\". Clear total payable. Extract as numeric 460.01.\n\n2) Invoice.Date\n- Candidate dates: \"Ihr Auftrag: 32401072 vom: 25-01-2024\" (order date) and \"Wien am 26-01-2024\" (document issue line). The invoice issue date is taken as \"Wien am 26-01-2024\". Extract \"26-01-2024\" as string.\n\n3) Sender.VatId\n- Two UIDs present: \"Ihre UID: ATU22642807\" (customer UID) and \"UID-Nr.: ATU 43349701\" near company info. Sender is SENNA; use sender UID \"ATU43349701\" (remove space).\n\n4) Vat.Rate, Net.Amount, Vat.Amount\n- VAT group shows \"+ 10 % Mehrwertsteuer 41,82\" and \"Auftragssumme 418,19\" above. Interpret:\n  - Net.Amount = 418,19 -> 418.19\n  - Vat.Rate = 10 (drop %)\n  - Vat.Amount = 41,82 -> 41.82\n\nVerification and alternatives considered:\n- Alternative VAT rates present nowhere else; VTR numbers not VAT percent. Chosen 10% is explicitly stated.\n- Net and VAT amounts correspond: 418.19 + 41.82 = 460.01 matching Endbetrag.\n- Invoice date choice favors document issue (\"Wien am 26-01-2024\") over order \"vom 25-01-2024\".\n\nNo fields were inferred beyond explicit text.",
+    "step2": "1) GrandTotal.Amount (460.01)\n- Evidence: \"Endbetrag EUR 460,01\" clearly shown.\n- Consistency: Matches sum of net (418,19) + VAT (41,82).\n- Confidence: 98%\n\n2) Invoice.Date (\"26-01-2024\")\n- Evidence: Line \"Wien am 26-01-2024\" appears near the top/right where invoice issue date is typically placed; another date \"vom: 25-01-2024\" is tied to \"Ihr Auftrag\" (order).\n- Reasoning: \"Wien am 26-01-2024\" is the best candidate for invoice issue date.\n- Confidence: 85%\n\n3) Sender.VatId (\"ATU43349701\")\n- Evidence: Two UIDs present: \"Ihre UID: ATU22642807\" (customer) and \"UID-Nr.: ATU 43349701\" in the sender/company block.\n- Reasoning: Sender is SENNA (company header) and UID next to company info is the sender VAT; removed internal space for standard formatting.\n- Confidence: 90%\n\n4) Vat.Rate (10)\n- Evidence: Text \"+     10       %    Mehrwertsteuer\" explicitly shown.\n- Reasoning: Rate extracted without percent symbol per rules.\n- Confidence: 99%\n\n5) Net.Amount (418.19)\n- Evidence: \"Auftragssumme 418,19\" appears directly above VAT line.\n- Consistency: 418,19 + 41,82 = 460,01 (matches grand total).\n- Confidence: 97%\n\n6) Vat.Amount (41.82)\n- Evidence: Shown as \"41,82\" next to the \"+ 10 % Mehrwertsteuer\" line.\n- Consistency: Adds to net to equal grand total.\n- Confidence: 98%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.38,
+      "input_tokens": 1981,
+      "cached_input_tokens": null,
+      "output_tokens": 907,
+      "total_tokens": 2888,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.5,
+      "input_tokens": 2383,
+      "cached_input_tokens": null,
+      "output_tokens": 585,
+      "total_tokens": 2968,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.97,
+      "input_tokens": 3045,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3326,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273900\\273890_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU43349701",
+        "ATU 43349701"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        460.01,
+        "460,01"
+      ],
+      "Net.Amount": [
+        true,
+        418.19,
+        "418,19"
+      ],
+      "Vat.Amount": [
+        true,
+        41.82,
+        "41,82"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "26-01-2024",
+        "26-01-2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7409,
+    "cached_input_tokens": 0,
+    "output_tokens": 1773,
+    "eur_estimate": 0.004697
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\273718\\273685_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 164.38,
+    "Invoice.Date": "28.11.2023",
+    "Sender.VatId": "ATU45414706",
+    "Vat.Rate": 20,
+    "Net.Amount": 136.98,
+    "Vat.Amount": 27.4
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.6,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Summary of extraction approach and candidate values (concise, non-sensitive):\n\n- Document classification: contains \"Rechnung\", invoice number, invoice date, totals, VAT lines → classified as invoice.\n- Key located fields to be extracted:\n  - Invoice.Date found as \"28.11.2023\".\n  - GrandTotal.Amount found as \"164,38\" EUR (labelled Gesamtbetrag EUR 164,38).\n  - Vat.Rate found as \"20%\" (USt 20%).\n  - Net.Amount found as \"136,98\" (Warenwert 136,98).\n  - Vat.Amount found as \"27,40\" (USt 20% -> 27,40).\n  - Sender.VatId candidate values:\n    - \"ATU45414706\" appears in company header/footnote on page 2 (likely sender VAT).\n    - \"ATU64131246\" appears under recipient block as \"Ihre UID Nr.\" (recipient VAT) — per schema we will use sender VAT only.\n- Validation rules applied:\n  - No inference beyond explicit text.\n  - Preserve decimal formatting and do not include percent symbol for Vat.Rate (will be \"20\").\n  - If any required field missing, would be returned as empty string.\n- Next step: produce JSON with fields set to the explicit values above (or empty if absent).",
+    "step2": "GrandTotal.Amount — High confidence. Evidence: \"Gesamtbetrag EUR 164,38\" clearly printed.\n\nInvoice.Date — High confidence. Evidence: \"Datum: 28.11.2023\" clearly printed.\n\nSender.VatId — Medium confidence. Evidence: Two VAT-like IDs present: \"ATU45414706\" (footer, likely sender) and \"ATU64131246\" (under recipient block labeled \"Ihre UID Nr.\"). Chosen sender ID corresponds to company footer but label ambiguity reduces confidence.\n\nVat.Rate — High confidence. Evidence: \"USt 20%\" printed next to VAT line; percentage to be returned as \"20\".\n\nNet.Amount — High confidence. Evidence: \"Warenwert 136,98\" corresponds to net amount before VAT.\n\nVat.Amount — High confidence. Evidence: \"USt 20% 27,40\" printed as VAT amount."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.88,
+      "input_tokens": 1998,
+      "cached_input_tokens": null,
+      "output_tokens": 670,
+      "total_tokens": 2668,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.09,
+      "input_tokens": 2291,
+      "cached_input_tokens": null,
+      "output_tokens": 509,
+      "total_tokens": 2800,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.63,
+      "input_tokens": 2749,
+      "cached_input_tokens": null,
+      "output_tokens": 473,
+      "total_tokens": 3222,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273718\\273685_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU45414706",
+        "ATU45414706"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        164.38,
+        "164,38"
+      ],
+      "Net.Amount": [
+        true,
+        136.98,
+        "136,98"
+      ],
+      "Vat.Amount": [
+        true,
+        27.4,
+        "27,40"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "28.11.2023",
+        "28.11.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7038,
+    "cached_input_tokens": 0,
+    "output_tokens": 1652,
+    "eur_estimate": 0.004406
+  }
+}

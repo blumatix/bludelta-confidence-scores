@@ -1,0 +1,98 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\205780\\205780_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1073.01,
+    "Invoice.Date": "20-6-2023",
+    "Sender.VatId": "DE 812581602",
+    "Vat.Rate": 19,
+    "Net.Amount": 1073.01,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.75,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Very good chance",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Plan and findings (concise):\n\n1) Document classification\n- Found clear invoice indicators: title \"RECHNUNG\", invoice number, invoice date, line items, totals. No exclusion terms like \"Mahnung\" prominent. => Proceed as invoice.\n\n2) Locate fields required by schema\n- Invoice.Date: found \"Rechnungs-Datum: 20-6-2023\".\n- GrandTotal.Amount: total shown as \"Gesamt EUR 1.073,01\" (invoice total 1.073,01).\n- Sender.VatId: seller UST-ID / UST-ID NR: \"DE 812581602\" appears in header.\n- Vat.Rate: VAT line shows \"zzgl. 19% MwSt\" -> rate 19.\n- Net.Amount and Vat.Amount: invoice shows \"Gesamtsumme Netto 1.073,01\" and \"zzgl. 19% MwSt 0,00\" (Net = 1.073,01; VAT amount = 0,00).\n\n3) Validation and rules\n- No conflicting exclusion indicators.\n- Preserve original decimal formatting (commas in source); final numeric values should retain decimal precision.\n- Do not infer missing data; all required fields are present in document.\n- VAT rate must be returned without percent sign (\"19\").\n\nNext step: produce the final JSON extraction per schema.",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"value\": 1073.01,\n    \"confidence\": \"high\",\n    \"notes\": \"Directly matches 'Gesamt EUR 1.073,01' on invoice; clear total.\"\n  },\n  \"Invoice.Date\": {\n    \"value\": \"20-6-2023\",\n    \"confidence\": \"high\",\n    \"notes\": \"Explicit 'Rechnungs-Datum: 20-6-2023' present.\"\n  },\n  \"Sender.VatId\": {\n    \"value\": \"DE 812581602\",\n    \"confidence\": \"high\",\n    \"notes\": \"Header shows 'UST-ID NR: DE 812581602' associated with sender.\"\n  },\n  \"Vat.Rate\": {\n    \"value\": 19,\n    \"confidence\": \"high\",\n    \"notes\": \"Line reads 'zzgl. 19% MwSt' — VAT rate clear; returned without %.\"\n  },\n  \"Net.Amount\": {\n    \"value\": 1073.01,\n    \"confidence\": \"medium\",\n    \"notes\": \"Shown as 'Gesamtsumme Netto 1.073,01' but net equals grand total and VAT amount is 0.00 — consistent but unusual.\"\n  },\n  \"Vat.Amount\": {\n    \"value\": 0.00,\n    \"confidence\": \"high\",\n    \"notes\": \"Document lists 'zzgl. 19% MwSt 0,00' explicitly.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 6.75,
+      "input_tokens": 1812,
+      "cached_input_tokens": null,
+      "output_tokens": 608,
+      "total_tokens": 2420,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.72,
+      "input_tokens": 2147,
+      "cached_input_tokens": null,
+      "output_tokens": 446,
+      "total_tokens": 2593,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.53,
+      "input_tokens": 2765,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3048,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\205780\\205780.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DE 812581602",
+        "DE 812581602"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1073.01,
+        "1.073,01"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Vat.Rate": [
+        true,
+        19,
+        "19"
+      ],
+      "Invoice.Date": [
+        true,
+        "20-6-2023",
+        "20-6-2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 5,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6724,
+    "cached_input_tokens": 0,
+    "output_tokens": 1337,
+    "eur_estimate": 0.000804
+  }
+}

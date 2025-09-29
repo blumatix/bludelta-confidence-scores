@@ -1,0 +1,88 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198606\\198606_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1076.5,
+    "Invoice.Date": "30-mar-2023",
+    "Sender.VatId": "FR00494064355",
+    "Vat.Rate": "",
+    "Net.Amount": 1076.5,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Classification check\n- Document contains clear invoice indicators: title \"Invoice No.\", \"Date:\", \"Total incl. VAT\", line items, totals. No exclusion keywords (\"Mahnung\", \"Zahlungserinnerung\", \"Servicebericht\") present. => Document is an invoice.\n\n2) Identify candidate fields\n- Invoice date: line \"Date:                                    30-mar-2023\" => candidate \"30-mar-2023\".\n- Sender VAT ID: company block \"DFDS SEAWAYS S.A.S.\" shows \"No TVA    FR   00   494   064   355\" => candidate \"FR00494064355\".\n- Customer VAT No. also present (\"Customer VAT No. FR47546650334\") but schema requires sender VAT => use DFDS VAT.\n- Grand total: \"Total incl. VAT EUR 1 076.50\" and also \"Total excl. VAT EUR 1 076.50\" visible. Grand total candidate 1,076.50 EUR.\n- Net amount: \"Total excl. VAT EUR 1 076.50\" => Net = 1076.50.\n- VAT amount: shown as \"VAT EUR 0,00\" (and \"Total incl. VAT\" equals excl. VAT) => VAT amount = 0.00.\n- VAT rate: no explicit percent (only \"Vat exempt article 144...\" text). No numeric percent provided => leave Vat.Rate empty per No Inference Policy.\n\n3) Verify consistency and non-inference\n- Net (1076.50) + Vat (0.00) = GrandTotal (1076.50) — consistent.\n- Do not infer a VAT percentage from \"exempt\" text; leave Vat.Rate blank.\n\n4) Decide final extracted values (types preserved)\n- GrandTotal.Amount: 1076.50 (number)\n- Invoice.Date: \"30-mar-2023\" (string)\n- Sender.VatId: \"FR00494064355\" (string)\n- Vat.Rate: \"\" (empty string because no explicit percent)\n- Net.Amount: 1076.50 (number)\n- Vat.Amount: 0.00 (number)",
+    "step2": "GrandTotal.Amount — Evidence: \"Total incl. VAT EUR 1 076.50\" and repeated \"Total excl. VAT EUR 1 076.50\"; itemized sums add to 1,076.50. Consistency: matches line-item totals. Confidence: Very high (~98%).\n\nInvoice.Date — Evidence: Explicit line \"Date:                                    30-mar-2023\". Format preserved. Confidence: Very high (~99%).\n\nSender.VatId — Evidence: Company block shows \"No TVA    FR   00   494   064   355\". Extraction normalized to \"FR00494064355\". Potential ambiguity: spacing and extra \"00\" prefix are present exactly as printed; assumption made that full VAT is FR00 494064355. Confidence: High (~90%).\n\nVat.Rate — Evidence: No explicit percentage; text states \"Vat exempt article 144...\" implying 0% or exempt but no numeric rate present. Per No Inference rule, left empty. Confidence that leaving empty is correct: Very high (~99%) for adherence to rules; confidence that actual numeric rate is absent: Very high (~99%).\n\nNet.Amount — Evidence: \"Total excl. VAT EUR 1 076.50\" explicitly given; matches GrandTotal since VAT zero. Confidence: Very high (~98%).\n\nVat.Amount — Evidence: \"VAT EUR 0,00\" printed; matches difference between excl. and incl. totals. Confidence: Very high (~98%)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.4,
+      "input_tokens": 2193,
+      "cached_input_tokens": null,
+      "output_tokens": 1032,
+      "total_tokens": 3225,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.54,
+      "input_tokens": 2696,
+      "cached_input_tokens": null,
+      "output_tokens": 305,
+      "total_tokens": 3001,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.41,
+      "input_tokens": 3301,
+      "cached_input_tokens": null,
+      "output_tokens": 280,
+      "total_tokens": 3581,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198606\\198606.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "FR00494064355",
+        "FR 00 494 064 355"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1076.5,
+        "1 076.50"
+      ],
+      "Invoice.Date": [
+        true,
+        "30-mar-2023",
+        "30-mar-2023"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 3,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8190,
+    "cached_input_tokens": 0,
+    "output_tokens": 1617,
+    "eur_estimate": 0.000975
+  }
+}

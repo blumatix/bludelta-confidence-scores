@@ -1,0 +1,100 @@
+{
+  "input_path": "..\\Documents\\274289\\274286_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1876.12,
+    "Invoice.Date": "25/01/24",
+    "Sender.VatId": "DE814654220",
+    "Vat.Rate": 19,
+    "Net.Amount": 1576.57,
+    "Vat.Amount": 299.55
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will extract invoice fields by locating explicit invoice headers and numeric values in the text, verifying labels to avoid guessing. Relevant findings to guide extraction:\n\n- Invoice-like indicators present: \"Rechnung\", \"Rechnungs-Nr.\", \"Rechnungs-und Lieferdatum\", \"Gesamt\", \"Nettobetrag\", \"USt 19.00%\".\n- Exclusion keywords (\"Zahlungserinnerung\", \"Mahnung\", \"Servicebericht\") are not present prominently; document qualifies as an invoice.\n- Candidate Invoice.Date: \"Lieferdatum: 25/01/24\" and \"Fälligkeitsdatum: 24/02/24\". The invoice issue date label appears as \"Rechnungs-und Lieferdatum: 25/01/24\" — treat 25/01/24 as Invoice.Date.\n- Candidate GrandTotal.Amount: labeled \"Gesamt: 1,876.12\" (EUR). Keep decimals as shown.\n- Candidate Net.Amount: labeled \"Nettobetrag: 1,576.57\" (EUR).\n- Candidate Vat.Rate and Vat.Amount: labeled \"USt 19.00%: 299.55\" — VAT rate to record as 19 (per rules: drop %), VAT amount 299.55.\n- Candidate Sender.VatId: appears as \"USt.-Ident-Nr: DE814654220\" (also repeated). Use this exact string.\n- Confirm no conflicting multiple grand totals; only one \"Gesamt\" present.\n- No ambiguity on currency required; numeric values to be returned without currency symbols.\n- Per rules, do not infer any missing values; use these explicit values only.\n\nI will now prepare the final JSON extraction based on these verified fields.",
+    "step2": "GrandTotal.Amount — High (95%): \"Gesamt: 1,876.12\" clearly printed; single unambiguous total.\n\nInvoice.Date — High (90%): \"Rechnungs-und Lieferdatum: 25/01/24\" present; interpreted as invoice date per header.\n\nSender.VatId — High (95%): \"USt.-Ident-Nr: DE814654220\" appears explicitly (also repeated).\n\nVat.Rate — High (95%): \"USt     19.00%:\" shown; rate unambiguous — extract as 19 per rule.\n\nNet.Amount — High (95%): \"Nettobetrag: 1,576.57\" explicitly shown.\n\nVat.Amount — High (95%): \"USt     19.00%: 299.55\" shows VAT amount alongside rate.\n\nOverall consistency: sums match (1,576.57 + 299.55 = 1,876.12), supporting high confidence."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.02,
+      "input_tokens": 1949,
+      "cached_input_tokens": null,
+      "output_tokens": 621,
+      "total_tokens": 2570
+    },
+    "step2": {
+      "runtime_sec": 5.38,
+      "input_tokens": 2321,
+      "cached_input_tokens": null,
+      "output_tokens": 531,
+      "total_tokens": 2852
+    },
+    "step3": {
+      "runtime_sec": 3.93,
+      "input_tokens": 2801,
+      "cached_input_tokens": null,
+      "output_tokens": 345,
+      "total_tokens": 3146
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274289\\274286_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DE814654220",
+        "DE814654220"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1876.12,
+        "1,876.12"
+      ],
+      "Net.Amount": [
+        true,
+        1576.57,
+        "1,576.57"
+      ],
+      "Vat.Amount": [
+        true,
+        299.55,
+        "299.55"
+      ],
+      "Vat.Rate": [
+        true,
+        19,
+        "19.00"
+      ],
+      "Invoice.Date": [
+        true,
+        "25/01/24",
+        "25/01/24"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7071,
+    "cached_input_tokens": 0,
+    "output_tokens": 1497,
+    "eur_estimate": 0.004145
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\272815\\272785_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 361.8,
+    "Invoice.Date": "23.01.2024",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 301.5,
+    "Vat.Amount": 60.3
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Classify document:\n- Contains clear invoice indicators: \"Rechnung\", \"Rechnungsendbetrag\", invoice number \"R1038224\", totals, line items, VAT breakdown. No exclusion terms like \"Mahnung\" prominent. Therefore treat as invoice.\n\n2) Identify candidate fields:\n- Grand total: \"Rechnungsendbetrag 361,80 €\" → candidate 361.80.\n- Invoice date: \"Druckdatum 23.01.2024\" and also Liefer-/Beleg-dates present; \"Druckdatum\" is the printed/issue date → candidate \"23.01.2024\".\n- Sender VAT ID: top block shows \"UID-Nr ATU22642807\" next to sender address (hollu Systemhygiene GmbH) → candidate \"ATU22642807\".\n- VAT group: line \" +  20,0 % Ust. von 301,50 €  60,30 €\" → VAT rate 20,0% → candidate rate 20 (remove % per rules); Net amount 301,50 → candidate 301.50; VAT amount 60,30 → candidate 60.30.\n\n3) Verify no conflicting occurrences:\n- Another UID \"ATU48721101\" appears under Lieferanschrift (likely recipient VAT) — rule: Sender.VatId must be sender's VAT; sender block at top shows ATU22642807, so choose ATU22642807.\n- Ensure not inferring missing data: all target fields have explicit values in text.\n- Decimal preservation: input shows two decimals with comma; convert to dot while preserving two decimals: 361.80, 301.50, 60.30.\n- VAT rate must be without percent and as number with same decimal precision as input? Input \"20,0 %\" has one decimal; rule says keep decimals as in input — rate presented as \"20,0\" so numeric should be 20.0 or 20? Schema Vat.Rate type is number; instruction rule 5: \"Extract rates without the percentage symbol (e.g., '19%' as '19').\" Example removes decimals. But also rule 7: \"Keep the number of decimals places the same as in the input.\" Input had one decimal \"20,0\". To balance, ambiguous; follow explicit rule 5 (remove %), and maintain numeric decimal places same as input -> 20.0.\n\n4) Final mapped candidates:\n- GrandTotal.Amount: 361.80\n- Invoice.Date: \"23.01.2024\"\n- Sender.VatId: \"ATU22642807\"\n- Vat.Rate: 20.0 (extracted from \"20,0 %\")\n- Net.Amount: 301.50\n- Vat.Amount: 60.30\n\nNo other plausible alternatives found.",
+    "step2": "GrandTotal.Amount — High confidence.\nEvidence: Explicit label \"Rechnungsendbetrag 361,80 €\" unambiguous.\n\nInvoice.Date — High confidence.\nEvidence: \"Druckdatum 23.01.2024\" clearly indicates printed/issue date.\n\nSender.VatId — High confidence.\nEvidence: Top sender block shows \"UID-Nr ATU22642807\" adjacent to hollu Systemhygiene GmbH.\n\nVat.Rate — High confidence.\nEvidence: VAT line reads \"+  20,0 % Ust.\" clearly specifying 20.0%.\n\nNet.Amount — High confidence.\nEvidence: VAT line shows \"von 301,50 €\" as base for the 20% VAT; matches line-item subtotal \"Zwischensumme 301,50 €\".\n\nVat.Amount — High confidence.\nEvidence: VAT line shows \"60,30 €\" corresponding to 20% of 301,50 €; explicitly printed."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.01,
+      "input_tokens": 2218,
+      "cached_input_tokens": null,
+      "output_tokens": 978,
+      "total_tokens": 3196,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.71,
+      "input_tokens": 2859,
+      "cached_input_tokens": null,
+      "output_tokens": 455,
+      "total_tokens": 3314,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.8,
+      "input_tokens": 3358,
+      "cached_input_tokens": null,
+      "output_tokens": 219,
+      "total_tokens": 3577,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\272815\\272785_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU66213527,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        361.8,
+        "361,80"
+      ],
+      "Net.Amount": [
+        true,
+        301.5,
+        "301,50"
+      ],
+      "Vat.Amount": [
+        true,
+        60.3,
+        "60,30"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,0"
+      ],
+      "Invoice.Date": [
+        true,
+        "23.01.2024",
+        "23.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 8435,
+    "cached_input_tokens": 0,
+    "output_tokens": 1652,
+    "eur_estimate": 0.004714
+  }
+}

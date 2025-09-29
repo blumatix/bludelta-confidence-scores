@@ -1,0 +1,101 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198273\\198273_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1750.0,
+    "Invoice.Date": "2023.01.31",
+    "Sender.VatId": "LT100011136818",
+    "Vat.Rate": "",
+    "Net.Amount": 1750.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.97,
+    "Vat.Rate": 0.85,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Highly likely",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Below is a concise, non-sensitive summary of the extraction plan and the evidence locations used to populate each required field.\n\n1. Document classification\n- Determined this is an invoice: header contains \"SĄSKAITA - FAKTŪRA (INVOICE)\", presence of invoice number, issue date, seller/buyer, itemized amounts and totals.\n\n2. Fields to extract and evidence locations\n- Invoice.Date: locate \"Išrašyta: 2023.01.31\" / \"Issued: 31.01.2023\" near top right.\n- GrandTotal.Amount: locate total payable \"VISO / TOTAL 1 750.00 EUR\" and other repeated totals \"1 750.00 EUR\".\n- Net.Amount: locate \"Suma be PVM/Amount without VAT 1 750.00 EUR\".\n- Vat.Amount: locate VAT amount \"0.00 EUR\" shown next to VAT line and PVM-0.00 in exchange-rate line.\n- Vat.Rate: determine VAT rate from text: \"PVM NEAPMOKESTINAMA / NOT A SUBJECT OF VAT\" and \"PVM-0.00\" — VAT percent not explicitly given; no percentage symbol present in VAT lines. Therefore Vat.Rate will be left empty unless an explicit percent appears.\n- Sender.VatId: locate seller VAT code shown as \"PVM kodas/Vat No: LT100011136818\" under Seller block.\n\n3. Validation and rules compliance\n- No guessing: if any required value is not explicitly present (e.g., VAT percentage), it will be returned as an empty string.\n- Numeric formatting: preserve decimals as in source (e.g., 1750.00).\n- Currency symbols will be omitted for numeric fields per schema.\n- If any invoice criteria had failed, all fields would be empty — not applicable here.\n\n4. Final extraction mapping (to be returned in JSON next)\n- GrandTotal.Amount <- 1750.00\n- Invoice.Date <- \"2023.01.31\" (use the invoice issue date string)\n- Sender.VatId <- \"LT100011136818\"\n- Vat.Rate <- \"\" (no explicit percent present)\n- Net.Amount <- 1750.00\n- Vat.Amount <- 0.00\n\nI will now produce the final JSON with these values.",
+    "step2": "GrandTotal.Amount — Confidence: 98%\nEvidence: \"VISO / TOTAL 1 750.00 EUR\" and repeated \"1 750.00 EUR\" totals shown under amounts. Numeric format matches.\n\nInvoice.Date — Confidence: 99%\nEvidence: \"Išrašyta: 2023.01.31\" and \"Issued: 31.01.2023\" at top right; both indicate same date.\n\nSender.VatId — Confidence: 97%\nEvidence: Seller block shows \"PVM kodas/Vat No: LT100011136818\" directly under seller address.\n\nVat.Rate — Confidence: 85%\nEvidence: Invoice labels VAT as \"PVM NEAPMOKESTINAMA / NOT A SUBJECT OF VAT\" and shows VAT amount 0.00; no explicit percent (e.g., \"0%\" or \"19%\") is present. Assigned empty per no-inference rule; moderate confidence that no percent exists.\n\nNet.Amount — Confidence: 98%\nEvidence: \"Suma be PVM/Amount without VAT 1 750.00 EUR\" clearly states net amount.\n\nVat.Amount — Confidence: 98%\nEvidence: VAT line shows \"0.00 EUR\" and exchange-rate line lists \"PVM-0.00\", indicating VAT amount zero."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.63,
+      "input_tokens": 7536,
+      "cached_input_tokens": null,
+      "output_tokens": 691,
+      "total_tokens": 8227,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.9,
+      "input_tokens": 8082,
+      "cached_input_tokens": null,
+      "output_tokens": 337,
+      "total_tokens": 8419,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.69,
+      "input_tokens": 8655,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 8936,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198273\\198273.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "LT100011136818",
+        "LT100011136818"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1750.0,
+        "1 750.00"
+      ],
+      "Net.Amount": [
+        true,
+        1750.0,
+        "1 750.00"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0.00"
+      ],
+      "Invoice.Date": [
+        false,
+        "2023.01.31",
+        [
+          "2023.01.31",
+          "31.01.2023"
+        ]
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 5,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 24273,
+    "cached_input_tokens": 0,
+    "output_tokens": 1309,
+    "eur_estimate": 0.001672
+  }
+}

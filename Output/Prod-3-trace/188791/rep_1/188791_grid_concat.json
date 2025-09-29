@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\188791\\188791_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1606.13,
+    "Invoice.Date": "31. März 2023",
+    "Sender.VatId": "ATU45862008",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 1338.44,
+    "Vat.Amount": 267.69
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.96,
+    "Net.Amount": 0.94,
+    "Vat.Amount": 0.94
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Below is a concise, non-sensitive stepwise plan and the key evidence I will use to extract the required fields.\n\n1) Document classification\n- Evidence invoice: header contains \"Rechnung-Nr.\", \"Rechnungssumme\", \"Gesamt Rechnungsbetrag\", \"MwSt.\", numeric totals and line-item sections → classify as invoice.\n- No exclusion terms like \"Mahnung\" dominate.\n\n2) Locate candidate fields and textual evidence\n- Invoice.Date: appears near top as \"Datum 31. März 2023\".\n- Sender.VatId: sender UID/UID-Nr lines: \"UID-Nr: ATU31771008\" and footer also shows \"UID: ATU45862008\". Need to determine which is sender. Header shows \"VP-Nummer\" and \"UID-Nr: ATU31771008\" above recipient name \"Bergbahn AG Kitzbühel\" — that UID likely sender or VP? Footer shows \"PAYONE GmbH ... UID: ATU45862008\" — PAYONE is sender. Schema requests Sender.VatId (tax ID of the sender) — choose PAYONE UID: ATU45862008.\n- GrandTotal.Amount: bottom shows \"Gesamt Rechnungsbetrag 1.606,13\" → 1606.13 (preserve decimals).\n- Net.Amount / Vat.Amount / Vat.Rate: there is \"MwSt. 20,00% 1.338,44 20,00% 267,69\" — interpret: Net.Amount = 1.338,44, Vat.Rate = 20.00, Vat.Amount = 267,69. Confirm formatting: comma decimals and percent with comma; will convert percent to number without % and keep decimals as in input per rules (i.e., \"20,00\" → number 20.00).\n  - Verify totals: \"Rechnungssumme 1.338,44\" then \"MwSt. 20,00% 1.338,44 20,00% 267,69\" then \"Gesamt Rechnungsbetrag 1.606,13\" — implies Net = 1,338.44, VAT = 267.69, GrandTotal = 1,606.13.\n\n3) No inference beyond explicit text\n- If any field ambiguous or missing, will set to \"\".\n- Preserve decimal places and convert numeric formatting (commas to decimal point) for numeric fields.\n\n4) Final mapping planned\n- GrandTotal.Amount ← \"Gesamt Rechnungsbetrag 1.606,13\" → numeric 1606.13\n- Invoice.Date ← \"Datum 31. März 2023\" → string \"31. März 2023\"\n- Sender.VatId ← footer \"UID: ATU45862008\" (PAYONE) → \"ATU45862008\"\n- Vat.Rate ← \"20,00%\" → numeric 20.00 (without %)\n- Net.Amount ← \"Rechnungssumme 1.338,44\" / \"MwSt. 20,00% 1.338,44\" → numeric 1338.44\n- Vat.Amount ← \"267,69\" (shown next to VAT rate) → numeric 267.69\n\nI will now produce the final JSON extraction using these values.",
+    "step2": "GrandTotal.Amount — 1,606.13\n- Confidence: 95%\n- Evidence: Explicit line \"Gesamt Rechnungsbetrag 1.606,13\" at bottom. Clear numeric format; consistent with Net + VAT (1,338.44 + 267.69 = 1,606.13). Low residual risk from OCR errors.\n\nInvoice.Date — \"31. März 2023\"\n- Confidence: 98%\n- Evidence: Explicit header \"Datum 31. März 2023\" present on both pages. Very clear.\n\nSender.VatId — \"ATU45862008\"\n- Confidence: 90%\n- Evidence: Footer lists \"PAYONE GmbH ... UID: ATU45862008\" (PAYONE is the invoicing company). Header also shows a different UID (\"UID-Nr: ATU31771008\") adjacent to customer name; risk is potential ambiguity which UID is meant as sender vs recipient. Chosen UID corresponds to PAYONE in footer, matching typical sender placement.\n\nVat.Rate — 20.00\n- Confidence: 96%\n- Evidence: Line shows \"MwSt. 20,00%\" clearly. Converted to numeric without percent per rules. Low risk of misreading.\n\nNet.Amount — 1,338.44\n- Confidence: 94%\n- Evidence: \"Rechnungssumme 1.338,44\" and repeated next to MwSt line indicating taxable base of 1,338.44. Consistent with GrandTotal and VAT. Moderate-low OCR risk.\n\nVat.Amount — 267.69\n- Confidence: 94%\n- Evidence: Appears next to MwSt line as 267,69; sums correctly to GrandTotal. Low OCR ambiguity."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 16.29,
+      "input_tokens": 3505,
+      "cached_input_tokens": null,
+      "output_tokens": 1084,
+      "total_tokens": 4589,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.93,
+      "input_tokens": 4252,
+      "cached_input_tokens": null,
+      "output_tokens": 426,
+      "total_tokens": 4678,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.72,
+      "input_tokens": 4914,
+      "cached_input_tokens": null,
+      "output_tokens": 221,
+      "total_tokens": 5135,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\188791\\188791_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU45862008",
+        "ATU45862008"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1606.13,
+        "1.606,13"
+      ],
+      "Net.Amount": [
+        true,
+        1338.44,
+        "1.338,44"
+      ],
+      "Vat.Amount": [
+        true,
+        267.69,
+        "267,69"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "31. März 2023",
+        "31. März 2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 12671,
+    "cached_input_tokens": 0,
+    "output_tokens": 1731,
+    "eur_estimate": 0.005782
+  }
+}

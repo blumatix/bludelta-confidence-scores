@@ -1,0 +1,106 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\205201\\205201_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 36868.43,
+    "Invoice.Date": "26.06.2023",
+    "Sender.VatId": "DE151241761",
+    "Vat.Rate": 19.0,
+    "Net.Amount": 30981.87,
+    "Vat.Amount": 5886.56
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.85,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Highly likely",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification\n- Contains \"RECHNUNG\" and invoice-like sections (Nummer, Kunden-Nr., Datum, Lieferempfänger, line items, Netto/MwSt/Gesamt) → classify as invoice.\n- No exclusion keywords (\"Mahnung\", \"Zahlungserinnerung\", \"Servicebericht\") prominently present.\n\n2) Locate Invoice Date\n- \"Datum\" appears with value \"26.06.2023\" on both pages → Invoice.Date = \"26.06.2023\".\n\n3) Locate Sender VAT ID\n- Header shows \"USt.-Ident Nr DE 151 241 761\" (OCR: \"USt.-Ideht Nr DE 151 241 761\") → Sender.VatId = \"DE151241761\" (remove spaces).\n\n4) Locate Grand Total\n- Summary shows total \"36.868,43\" (appears as 36.'868       43 and 36.'868,43) → GrandTotal.Amount = 36868.43 (convert German comma decimal to dot).\n\n5) Locate VAT rate, net and VAT amounts\n- Summary line for 19,00% shows group values: Net ≈ 30.981,87; VAT = 5.886,56; Total = 36.868,43.\n- Despite OCR noise, VAT amount 5.886,56 matches total - net. Use these values:\n  - Vat.Rate = 19.00 (input \"19,00%\" → numeric without %)\n  - Net.Amount = 30981.87\n  - Vat.Amount = 5886.56\n\n6) Verify no inference beyond visible data\n- All values chosen are explicitly present or directly derivable (total minus VAT equals net); no other fields inferred.\n\n7) Prepare final JSON with required fields:\n- GrandTotal.Amount: number 36868.43\n- Invoice.Date: \"26.06.2023\"\n- Sender.VatId: \"DE151241761\"\n- Vat.Rate: number 19.00\n- Net.Amount: number 30981.87\n- Vat.Amount: number 5886.56",
+    "step2": "GrandTotal.Amount — 90%\n- Evidence: Visible total \"36.868,43\" in summary; consistent with subtotal and VAT. OCR noise present but value appears repeatedly.\n\nInvoice.Date — 95%\n- Evidence: \"Datum\" clearly shown as \"26.06.2023\" on both pages.\n\nSender.VatId — 85%\n- Evidence: Shown as \"USt.-Ident Nr DE 151 241 761\" (OCR variants present). Formatting condensed to \"DE151241761\" may remove OCR spaces.\n\nVat.Rate — 95%\n- Evidence: \"19,00%\" displayed in tax summary; straightforward conversion to numeric 19.00.\n\nNet.Amount — 85%\n- Evidence: Net shown near tax group as \"30.981,87\" (OCR variants like \"49.981;87\" possible). Value used (30.981,87) is consistent with total minus VAT but OCR ambiguity reduces confidence.\n\nVat.Amount — 90%\n- Evidence: VAT shown as \"5.886,56\" matching difference between total and net; OCR noise minimal."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 14.58,
+      "input_tokens": 2752,
+      "cached_input_tokens": null,
+      "output_tokens": 1091,
+      "total_tokens": 3843,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.06,
+      "input_tokens": 3250,
+      "cached_input_tokens": null,
+      "output_tokens": 423,
+      "total_tokens": 3673,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.82,
+      "input_tokens": 3781,
+      "cached_input_tokens": null,
+      "output_tokens": 285,
+      "total_tokens": 4066,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\205201\\205201.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DE151241761",
+        "DE 151 241 761"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        36868.43,
+        "36.868,43"
+      ],
+      "Net.Amount": [
+        false,
+        30981.87,
+        "30.901,87"
+      ],
+      "Vat.Amount": [
+        false,
+        5886.56,
+        "5.886;56"
+      ],
+      "Vat.Rate": [
+        true,
+        19.0,
+        "19,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "26.06.2023",
+        [
+          "26.06.2023",
+          "26.06.2023"
+        ]
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 9783,
+    "cached_input_tokens": 0,
+    "output_tokens": 1799,
+    "eur_estimate": 0.001119
+  }
+}

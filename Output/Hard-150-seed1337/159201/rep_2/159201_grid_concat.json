@@ -1,0 +1,106 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\159201\\159201_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 600.0,
+    "Invoice.Date": "17.03.2022",
+    "Sender.VatId": "CZ28138511",
+    "Vat.Rate": "",
+    "Net.Amount": 600.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.7,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Very good chance",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "- Confirm document is an invoice: contains \"FAKTURA\", invoice number \"číslo: 9220406\", invoice-like headers (Dodavatel, Odběratel, Datum vystavení), line item totals and \"Celkem\" — classify as invoice.\n\n- Extract candidate fields observed:\n  - Invoice number: 9220406 (present).\n  - Invoice date: \"Datum vystavení 17.03.2022\".\n  - Grand total candidates:\n    - \"Celkem EUR : 600,00\" (explicit EUR total).\n    - \"Cena je vyjádřena v částce 15 384,00 Kč\" and \"Při kursu 25,640 Kč/1 EUR 600,00 EUR\" — CZK total 15 384,00 corresponds to 600,00 EUR × 25.640.\n  - VAT indication: text states \"Plnění je osvobozeno od DPH podle § 9 ... The reverse charge is applicable.\" Also line shows \"0,0\" DPH and \"0,00\" values.\n  - VAT rate: no explicit percentage (exempt / reverse charge) — no numeric percent present.\n  - VAT amount: appears as 0,00 (both per-line and summary).\n  - Net amount: the taxable base appears as 600,00 (EUR) or 15 384,00 (CZK) depending on currency context.\n  - Sender VAT ID: \"DIČ: CZ28138511\" (sender DIČ present).\n  - Currency/context: invoice shows amounts in EUR with CZK conversion; GrandTotal.Amount should be numeric without currency — need to choose which currency to return per schema (will not infer beyond explicitly shown totals).\n\n- Ambiguities to resolve before final extraction:\n  - Which value to set as GrandTotal.Amount: 600,00 (EUR) or 15384,00 (CZK)? Both explicitly appear; schema expects a numeric total without currency — must choose the exact numeric string as in source and preserve decimals.\n  - Vat.Rate: no percent present; must leave empty (per No Inference) unless a numeric rate is explicitly shown.\n  - Net.Amount and Vat.Amount: need to match same currency/scale as chosen GrandTotal; preserve decimals and exact formatting (commas vs dots to be normalized to numeric).\n\n- Next step: produce final JSON with fields filled only from explicit text (no guessing), preserving numeric decimals as in source and leaving fields empty where no explicit numeric percent or ambiguous currency selection cannot be resolved by inference.",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"confidence\": \"high\",\n    \"justification\": \"Explicit 'Celkem EUR : 600,00' and corresponding CZK total '15 384,00 Kč' shown; 600,00 appears as invoice total in currency context.\"\n  },\n  \"Invoice.Date\": {\n    \"confidence\": \"high\",\n    \"justification\": \"'Datum vystavení 17.03.2022' is explicitly printed.\"\n  },\n  \"Sender.VatId\": {\n    \"confidence\": \"high\",\n    \"justification\": \"Sender DIČ shown as 'CZ28138511' next to IČ.\"\n  },\n  \"Vat.Rate\": {\n    \"confidence\": \"high\",\n    \"justification\": \"No numeric VAT percentage present; text states supply is VAT exempt/reverse charge, so leaving rate empty is supported.\"\n  },\n  \"Net.Amount\": {\n    \"confidence\": \"medium\",\n    \"justification\": \"Net base appears as '600,00' (EUR) and '15 384,00 Kč' (CZK). Choice of numeric base depends on currency context; value shown explicitly but currency ambiguity affects interpretation.\"\n  },\n  \"Vat.Amount\": {\n    \"confidence\": \"high\",\n    \"justification\": \"VAT shown as 0,00 in line and summary ('0,00'); document states reverse charge/exempt, supporting zero VAT amount.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.65,
+      "input_tokens": 2019,
+      "cached_input_tokens": null,
+      "output_tokens": 983,
+      "total_tokens": 3002,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.11,
+      "input_tokens": 2601,
+      "cached_input_tokens": null,
+      "output_tokens": 493,
+      "total_tokens": 3094,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.11,
+      "input_tokens": 3202,
+      "cached_input_tokens": null,
+      "output_tokens": 342,
+      "total_tokens": 3544,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\159201\\159201.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "CZ28138511",
+        "CZ28138511"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        600.0,
+        [
+          "600,00",
+          "600,00"
+        ]
+      ],
+      "Net.Amount": [
+        true,
+        600.0,
+        "600,00"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Vat.Rate": [
+        false,
+        "",
+        "0,0"
+      ],
+      "Invoice.Date": [
+        true,
+        "17.03.2022",
+        "17.03.2022"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7822,
+    "cached_input_tokens": 0,
+    "output_tokens": 1818,
+    "eur_estimate": 0.001027
+  }
+}

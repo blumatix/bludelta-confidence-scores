@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\274158\\274155_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 789.03,
+    "Invoice.Date": "01.02.2024",
+    "Sender.VatId": "ATU65161022",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 717.3,
+    "Vat.Amount": 71.73
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Classify document as invoice\n- Contains header \"RECHNUNG\" and invoice number \"202400030\" and \"vom 01.02.2024\" — strong invoice indicators.\n- No exclusion keywords like \"Mahnung\" or \"Zahlungserinnerung\" dominating.\n=> Proceed with extraction.\n\n2) Locate invoice date\n- Found \"RECHNUNG 202400030 vom 01.02.2024\" → Invoice.Date = \"01.02.2024\".\n\n3) Locate sender VAT ID\n- Top block shows \"Konditorei Haderer GmbH ... ATU65161022\" → Sender.VatId = \"ATU65161022\".\n- Also recipient VAT \"ATU22642807\" appears, but sender VAT is the one next to company header; choose ATU65161022.\n\n4) Locate totals, net and VAT\n- Near totals area:\n  - \"Nettobetrag 717,30 EUR\" → Net.Amount = 717,30 (preserve decimals as in input).\n  - \"+ 10,00% USt. von 717,30 71,73 EUR\" → Vat.Rate = 10,00% → per rules return without % as \"10\" (or \"10,00\"? schema expects number; keep same decimals as input for rates rule says without %; later mapping: choose numeric representation). Vat.Amount = 71,73 (preserve decimals).\n  - \"Rechnungsbetrag 789,03 EUR\" → GrandTotal.Amount = 789,03.\n\n5) Consider numeric formatting and schema types\n- Input uses comma decimal separator. Schema expects numbers. Must preserve decimal places exactly as in input (rule). Potential representations:\n  - Keep as numeric with decimal point (789.03) would change separator but preserve value and decimals.\n  - Rule: \"Keep the number of decimals places the same as in the input. Do not truncate numbers.\" It does not mandate comma. For final JSON numeric fields should be numbers (no quotes). Plan: convert commas to dot for numeric JSON while preserving two decimals: GrandTotal.Amount = 789.03, Net.Amount = 717.30, Vat.Amount = 71.73, Vat.Rate = 10 (no decimals?) Input \"10,00%\" has two decimals; rule 5 says extract rates without % — keep format of decimals? It says \"Extract rates without the percentage symbol (e.g., '19%' as '19').\" Example shows integer. But input \"10,00%\" — ambiguous. To be consistent with rule to keep decimals same, Vat.Rate could be 10,00 but schema expects number. Best consistent numeric value: 10.00.\n\n6) Resolve final field values to output later\n- GrandTotal.Amount: 789.03\n- Invoice.Date: \"01.02.2024\"\n- Sender.VatId: \"ATU65161022\"\n- Vat.Rate: 10.00 (represented as number)\n- Net.Amount: 717.30\n- Vat.Amount: 71.73\n\n7) No inference used beyond visible text; multiple occurrences checked (recipient VAT present but not used for Sender.VatId).",
+    "step2": "GrandTotal.Amount — 789.03: High confidence (clear line \"Rechnungsbetrag 789,03 EUR\" matching total; formatting converted to numeric).\n\nInvoice.Date — \"01.02.2024\": High confidence (explicit \"vom 01.02.2024\" next to invoice number).\n\nSender.VatId — \"ATU65161022\": High confidence (VAT printed next to seller header \"Konditorei Haderer GmbH ... ATU65161022\").\n\nVat.Rate — 10.00: High confidence (line \"+ 10,00% USt. von 717,30\" clearly states VAT rate; represented numerically as 10.00 to preserve decimals).\n\nNet.Amount — 717.30: High confidence (line \"Nettobetrag 717,30 EUR\" explicitly shows net amount).\n\nVat.Amount — 71.73: High confidence (line shows \"71,73 EUR\" as VAT amount corresponding to 10% of 717,30)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.23,
+      "input_tokens": 2045,
+      "cached_input_tokens": null,
+      "output_tokens": 994,
+      "total_tokens": 3039,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.53,
+      "input_tokens": 2726,
+      "cached_input_tokens": null,
+      "output_tokens": 406,
+      "total_tokens": 3132,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.59,
+      "input_tokens": 3209,
+      "cached_input_tokens": null,
+      "output_tokens": 219,
+      "total_tokens": 3428,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274158\\274155_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU65161022",
+        "ATU65161022"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        789.03,
+        "789,03"
+      ],
+      "Net.Amount": [
+        true,
+        717.3,
+        "717,30"
+      ],
+      "Vat.Amount": [
+        true,
+        71.73,
+        "71,73"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "01.02.2024",
+        "01.02.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7980,
+    "cached_input_tokens": 0,
+    "output_tokens": 1619,
+    "eur_estimate": 0.004556
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\187181\\187165_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 256.38,
+    "Invoice.Date": "04.05.2023",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": 10,
+    "Net.Amount": 233.07,
+    "Vat.Amount": 23.31
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.8,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Highly likely",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Summary of extraction approach and findings (concise):\n\n- Document classification: contains header \"Rechnung\" and invoice elements (Rechnungs-Nr., Rechnungsdatum, USTID, line items, Zwischensumme, MwSt, Rechnungsbetrag) → classified as invoice.\n\n- Located fields:\n  - Invoice.Date: \"04.05.2023\"\n  - Sender.VatId (USTID): \"ATU 22642807\" (normalized as ATU22642807)\n  - Vat.Rate: \"10,00 %\" appears for the goods group (tax legend shows (H) = reduced rate); treat as 10 (per rule: no % symbol)\n  - Net.Amount: \"233,07\" appears as Zwischensumme / Warenwert\n  - Vat.Amount: \"23,31\"\n  - GrandTotal.Amount: \"256,38\" (labelled \"Rechnungsbetrag EUR 256,38\"; note another Rechnungsbetrag EUR 248,69 appears as amount after skonto — the clearly displayed final \"Rechnungsbetrag EUR 256,38\" is taken as grand total)\n\n- Ambiguities checked:\n  - Two Rechnungsbetrag values present (248,69 and 256,38). 256,38 is the higher final total explicitly labelled; 248,69 appears as \"Rechnungsbetrag EUR 248,69\" near skonto calculations. I mark 256,38 as GrandTotal based on its placement next to \"Rechnungsbetrag EUR 256,38\" and the displayed VAT line (23,31) that sums with net 233,07 to 256,38.\n  - VAT rate preserved as \"10\" (no %), numeric amounts retain original decimals and comma decimal separators will be converted to numeric with dot when producing JSON.\n\nI will now produce the final JSON extraction.",
+    "step2": "Invoice.Date: 95% — Clear label \"Rechnungsdatum: 04.05.2023\" present.\n\nSender.VatId: 95% — \"USTID: ATU 22642807\" clearly shown; normalized formatting reliable.\n\nVat.Rate: 90% — \"MwSt (10,00 %)\" and line-item legend (H) = reduced rate support 10% rate for amounts shown.\n\nNet.Amount: 90% — \"Zwischensumme EUR 233,07\" and \"Warenwert (10,00 %) 233,07\" clearly match.\n\nVat.Amount: 90% — \"MwSt (10,00 %) 23,31\" explicitly shown.\n\nGrandTotal.Amount: 80% — Two \"Rechnungsbetrag\" values appear (248,69 and 256,38). 256,38 is labeled as \"Rechnungsbetrag EUR 256,38\" near VAT line and sums 233,07 + 23,31 = 256,38, so chosen as grand total; moderate residual ambiguity due to presence of 248,69 in skonto context."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.94,
+      "input_tokens": 2282,
+      "cached_input_tokens": null,
+      "output_tokens": 966,
+      "total_tokens": 3248,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.55,
+      "input_tokens": 2719,
+      "cached_input_tokens": null,
+      "output_tokens": 496,
+      "total_tokens": 3215,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.3,
+      "input_tokens": 3259,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3540,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\187181\\187165_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU38510009"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        256.38,
+        "256,38"
+      ],
+      "Net.Amount": [
+        true,
+        233.07,
+        "233,07"
+      ],
+      "Vat.Amount": [
+        true,
+        23.31,
+        "23,31"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "04.05.2023",
+        "04.05.2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 8260,
+    "cached_input_tokens": 0,
+    "output_tokens": 1743,
+    "eur_estimate": 0.004833
+  }
+}

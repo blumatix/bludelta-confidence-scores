@@ -1,0 +1,98 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198793\\198793_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 863.0,
+    "Invoice.Date": "10.03.2023",
+    "Sender.VatId": "SK2020437331",
+    "Vat.Rate": 0,
+    "Net.Amount": 863.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.85,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Highly likely",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will determine whether this is an invoice and extract required fields by comparing alternative interpretations and evidence from the text.\n\n1) Document classification (invoice vs non-invoice)\n- Positive invoice indicators present: header \"RECHNUNG\" (German for invoice), \"Rechnung Nr.: 202360462\", invoice-like sections (Lieferant, Kunde, Bank, IBAN), line-item descriptions with \"Preis ohne MWSt\", \"Fälligkeitsdatum\", \"Ausstellungsdatum\", \"Leistungsdatum\", and totals. No prominent exclusion terms like \"Zahlungserinnerung\" or \"Mahnung\" in the header/upper half.\n- Conclusion: document is an invoice.\n\n2) Identify candidate values and note ambiguities\n- Invoice date candidates:\n  - \"Ausstellungsdatum: 10.03.2023\" — explicit issue date.\n  - \"Datum des Versands: 10.03.2023\" and \"Leistungsdatum: 08.03.2023\" — different date types present, but \"Ausstellungsdatum\" matches requested \"Issue date\".\n  - Decision: use Ausstellungsdatum 10.03.2023 for Invoice.Date.\n\n- Sender VAT ID candidates:\n  - \"VAT ID: SK2020437331\" and earlier \"VAT. 2020437331\" — clear sender VAT-ID is SK2020437331.\n  - Decision: Sender.VatId = \"SK2020437331\".\n\n- Grand total / total payable:\n  - Lines showing amounts:\n    - \"Frachtpreis ... 0 % 863.00 EUR\"\n    - \"Total Preis: 863.00 EUR\"\n    - Later section shows inconsistent numbers: under MWSt summary \"0% 883.00 EUR\" and \"Total 883.00 EUR\", but final \"Totalprels 863.00 EUR\" appears (likely OCR or layout duplication).\n  - Two plausible totals: 863.00 and 883.00. Which is best-supported?\n    - The immediate line-item and \"Total Preis\" both state 863.00 EUR.\n    - The 883.00 EUR appears only in a summary block possibly affected by OCR misread (and conflicts with explicit \"Total Preis\" and \"Totalprels 863.00 EUR\").\n  - Rule: no guessing; choose the value explicitly labeled \"Total Preis\" and repeated as \"Totalprels 863.00 EUR\".\n  - Decision: GrandTotal.Amount = 863.00.\n\n- VAT rate and VAT amount:\n  - Line item shows \"0 %\" in the MWSt (%) column next to freight price.\n  - Text states \"Ohne umsatzsteuer LAUT §15 ... - Reverse-Charge\" — indicates 0% VAT charged on invoice.\n  - VAT amount is shown as \"0.00 EUR\" in an \"Anzahlung\" / total area or implied by 0% on 863.00.\n  - Ambiguity: summary shows \"0% 883.00 EUR\" (discrepant amount), but VAT percentage is consistently 0%.\n  - Decision: Vat.Rate = 0; Vat.Amount = 0.00.\n\n- Net amount (amount excluding VAT):\n  - For 0% VAT, net amount equals the invoice total.\n  - Explicit column header \"Preis ohne MWSt\" shows 863.00 EUR adjacent to the freight line and \"Total Preis: 863.00 EUR\".\n  - Decision: Net.Amount = 863.00.\n\n3) Preserve formatting and decimals\n- Use numbers with the same decimal places as in the text (two decimals).\n\n4) Apply \"No Inference\" where uncertain\n- When values conflicted (863.00 vs 883.00), I selected the values explicitly labeled \"Total Preis\" and matching line-item price rather than inferring from the conflicting summary, as required.\n\nSummary of extracted, evidence-supported values chosen for final output:\n- Invoice.Date: \"10.03.2023\" (Ausstellungsdatum)\n- Sender.VatId: \"SK2020437331\"\n- GrandTotal.Amount: 863.00 (from \"Total Preis: 863.00 EUR\")\n- Net.Amount: 863.00 (from \"Preis ohne MWSt\" and totals)\n- Vat.Rate: 0 (explicit \"0 %\", plus reverse-charge note)\n- Vat.Amount: 0.00 (0% of 863.00; also shown as 0.00 in totals)",
+    "step2": "Invoice.Date: 95% — Explicit \"Ausstellungsdatum: 10.03.2023\".\nSender.VatId: 98% — Explicit \"VAT ID: SK2020437331\".\nGrandTotal.Amount: 85% — \"Total Preis: 863.00 EUR\" supported by line-item, but conflicting 883.00 in another summary introduces uncertainty.\nNet.Amount: 90% — \"Preis ohne MWSt\" shows 863.00 EUR; consistent with line-item and total.\nVat.Rate: 95% — Explicit \"0 %\" and \"Reverse-Charge\" statement.\nVat.Amount: 90% — Implied 0.00 EUR (0% of total) and 0.00 shown in totals."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 14.04,
+      "input_tokens": 1976,
+      "cached_input_tokens": null,
+      "output_tokens": 1380,
+      "total_tokens": 3356,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.77,
+      "input_tokens": 2955,
+      "cached_input_tokens": null,
+      "output_tokens": 479,
+      "total_tokens": 3434,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.66,
+      "input_tokens": 3414,
+      "cached_input_tokens": null,
+      "output_tokens": 345,
+      "total_tokens": 3759,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198793\\198793.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "SK2020437331",
+        "SK2020437331"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        863.0,
+        "863.00"
+      ],
+      "Net.Amount": [
+        false,
+        863.0,
+        "883.00"
+      ],
+      "Vat.Rate": [
+        true,
+        0,
+        "0"
+      ],
+      "Invoice.Date": [
+        true,
+        "10.03.2023",
+        "10.03.2023"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 5,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 8345,
+    "cached_input_tokens": 0,
+    "output_tokens": 2204,
+    "eur_estimate": 0.001189
+  }
+}

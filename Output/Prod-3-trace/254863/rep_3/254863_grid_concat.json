@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\254863\\254863_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 14275.8,
+    "Invoice.Date": "22.11.2023",
+    "Sender.VatId": "ATU39247604",
+    "Vat.Rate": 10,
+    "Net.Amount": 12978.0,
+    "Vat.Amount": 1297.8
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Summary of extraction steps and findings (concise, non-sensitive):\n\n- Document classification: contains clear invoice indicators (\"RECHNUNG\", \"Nr.\", \"Datum\", \"Umsatzsteuer\", \"Endbetrag\") and no exclusion headers — proceed as invoice.\n\n- Locate invoice date: \"Datum: 22.11.2023\" → Invoice.Date = 22.11.2023.\n\n- Locate total amounts:\n  - \"Endbetrag EUR 14.275,80\" → GrandTotal.Amount = 14.275,80 (interpreted as 14275.80).\n  - \"Zwischensumme Waren: EUR 12.978,00\" and \"Summe Positionen 12.978,00\" → Net.Amount = 12.978,00 (12978.00).\n  - \"Umsatzsteuer ... 1.297,80\" → Vat.Amount = 1.297,80 (1297.80).\n\n- Locate VAT rate: line shows \"Umsatzsteuer 10,000 %\", interpreted as 10% → Vat.Rate = 10 (per rule: omit %).\n\n- Locate sender VAT ID: bottom block \"UID-Nr.: ATU39247604\" → Sender.VatId = ATU39247604.\n  - Note: another UID appears (\"Ihre UID Nr.: ATU22642807\") — treated as customer UID, not sender.\n\n- No contradictions found; numeric formatting in source uses comma as decimal separator. Will preserve decimal places as in source when producing final JSON.",
+    "step2": "- GrandTotal.Amount (14.275,80): High confidence. \"Endbetrag EUR 14.275,80\" is explicit and matches subtotal + VAT (12.978,00 + 1.297,80 = 14.275,80).\n\n- Invoice.Date (22.11.2023): Very high confidence. Clear label \"Datum: 22.11.2023\".\n\n- Sender.VatId (ATU39247604): High confidence. Footer shows \"UID-Nr.: ATU39247604\" associated with Berglandmilch (sender). Minor ambiguity because another UID (ATU22642807) appears as \"Ihre UID Nr.\" for the customer, but context indicates ATU39247604 is sender.\n\n- Vat.Rate (10): High confidence. \"Umsatzsteuer 10,000 %\" appears; interpreted as 10% per rule to remove percent sign. Formatting with three decimals is OCR artifact but meaning is clear.\n\n- Net.Amount (12.978,00): High confidence. \"Zwischensumme Waren: EUR 12.978,00\" and \"Summe Positionen 12.978,00\" both show this net value.\n\n- Vat.Amount (1.297,80): High confidence. Line shows VAT amount \"1.297,80\" corresponding to 10% of 12.978,00."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.57,
+      "input_tokens": 2015,
+      "cached_input_tokens": null,
+      "output_tokens": 772,
+      "total_tokens": 2787,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.61,
+      "input_tokens": 2386,
+      "cached_input_tokens": null,
+      "output_tokens": 352,
+      "total_tokens": 2738,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.12,
+      "input_tokens": 2974,
+      "cached_input_tokens": null,
+      "output_tokens": 284,
+      "total_tokens": 3258,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\254863\\254863_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU39247604",
+        "ATU39247604"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        14275.8,
+        "14.275,80"
+      ],
+      "Net.Amount": [
+        true,
+        12978.0,
+        "12.978,00"
+      ],
+      "Vat.Amount": [
+        true,
+        1297.8,
+        "1.297,80"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,000"
+      ],
+      "Invoice.Date": [
+        true,
+        "22.11.2023",
+        "22.11.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7375,
+    "cached_input_tokens": 0,
+    "output_tokens": 1408,
+    "eur_estimate": 0.004058
+  }
+}

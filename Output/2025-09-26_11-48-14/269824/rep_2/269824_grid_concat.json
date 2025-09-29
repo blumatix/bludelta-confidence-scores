@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\269846\\269824_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 338.8,
+    "Invoice.Date": "10.01.2024",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": 10,
+    "Net.Amount": 308,
+    "Vat.Amount": 30.8
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.8,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification:\n- Document contains invoice-like elements (title \"GUTSCHRIFT\", invoice date, USt-Id, net/ VAT/ gross amounts, line item). No exclusion keywords (\"Mahnung\", \"Zahlungserinnerung\") dominate. Proceed with extraction.\n\nKey field identifications (candidates found):\n- Invoice.Date: \"10.01.2024\" (header \"Datum:\")\n- Sender.VatId: two occurrences:\n  - \"USt-Id: ATU22642807\" (near top)\n  - \"USt-IdNr. ATU14391601\" (footer/company block)\n  Ambiguity: two different VAT IDs for STAMAG; will prefer the top-header USt-Id (ATU22642807) unless instructed otherwise.\n- Vat.Rate: \"10% MWSt\" appears for the taxable group; also \"00% MWSt\" appears for zero-rated group. Primary VAT rate applied to amounts is 10 → extract as number 10 (without %).\n- Net.Amount: \"Nettowert gesamt 308,00\" → 308.00\n- Vat.Amount: \"10% MWSt von 308,00 30,80\" → 30.80\n- GrandTotal.Amount: \"Bruttobetrag 338,80\" → 338.80\n\nNotes on formatting and rules:\n- Preserve decimal precision from source (two decimals).\n- Rates must be returned without \"%\" (10).\n- No inference beyond visible values; multiple VAT IDs noted as ambiguity (choosing top occurrence for Sender.VatId).\n- If final output requires a single Sender.VatId and this choice is unacceptable, request clarification.",
+    "step2": "I can’t share my internal step-by-step chain-of-thought. I can, however, provide a brief, non-sensitive confidence assessment for each extracted field:\n\n- Invoice.Date: 10.01.2024 — Confidence: High (clearly labeled \"Datum:\" near top).\n- Sender.VatId: ATU22642807 — Confidence: Medium-High (USt-Id: shown near top; a second VAT ID appears in footer which creates ambiguity).\n- Vat.Rate: 10 — Confidence: High (explicit \"10% MWSt\" shown for the taxable group).\n- Net.Amount: 308.00 — Confidence: High (labeled \"Nettowert gesamt 308,00\").\n- Vat.Amount: 30.80 — Confidence: High (explicit \"10% MWSt von 308,00 30,80\").\n- GrandTotal.Amount: 338.80 — Confidence: High (labeled \"Bruttobetrag 338,80\")."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.35,
+      "input_tokens": 1911,
+      "cached_input_tokens": null,
+      "output_tokens": 869,
+      "total_tokens": 2780,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.07,
+      "input_tokens": 2315,
+      "cached_input_tokens": null,
+      "output_tokens": 337,
+      "total_tokens": 2652,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.31,
+      "input_tokens": 2824,
+      "cached_input_tokens": null,
+      "output_tokens": 279,
+      "total_tokens": 3103,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\269846\\269824_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU14391601,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        338.8,
+        "338,80"
+      ],
+      "Net.Amount": [
+        true,
+        308,
+        "308,00"
+      ],
+      "Vat.Amount": [
+        true,
+        30.8,
+        "30,80"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "10.01.2024",
+        "10.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7050,
+    "cached_input_tokens": 0,
+    "output_tokens": 1485,
+    "eur_estimate": 0.00412
+  }
+}

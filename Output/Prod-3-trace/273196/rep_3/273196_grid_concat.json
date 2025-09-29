@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\273196\\273196_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1931.78,
+    "Invoice.Date": "24.01.2024",
+    "Sender.VatId": "ATU63306577",
+    "Vat.Rate": 10,
+    "Net.Amount": 1756.16,
+    "Vat.Amount": 175.62
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 1.0,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 1.0,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Reasoning step-by-step:\n\n1. Document classification\n   - The document contains the word \"Rechnung\" (Invoice) prominently and invoice-like sections (Nr., Datum, Nettobetrag, Mehrwertsteuer, Bruttobetrag, Zahlungsbedingung, Lieferadresse). No exclusion indicators like \"Zahlungserinnerung\" or \"Mahnung\" dominate. Therefore classify as an invoice and proceed.\n\n2. Locate invoice fields\n   - Invoice.Date: Found near top right: \"Datum: 24.01.2024\".\n   - Grand total: Look for Bruttobetrag (gross amount). Page 2 shows \"Bruttobetrag EUR 1.931,78\" → GrandTotal.Amount = 1.931,78 (convert comma to decimal point for numeric value: 1931.78).\n   - Net amount: Page 2 shows \"Nettobetrag EUR 1.756,16\" → Net.Amount = 1756.16.\n   - VAT rate: Page 2 shows \"Mehrwertsteuer 10%\" and an aligned \"10,00 %\". Per rules, extract rate without % → Vat.Rate = 10.\n   - VAT amount: Page 2 shows \"Mehrwertsteuer ... 175,62\" → Vat.Amount = 175.62.\n   - Sender.VatId: Need VAT ID of the sender (invoice issuer). The document header/footer contains UID lines. There are two UID-like numbers:\n     - Near customer block: \"UID: ATU22642807\" — this is adjacent to \"Kunde Nr.\" block, so likely the customer's UID.\n     - Footer: \"UID-Nr.: ATU 63 30 65 77\" appears with company identifiers and GLN and EORI — likely belonging to the issuer Salzburg Schokolade GmbH. According to structured-header matching, the sender is Salzburg Schokolade GmbH (top of document) and the footer UID corresponds to the sender. Normalize spacing: \"ATU63306577\".\n   - Verify no other totals or exchange rates applicable to entire invoice: only one VAT group present (10%) and totals consistent: 1,756.16 + 175.62 = 1,931.78.\n\n3. Check rules and constraints\n   - No fields are inferred; all extracted values appear explicitly.\n   - Preserve decimals as in source (two decimals).\n   - VAT rate returned without percent sign.\n   - All required schema fields have values based on document content.\n\nConclusion: fields to output: Invoice.Date = \"24.01.2024\"; GrandTotal.Amount = 1931.78; Net.Amount = 1756.16; Vat.Amount = 175.62; Vat.Rate = 10; Sender.VatId = \"ATU63306577\".",
+    "step2": "GrandTotal.Amount (1931.78)\n- Evidence: \"Bruttobetrag EUR 1.931,78\" on page 2. Calculation check: Nettobetrag 1.756,16 + Mehrwertsteuer 175,62 = 1.931,78 matches.\n- Potential issues: comma-to-dot conversion and numeric parsing are straightforward.\n- Confidence: 99%\n\nInvoice.Date (\"24.01.2024\")\n- Evidence: \"Datum: 24.01.2024\" clearly printed near top.\n- Potential issues: none apparent.\n- Confidence: 100%\n\nSender.VatId (\"ATU63306577\")\n- Evidence: Footer lists \"UID-Nr.: ATU 63 30 65 77\" alongside company identifiers; header shows company name \"Salzburg Schokolade GmbH\". Formatting normalized by removing spaces.\n- Potential issues: There is another UID (\"UID: ATU22642807\") near the customer block; risk of confusing sender vs. recipient UID. However placement in footer with issuer company details strongly indicates sender UID.\n- Confidence: 90%\n\nVat.Rate (10)\n- Evidence: \"Mehrwertsteuer 10%\" and \"10,00 %\" shown on page 2.\n- Potential issues: none; single VAT group.\n- Confidence: 100%\n\nNet.Amount (1756.16)\n- Evidence: \"Nettobetrag EUR 1.756,16\" on page 2.\n- Potential issues: comma-to-dot conversion only.\n- Confidence: 99%\n\nVat.Amount (175.62)\n- Evidence: \"Mehrwertsteuer ... 175,62\" shown next to VAT line; also sums correctly with net to gross.\n- Potential issues: comma-to-dot conversion only.\n- Confidence: 99%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 25.19,
+      "input_tokens": 2485,
+      "cached_input_tokens": null,
+      "output_tokens": 906,
+      "total_tokens": 3391,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.14,
+      "input_tokens": 3118,
+      "cached_input_tokens": null,
+      "output_tokens": 373,
+      "total_tokens": 3491,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.69,
+      "input_tokens": 3791,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 4074,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\273196\\273196_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU63306577",
+        "ATU 63 30 65 77"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1931.78,
+        "1.931,78"
+      ],
+      "Net.Amount": [
+        true,
+        1756.16,
+        "1.756,16"
+      ],
+      "Vat.Amount": [
+        true,
+        175.62,
+        "175,62"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "24.01.2024",
+        "24.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 9394,
+    "cached_input_tokens": 0,
+    "output_tokens": 1562,
+    "eur_estimate": 0.004769
+  }
+}

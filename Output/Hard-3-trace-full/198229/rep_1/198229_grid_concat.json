@@ -1,0 +1,112 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198229\\198229_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 760.0,
+    "Invoice.Date": "2023-03-16",
+    "Sender.VatId": "PL7161677697",
+    "Vat.Rate": "",
+    "Net.Amount": 760.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.85,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Highly likely",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: document qualifies as an invoice (contains \"INVOICE\", invoice-like headers, invoice totals, VAT summary).\n\nPlanned extraction steps (high-level, no internal chain-of-thought):\n- Verify invoice presence via headers and terms (\"INVOICE\", \"Faktura\", totals, VAT).\n- Locate sender VAT/Tax ID near seller block: found \"NIP PL7161677697\".\n- Determine invoice date: available dates include a malformed header \"34/03/2023\", \"Data sprzedaży: 2023-03-16\", and due date \"Płatne do dnia: 2023-04-16\". Choose \"2023-03-16\" (Data sprzedaży) as Invoice.Date.\n- Extract Grand Total: \"Do zapłaty: 760,00 EUR\" → GrandTotal.Amount = 760.00 (preserve decimals).\n- Extract net and VAT group amounts from VAT summary (EUR): Netto(EUR) 760,00 and VAT 0,00 → Net.Amount = 760.00, Vat.Amount = 0.00.\n- VAT rate: marked \"np\" (exempt / not applicable) — no numeric percentage present → Vat.Rate left empty per No Inference rule.\n- Ensure numeric fields are returned as numbers (keeping two decimals as in source) and string/date fields as strings; leave any unavailable fields empty.\n\nNext step upon confirmation: output final JSON with these extracted values.",
+    "step2": "GrandTotal.Amount — Confidence: high (0.9)\n- Evidence: \"Do zapłaty: 760,00 EUR\" clearly indicates total payable 760,00 EUR with matching BRUTTO and SUMA lines.\n\nInvoice.Date — Confidence: high (0.85)\n- Evidence: \"Data sprzedaży: 2023-03-16\" explicitly labeled as sale date; other dates present (due date, header \"34/03/2023\" appears invalid) but chosen field matches standard invoice \"data sprzedaży\".\n\nSender.VatId — Confidence: high (0.95)\n- Evidence: Seller block shows \"NIP PL7161677697\" clearly indicating VAT/Tax ID.\n\nVat.Rate — Confidence: high (0.9) for being blank\n- Evidence: VAT column/summary shows \"np\" (exempt/not applicable) and no numeric percent present; per No Inference rule, leaving empty is correct.\n\nNet.Amount — Confidence: high (0.9)\n- Evidence: Netto(EUR) shown as \"760,00\" in VAT summary and line item NETTO 760,00 matching totals.\n\nVat.Amount — Confidence: high (0.9)\n- Evidence: VAT shown as \"0,00\" in VAT summary and summaries; indicates zero VAT amount."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.04,
+      "input_tokens": 5204,
+      "cached_input_tokens": null,
+      "output_tokens": 815,
+      "total_tokens": 6019,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.18,
+      "input_tokens": 5554,
+      "cached_input_tokens": null,
+      "output_tokens": 465,
+      "total_tokens": 6019,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.53,
+      "input_tokens": 6127,
+      "cached_input_tokens": null,
+      "output_tokens": 279,
+      "total_tokens": 6406,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198229\\198229.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "PL7161677697",
+        [
+          "PL7161677697",
+          "PL7161677697"
+        ]
+      ],
+      "GrandTotal.Amount": [
+        true,
+        760.0,
+        "760,00"
+      ],
+      "Net.Amount": [
+        false,
+        760.0,
+        [
+          "760,00",
+          "3 573,14"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        [
+          "0,00",
+          "0,00"
+        ]
+      ],
+      "Vat.Rate": [
+        false,
+        "",
+        []
+      ],
+      "Invoice.Date": [
+        false,
+        "2023-03-16",
+        "2023-03-17"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 16885,
+    "cached_input_tokens": 0,
+    "output_tokens": 1559,
+    "eur_estimate": 0.00139
+  }
+}

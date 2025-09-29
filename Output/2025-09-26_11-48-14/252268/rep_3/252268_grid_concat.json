@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\252322\\252268_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 4774.46,
+    "Invoice.Date": "2023-11-14",
+    "Sender.VatId": "ATU31800708",
+    "Vat.Rate": 10,
+    "Net.Amount": 4340.42,
+    "Vat.Amount": 434.04
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (1) confirm this is an invoice (presence of \"Rechnung\", invoice number, totals, VAT lines); (2) locate explicit fields without guessing; (3) extract exact textual numeric values preserving decimals.\n\nObservations and candidate field matches from the text:\n- Invoice indicators present: \"Rechnung\", \"Rechnungsadresse\", invoice number \"2321187\" (printed near \"Rechnung\"), delivery/your order dates, line items, totals, VAT lines.\n- Invoice date: \"Stans, 2023-11-14\" — candidate Invoice.Date = \"2023-11-14\".\n- Sender VAT ID: \"Darbo-UID-Nr.: ATU31800708\" — candidate Sender.VatId = \"ATU31800708\".\n- VAT rate: \"MWSt ... 10,00\" and \"MWSt 10,00\" next to VAT amount — candidate Vat.Rate = 10.00 (store as number without %).\n- Net amount: \"MWSt-Basis 1 4.340,42\" — candidate Net.Amount = 4340.42 (preserve two decimals as in source; note source uses comma for decimals).\n- VAT amount: \"MWSt 10,00 434,04\" — candidate Vat.Amount = 434.04.\n- Grand total: \"Endbetrag EUR 4.774,46\" — candidate GrandTotal.Amount = 4774.46.\n\nNo exclusion indicators (e.g., \"Mahnung\") dominate; document qualifies as an invoice. I will not infer any missing fields and will preserve the decimal formatting when producing the final JSON.",
+    "step2": "GrandTotal.Amount (4774.46)\n- Evidence: \"Endbetrag                                                                 EUR                       4.774,46\"\n- Confidence: Very high. The label \"Endbetrag\" clearly corresponds to invoice total and value matches subtotal + VAT (4.340,42 + 434,04 = 4.774,46).\n- Uncertainties: None apparent.\n\nInvoice.Date (\"2023-11-14\")\n- Evidence: \"Stans,        2023-11-14\" near header; also \"Lieferschein-Nr. 582309 vom 2023-11-14\" and \"Ihr Auftrag: 32313249 vom: 2023-11-09\".\n- Confidence: High that 2023-11-14 is the invoice issue date (placed next to location and typical invoice date placement).\n- Uncertainties: Possible ambiguity between order date (2023-11-09) and the printed \"Stans, 2023-11-14\", but the latter is standard invoice date.\n\nSender.VatId (\"ATU31800708\")\n- Evidence: \"Darbo-UID-Nr.:                   ATU31800708\" and \"UID-Nr.: ATU31800708\" in footer.\n- Confidence: Very high. Clear label for sender VAT/UID matches company.\n\nVat.Rate (10.00)\n- Evidence: \"MWSt             10,00\" shown in VAT line; VAT percent displayed as 10,00.\n- Confidence: High. Single VAT group shown with 10,00 clearly linked to VAT base/amount.\n- Uncertainties: None significant.\n\nNet.Amount (4340.42)\n- Evidence: \"MWSt-Basis                 1                                        4.340,42\" and \"Auftragssumme                                                                                       4.340,42\"\n- Confidence: Very high. Matches the taxable base used to compute VAT line and subtotal.\n- Uncertainties: None apparent.\n\nVat.Amount (434.04)\n- Evidence: \"MWSt             10,00                                                                                  434,04\"\n- Confidence: Very high. VAT amount equals 10% of 4.340,42 (mathematically consistent given rounding).\n- Uncertainties: Minor rounding conventions (comma vs dot) but numeric value clear.\n\nOverall consistency check:\n- Net.Amount + Vat.Amount = 4.340,42 + 434,04 = 4.774,46 equals GrandTotal.Amount — consistent."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.44,
+      "input_tokens": 2020,
+      "cached_input_tokens": null,
+      "output_tokens": 664,
+      "total_tokens": 2684,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.75,
+      "input_tokens": 2411,
+      "cached_input_tokens": null,
+      "output_tokens": 580,
+      "total_tokens": 2991,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.72,
+      "input_tokens": 3227,
+      "cached_input_tokens": null,
+      "output_tokens": 219,
+      "total_tokens": 3446,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\252322\\252268_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU31800708",
+        "ATU31800708"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        4774.46,
+        "4.774,46"
+      ],
+      "Net.Amount": [
+        true,
+        4340.42,
+        "4.340,42"
+      ],
+      "Vat.Amount": [
+        true,
+        434.04,
+        "434,04"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "2023-11-14",
+        "2023-11-14"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7658,
+    "cached_input_tokens": 0,
+    "output_tokens": 1463,
+    "eur_estimate": 0.004216
+  }
+}

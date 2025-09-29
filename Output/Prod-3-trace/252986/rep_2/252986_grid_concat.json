@@ -1,0 +1,130 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\253031\\252986_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 57381.5,
+    "Invoice.Date": "16-11-2023",
+    "Sender.VatId": "ATU43349701",
+    "Vat.Rate": [
+      10,
+      20
+    ],
+    "Net.Amount": [
+      51027.61,
+      1042.61
+    ],
+    "Vat.Amount": [
+      5102.76,
+      208.52
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.8,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Highly likely",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (1) verify this is an invoice by checking for invoice keywords and totals, (2) locate invoice date, UID/VAT IDs, tax group rates and amounts, net amount and grand total, and (3) avoid guessing missing values.\n\nEvidence and extraction targets found in the text:\n- Document classification: contains \"RECHNUNG\" / \"Rechnung\" and explicit totals → classify as invoice.\n- Invoice date: \"16-11-2023\" appears near \"Rechnung\" / page headers.\n- Grand total / Endbetrag: \"Endbetrag EUR 57.381,50\" and a subtotal line \"Auftragssumme 52.070,22\".\n- Tax groups: lines show \"+ 10 % Mehrwertsteuer 5.102,76\" and \"+ 20 % Mehrwertsteuer 208,52\" — two VAT rates 10 and 20 with corresponding VAT amounts.\n- Net amounts: The subtotal for taxable base likely 51.027,61 (shown above VAT lines) and another base 1.042,61 — context shows 51.027,61 + 1.042,61 = 52.070,22 (Auftragssumme). Likely net amounts per VAT group:\n  - For 10% VAT: Net 51.027,61, VAT 5.102,76, Rate 10\n  - For 20% VAT: Net 1.042,61, VAT 208,52, Rate 20\n- Sender VAT/UID: Sender UID appears as \"UID-Nr.: ATU 43349701\" (sender) and also \"Ihre UID: ATU22642807\" (customer). The required Sender.VatId should be the sender’s VAT: \"ATU43349701\".\n\nDecision: proceed with extraction using these explicit textual values; do not infer any other missing fields.",
+    "step2": "GrandTotal.Amount: High confidence. \"Endbetrag EUR 57.381,50\" clearly printed; matches context of totals.\n\nInvoice.Date: High confidence. \"16-11-2023\" appears adjacent to \"Rechnung\" and page headers repeatedly.\n\nSender.VatId: High confidence. \"UID-Nr.: ATU 43349701\" appears multiple times in footer as company UID — matches sender identification. (Note: another UID \"ATU22642807\" labeled \"Ihre UID\" likely customer.)\n\nVat.Rate (10): High confidence. Text shows \"+ 10 % Mehrwertsteuer 5.102,76\" explicitly.\n\nVat.Amount (10): High confidence. 5.102,76 is the VAT amount shown for 10% group.\n\nNet.Amount (10): Medium-high confidence. The line above VAT lines shows \"51.027,61\" placed such that 51.027,61 + 10% = 5.102,761 → sums to 56.130,371 which with rounding fits the presentation; also 51.027,61 is shown near VAT lines and sums with the other net to Auftragssumme 52.070,22 (see below) — placement implies it is a primary net group. Slight ambiguity from layout but strongly supported.\n\nVat.Rate (20): High confidence. Text shows \"+ 20 % Mehrwertsteuer 208,52\" explicitly.\n\nVat.Amount (20): High confidence. 208,52 is printed for 20% group.\n\nNet.Amount (20): Medium-high confidence. \"1.042,61\" appears just above \"+ 20 % Mehrwertsteuer 208,52\" and 1.042,61 + 20% = 1.042,61 + 208,522 = 1.251,132 → matches rounding to produce combined Auftragssumme when added to the other net. Placement indicates it is the net base for 20% VAT; layout could cause minor ambiguity but evidence is clear.\n\nInternal consistency check: Net 51.027,61 + Net 1.042,61 = Auftragssumme 52.070,22 (printed). VATs 5.102,76 + 208,52 = 5.311,28. Auftragssumme 52.070,22 + VATs 5.311,28 = 57.381,50 (Endbetrag) — all numbers sum correctly, increasing confidence."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.92,
+      "input_tokens": 9296,
+      "cached_input_tokens": null,
+      "output_tokens": 586,
+      "total_tokens": 9882,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.05,
+      "input_tokens": 9737,
+      "cached_input_tokens": null,
+      "output_tokens": 571,
+      "total_tokens": 10308,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 10.35,
+      "input_tokens": 10544,
+      "cached_input_tokens": null,
+      "output_tokens": 633,
+      "total_tokens": 11177,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\253031\\252986_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU43349701",
+        "ATU 43349701"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        57381.5,
+        "57.381,50"
+      ],
+      "Net.Amount": [
+        true,
+        [
+          51027.61,
+          1042.61
+        ],
+        [
+          "1.042,61",
+          "51.027,61"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        [
+          5102.76,
+          208.52
+        ],
+        [
+          "208,52",
+          "5.102,76"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        [
+          10,
+          20
+        ],
+        [
+          "20",
+          "10"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "16-11-2023",
+        "16-11-2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 29577,
+    "cached_input_tokens": 0,
+    "output_tokens": 1790,
+    "eur_estimate": 0.009604
+  }
+}

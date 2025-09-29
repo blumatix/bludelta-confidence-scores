@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\273979\\273979_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2388.1,
+    "Invoice.Date": "25.01.2024",
+    "Sender.VatId": "ATU49325305",
+    "Vat.Rate": 20,
+    "Net.Amount": 1990.08,
+    "Vat.Amount": 398.02
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Invoice indicators present: \"Rechnung\", \"Rechnungs-Nr.\", \"Belegdatum\", line items, Netto/MWSt/Brutto totals — qualifies as invoice.\n- No exclusion indicators (e.g., \"Mahnung\") prominent.\n\nPlanned extraction checklist (fields per schema) and findings from text:\n- Invoice.Date: found \"Belegdatum 25.01.2024\" → candidate \"25.01.2024\".\n- GrandTotal.Amount: found \"Brutto EUR 2.388,10\" → candidate 2.388,10.\n- Sender.VatId: found \"Unsere UID-Nr. ATU49325305\" → candidate \"ATU49325305\".\n- Vat.Rate: found \"MWSt 20 % \" → candidate 20.\n- Net.Amount: found \"Netto EUR 1.990,08\" → candidate 1.990,08.\n- Vat.Amount: found \"MWSt 20 % ... 398,02\" (shown next to MWSt line) → candidate 398,02.\n\nValidation notes / decisions:\n- Values appear with comma as decimal separator in source; schema requires numbers preserving decimals — will convert to numeric format preserving decimals (e.g., 1990.08) in final output.\n- No alternative conflicting values for these fields detected.\n- All required fields present in source; no need to leave fields empty.\n\nI will now produce the final JSON extraction using these confirmed values.",
+    "step2": "GrandTotal.Amount (2,388.10)\n- Evidence: \"Brutto EUR 2.388,10\" clearly printed under totals.\n- Consistency: Matches Netto + MWSt (1.990,08 + 398,02 = 2.388,10).\n- Confidence: 98%\n\nInvoice.Date (\"25.01.2024\")\n- Evidence: \"Belegdatum 25.01.2024\" appears twice near header.\n- Consistency: Standard invoice date field; unambiguous format.\n- Confidence: 99%\n\nSender.VatId (\"ATU49325305\")\n- Evidence: \"Unsere UID-Nr. ATU49325305\" in header (UID = VAT ID).\n- Consistency: Appears as sender identifier; no conflicting VAT IDs.\n- Confidence: 98%\n\nVat.Rate (20)\n- Evidence: \"MWSt 20 %\"\n- Consistency: VAT line shows 20% applied to net amount; formatting unambiguous. Per rules, percentage returned without \"%\" as number.\n- Confidence: 98%\n\nNet.Amount (1,990.08)\n- Evidence: \"Netto EUR 1.990,08\" printed in totals.\n- Consistency: Matches line-item sums and used to compute VAT and gross.\n- Confidence: 98%\n\nVat.Amount (398.02)\n- Evidence: VAT line shows \"MWSt 20 % ... 398,02\" adjacent to net total.\n- Consistency: 20% of 1.990,08 equals 398,016 → rounded/displayed as 398,02 consistent with invoice.\n- Confidence: 97%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.63,
+      "input_tokens": 2416,
+      "cached_input_tokens": null,
+      "output_tokens": 631,
+      "total_tokens": 3047,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.26,
+      "input_tokens": 2734,
+      "cached_input_tokens": null,
+      "output_tokens": 471,
+      "total_tokens": 3205,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.91,
+      "input_tokens": 3346,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 3693,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273979\\273979_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU49325305",
+        "ATU49325305"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        2388.1,
+        "2.388,10"
+      ],
+      "Net.Amount": [
+        true,
+        1990.08,
+        "1.990,08"
+      ],
+      "Vat.Amount": [
+        true,
+        398.02,
+        "398,02"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "25.01.2024",
+        "25.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8496,
+    "cached_input_tokens": 0,
+    "output_tokens": 1449,
+    "eur_estimate": 0.004376
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\162241\\162241_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 291.0,
+    "Invoice.Date": "04.03.2022",
+    "Sender.VatId": "ATU68067888",
+    "Vat.Rate": [
+      10,
+      20
+    ],
+    "Net.Amount": [
+      248.18,
+      12.5
+    ],
+    "Vat.Amount": [
+      24.82,
+      2.5
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Invoice indicators present: \"Rechnungskopie\", \"Rechnungsnummer: 152399\", totals, VAT table, line items. No exclusion indicators. Classify as invoice.\n\nCandidate field evidence (text fragments and decisions):\n- Invoice.Date: \"Datum: 04    03.2022\" (top right). Use 04.03.2022.\n- GrandTotal.Amount: Invoice total shown as \"Summe: 291,00 €\" and \"Offener Saldo: 291,00 €\". Use 291,00.\n- Sender.VatId: Footer shows \"UID: ATU68067888\". Use ATU68067888.\n- Vat.Rate / Net.Amount / Vat.Amount groups (VAT table):\n  - \"Mwst. 10 % 273,00 € 248,18 € 24,82 €\" → Rate 10, Net 248,18, Vat 24,82 (273,00 is gross).\n  - \"Mwst. 20 % 15,00 € 12,50E 2,50 €\" → Rate 20, Net 12,50, Vat 2,50 (15,00 gross).\n  - \"Ortstaxe AT 3,00 E 3,00 € 0,00 €\" is a tax line with 0% VAT — per schema only Vat groups: treat as VAT group with rate 0? The table labels it as \"Ortstaxe AT\" with MwSt. 0,00 € VAT amount; but no explicit rate. Because schema expects Vat.Rate numeric, and no explicit percentage is listed, do not invent a rate — leave that group out.\nNotes on rules:\n- No guessing: all extracted values are taken exactly from visible text.\n- Preserve decimal formatting as in input (e.g., 248,18; 24,82).\nNext step: produce final JSON following the schema with the extracted values.",
+    "step2": "GrandTotal.Amount: 95% — Clear matches: \"Summe: 291,00 €\" and \"Offener Saldo: 291,00 €\" appear consistently.\n\nInvoice.Date: 90% — \"Datum: 04    03.2022\" visible at top; format and placement consistent with invoice date.\n\nSender.VatId: 95% — Footer shows \"UID: ATU68067888\" explicitly.\n\nVat group 1 (Rate 10, Net 248,18, Vat 24,82):\n- Vat.Rate: 95% — \"Mwst. 10 %\" clearly listed.\n- Net.Amount: 90% — \"248,18 €\" appears in VAT table under Netto column; characters are clear.\n- Vat.Amount: 95% — \"24,82 €\" appears clearly.\n\nVat group 2 (Rate 20, Net 12,50, Vat 2,50):\n- Vat.Rate: 95% — \"Mwst. 20 %\" clearly listed.\n- Net.Amount: 90% — \"12,50\" appears (one character has minor OCR artefact \"12,50E\" but numeric value is unambiguous).\n- Vat.Amount: 95% — \"2,50 €\" appears clearly.\n\nOrtstaxe line (3,00 gross, 0,00 VAT):\n- Inclusion as a VAT group: 50% — The line shows \"Ortstaxe AT\" with Brutto 3,00, Netto 3,00, MwSt. 0,00 €, but no explicit percent rate; mapping to Vat.Rate would require assigning \"0\" which is plausible but not explicitly labeled. Risk of misinterpretation; excluded unless schema requires it."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.34,
+      "input_tokens": 1947,
+      "cached_input_tokens": null,
+      "output_tokens": 732,
+      "total_tokens": 2679,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.97,
+      "input_tokens": 2406,
+      "cached_input_tokens": null,
+      "output_tokens": 495,
+      "total_tokens": 2901,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 8.23,
+      "input_tokens": 3073,
+      "cached_input_tokens": null,
+      "output_tokens": 693,
+      "total_tokens": 3766,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\162241\\162241.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU68067888",
+        "ATU68067888"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        291.0,
+        "291,00"
+      ],
+      "Net.Amount": [
+        true,
+        [
+          248.18,
+          12.5
+        ],
+        [
+          "248,18",
+          "12,50"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        [
+          24.82,
+          2.5
+        ],
+        [
+          "24,82",
+          "2,50"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        [
+          10,
+          20
+        ],
+        [
+          "10",
+          "20"
+        ]
+      ],
+      "Invoice.Date": [
+        false,
+        "04.03.2022",
+        "04. 03.2022"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7426,
+    "cached_input_tokens": 0,
+    "output_tokens": 1920,
+    "eur_estimate": 0.001043
+  }
+}

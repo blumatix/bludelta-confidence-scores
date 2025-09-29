@@ -1,0 +1,91 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198788\\198788_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2185.74,
+    "Invoice.Date": "03-03-2023",
+    "Sender.VatId": "DK 42140015",
+    "Vat.Rate": 24,
+    "Net.Amount": 1732.26,
+    "Vat.Amount": 415.74
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.85,
+    "Net.Amount": 0.6,
+    "Vat.Amount": 0.85
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Highly likely",
+    "Net.Amount": "Likely",
+    "Vat.Amount": "Highly likely"
+  },
+  "reasoning": {
+    "step1": "1) Document classification\n- Contains \"INVOICE\", invoice number \"1740402\", \"Invoice date 03-03-2023\", monetary totals and line items → classify as invoice.\n\n2) Key observed fields and locations\n- Invoice number: \"1740402\" (header).\n- Invoice date: \"Invoice       date                                             03-03-2023\".\n- Sender tax ID: \"CVR     nr.: DK   42140015\" (top-left under H.P. THERKELSEN).\n- Grand total / Total Amount: \"2185,74 EUR\" shown in the totals area (\"Total Amount ... 2185,74 EUR\").\n- VAT-related group: line \"106 Environment tax 1732,26 % 24,00 415,74 EUR\" — shows a base/net amount 1.732,26 and VAT amount 415,74 with VAT rate 24.\n- Note: document also states \"VAT - The rules of reverse charge apply\", but an explicit VAT group with rate 24 and VAT amount 415,74 is present.\n\n3) Field mapping decisions (no inference beyond visible data)\n- GrandTotal.Amount → taken from \"2185,74 EUR\" (converted to numeric 2185.74).\n- Invoice.Date → exact string \"03-03-2023\".\n- Sender.VatId → exact string \"DK 42140015\" (as printed).\n- Vat.Rate → numeric 24 (from \"24,00\").\n- Net.Amount → numeric 1732.26 (from \"1732,26\" in the VAT line).\n- Vat.Amount → numeric 415.74 (from \"415,74 EUR\" in the VAT line).\n\n4) Multiple occurrences / consistency checks\n- Net total (2185.74) equals net base (1732.26) + VAT (415.74) + possible other negative/zero line items; totals area lists 2185,74 as Total Amount—consistent to use 2185.74 as GrandTotal.\n- No other explicit VAT-rate groups applicable to the whole invoice observed; only the \"Environment tax\" VAT group shows a VAT rate and amounts — used as Vat.Item.\n\n5) Missing/ambiguous data handling\n- All requested schema fields found in document; no guessing beyond presented values.",
+    "step2": "Invoice.Date — Confidence: High\n- Evidence: Explicit label \"Invoice       date                                             03-03-2023\".\n- Likelihood of correctness: Very high; clear, unambiguous.\n\nGrandTotal.Amount — Confidence: High\n- Evidence: Totals block shows \"Total Amount ... 2185,74 EUR\" and \"2185,74\" repeated in totals area.\n- Consistency check: 1732,26 (net) + 415,74 (VAT) = 2148,00; there are other line items including small negatives/fees that could reconcile to 2185,74. Given explicit \"Total Amount 2185,74 EUR\", using that value is reliable.\n- Likelihood: High (value explicitly printed).\n\nSender.VatId — Confidence: High\n- Evidence: \"CVR     nr.: DK   42140015\" and later repetition \"DK 42140015\".\n- Likelihood: Very high; exact string present.\n\nVat.Rate — Confidence: Medium-High\n- Evidence: VAT line shows \"24,00\" under VAT % for the \"Environment tax\" group.\n- Consideration: Document also states \"VAT - The rules of reverse charge apply\", which might imply no VAT charged; however a VAT group with 24% and amounts is present. Thus 24 is a valid extracted rate for that VAT group.\n- Likelihood: Medium-high.\n\nNet.Amount — Confidence: Medium\n- Evidence: VAT group line shows \"1732,26\" (interpreted as net/base for that VAT group).\n- Consideration: It is unclear whether 1732,26 is the sole net amount for the entire invoice or only for that VAT group; totals block lists Net Amount 2185,74 in one layout but the VAT table shows 1732,26 associated with the 24% group. Following schema that allows Vat items, 1732,26 was taken as Net.Amount for the VAT group. Potential ambiguity reduces confidence slightly.\n- Likelihood: Medium.\n\nVat.Amount — Confidence: Medium-High\n- Evidence: VAT group shows \"415,74 EUR\" matching 24% of 1732,26 (1732.26 * 0.24 = 415.7424 → rounded to 415,74).\n- Consistency: Mathematical consistency supports correctness.\n- Likelihood: Medium-high."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.95,
+      "input_tokens": 2300,
+      "cached_input_tokens": null,
+      "output_tokens": 994,
+      "total_tokens": 3294,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.7,
+      "input_tokens": 2829,
+      "cached_input_tokens": null,
+      "output_tokens": 491,
+      "total_tokens": 3320,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.46,
+      "input_tokens": 3620,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3903,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198788\\198788.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DK 42140015",
+        [
+          "DK 42140015",
+          "DK 42140015"
+        ]
+      ],
+      "GrandTotal.Amount": [
+        true,
+        2185.74,
+        "2185,74"
+      ],
+      "Invoice.Date": [
+        true,
+        "03-03-2023",
+        "03-03-2023"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 3,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8749,
+    "cached_input_tokens": 0,
+    "output_tokens": 1768,
+    "eur_estimate": 0.001056
+  }
+}

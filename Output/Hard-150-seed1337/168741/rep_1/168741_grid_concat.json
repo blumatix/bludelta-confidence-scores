@@ -1,0 +1,115 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\168741\\168741_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 131.42,
+    "Invoice.Date": "28.12.2021",
+    "Sender.VatId": "ATU39840703",
+    "Vat.Rate": 20,
+    "Net.Amount": 109.52,
+    "Vat.Amount": 21.9
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains header \"RECHNUNG\" and invoice-like elements (Invoice number, UID, line items, totals) → classify as invoice.\n- No exclusion indicators (\"Mahnung\", \"Zahlungserinnerung\", \"Servicebericht\") dominating.\n\nFields to extract and alternatives considered:\n1. GrandTotal.Amount\n   - Found \"Endsumme                                       €131,42\" → candidate total = 131,42.\n   - No other total conflicting. Choose 131.42 (preserve two decimals).\n\n2. Invoice.Date\n   - Found in header row: \"Datum 28.12.2021\" → choose \"28.12.2021\".\n   - Alternative dates in line items (01.10.2021 bis 20.12.2021) are service period, not invoice date.\n\n3. Sender.VatId\n   - Found \"UID Nummer ATU39840703\" → choose \"ATU39840703\".\n   - No other VAT/UID present.\n\n4. VAT groups (Vat.Rate, Net.Amount, Vat.Amount)\n   - MwSt-Aufteilung shows three groups:\n     - A - (20%) Netto €109,52 MwSt-Betrag €21,90\n     - B - (10%) €0,00 / €0,00\n     - C - (0%) €0,00 / €0,00\n   - Primary non-zero VAT group is A (20%). Choose:\n     - Vat.Rate = 20 (drop % per rules)\n     - Net.Amount = 109.52 (preserve two decimals)\n     - Vat.Amount = 21.90 (preserve two decimals)\n   - B and C are zero; per \"No inference\" rule, do not infer additional group entries beyond what is explicit. The selected non-zero group is most relevant.\n\nVerification:\n- All chosen values appear explicitly in the text.\n- Decimal separators converted from comma to dot for numeric representation while preserving decimal places.\n- No guessing used for missing fields.\n\nReady to output structured JSON with these extracted values.",
+    "step2": "I can’t share internal chain-of-thought, but I can provide concise confidence levels and brief evidence for each extracted field.\n\n- GrandTotal.Amount: 95% — \"Endsumme €131,42\" explicitly shown; no conflicting totals.\n- Invoice.Date: 95% — \"Datum 28.12.2021\" appears in the header row.\n- Sender.VatId: 98% — \"UID Nummer ATU39840703\" explicitly present.\n- Vat.Rate: 95% — MwSt-Aufteilung shows \"A - (20%)\"; 20 is explicit.\n- Net.Amount: 95% — MwSt-Aufteilung lists \"A - (20%) €109,52\" (net) clearly.\n- Vat.Amount: 95% — MwSt-Aufteilung lists \"A - (20%) ... €21,90\" (VAT amount) clearly."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.51,
+      "input_tokens": 1804,
+      "cached_input_tokens": null,
+      "output_tokens": 881,
+      "total_tokens": 2685,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.07,
+      "input_tokens": 2284,
+      "cached_input_tokens": null,
+      "output_tokens": 316,
+      "total_tokens": 2600,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.36,
+      "input_tokens": 2772,
+      "cached_input_tokens": null,
+      "output_tokens": 217,
+      "total_tokens": 2989,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\168741\\168741.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU39840703",
+        "ATU431765804"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        131.42,
+        "131,42"
+      ],
+      "Net.Amount": [
+        false,
+        109.52,
+        [
+          "109,52",
+          "0,00",
+          "0,00"
+        ]
+      ],
+      "Vat.Amount": [
+        false,
+        21.9,
+        [
+          "21,90",
+          "0,00",
+          "0,00"
+        ]
+      ],
+      "Vat.Rate": [
+        false,
+        20,
+        [
+          "20",
+          "0",
+          "10"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "28.12.2021",
+        "28.12.2021"
+      ]
+    },
+    "summary": {
+      "matched": 2,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 6860,
+    "cached_input_tokens": 0,
+    "output_tokens": 1414,
+    "eur_estimate": 0.000838
+  }
+}

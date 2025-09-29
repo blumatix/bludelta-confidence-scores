@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\271895\\271869_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 9072.43,
+    "Invoice.Date": "31.12.2023",
+    "Sender.VatId": "ATU64188202",
+    "Vat.Rate": 20,
+    "Net.Amount": 7526.44,
+    "Vat.Amount": 1505.29
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.92,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I can’t provide the step-by-step internal chain-of-thought. I will instead give a concise, non-sensitive summary of the extraction plan and the clear evidence found in the document that will guide the extraction:\n\n- Document classification: Contains invoice indicators (\"Honorarnote\", \"Gesamtsumme\", amounts, UID-Nummer, IBAN, invoice number and date). No exclusion indicators (\"Mahnung\", \"Zahlungserinnerung\", \"Servicebericht\") prominent. Therefore treat as an invoice.\n\n- Key observed source locations for each schema field:\n  - Invoice.Date: \"vom 31.12.2023\" (header near \"Honorarnote Nr. 23/1873\").\n  - GrandTotal.Amount: \"Gesamtsumme € 9.072,43\".\n  - Sender.VatId: Multiple UIDs present; sender UID shown as \"UID ATU 64188202\" in bank block; recipient UID shown as \"ATU63537346\" labeled \"UID-Nummer des Empfängers\". Sender VAT to use: ATU64188202.\n  - Vat groups: VAT line \"20 % Umsatzsteuer € 1.505,29\" corresponds to a 20% rate with Vat.Amount 1.505,29 and Net.Amount for that VAT group equals the preceding taxable Zwischensumme 7.526,44 (taxable amount before VAT). Note another Barauslagen USt-frei € 40,70 (VAT-exempt).\n  - Net.Amount and Vat.Amount decimals to preserve as in document (commas used; will convert to numbers with same decimal precision).\n  - No other overall exchange rates present.\n\n- Extraction rules to follow:\n  - Do not guess missing values.\n  - Preserve decimal places.\n  - Return empty strings for any missing fields.\n  - VAT rate to be returned without '%' (e.g., 20).\n\nI will now prepare the final JSON extraction following the schema and rules.",
+    "step2": "GrandTotal.Amount — 9.072,43: 95% — \"Gesamtsumme € 9.072,43\" clearly printed.\n\nInvoice.Date — \"31.12.2023\": 95% — header shows \"vom 31.12.2023\" next to Honorarnote Nr. 23/1873.\n\nSender.VatId — \"ATU64188202\": 90% — bank block lists \"UID ATU 64188202\" (there is also \"UID-Nummer des Empfängers: ATU63537346\" so sender UID chosen from bank/sender section).\n\nVat.Rate — 20: 98% — line \"20 % Umsatzsteuer € 1.505,29\" clearly indicates 20%.\n\nNet.Amount (for 20% group) — 7.526,44: 92% — the taxable Zwischensumme immediately preceding the 20% VAT line is \"€ 7.526,44\".\n\nVat.Amount (for 20% group) — 1.505,29: 98% — shown as \"20 % Umsatzsteuer € 1.505,29\"."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.29,
+      "input_tokens": 3870,
+      "cached_input_tokens": null,
+      "output_tokens": 665,
+      "total_tokens": 4535,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.03,
+      "input_tokens": 4326,
+      "cached_input_tokens": null,
+      "output_tokens": 567,
+      "total_tokens": 4893,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.87,
+      "input_tokens": 4873,
+      "cached_input_tokens": null,
+      "output_tokens": 284,
+      "total_tokens": 5157,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\271895\\271869_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU64188202",
+        "ATU 64188202,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        9072.43,
+        "9.072,43"
+      ],
+      "Net.Amount": [
+        true,
+        7526.44,
+        "7.526,44"
+      ],
+      "Vat.Amount": [
+        true,
+        1505.29,
+        "1.505,29"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "31.12.2023",
+        "31.12.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 13069,
+    "cached_input_tokens": 0,
+    "output_tokens": 1516,
+    "eur_estimate": 0.005498
+  }
+}

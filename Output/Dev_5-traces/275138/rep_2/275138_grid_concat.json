@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\275138\\275138_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 285.08,
+    "Invoice.Date": "31.01.2024",
+    "Sender.VatId": "ATU38510009",
+    "Vat.Rate": 10,
+    "Net.Amount": 259.16,
+    "Vat.Amount": 25.92
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.97,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will determine whether this is an invoice and extract the required fields.\n\n1) Document classification\n- Found explicit invoice indicators: \"Rechnung\", \"Rechnungs-Nr.\", \"Rechnungsdatum\", \"Rechnungsbetrag\", \"MwSt\", \"Warenwert\", \"Zwischensumme\", \"Skonto\".\n- No prominent exclusion terms (e.g., \"Zahlungserinnerung\", \"Mahnung\", \"Servicebericht\"). Keyword density strongly favors invoice.\n- Header sections show invoice-like structure (invoice number, date, customer, line items, totals).\n=> Classified as an invoice. Proceed with extraction.\n\n2) Locate candidate values and consider alternatives\n- Invoice date: clearly labeled \"Rechnungsdatum: 31.01.2024\" → Invoice.Date = \"31.01.2024\".\n- Grand total / total payable: two total-like figures appear:\n  - \"Rechnungsbetrag EUR 285,08\" and also \"Rechnungsbetrag EUR 276,53\" (the latter appears next to Skonto/early-payment discounted amount).\n  - Interpretation: 285,08 is the full invoice amount; 276,53 is the net after 3% Skonto. Rule: GrandTotal.Amount = Total payable amount on the invoice (use full invoice amount). Therefore GrandTotal.Amount = 285.08 (converted to numeric with dot).\n- VAT rate and amounts:\n  - Lines show \"MwSt (10,00 %) 25,92\" and \"Warenwert (10,00 %) 259,16\". The VAT group percent is 10.00%.\n  - Vat.Rate = 10 (per instruction: remove % symbol).\n  - Net.Amount for that VAT group = 259.16.\n  - Vat.Amount = 25.92.\n- Sender VAT ID:\n  - Two VAT-like IDs present:\n    - \"USTID: ATU 22642807\" near Lieferadresse (this corresponds to BÄKO-Österreich — the customer).\n    - At the company contact block for Günthart GmbH, \"ATU38510009\" appears. The invoice issuer (sender) is Günthart GmbH (header shows Günthart GmbH at top-left). Therefore Sender.VatId = \"ATU38510009\".\n- Verify decimals preserved: input shows commas; converted to numeric with same decimal precision: 259,16 → 259.16; 25,92 → 25.92; 285,08 → 285.08.\n- No inference beyond visible data; all fields mapped from explicit text.\n\n3) Final mapping chosen\n- GrandTotal.Amount = 285.08\n- Invoice.Date = \"31.01.2024\"\n- Sender.VatId = \"ATU38510009\"\n- Vat.Rate = 10\n- Net.Amount = 259.16\n- Vat.Amount = 25.92\n\nI will now produce the final JSON with these extracted values.",
+    "step2": "GrandTotal.Amount (285.08)\n- Evidence: Text shows \"Rechnungsbetrag EUR 285,08\" clearly. Alternative amount \"276,53\" is labeled as discounted amount if paid early. \n- Confidence: 95%\n\nInvoice.Date (\"31.01.2024\")\n- Evidence: Labeled \"Rechnungsdatum: 31.01.2024\".\n- Confidence: 99%\n\nSender.VatId (\"ATU38510009\")\n- Evidence: Two VAT IDs present: \"USTID: ATU 22642807\" (appears with Lieferadresse/BÄKO-Österreich — the customer) and \"ATU38510009\" in the Günthart GmbH contact block (invoice issuer). Sender aligns with Günthart GmbH at page header.\n- Ambiguity: OCR spacing could affect formatting but ID digits are clear.\n- Confidence: 90%\n\nVat.Rate (10)\n- Evidence: Totals area lists \"MwSt (10,00 %)\". Only 10% tax group shown for the invoice totals.\n- Confidence: 98%\n\nNet.Amount (259.16)\n- Evidence: \"Warenwert (10,00 %) 259,16\" listed as the net value for the 10% group.\n- Decimal/format conversion maintained.\n- Confidence: 97%\n\nVat.Amount (25.92)\n- Evidence: \"MwSt (10,00 %) 25,92\" shown as VAT for the 10% group.\n- Confidence: 97%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.77,
+      "input_tokens": 2684,
+      "cached_input_tokens": null,
+      "output_tokens": 1261,
+      "total_tokens": 3945,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.54,
+      "input_tokens": 3312,
+      "cached_input_tokens": null,
+      "output_tokens": 447,
+      "total_tokens": 3759,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.62,
+      "input_tokens": 3900,
+      "cached_input_tokens": null,
+      "output_tokens": 217,
+      "total_tokens": 4117,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\275138\\275138_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU38510009",
+        "ATU38510009"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        285.08,
+        "285,08"
+      ],
+      "Net.Amount": [
+        true,
+        259.16,
+        "259,16"
+      ],
+      "Vat.Amount": [
+        true,
+        25.92,
+        "25,92"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "31.01.2024",
+        "31.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 9896,
+    "cached_input_tokens": 0,
+    "output_tokens": 1925,
+    "eur_estimate": 0.005507
+  }
+}

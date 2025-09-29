@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198793\\198793_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 863.0,
+    "Invoice.Date": "10.03.2023",
+    "Sender.VatId": "SK2020437331",
+    "Vat.Rate": 0,
+    "Net.Amount": 863.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.75,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.8,
+    "Vat.Amount": 0.85
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Very good chance",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Highly likely",
+    "Vat.Amount": "Highly likely"
+  },
+  "reasoning": {
+    "step1": "Sorry—I can’t share my internal step-by-step chain-of-thought. I can, however, provide a concise, high-level summary of the extraction plan and the key observed data points and ambiguities to be resolved before producing the final structured output:\n\nSummary of extraction plan:\n- Confirm document is an invoice (presence of \"RECHNUNG\", invoice number, totals, VAT references).\n- Extract Invoice.Date from labeled dates (Ausstellungsdatum / Leistungsdatum / Versanddatum) with priority to \"Ausstellungsdatum\".\n- Extract Sender.VatId from VAT ID fields near supplier.\n- Extract GrandTotal.Amount from clearly labeled totals (prefer explicit \"Total Preis\" / \"Totalprels\" lines).\n- Extract VAT groups: find VAT rate(s) and corresponding Net.Amount and Vat.Amount for each group; if only a single group present, return one entry.\n- Do not guess when values conflict or are ambiguous; leave fields empty in that case.\n\nObserved candidate values and ambiguities:\n- Invoice indicator: \"RECHNUNG\" present — document appears to be an invoice.\n- Invoice number: \"202360462\" (header) — noted but not requested yet.\n- Invoice dates:\n  - Ausstellungsdatum: 10.03.2023 (candidate for Invoice.Date)\n  - Leistungsdatum: 08.03.2023\n  - Versanddatum: 10.03.2023\n- Sender VAT ID: \"SK2020437331\" (labeled \"VAT ID\")\n- Grand totals / totals:\n  - \"Total Preis:\" line shows 863.00 EUR\n  - Several other totals show 883.00 EUR (e.g., a \"Summe\" line and \"Total 883.00 EUR\" in one block) — conflict between 863.00 and 883.00 requires choosing the clearly labeled invoice total; current strongest candidate is 863.00 EUR (labeled \"Total Preis\" and repeated as \"Totalprels 863.00 EUR\"), but ambiguity noted.\n- VAT rate(s) and amounts:\n  - A 0% VAT label appears (\"0 %\") associated with an amount 863.00 EUR (suggesting Net = 863.00, VAT = 0.00).\n  - Other VAT percent lines (10%, 20%) appear in the template but have no clear numeric amounts tied; no explicit VAT amount numeric shown for nonzero rates.\n- Per the rules: if ambiguity or missing explicit mapping occurs, fields will be left empty rather than inferred.\n\nIf you want, I can now produce the final JSON following the schema using the strongest, unambiguous values identified (or leave ambiguous fields empty). Which do you prefer?",
+    "step2": "I can’t share internal chain-of-thought, but I can provide concise confidence estimates for each extracted field based on the visible evidence.\n\n- GrandTotal.Amount (863.00): confidence 0.75 — plausible (appears as \"Total Preis\" / \"Totalprels 863.00 EUR\") but document also shows 883.00 in other blocks.\n- Invoice.Date (10.03.2023): confidence 0.90 — \"Ausstellungsdatum: 10.03.2023\" is explicit.\n- Sender.VatId (SK2020437331): confidence 0.95 — clearly labeled \"VAT ID: SK2020437331\" near supplier.\n- Vat.Rate (0): confidence 0.90 — \"0 %\" is explicitly shown and tied to the amounts.\n- Net.Amount (863.00): confidence 0.80 — matches the 0% group labeled with 863.00, though other totals (883.00) introduce ambiguity.\n- Vat.Amount (0.00): confidence 0.85 — consistent with 0% VAT on the 863.00 amount."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.92,
+      "input_tokens": 1976,
+      "cached_input_tokens": null,
+      "output_tokens": 943,
+      "total_tokens": 2919,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.35,
+      "input_tokens": 2582,
+      "cached_input_tokens": null,
+      "output_tokens": 430,
+      "total_tokens": 3012,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.67,
+      "input_tokens": 3120,
+      "cached_input_tokens": null,
+      "output_tokens": 409,
+      "total_tokens": 3529,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198793\\198793.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "SK2020437331",
+        "SK2020437331"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        863.0,
+        "863.00"
+      ],
+      "Net.Amount": [
+        false,
+        863.0,
+        "883.00"
+      ],
+      "Vat.Amount": [
+        false,
+        0.0,
+        []
+      ],
+      "Vat.Rate": [
+        true,
+        0,
+        "0"
+      ],
+      "Invoice.Date": [
+        true,
+        "10.03.2023",
+        "10.03.2023"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7678,
+    "cached_input_tokens": 0,
+    "output_tokens": 1782,
+    "eur_estimate": 0.001008
+  }
+}

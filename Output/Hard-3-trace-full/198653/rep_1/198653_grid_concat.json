@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198653\\198653_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 60.0,
+    "Invoice.Date": "31-Mrz-2023",
+    "Sender.VatId": "CHE-111.954.803",
+    "Vat.Rate": "",
+    "Net.Amount": 60.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.92,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 1.0,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I'll inspect the document for invoice indicators, then extract each required field, considering alternatives and applying the no-inference rule.\n\n1) Document classification\n- Presence of header \"INVOICE\" and structured billing elements (Invoice no, Invoice date, Grand Total, VAT clause) — qualifies as an invoice.\n- No exclusion keywords like \"Mahnung\" or \"Zahlungserinnerung\" prominent. Proceed with extraction.\n\n2) GrandTotal.Amount\n- Located text: \"Grand       Total:                      60,00             EUR\"\n- Value consistent with totals lines and \"Total In Words: SIXTY ... EUR\"\n- Extract numeric value: 60,00 (preserve two decimals). Will represent as numeric 60.00.\n\n3) Invoice.Date\n- Located text: \"Invoice         date:                                31-Mrz-2023\"\n- Exact string present; extract as \"31-Mrz-2023\" (no normalization/inference).\n\n4) Sender.VatId\n- Two VAT numbers appear:\n  a) At top right near company header: \"VAT     Number:           CHE-111.954.803                  TVA\" — corresponds to MSC Mediterranean Shipping Company S.A. (sender).\n  b) Within invoice-to block: \"Customer         VAT      No    : DE815512007\" — recipient VAT.\n- Field requests \"Tax ID of the sender (VAT)\" → choose CHE-111.954.803. Extract as that exact string.\n\n5) Vat.Rate\n- No explicit percent VAT rate printed. VAT clause indicates \"Receiver is responsible for tax declaration (reverse-charge-rule)\" and VAT amount is zero.\n- Per no-inference rule, do NOT assume a rate (e.g., 0 or 19). Leave Vat.Rate empty.\n\n6) Net.Amount and Vat.Amount\n- Table shows \"VAT applicable amount\" = 60,00 and \"VAT amount\" = 0,00 in the VAT summary.\n- Extract Net.Amount = 60,00 -> numeric 60.00; Vat.Amount = 0,00 -> numeric 0.00.\n- Maintain decimal places shown (two decimals).\n\n7) Verify consistency\n- Grand total 60.00 matches net 60.00 + VAT 0.00 and total in words. Sender VAT chosen correctly based on header.\n\nNo other relevant VAT groups or exchange rates for entire invoice are present.",
+    "step2": "GrandTotal.Amount — Confidence: 95%\n- Evidence: Explicit line \"Grand       Total:                      60,00             EUR\" and \"Total In Words: SIXTY AND 0/100 EUR ONLY\".\n- Internal consistency: Matches VAT breakdown (net 60,00 + vat 0,00).\n- Residual uncertainty: OCR spacing/commas vs decimal points interpretation, but formatting consistent with European commas for decimals.\n\nInvoice.Date — Confidence: 92%\n- Evidence: Explicit field \"Invoice         date:                                31-Mrz-2023\".\n- Internal consistency: Date format appears clear; month written in German abbreviation \"Mrz\" (March).\n- Residual uncertainty: OCR could have misread characters, but characters are plausibly clear.\n\nSender.VatId — Confidence: 90%\n- Evidence: Top-right header shows \"VAT     Number:           CHE-111.954.803                  TVA\" associated with MSC Mediterranean Shipping Company S.A. (sender).\n- Internal consistency: Matches location and label for sender VAT.\n- Residual uncertainty: Possibility of multiple VAT-like numbers present; chosen the one nearest sender header.\n\nVat.Rate — Confidence: 100% (as empty)\n- Evidence: No explicit percentage VAT rate present; text states \"Receiver is responsible for tax declaration (reverse-charge-rule)\" and VAT amount is 0,00.\n- Rule application: Per no-inference policy, must not assume a rate. Leaving empty is correct.\n\nNet.Amount — Confidence: 95%\n- Evidence: VAT applicable amount line shows \"60,00\" and the net subtotal aligns with grand total since VAT amount is 0,00.\n- Internal consistency: Matches grands total and amount-in-words.\n- Residual uncertainty: OCR numeric formatting interpretation, but consistent.\n\nVat.Amount — Confidence: 95%\n- Evidence: VAT amount shown as \"0,00\" in VAT summary and VAT column shows 0,00.\n- Internal consistency: net 60,00 + vat 0,00 = grand total 60,00.\n- Residual uncertainty: minimal OCR risk but clearly zero."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.05,
+      "input_tokens": 1963,
+      "cached_input_tokens": null,
+      "output_tokens": 1068,
+      "total_tokens": 3031,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.36,
+      "input_tokens": 2502,
+      "cached_input_tokens": null,
+      "output_tokens": 500,
+      "total_tokens": 3002,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.21,
+      "input_tokens": 3238,
+      "cached_input_tokens": null,
+      "output_tokens": 345,
+      "total_tokens": 3583,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198653\\198653.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "CHE-111.954.803",
+        "CHE-111.954.803"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        60.0,
+        "60,00"
+      ],
+      "Net.Amount": [
+        true,
+        60.0,
+        "60,00"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Vat.Rate": [
+        false,
+        "",
+        []
+      ],
+      "Invoice.Date": [
+        true,
+        "31-Mrz-2023",
+        "31-Mrz-2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7703,
+    "cached_input_tokens": 0,
+    "output_tokens": 1913,
+    "eur_estimate": 0.001055
+  }
+}

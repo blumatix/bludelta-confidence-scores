@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\275164\\275119_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 42176.97,
+    "Invoice.Date": "31.01.2024",
+    "Sender.VatId": "ATU39103108",
+    "Vat.Rate": 10,
+    "Net.Amount": 38342.7,
+    "Vat.Amount": 3834.27
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.92,
+    "Vat.Amount": 0.94
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification:\n- Found header \"Rechnung\" and invoice-like sections (Invoice number 1119100452, line items, totals). No exclusion terms like \"Mahnung\" prominent. Classify as invoice.\n\n2) Locate invoice date:\n- On page 1 top-right: \"Datum 31.01.2024\" → Invoice.Date = \"31.01.2024\".\n\n3) Locate sender VAT ID:\n- Page 1: \"VAT Registration n° ATU39103108\" and repeated at bottom \"ATU39103108\" → Sender.VatId = \"ATU39103108\".\n\n4) Locate totals and VAT groups:\n- Page 1 shows subtotal line \"38.342,70\" near total weight; page 2 has VAT summary table.\n- Table entries:\n  - Net (netto) value: \"38.342,70\" (European format: dot thousands, comma decimals) → numeric value 38342.70.\n  - VAT-€: \"3.834,27\" → numeric 3834.27.\n  - Gesamtsumme brutto (EUR): \"42.176,97\" → numeric 42176.97.\n- VAT percentage shown as \"10,00 %\". Per rule, return without percent symbol → Vat.Rate = 10.\n\n5) Map to schema fields:\n- GrandTotal.Amount → overall payable amount = 42.176,97 → 42176.97.\n- Net.Amount → 38.342,70 → 38342.70.\n- Vat.Amount → 3.834,27 → 3834.27.\n- Vat.Rate → 10 (no percent sign).\n- Invoice.Date → \"31.01.2024\".\n- Sender.VatId → \"ATU39103108\".\n\n6) Verify no inference beyond visible data:\n- All extracted values are explicitly present in the invoice text; no guessing used.\n\n7) Note formatting:\n- Converted European numeric formatting to numeric values preserving decimals (two decimal places as in source).",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"extracted_value\": 42176.97,\n    \"confidence\": \"High (95%)\",\n    \"evidence\": \"Explicit 'Gesamtsumme brutto (EUR) 42.176,97' on page 2; consistent with net + VAT shown.\"\n  },\n  \"Invoice.Date\": {\n    \"extracted_value\": \"31.01.2024\",\n    \"confidence\": \"High (98%)\",\n    \"evidence\": \"'Datum 31.01.2024' clearly printed on page 1 header.\"\n  },\n  \"Sender.VatId\": {\n    \"extracted_value\": \"ATU39103108\",\n    \"confidence\": \"High (99%)\",\n    \"evidence\": \"'VAT Registration n° ATU39103108' appears on page 1 and repeated in footer.\"\n  },\n  \"Vat.Rate\": {\n    \"extracted_value\": 10,\n    \"confidence\": \"High (95%)\",\n    \"evidence\": \"VAT summary shows '10,00 %' for the VAT group on page 2.\"\n  },\n  \"Net.Amount\": {\n    \"extracted_value\": 38342.70,\n    \"confidence\": \"High (92%)\",\n    \"evidence\": \"Netto value '38.342,70' present in VAT summary on page 2; aligns with line-item sums on page 1.\"\n  },\n  \"Vat.Amount\": {\n    \"extracted_value\": 3834.27,\n    \"confidence\": \"High (94%)\",\n    \"evidence\": \"VAT-€ '3.834,27' explicitly shown in VAT summary on page 2 and matches difference between gross and net.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.64,
+      "input_tokens": 2779,
+      "cached_input_tokens": null,
+      "output_tokens": 875,
+      "total_tokens": 3654,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.64,
+      "input_tokens": 3213,
+      "cached_input_tokens": null,
+      "output_tokens": 561,
+      "total_tokens": 3774,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.21,
+      "input_tokens": 3851,
+      "cached_input_tokens": null,
+      "output_tokens": 348,
+      "total_tokens": 4199,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\275164\\275119_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU39103108",
+        "ATU39103108"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        42176.97,
+        "42.176,97"
+      ],
+      "Net.Amount": [
+        true,
+        38342.7,
+        "38.342,70"
+      ],
+      "Vat.Amount": [
+        true,
+        3834.27,
+        "3.834,27"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "31.01.2024",
+        "31.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 9843,
+    "cached_input_tokens": 0,
+    "output_tokens": 1784,
+    "eur_estimate": 0.005252
+  }
+}

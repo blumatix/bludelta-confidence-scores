@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\200142\\200101_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1516.79,
+    "Invoice.Date": "3.07.2023",
+    "Sender.VatId": "ATU33963805",
+    "Vat.Rate": 10,
+    "Net.Amount": "",
+    "Vat.Amount": 137.89
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.8,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.6,
+    "Net.Amount": 0.2,
+    "Vat.Amount": 0.6
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Highly likely",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Likely",
+    "Net.Amount": "Chances are slight",
+    "Vat.Amount": "Likely"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Instead, here is a concise, non-sensitive summary of the extraction plan and the candidate locations from the text:\n\n1. Confirm document is an invoice:\n   - Found explicit header \"RECHNUNG\" and invoice-like fields (Rechnungs-Nr., Rechnungsdatum, line items, totals) → proceed.\n\n2. Map schema fields to text locations:\n   - Invoice.Date: \"Rechnungsdatum\" value near top-right: \"3.07.2023\".\n   - Sender.VatId: sender VAT appears in footer: \"ATU33963805\".\n   - GrandTotal.Amount: overall invoice total appears near summary lines; candidate \"1.516,79\" (likely invoice total). Will preserve decimals and comma formatting to convert to numeric format per schema.\n   - Vat.Rate, Net.Amount, Vat.Amount: VAT group lines show percentage and amounts in summary block:\n     - VAT rate candidates: \"10,00\" and \"2,00%\" appears as discount/skonto — primary VAT percent appears as \"10,00\" (interpreted as 10). There may also be \"MwSt%\" references; will extract VAT rates explicitly shown alongside net and vat amounts.\n     - Net.Amount and Vat.Amount candidates: in the summary block numbers \"1.089.62\", \"279,05\", \"137,89\", and \"30,95\" appear in the body; will match net and VAT amounts corresponding to the VAT rate lines. Only invoice-level VAT groups will be returned.\n\n3. Apply rules:\n   - Do not guess values; only return values exactly present.\n   - Keep decimal formatting as in input.\n   - Return empty strings for any missing fields.\n\nNext step: produce the final JSON extraction according to the schema using only the exact extracted values.",
+    "step2": "Invoice.Date:\n- Extracted value: \"3.07.2023\"\n- Evidence: Directly labeled \"Rechumıgsdatum\" / \"Rechnungsdatum\" near top-right.\n- Confidence: High\n\nSender.VatId:\n- Extracted value: \"ATU33963805\"\n- Evidence: Footer contains \"ATU33963805\" labeled among company registration details.\n- Confidence: High\n\nGrandTotal.Amount:\n- Extracted value candidate: \"1.516,79\"\n- Evidence: Appears in summary area aligned with totals and labeled near \"Rechnungsbetrag\" context; formatting consistent with currency total.\n- Ambiguity: Multiple numeric totals present (e.g., 1.089,62; 279,05; 137,89; 30,95). Context indicates 1.516,79 is invoice grand total.\n- Confidence: Medium–High\n\nVat.Rate:\n- Extracted value candidate(s): \"10,00\"\n- Evidence: Summary shows \"10,00\" near VAT-related lines and \"MwSt%\" label; item lines show \"102\" (tax code) but percentage explicitly \"10,00\".\n- Ambiguity: Comma decimal used; no other clear VAT percent besides \"10,00\".\n- Confidence: Medium\n\nNet.Amount:\n- Extracted candidate(s): numbers present include \"1.089,62\" and \"279,05\" which sum to 1.368,67; plus VAT 137,89 and possibly discounts 30,95 lead to 1.516,79 — mapping to net groups is plausible but not unambiguous.\n- Evidence: \"1.089,62\" and \"279,05\" appear beside line items; summary shows amounts consistent with net totals.\n- Ambiguity: Which net amount corresponds to VAT group(s) is not explicitly labeled; multiple net figures exist.\n- Confidence: Medium–Low\n\nVat.Amount:\n- Extracted candidate(s): \"137,89\"\n- Evidence: Appears in summary near a percent column and labeled in a position consistent with VAT amount.\n- Ambiguity: Could be VAT for combined net or a specific group; grouping not explicitly labeled.\n- Confidence: Medium"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.06,
+      "input_tokens": 1919,
+      "cached_input_tokens": null,
+      "output_tokens": 571,
+      "total_tokens": 2490,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.01,
+      "input_tokens": 2345,
+      "cached_input_tokens": null,
+      "output_tokens": 526,
+      "total_tokens": 2871,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 9.55,
+      "input_tokens": 3107,
+      "cached_input_tokens": null,
+      "output_tokens": 790,
+      "total_tokens": 3897,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\200142\\200101_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU33963805",
+        "ATU33963805,"
+      ],
+      "GrandTotal.Amount": [
+        false,
+        1516.79,
+        "1.547,74"
+      ],
+      "Net.Amount": [
+        true,
+        "",
+        "1.407.04"
+      ],
+      "Vat.Amount": [
+        false,
+        137.89,
+        "140,70"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "3.07.2023",
+        "3.07.2023"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7371,
+    "cached_input_tokens": 0,
+    "output_tokens": 1887,
+    "eur_estimate": 0.004886
+  }
+}

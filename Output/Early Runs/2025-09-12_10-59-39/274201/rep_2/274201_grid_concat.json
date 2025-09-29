@@ -1,0 +1,118 @@
+{
+  "input_path": "..\\Documents\\274201\\274201_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 827.41,
+    "Invoice.Date": "29.01.2024",
+    "Sender.VatId": "",
+    "Vat.Rate": [
+      10,
+      20
+    ],
+    "Net.Amount": [
+      562.9,
+      173.52
+    ],
+    "Vat.Amount": [
+      56.29,
+      34.7
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.4,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Less than even",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification: contains \"Rechnung\", invoice number, invoice date, line items, totals — classify as invoice.\n\nFields located:\n- Invoice.Date: found \"Rechnungsdatum 29.01.2024\".\n- GrandTotal.Amount: found \"Gesamtsumme EUR 827,41\" -> 827,41.\n- Net total: \"Summe exkl. MwSt 736,42\" -> 736,42.\n- VAT groups:\n  - \"10% MWSt für 562,90 56,29\" -> Vat.Rate 10, Net.Amount 562,90, Vat.Amount 56,29.\n  - \"20% MWSt für 173,52 34,70\" -> Vat.Rate 20, Net.Amount 173,52, Vat.Amount 34,70.\n- Sender.VatId ambiguity: header shows BÄKO-Österreich (no UID shown); line \"Ihre UID/VAT-Nr. ATU22642807\" is labeled \"Ihre\" (customer). Footer shows \"UID-Nr.: ATU79411414\" for Wurth EF GmbH. Cannot unambiguously determine which VAT number is the invoice sender without inferring — per rules, do not guess.\n\nNo other relevant numeric fields missing.",
+    "step2": "GrandTotal.Amount — 95% confident.\nEvidence: \"Gesamtsumme EUR 827,41\" clearly visible; format and location consistent with invoice total.\n\nInvoice.Date — 99% confident.\nEvidence: \"Rechnungsdatum 29.01.2024\" explicitly stated.\n\nSender.VatId — 40% confident.\nEvidence: Two VAT numbers present: \"Ihre UID/VAT-Nr. ATU22642807\" (appears to refer to recipient/customer) and footer \"UID-Nr.: ATU79411414\" (company Wurth). Document header lists BÄKO-Österreich as sender but no explicit \"UID\" label next to it. Ambiguity prevents high confidence.\n\nVat.Rate — 98% confident.\nEvidence: Two VAT groups clearly labeled \"10% MWSt\" and \"20% MWSt\". Extraction of rates (10 and 20) is straightforward.\n\nNet.Amount (per VAT group) — 98% confident.\nEvidence: Corresponding net bases shown as \"für 562,90\" (10% group) and \"für 173,52\" (20% group); placement and labeling are clear.\n\nVat.Amount (per VAT group) — 98% confident.\nEvidence: Corresponding VAT amounts shown as \"56,29\" (for 10%) and \"34,70\" (for 20%); clearly associated with each rate.\n\nOverall extraction consistency: high for totals, VAT groups, and date; low for Sender.VatId due to ambiguous labeling."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.72,
+      "input_tokens": 1954,
+      "output_tokens": 1038,
+      "total_tokens": 2992
+    },
+    "step2": {
+      "runtime_sec": 9.48,
+      "input_tokens": 2231,
+      "output_tokens": 448,
+      "total_tokens": 2679
+    },
+    "step3": {
+      "runtime_sec": 8.52,
+      "input_tokens": 2820,
+      "output_tokens": 751,
+      "total_tokens": 3571
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274201\\274201_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "",
+        "ATU79411414"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        827.41,
+        "827,41"
+      ],
+      "Net.Amount": [
+        true,
+        [
+          562.9,
+          173.52
+        ],
+        [
+          "562,90",
+          "173,52"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        [
+          56.29,
+          34.7
+        ],
+        [
+          "56,29",
+          "34,70"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        [
+          10,
+          20
+        ],
+        [
+          "10",
+          "20"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "29.01.2024",
+        "29.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  }
+}

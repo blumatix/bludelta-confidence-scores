@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198434\\198434_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1640.0,
+    "Invoice.Date": "25-3-2023",
+    "Sender.VatId": "858741234B01",
+    "Vat.Rate": 0,
+    "Net.Amount": 1640.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.6,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.8
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Highly likely"
+  },
+  "reasoning": {
+    "step1": "Step 1 — SOLUTION REASONING:\n\n1) Classify document as invoice:\n- Presence of clear invoice indicators: header \"FACTUUR\", word \"BTW\", \"Totaal exclusief BTW\", \"Factuur nr.\", \"Factuurdatum\", amounts in € and line items (pallets, wachturen). No prominent exclusion words like \"Mahnung\" or \"Zahlungserinnerung\". Conclusion: document is an invoice — proceed with extraction.\n\n2) Locate candidate fields and ambiguous items:\n- Invoice Date:\n  - Occurrences: \"17-3-2023\" at the top near line items; \"25-3-2023\" appears next to \"Factuurdatum\" in the Debiteur block; \"17/03/2023\" appears elsewhere in page 2.\n  - Structured header \"Factuurdatum\" explicitly labels 25-3-2023 → strongest evidence for Invoice.Date = \"25-3-2023\".\n- Grand Total Amount:\n  - Multiple totals: a line shows \"€ 1.550,00\" next to a line item; \"Totaal exclusief BTW € 1.640,00\" and the Debiteur block shows \"Totaal € 1.640,00\".\n  - \"Totaal exclusief BTW € 1.640,00\" and Debiteur total €1.640,00 match; likely GrandTotal.Amount = 1640.00 (currency omitted per schema). Keep decimals as in input: \"1.640,00\" corresponds to 1640.00.\n- Sender VAT ID:\n  - Several variants: header shows \"VAT   858741234801\" (digits), elsewhere \"BTW nr.:  858741234B01\" (the OCR shows 'B' instead of '8' in one position).\n  - The clearly labeled \"BTW nr.:\" line is authoritative for sender VAT. Use \"858741234B01\" as extracted string (do not infer corrections).\n- VAT Rate:\n  - Text reads \"BTW niet bij u belast of 0% over €\". This explicitly indicates a 0% VAT rate applied (or VAT not charged). Therefore Vat.Rate = 0 (per rule: extract rate without % symbol).\n- Net Amount:\n  - \"Totaal exclusief BTW € 1.640,00\" indicates net amount = 1640.00.\n- VAT Amount:\n  - Since VAT not charged / 0% over € — VAT monetary amount appears blank/empty in that line. The document implies VAT amount is 0. The visible line shows no explicit numeric VAT amount; but logical reading: VAT amount = 0.00.\n  - Per \"No Inference Policy\": only fill values supported by document. The phrase \"0% over €\" supports a 0% rate and thus VAT amount of 0.00 is supported.\n\n3) Consistency check:\n- GrandTotal (1640.00) equals Net.Amount (1640.00) plus Vat.Amount (0.00) — consistent.\n- Invoice.Date chosen (25-3-2023) matches the labeled \"Factuurdatum\" header; other dates treated as shipment or internal references.\n\n4) Decisions under ambiguity:\n- Sender.VatId: choose the explicit \"BTW nr.:\" string even though OCR variation exists.\n- VAT amount: treat as 0.00 because the document explicitly states 0%/not charged.\n- Preserve decimal formatting numerically as 1640.00, 0.00, 1640.00, and VAT rate as number 0.\n\n5) Fields to output (final extraction to be returned in JSON later):\n- GrandTotal.Amount: 1640.00\n- Invoice.Date: \"25-3-2023\"\n- Sender.VatId: \"858741234B01\"\n- Vat.Rate: 0\n- Net.Amount: 1640.00\n- Vat.Amount: 0.00",
+    "step2": "Confidence reasoning (field-by-field):\n\n1) GrandTotal.Amount = 1640.00\n- Evidence: \"Totaal exclusief BTW € 1.640,00\" and Debiteur block shows \"Totaal € 1.640,00\".\n- Confidence: High. Multiple matching occurrences and consistency with totals.\n\n2) Invoice.Date = \"25-3-2023\"\n- Evidence: Explicit label \"Factuurdatum\" adjacent to \"25-3-2023\" in Debiteur block. Other dates (17-3-2023, 17/03/2023) appear but are near line items/shipment.\n- Confidence: High. Labeled \"Factuurdatum\" gives strong support.\n\n3) Sender.VatId = \"858741234B01\"\n- Evidence: Document shows VAT identifiers: header \"VAT   858741234801\" (digits) and \"BTW nr.:  858741234B01\". OCR variation between '8' and 'B' exists.\n- Confidence: Medium. Presence of two similar but inconsistent strings introduces ambiguity; chosen value uses the explicit \"BTW nr.\" label but OCR character uncertainty reduces confidence.\n\n4) Vat.Rate = 0\n- Evidence: Text \"BTW niet bij u belast of 0% over €\" explicitly indicates 0% VAT applicability.\n- Confidence: High. Direct statement of 0% VAT.\n\n5) Net.Amount = 1640.00\n- Evidence: \"Totaal exclusief BTW € 1.640,00\" directly provides net amount.\n- Confidence: High. Clear labeled value.\n\n6) Vat.Amount = 0.00\n- Evidence: Document indicates VAT not charged / 0%; no explicit VAT monetary amount shown, implying zero.\n- Confidence: Medium-High. Logical consequence of 0% rate and matching totals; slight caveat because VAT amount field isn’t numerically printed, but 0 is strongly supported."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 15.63,
+      "input_tokens": 3472,
+      "cached_input_tokens": null,
+      "output_tokens": 1469,
+      "total_tokens": 4941,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.72,
+      "input_tokens": 4348,
+      "cached_input_tokens": null,
+      "output_tokens": 406,
+      "total_tokens": 4754,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.56,
+      "input_tokens": 5054,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 5337,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198434\\198434.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "858741234B01",
+        "NL003342293B01"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1640.0,
+        "1.640,00"
+      ],
+      "Net.Amount": [
+        true,
+        1640.0,
+        "1.640,00"
+      ],
+      "Vat.Amount": [
+        false,
+        0.0,
+        []
+      ],
+      "Vat.Rate": [
+        true,
+        0,
+        "0"
+      ],
+      "Invoice.Date": [
+        true,
+        "25-3-2023",
+        "25-3-2023"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 12874,
+    "cached_input_tokens": 0,
+    "output_tokens": 2158,
+    "eur_estimate": 0.001399
+  }
+}

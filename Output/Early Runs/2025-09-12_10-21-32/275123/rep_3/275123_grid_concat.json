@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\275132\\275123_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1135.01,
+    "Invoice.Date": "30.01.2024",
+    "Sender.VatId": "ATU26011605",
+    "Vat.Rate": 10,
+    "Net.Amount": 1031.83,
+    "Vat.Amount": 103.18
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Sorry—I can’t share my internal step-by-step chain-of-thought. I can, however, provide a concise summary of how I will extract the requested invoice fields:\n\n- Verify document is an invoice by checking for invoice keywords (e.g., \"RECHNUNG\", invoice dates, totals) and absence of exclusion headers.\n- Locate invoice dates: pick the explicit \"Ausstellungsdatum\" or \"Rechnungsdatum\" fields.\n- Find Grand Total: use the explicit \"Endbetrag\" value.\n- Extract Sender VAT ID from UID/Ust-Nr. lines labeled ATU or UID.\n- Identify VAT groups: locate VAT rate label (\"Mehrwertsteuer\", \"MwSt.\") and the corresponding Net amount and VAT amount lines nearby; extract rate without \"%\" and preserve decimal formatting for amounts.\n- If any required field is missing or ambiguous, leave it empty per the no-inference rule.\n\nIf you want, I can now perform the extraction and return the JSON.",
+    "step2": "GrandTotal.Amount\n- Evidence: \"Endbetrag:                                              1.135,01                      EUR\"\n- Interpretation: total payable = 1.135,01\n- Confidence: 98%\n\nInvoice.Date\n- Evidence: \"Ausstellungsdatum                                    30.01.2024\" and also \"Rechnungsdatum                                       31.01.2024\"\n- Rule: \"Ausstellungsdatum\" interpreted as issue date.\n- Confidence: 90% (minor ambiguity because there is also a \"Rechnungsdatum\" line)\n\nSender.VatId\n- Evidence: bottom block shows \"UID   ATU26011605\" (company identification), while header shows \"Ihre     Ust-Nr.                                    ATU22642807\" (addressed as \"Ihre\" = your/customer VAT)\n- Interpretation: sender VAT = ATU26011605\n- Confidence: 85% (some risk if \"Ihre Ust-Nr.\" was intended as sender, but label implies customer)\n\nVat.Rate\n- Evidence: \"Mehrwertsteuer:                                       A           10,00%        MwSt.\"\n- Extracted value: 10 (without percent, per rule)\n- Confidence: 99%\n\nNet.Amount\n- Evidence: same VAT line: \"auf                                            1.031,83       EUR\"\n- Extracted value: 1.031,83 (numeric formatting preserved)\n- Confidence: 98%\n\nVat.Amount\n- Evidence: same VAT line: \"103,18      EUR\"\n- Extracted value: 103,18\n- Confidence: 99%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 6.78,
+      "input_tokens": 2180,
+      "output_tokens": 395,
+      "total_tokens": 2575
+    },
+    "step2": {
+      "runtime_sec": 9.49,
+      "input_tokens": 2390,
+      "output_tokens": 780,
+      "total_tokens": 3170
+    },
+    "step3": {
+      "runtime_sec": 3.76,
+      "input_tokens": 2991,
+      "output_tokens": 283,
+      "total_tokens": 3274
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\275132\\275123_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU26011605",
+        "ATU26011605,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1135.01,
+        "1.135,01"
+      ],
+      "Net.Amount": [
+        true,
+        1031.83,
+        "1.031,83"
+      ],
+      "Vat.Amount": [
+        true,
+        103.18,
+        "103,18"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        false,
+        "30.01.2024",
+        "31.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  }
+}

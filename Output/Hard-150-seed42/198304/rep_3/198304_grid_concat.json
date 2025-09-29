@@ -1,0 +1,116 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198304\\198304_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1100.0,
+    "Invoice.Date": "2023-02-22",
+    "Sender.VatId": "PL 6921133130",
+    "Vat.Rate": 0,
+    "Net.Amount": 1100.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.93,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification\n- Looked for invoice indicators: found \"Rechnung\", \"Gesamtsumme\", \"Ust. Id. Nr\", \"Mehrwertsteuer\", amounts with EUR — strong invoice evidence.\n- Looked for exclusion indicators: no prominent \"Zahlungserinnerung\"/\"Mahnung\"/\"Servicebericht\" headings. Conclusion: document is an invoice.\n\n2) Locate invoice date\n- Found \"Verkaufsdatum: 2023-02-22\" (top right). Alternative date candidates: Ladedatum 2023-02-21, Entladens 2023-02-22, but labeled \"Verkaufsdatum\" is clearly invoice/sales date. Select Invoice.Date = \"2023-02-22\".\n\n3) Sender VAT ID\n- Seller block shows \"Ust. Id. Nr: PL 6921133130\". This is the sender VAT. No other VAT-like IDs for sender found. Select Sender.VatId = \"PL 6921133130\".\n\n4) VAT rate and amounts grouping\n- Found VAT labeling: \"Podatek VAT UE 0%\" and \"Mehrwertsteueřsatz... 0%\" and amounts showing 0,00 VAT.\n- The invoice shows amounts in EUR and converted PLN; VAT for the invoice is 0%.\n- Vat.Rate = 0\n\n5) Net amount, VAT amount, Grand total\n- The monetary table shows lines:\n  - Line net/freight: \"1 100,00\" (likely net)\n  - VAT amount shown as \"0,00\"\n  - Gesamtsumme in EUR: \"1 100,00\"\n- Multiple places list \"in EUR 1 100,00 ... 0,00 ... 1 100,00\" and \"Gesamtsumme: inPLN 5221,59 ... 5221,59\"\n- Determine monetary fields for the invoice currency (EUR):\n  - Net.Amount = 1 100,00\n  - Vat.Amount = 0,00\n  - GrandTotal.Amount = 1 100,00\n- Note alternative interpretations: PLN totals exist (5221,59) but schema requests GrandTotal.Amount total payable on the invoice — choose the invoice currency grand total shown as EUR 1 100,00. No field in schema for currency; will keep numeric values corresponding to amounts.\n\n6) Number formatting decisions\n- Original uses space as thousands separator and comma as decimal (e.g., \"1 100,00\"). Per rules: keep number of decimal places identical. Do not invent currency markers. For final extraction must convert to numeric types while preserving decimals (e.g., 1100.00) — ensure two decimals as in input.\n\n7) Missing/ambiguous fields check\n- All required schema fields located. No contradictory multiple VAT rates for whole invoice (only 0%). No need to include PLN exchange-rate as ExchangeRate.Item per rule 6 (and schema has no ExchangeRate field). Sender.VatId present. Confirm no inference beyond visible text.\n\n8) Final chosen values (to be output in JSON next):\n- Invoice.Date: \"2023-02-22\"\n- Sender.VatId: \"PL 6921133130\"\n- Vat.Rate: 0\n- Net.Amount: 1100.00 (representing \"1 100,00\")\n- Vat.Amount: 0.00\n- GrandTotal.Amount: 1100.00\n\n(Will output these in the required JSON schema next.)",
+    "step2": "GrandTotal.Amount — Confidence: 95%\n- Evidence: \"Gesamtsumme: in EUR 1 100,00\" and repeated \"offen bleibt: EUR 1 100,00\". Clear, unambiguous.\n\nInvoice.Date — Confidence: 90%\n- Evidence: \"Verkaufsdatum: 2023-02-22\" at top; alternative dates (Ladedatum/Entladens) present but labeled differently.\n\nSender.VatId — Confidence: 95%\n- Evidence: Seller block shows \"Ust. Id. Nr: PL 6921133130\" clearly matching VAT ID format.\n\nVat.Rate — Confidence: 95%\n- Evidence: \"Podatek VAT UE 0%\" and VAT entries showing 0,00; VAT rate for whole invoice indicated as 0%.\n\nNet.Amount — Confidence: 93%\n- Evidence: Line and totals show net/freight amount \"1 100,00\" and totals table lists EUR 1 100,00 as net value; consistent across the document.\n\nVat.Amount — Confidence: 95%\n- Evidence: VAT amount shown as \"0,00\" alongside VAT rate 0% in totals."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 15.58,
+      "input_tokens": 3405,
+      "cached_input_tokens": null,
+      "output_tokens": 1184,
+      "total_tokens": 4589,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.76,
+      "input_tokens": 4188,
+      "cached_input_tokens": null,
+      "output_tokens": 378,
+      "total_tokens": 4566,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.36,
+      "input_tokens": 4738,
+      "cached_input_tokens": null,
+      "output_tokens": 220,
+      "total_tokens": 4958,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198304\\198304.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "PL 6921133130",
+        "PL 6921133130"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1100.0,
+        "1 100,00"
+      ],
+      "Net.Amount": [
+        false,
+        1100.0,
+        [
+          "1 100,00",
+          "5221,59",
+          "1 100,00",
+          "5221,59"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        [
+          "0,00",
+          "0,00",
+          "0,00",
+          "0,00"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        0,
+        [
+          "0",
+          "0"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "2023-02-22",
+        "2023-02-22"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 12331,
+    "cached_input_tokens": 0,
+    "output_tokens": 1782,
+    "eur_estimate": 0.00124
+  }
+}

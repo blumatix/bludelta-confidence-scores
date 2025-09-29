@@ -1,0 +1,100 @@
+{
+  "input_path": "..\\Documents\\274201\\274201_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 827.41,
+    "Invoice.Date": "29.01.2024",
+    "Sender.VatId": "",
+    "Vat.Rate": 10,
+    "Net.Amount": 562.9,
+    "Vat.Amount": 56.29
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.2,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Chances are slight",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I can’t share my internal step-by-step chain-of-thought. I can, however, provide a concise summary of the extraction approach I will use:\n\n- Verify document is an invoice by checking headers (e.g., \"Rechnung\", invoice number, totals) and ensuring exclusion terms (e.g., \"Mahnung\") are not dominant.\n- Locate and extract explicit fields only (no guesses): Invoice date, Grand Total amount, Sender VAT/UID, VAT groups (rate, net, VAT amount) as displayed, preserving decimals and removing percent signs for rates.\n- If any required field is missing or ambiguous, leave it empty per the no-inference rule.\n- Return the final result as the required JSON schema.\n\nProceed when you want me to produce the extracted JSON.",
+    "step2": "GrandTotal.Amount\n- Evidence: \"Gesamtsumme EUR 827,41\" shown near totals.\n- Consistency checks: matches Net + VAT sums (736,42 + 56,29 + 34,70 = 827,41).\n- Confidence: High\n\nInvoice.Date\n- Evidence: \"Rechnungsdatum 29.01.2024\" explicit.\n- Confidence: High\n\nSender.VatId\n- Evidence: Two VAT/UID numbers present: \"Ihre UID/VAT-Nr. ATU22642807\" (labelled \"Ihre\" = your) and at footer \"UID-Nr.: ATU79411414\" for Wurth EF GmbH.\n- Ambiguity: It is unclear which entity is the invoice sender from the visible labels; \"Ihre UID\" likely refers to recipient, footer UID likely belongs to the company providing contact/bank details (possible sender).\n- Confidence: Low (ambiguous which VAT ID is the sender)\n\nVat.Rate / Net.Amount / Vat.Amount (VAT groups)\n- Evidence: VAT breakdown shows:\n  - \"10% MWSt für 562,90                                 56,29\"\n  - \"20% MWSt für 173,52                                 34,70\"\n  - \"Summe exkl. MwSt 736,42\" consistent with 562,90 + 173,52.\n- Extraction consistency: Rates can be 10 and 20 (percent sign present in text; rule requires returning numbers without \"%\"). Net and VAT amounts match listed values and sum to grand total.\n- Confidence: High"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 4.52,
+      "input_tokens": 1954,
+      "output_tokens": 354,
+      "total_tokens": 2308
+    },
+    "step2": {
+      "runtime_sec": 7.9,
+      "input_tokens": 2123,
+      "output_tokens": 845,
+      "total_tokens": 2968
+    },
+    "step3": {
+      "runtime_sec": 7.03,
+      "input_tokens": 2726,
+      "output_tokens": 723,
+      "total_tokens": 3449
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274201\\274201_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "",
+        "ATU79411414"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        827.41,
+        "827,41"
+      ],
+      "Net.Amount": [
+        false,
+        562.9,
+        [
+          "562,90",
+          "173,52"
+        ]
+      ],
+      "Vat.Amount": [
+        false,
+        56.29,
+        [
+          "56,29",
+          "34,70"
+        ]
+      ],
+      "Vat.Rate": [
+        false,
+        10,
+        [
+          "10",
+          "20"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "29.01.2024",
+        "29.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 2,
+      "total": 6,
+      "all_match": false
+    }
+  }
+}

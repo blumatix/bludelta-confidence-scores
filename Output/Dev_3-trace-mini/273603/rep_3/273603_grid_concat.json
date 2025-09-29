@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\273609\\273603_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 21.26,
+    "Invoice.Date": "25.01.2024",
+    "Sender.VatId": "ATU67782722",
+    "Vat.Rate": 10,
+    "Net.Amount": 19.33,
+    "Vat.Amount": 1.93
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 1.0,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 1.0,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains invoice-like headers (\"Rechnungsnummer\", \"Rechnungsdatum\", line items, Nettobetrag, Ust%, zu erstattender Betrag) → treat as invoice/credit note (not excluded by exclusion keywords).\n\nField extraction decisions and evidence:\n- Invoice.Date: \"Rechnungsdatum: 25.01.2024\" → Invoice.Date = \"25.01.2024\".\n- GrandTotal.Amount: \"zu erstattender Betrag ... 21,26\" (EUR) → GrandTotal.Amount = 21.26.\n- Net.Amount: \"Netto ... 19,33\" and line item Nettobetrag 19,33 → Net.Amount = 19.33.\n- Vat.Rate: shown as \"10  %\" in Ust% column and summary \"Ust    %  10   %\" → Vat.Rate = 10.\n- Vat.Amount: summary shows \"Ust ... 1,93\" → Vat.Amount = 1.93.\n- Sender.VatId: two VAT IDs present:\n  - Header \"Ihre USt.-ID.: ATU22642807\" refers to recipient (\"Ihre\" = your).\n  - Footer \"VAT/UID-Nr: ATU67782722\" is associated with Puratos Austria GmbH (sender details).\n  → Sender.VatId = \"ATU67782722\".\n\nNo inference beyond explicit text; numeric comma decimals converted to numeric values preserving two decimals.",
+    "step2": "GrandTotal.Amount (21.26)\n- Evidence: \"zu erstattender Betrag ... 21,26\" in summary; no other total visible.\n- Ambiguity: None apparent.\n- Confidence: 98%\n\nInvoice.Date (\"25.01.2024\")\n- Evidence: \"Rechnungsdatum: 25.01.2024\" appears twice (header and within line-item block).\n- Ambiguity: None.\n- Confidence: 100%\n\nSender.VatId (\"ATU67782722\")\n- Evidence: Footer near sender details: \"VAT/UID-Nr: ATU67782722\" associated with Puratos Austria GmbH.\n- Ambiguity: Header shows \"Ihre USt.-ID.: ATU22642807\" (recipient). Distinction between \"Ihre\" and sender footer is clear.\n- Confidence: 95%\n\nVat.Rate (10)\n- Evidence: Line-item Ust% shows \"10  %\"; summary shows \"Ust % 10 %\".\n- Ambiguity: None.\n- Confidence: 100%\n\nNet.Amount (19.33)\n- Evidence: Line item Nettobetrag \"19,33\" and summary \"Netto 19,33\".\n- Ambiguity: No other net amount present.\n- Confidence: 99%\n\nVat.Amount (1.93)\n- Evidence: Summary shows \"Ust ... 1,93\" corresponding to 10% of 19,33.\n- Ambiguity: None; arithmetic consistent.\n- Confidence: 99%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.08,
+      "input_tokens": 1723,
+      "cached_input_tokens": null,
+      "output_tokens": 759,
+      "total_tokens": 2482,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.26,
+      "input_tokens": 2041,
+      "cached_input_tokens": null,
+      "output_tokens": 385,
+      "total_tokens": 2426,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.01,
+      "input_tokens": 2631,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 2912,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273609\\273603_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU67782722",
+        "ATU67782722"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        21.26,
+        "21,26"
+      ],
+      "Net.Amount": [
+        true,
+        19.33,
+        "19,33"
+      ],
+      "Vat.Amount": [
+        true,
+        1.93,
+        "1,93"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "25.01.2024",
+        "25.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6395,
+    "cached_input_tokens": 0,
+    "output_tokens": 1425,
+    "eur_estimate": 0.003872
+  }
+}

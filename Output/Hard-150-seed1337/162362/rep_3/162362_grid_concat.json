@@ -1,0 +1,98 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\162362\\162362_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 75.0,
+    "Invoice.Date": "28.11.22",
+    "Sender.VatId": "EE100066041",
+    "Vat.Rate": 0.0,
+    "Net.Amount": 75.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.88,
+    "Vat.Amount": 0.92
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Highly likely",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I'll analyze the document step by step, consider alternative interpretations, and decide which values can be reliably extracted per the schema.\n\n1) Document classification — is this an invoice?\n- Positive indicators: The header shows \"INVOICE\" and translations (\"Arve\"), fields like \"Invoice No.\", \"Date\", \"Customer No.\", \"VATNo\", \"DUE DATE\", amounts with \"EUR\", and bank/beneficiary/payment info. Also line items, gross weight, VAT indications, and a total-like amount \"EUR 75,00\". These are classic invoice features.\n- Exclusion indicators: Words like \"Mahnung\" or \"Zahlungserinnerung\" do not appear. \"Servicebericht\"/\"Bericht\" not present.\n- Conclusion: document qualifies as an invoice. Proceed to extraction.\n\n2) Locate candidate fields from the text (explicit occurrences):\n- Invoice date:\n  - I see \"Kuupäev Date\" in the header with \"28.11.22\" on same line. That is the invoice issue date. Alternative interpretations: there is also \"Dispatched on 25.11.22\" — but that is shipping date, not invoice date. Choose \"28.11.22\" for Invoice.Date.\n\n- Invoice number:\n  - \"Arve nr. Invoice No.\" followed by \"22157933\". This is invoice ID but schema does not include invoice ID. No extraction needed.\n\n- Grand total amount:\n  - There is \"AFTER DUE DATE EUR 75,00\" below; also earlier the VAT/line shows \"75,00\" adjacent to VAT 0.0% and the line \"75,00\" appears multiple times. There's no explicit label \"Total\" aside from that. Alternatives: Could the only payable amount be EUR 75,00. The safest extraction for GrandTotal.Amount is 75.00 (numerical). Keep decimal places as in input: input shows \"75,00\" with comma; schema expects number. Preserve two decimals: 75.00. Confirm currency: EUR, but schema asks for number only.\n\n- Sender VAT ID:\n  - I see \"VATNo EE100066041\" near top right below dispatched date. Also header shows \"Reg.no 10067413\" and \"VATNo EE100066041\". This corresponds to sender VAT. So Sender.VatId = \"EE100066041\".\n\n- VAT rates and amounts, net amounts:\n  - The invoice indicates VAT (KM) lines: \"(2) VAT 0,0 %    75,00\" and earlier under \"KM VAT\" table row showing \"(2) 0,0 % 75,00\". This implies VAT rate 0.0% and associated amount 75,00 — need to interpret Net vs Vat.Amount.\n  - Possible interpretations:\n    a) 75,00 could be net amount and VAT amount is 0,00 (since VAT rate 0.0%).\n    b) 75,00 could be VAT amount shown but with 0% that would be inconsistent.\n  - Inspect context: The line \"551 Oversized pallet\" then \"(2) VAT 0,0 % 75,00\". Typically invoice tables show net amount per VAT group and then VAT amount in a separate column. Given VAT 0.0% and no other totals, likely 75,00 is the net amount for that VAT group, and VAT.Amount should be 0,00.\n  - Also \"AFTER DUE DATE EUR 75,00\" suggests total payable equals 75,00 — since VAT is zero, net total equals grand total.\n  - Therefore set Vat.Rate = 0.0, Net.Amount = 75.00, Vat.Amount = 0.00.\n  - Keep decimal formatting: input uses comma with two decimals implied; represent numbers as numeric with two decimals (75.00, 0.00, Vat.Rate as number 0.0). Schema asks Vat.Rate as number without percent sign; per rules we must remove percent symbol — store 0.0.\n\n3) Verify no missing or ambiguous fields per schema:\n- GrandTotal.Amount: deduced as 75.00 — consistent with total shown; alternative would be no explicit \"Total\" present but repeated 75,00 strongly indicates total due. Acceptable.\n- Invoice.Date: present and unambiguous \"28.11.22\".\n- Sender.VatId: present \"EE100066041\".\n- Vat.Rate: only VAT group shown is 0.0% — use 0.0.\n- Net.Amount: for that VAT group set to 75.00 as explained.\n- Vat.Amount: 0.00 because 0.0% of 75.00 is 0.00 and context shows VAT zero.\n\n4) Adhere to rules:\n- No inference beyond visible data: I avoided inventing other totals. Chose the visible 75,00 as both group net and grand total since invoice shows no other amounts.\n- Decimal places preserved: input has two decimal precision implied; numbers will be provided with two decimals.\n- Rate values without percent sign: Vat.Rate = 0.0.\n\n5) Final decision on values to output:\n- GrandTotal.Amount = 75.00\n- Invoice.Date = \"28.11.22\"\n- Sender.VatId = \"EE100066041\"\n- Vat.Rate = 0.0\n- Net.Amount = 75.00\n- Vat.Amount = 0.00\n\nNo other VAT groups detected.",
+    "step2": "GrandTotal.Amount — Confidence: High (≈90%)\n- Evidence: \"AFTER DUE DATE EUR 75,00\" and repeated \"75,00\" adjacent to VAT line. No other totals or amounts present. Strong internal consistency that invoice payable = 75,00.\n- Uncertainty sources: No explicit label \"Total Amount\" but context and repetition make this very likely.\n\nInvoice.Date — Confidence: Very High (≈98%)\n- Evidence: Header shows \"Kuupäev Date\" with \"28.11.22\" on same line. Clear, unambiguous.\n- Uncertainty sources: None significant (there is also \"Dispatched on 25.11.22\" but date labels differentiate them).\n\nSender.VatId — Confidence: Very High (≈98%)\n- Evidence: \"VATNo           EE100066041\" printed near header. Clear VAT identifier format for Estonia (EE...).\n- Uncertainty sources: None significant.\n\nVat.Rate — Confidence: High (≈90%)\n- Evidence: Multiple places show \"VAT 0,0 %\" and \"(2) 0,0 %\". Explicit 0.0% VAT group.\n- Uncertainty sources: Locale uses comma for decimal; interpreted as 0.0% per rules (remove percent symbol). No conflicting VAT rates present.\n\nNet.Amount (for VAT group) — Confidence: High (≈88%)\n- Evidence: \"75,00\" associated with the VAT 0,0 % line and the only monetary amount on invoice; grand total equals 75,00, consistent with net = total when VAT = 0%.\n- Uncertainty sources: Layout ambiguity — it's possible \"75,00\" could be presented differently (e.g., VAT amount), but VAT rate 0% implies VAT amount would be 0, making net = total the most consistent interpretation.\n\nVat.Amount (for VAT group) — Confidence: High (≈92%)\n- Evidence: VAT rate 0.0% on a base of 75,00 yields VAT = 0,00; invoice shows VAT 0.0% and no separate VAT sum, consistent with 0.00.\n- Uncertainty sources: Minimal — calculation is deterministic given VAT rate and net."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.49,
+      "input_tokens": 2017,
+      "cached_input_tokens": null,
+      "output_tokens": 1278,
+      "total_tokens": 3295,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.17,
+      "input_tokens": 3214,
+      "cached_input_tokens": null,
+      "output_tokens": 461,
+      "total_tokens": 3675,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.87,
+      "input_tokens": 3975,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 4256,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\162362\\162362.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "EE100066041",
+        "EE100066041"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        75.0,
+        "75,00"
+      ],
+      "Net.Amount": [
+        true,
+        75.0,
+        "75,00"
+      ],
+      "Vat.Rate": [
+        true,
+        0.0,
+        "0,0"
+      ],
+      "Invoice.Date": [
+        true,
+        "28.11.22",
+        "28.11.22"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 5,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 9206,
+    "cached_input_tokens": 0,
+    "output_tokens": 2020,
+    "eur_estimate": 0.001167
+  }
+}

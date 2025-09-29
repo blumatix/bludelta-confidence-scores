@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\183587\\183587_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 132.0,
+    "Invoice.Date": "05.04.2023",
+    "Sender.VatId": "ATU16040004",
+    "Vat.Rate": 10,
+    "Net.Amount": 120.0,
+    "Vat.Amount": 12.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Classify document:\n- Contains \"Gutschrift\" / \"Credit memo\", \"Fakturadatum / Invoice Date\", \"Gesamtbetrag / Total Amount\", \"Umsatzsteuer / Output Tax\" and line item details → qualifies as invoice/credit memo (not an exclusion like \"Mahnung\").\n- Proceed with extraction.\n\n2) Locate Invoice.Date:\n- Found \"Fakturadatum 05.04.2023\" → Invoice.Date = \"05.04.2023\".\n\n3) Determine Sender.VatId:\n- Two VAT IDs present:\n  - \"Ihre USt: ID-Nr. ATU22642807\" (Your VAT No.) — refers to recipient.\n  - \"Unsere USt: ID-Nr. ATU16040004\" (Our VAT No.) — refers to sender (AGRANA Sales & Marketing GmbH).\n- Per schema, Sender.VatId = \"ATU16040004\".\n\n4) Extract totals and VAT group:\n- \"Zwischensumme o. USt. 75,000 KG ... 120,00\" => net amount = 120,00.\n- \"Umsatzsteuer 10,00 % von 120,00 EUR ... 12,00\" => VAT rate = 10,00% and VAT amount = 12,00.\n- \"Gesamtbetrag ... 132,00\" => grand total = 132,00.\n- Preserve decimal places as in input. Remove percent symbol for Vat.Rate per rules -> \"10\" (but original shows \"10,00 %\"; need numeric without % while keeping decimals rule: Vat.Rate is number; rules say extract rates without percentage symbol, examples use integer \"19\". Use 10 or 10.00? Schema type is number; rule 5: \"Extract rates without the percentage symbol (e.g., '19%' as '19').\" Input shows \"10,00 %\"; likely return 10 or 10.00. To preserve decimals, keep as 10.00? However example indicates integer. I'll note both possibilities and choose 10 (consistent with rule example).\n- Final extracted numeric values (convert European comma to dot for JSON numbers):\n  - GrandTotal.Amount = 132.00\n  - Net.Amount = 120.00\n  - Vat.Amount = 12.00\n  - Vat.Rate = 10\n\n5) Check No Inference Policy:\n- All extracted fields directly present; no guessing applied.\n\n6) Confirm schema compliance:\n- All required fields located and prepared in proper types/format for JSON output.",
+    "step2": "I can’t share internal chain-of-thought reasoning, but I can provide a concise confidence assessment for each extracted field:\n\n- GrandTotal.Amount: High — \"Gesamtbetrag ... 132,00\" clearly present.\n- Invoice.Date: High — \"Fakturadatum 05.04.2023\" clearly present.\n- Sender.VatId: High — \"Unsere USt: ID-Nr. ATU16040004\" explicitly labels sender VAT.\n- Vat.Rate: High — \"Umsatzsteuer 10,00 %\" is explicit; rate extracted as 10.\n- Net.Amount: High — \"Zwischensumme ... 120,00\" clearly indicates net amount.\n- Vat.Amount: High — \"10,00 % von 120,00 EUR ... 12,00\" shows VAT amount as 12,00."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.87,
+      "input_tokens": 1996,
+      "cached_input_tokens": null,
+      "output_tokens": 861,
+      "total_tokens": 2857,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.78,
+      "input_tokens": 2584,
+      "cached_input_tokens": null,
+      "output_tokens": 372,
+      "total_tokens": 2956,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.75,
+      "input_tokens": 3064,
+      "cached_input_tokens": null,
+      "output_tokens": 217,
+      "total_tokens": 3281,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\183587\\183587_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU16040004",
+        "ATU16040004"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        132.0,
+        "132,00"
+      ],
+      "Net.Amount": [
+        true,
+        120.0,
+        "120,00"
+      ],
+      "Vat.Amount": [
+        true,
+        12.0,
+        "12,00"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "05.04.2023",
+        "05.04.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7644,
+    "cached_input_tokens": 0,
+    "output_tokens": 1450,
+    "eur_estimate": 0.00419
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231833\\231825_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 76.6,
+    "Invoice.Date": "28.09.2023",
+    "Sender.VatId": "ATU22888702",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 63.83,
+    "Vat.Amount": 12.77
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Determine if document is an invoice:\n- Contains clear invoice indicators: title \"Rechnung 202303315\", \"Rechnungsdatum: 28.09.2023\", invoice number, line items, Nettobetrag, USt., Rechnungsbetrag. No exclusion headers like \"Mahnung\" or \"Zahlungserinnerung\". Conclusion: treat as invoice.\n\n2) Locate Grand total:\n- Text shows \"Rechnungsbetrag 76,60 EUR\". Extract numeric value 76,60 -> convert comma to decimal point for numeric type -> 76.60.\n\n3) Locate Invoice date:\n- \"Rechnungsdatum: 28.09.2023\" -> take as string \"28.09.2023\".\n\n4) Determine Sender VAT ID:\n- Two VAT-like IDs present:\n  - Near customer block: \"Ihre UID-Nr.: ATU22642807\" (this is the customer's VAT).\n  - Footer: \"UID:   AT   U22888702\" alongside company footer info (Schiefer...). This footer UID corresponds to sender. Extract and normalize to \"ATU22888702\" (remove spaces).\n\n5) VAT rate:\n- Line shows \"+  20,00% USt. von 63,83\" -> VAT rate 20,00% -> extract numeric without percent symbol, preserving decimals as in input: 20,00 -> numeric 20.00 or per rule  remove percent sign; schema expects number — use 20 (or 20.00?). Rule 5: \"Extract rates without the percentage symbol (e.g., '19%' as '19').\" Maintain decimals as in input: input \"20,00%\" — to be safe extract 20.00 as numeric. But schema type number; use 20.00.\n\n6) Net amount and VAT amount:\n- Nettobetrag: \"63,83 EUR\" -> numeric 63.83 (preserve decimals).\n- VAT amount: \"12,77 EUR\" -> numeric 12.77.\n\n7) Verify no inference beyond visible data:\n- All extracted values map directly to visible invoice text. No guessing.\n\n8) Prepare final structured values accordingly.",
+    "step2": "GrandTotal.Amount — High confidence (evidence: \"Rechnungsbetrag 76,60 EUR\" clearly shown). Low risk of misreading; comma->decimal conversion straightforward.\n\nInvoice.Date — High confidence (evidence: \"Rechnungsdatum: 28.09.2023\" explicitly present).\n\nSender.VatId — Medium-high confidence. Footer contains \"UID:   AT   U22888702\" which likely is sender VAT; formatting has spaces (\"AT   U22888702\") requiring normalization to \"ATU22888702\". Possible OCR spacing error but value is consistent with VAT pattern.\n\nVat.Rate — High confidence that VAT rate is 20% (evidence: \"+  20,00% USt. von 63,83\"). Minor ambiguity about numeric formatting (20 vs 20.00) but rate content is clear.\n\nNet.Amount — High confidence (evidence: \"Nettobetrag 63,83 EUR\" directly matches line totals).\n\nVat.Amount — High confidence (evidence: \"12,77 EUR\" shown next to VAT line).\n\nOverall consistency: Nettobetrag 63.83 + VAT 12.77 = 76.60 matches GrandTotal.Amount; this arithmetic check increases confidence."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.63,
+      "input_tokens": 2465,
+      "cached_input_tokens": null,
+      "output_tokens": 906,
+      "total_tokens": 3371,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.26,
+      "input_tokens": 2970,
+      "cached_input_tokens": null,
+      "output_tokens": 261,
+      "total_tokens": 3231,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.45,
+      "input_tokens": 3531,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3814,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231833\\231825_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU22888702",
+        "AT U22888702"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        76.6,
+        "76,60"
+      ],
+      "Net.Amount": [
+        true,
+        63.83,
+        "63,83"
+      ],
+      "Vat.Amount": [
+        true,
+        12.77,
+        "12,77"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "28.09.2023",
+        "28.09.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8966,
+    "cached_input_tokens": 0,
+    "output_tokens": 1450,
+    "eur_estimate": 0.004481
+  }
+}

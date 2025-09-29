@@ -1,0 +1,121 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\226102\\226102_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 77.5,
+    "Invoice.Date": "23.08.2023",
+    "Sender.VatId": "ATU66820979",
+    "Vat.Rate": [
+      0,
+      10
+    ],
+    "Net.Amount": [
+      2.5,
+      68.18
+    ],
+    "Vat.Amount": [
+      0.0,
+      6.82
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Classify document:\n- Contains \"Rechnung\" and an invoice number line -> strong invoice indicator.\n- Has line items, Netto/MwSt/Brutto table and \"Summe 77,50 €\" -> confirms invoice.\n- No exclusion keywords like \"Mahnung\" prominent. Proceed with extraction.\n\n2) Locate key fields:\n- Invoice date: On same line as \"Rechnung: 2023001084\" appears \"23.08.2023 06:16:38\". Use date portion \"23.08.2023\".\n- Sender VAT ID: \"UID-Nr.: ATU66820979\" near footer -> extract \"ATU66820979\".\n- Grand total: \"Summe 77,50 €\" and \"Offen 77,50 €\" -> total payable 77,50 -> numeric 77.50.\n- VAT groups: Table shows two groups:\n  a) \"0,00\" (rate) with Netto 2,50 and MwSt 0,00 -> rate 0 (no percent symbol), net 2.50, vat 0.00.\n  b) \"10,00\" (rate) with Netto 68,18 and MwSt 6,82 -> rate 10, net 68.18, vat 6.82.\n- Also a subtotal line \"70,68 6,82 77,50\" confirming totals (net 70,68 and vat 6,82) — cross-check matches group sums: 2.50+68.18=70.68 and 0.00+6.82=6.82.\n\n3) Apply rules:\n- Do not infer missing values; all required fields present.\n- VAT rates must be without \"%\" -> use 0 and 10.\n- Preserve decimal places as in input (commas converted to dots for numeric values): 77.50, 2.50, 0.00, 68.18, 6.82.\n- Document passes header-based validation.\n\n4) Prepare mapping for final JSON:\n- GrandTotal.Amount -> 77.50 (number)\n- Invoice.Date -> \"23.08.2023\" (string)\n- Sender.VatId -> \"ATU66820979\" (string)\n- Vat.Rate -> entries: 0 and 10 (numbers)\n- Net.Amount -> entries: 2.50 and 68.18 (numbers)\n- Vat.Amount -> entries: 0.00 and 6.82 (numbers)\n\n5) Note on schema/array nuance:\n- The invoice contains multiple VAT groups; final output needs to represent both groups per schema instructions (Vat.Item entries).",
+    "step2": "- GrandTotal.Amount (77.50):\n  - Evidence: \"Summe 77,50 €\" and \"Offen 77,50 €\" clearly shown; subtotal line totals match. Confidence: 99%.\n\n- Invoice.Date (\"23.08.2023\"):\n  - Evidence: On line with \"Rechnung: 2023001084\" appears \"23.08.2023 06:16:38\"; date portion unambiguous. Confidence: 99%.\n\n- Sender.VatId (\"ATU66820979\"):\n  - Evidence: \"UID-Nr.: ATU66820979\" in footer; standard VAT format for Austria. Confidence: 99%.\n\n- Vat groups count and values:\n  - Group 1:\n    - Vat.Rate = 0\n      - Evidence: Table shows \"0,00\" under rate column associated with Netto 2,50 and MwSt 0,00. Interpreted as 0%. Confidence: 95%.\n    - Net.Amount = 2.50\n      - Evidence: Netto column shows \"2,50\". Confidence: 98%.\n    - Vat.Amount = 0.00\n      - Evidence: MwSt column shows \"0,00\". Confidence: 98%.\n  - Group 2:\n    - Vat.Rate = 10\n      - Evidence: Table shows \"10,00\" associated with Netto 68,18 and MwSt 6,82. Interpreted as 10%. Confidence: 95%.\n    - Net.Amount = 68.18\n      - Evidence: Netto column shows \"68,18\". Confidence: 98%.\n    - Vat.Amount = 6.82\n      - Evidence: MwSt column shows \"6,82\". Confidence: 98%.\n\n- Cross-checks:\n  - Net totals: 2.50 + 68.18 = 70.68, matches subtotal line \"70,68\". Confidence in consistency: 99%.\n  - VAT totals: 0.00 + 6.82 = 6.82, matches subtotal line \"6,82\". Confidence: 99%.\n\nOverall extraction confidence: high; small uncertainty only in mapping comma decimals to dot decimals and interpreting \"0,00\" and \"10,00\" as percentage rates without percent sign."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 17.36,
+      "input_tokens": 1639,
+      "cached_input_tokens": null,
+      "output_tokens": 1264,
+      "total_tokens": 2903,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.61,
+      "input_tokens": 2246,
+      "cached_input_tokens": null,
+      "output_tokens": 481,
+      "total_tokens": 2727,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 8.39,
+      "input_tokens": 3027,
+      "cached_input_tokens": null,
+      "output_tokens": 629,
+      "total_tokens": 3656,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\226102\\226102_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU66820979",
+        "ATU66820979"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        77.5,
+        "77,50"
+      ],
+      "Net.Amount": [
+        false,
+        [
+          2.5,
+          68.18
+        ],
+        "68,18"
+      ],
+      "Vat.Amount": [
+        false,
+        [
+          0.0,
+          6.82
+        ],
+        "6,82"
+      ],
+      "Vat.Rate": [
+        false,
+        [
+          0,
+          10
+        ],
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "23.08.2023",
+        "23.08.2023"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 6912,
+    "cached_input_tokens": 0,
+    "output_tokens": 2374,
+    "eur_estimate": 0.005628
+  }
+}

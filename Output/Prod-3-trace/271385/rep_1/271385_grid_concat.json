@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\271385\\271385_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 504.0,
+    "Invoice.Date": "14.11.2022",
+    "Sender.VatId": "ATU35758104",
+    "Vat.Rate": 20,
+    "Net.Amount": 420.0,
+    "Vat.Amount": 84.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.97,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Classify document:\n- Contains invoice-like elements: totals (\"Endbetrag EUR 504,00\"), VAT line (\"zuzüglich 20 % Mwst. 84,00\"), dates, UID lines, line item with quantity and price. \n- Title shows \"Gutschrift-Nr. 229147\" (credit note) but not an exclusion term like \"Zahlungserinnerung\" or \"Mahnung\". Keyword density favors invoice/credit-invoice. Proceed with extraction.\n\n2) Locate candidate fields:\n- Invoice.Date: found near header \"Lauterach, 14.11.2022\".\n- Sender.VatId: \"Unsere UID: ATU35758104\".\n- Vat.Rate: explicit \"zuzüglich 20 % Mwst.\" → rate 20 (must drop % when outputting).\n- Vat.Amount: shown as \"84,00\" next to VAT line.\n- Net.Amount: line item/summary shows \"420,00\" (also listed as item price and subtotal).\n- GrandTotal.Amount: \"Endbetrag EUR 504,00\".\n\n3) Verify numeric formats and no inference:\n- Input uses comma as decimal separator and two decimals (\"420,00\", \"84,00\", \"504,00\"); must preserve number of decimals in output.\n- Schema requires numbers (no currency). Will convert to numeric values while preserving decimal precision. No fields are missing; all identified directly in text.\n- Ensure Vat.Rate returned without percent sign: \"20\".\n\n4) Handle possible ambiguities:\n- Document is a \"Gutschrift\" (credit note) rather than a standard invoice number label, but it still provides the monetary totals and VAT — allowed by classification rules since exclusion terms are absent.\n- Multiple VAT entries? Only single VAT group present; treat Vat.Rate, Net.Amount, Vat.Amount as a single VAT item group.\n\n5) Final mapping (to be output as JSON later):\n- Invoice.Date <- \"14.11.2022\"\n- Sender.VatId <- \"ATU35758104\"\n- Vat.Rate <- 20\n- Net.Amount <- 420,00\n- Vat.Amount <- 84,00\n- GrandTotal.Amount <- 504,00",
+    "step2": "GrandTotal.Amount — 95%: \"Endbetrag EUR 504,00\" is explicit and unambiguous in the totals area.\n\nInvoice.Date — 98%: \"Lauterach, 14.11.2022\" clearly formatted as invoice/issue date in header.\n\nSender.VatId — 98%: \"Unsere UID: ATU35758104\" directly indicates sender VAT ID.\n\nVat.Rate — 97%: \"zuzüglich 20 % Mwst.\" explicitly states VAT rate; conversion to \"20\" follows rule to omit %.\n\nNet.Amount — 95%: \"420,00\" appears as the line subtotal and matches the net before VAT shown above the VAT line.\n\nVat.Amount — 97%: \"84,00\" is shown adjacent to the VAT line (\"zuzüglich 20 % Mwst. 84,00\"), matching 20% of 420,00."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.06,
+      "input_tokens": 1940,
+      "cached_input_tokens": null,
+      "output_tokens": 848,
+      "total_tokens": 2788,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.55,
+      "input_tokens": 2451,
+      "cached_input_tokens": null,
+      "output_tokens": 389,
+      "total_tokens": 2840,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.8,
+      "input_tokens": 2948,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3229,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\271385\\271385_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU35758104",
+        "ATU35758104"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        504.0,
+        "504,00"
+      ],
+      "Net.Amount": [
+        true,
+        420.0,
+        "420,00"
+      ],
+      "Vat.Amount": [
+        true,
+        84.0,
+        "84,00"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "14.11.2022",
+        "14.11.2022"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7339,
+    "cached_input_tokens": 0,
+    "output_tokens": 1518,
+    "eur_estimate": 0.004241
+  }
+}

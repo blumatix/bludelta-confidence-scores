@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\274173\\274169_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 25.81,
+    "Invoice.Date": "2024-01-29",
+    "Sender.VatId": "ATU31800708",
+    "Vat.Rate": 10,
+    "Net.Amount": 23.46,
+    "Vat.Amount": 2.35
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will verify this is an invoice (presence of \"Rechnung\", invoice number, totals, VAT lines). Then I will locate and extract each required schema field without guessing if missing:\n\n- Identify GrandTotal.Amount from the final payable amount labeled \"Endbetrag\" or similar.\n- Find Invoice.Date from date near header (e.g., \"Stans, 2024-01-29\").\n- Extract Sender.VatId (sender UID/UID-Nr.) where \"UID-Nr.\" or \"Darbo-UID-Nr.\" appears.\n- Collect Vat.Rate values from MWSt / VAT percentage lines (remove \"%\" when recording).\n- Get Net.Amount from the MWSt-Basis / Auftragssumme / Netto lines corresponding to each VAT rate.\n- Get Vat.Amount from the VAT amount lines associated with each VAT rate.\n\nI will not fill any field by inference; if a value is not explicitly present, I will leave it empty. I will preserve decimal precision as shown.",
+    "step2": "1) GrandTotal.Amount\n- Evidence: \"Endbetrag ... EUR 25,81\" near totals.\n- Likelihood: Very high (clear explicit total).\n- Notes: Value present with two decimals and comma as decimal separator.\n\n2) Invoice.Date\n- Evidence: Two dates shown: \"vom: 2024-01-23\" (next to \"Ihr Auftrag\") and \"Stans, 2024-01-29\" near header/footer. \"Rechnung\" header present; \"Stans, 2024-01-29\" appears to be invoice issue date.\n- Likelihood: High for 2024-01-29 as invoice date; medium if 2024-01-23 could be invoice-related order date.\n- Notes: Ambiguity between order/date fields but 2024-01-29 is labeled with location and typical invoice date format.\n\n3) Sender.VatId\n- Evidence: \"Darbo-UID-Nr.: ATU31800708\" and also \"UID-Nr.: ATU31800708\" in footer.\n- Likelihood: Very high (explicit sender VAT ID present).\n\n4) Vat.Rate\n- Evidence: Line \"MWSt ... 10,00\" associated with VAT line.\n- Likelihood: Very high that VAT rate is 10 (present as 10,00%).\n\n5) Net.Amount\n- Evidence: \"MWSt-Basis 1 23,46\" and \"Auftragssumme 23,46\" correspond to net amount for the VAT group.\n- Likelihood: Very high (explicit net base shown).\n\n6) Vat.Amount\n- Evidence: \"MWSt 10,00 2,35\" showing VAT amount 2,35.\n- Likelihood: Very high (explicit VAT amount shown)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 5.29,
+      "input_tokens": 1883,
+      "output_tokens": 332,
+      "total_tokens": 2215
+    },
+    "step2": {
+      "runtime_sec": 5.09,
+      "input_tokens": 2094,
+      "output_tokens": 632,
+      "total_tokens": 2726
+    },
+    "step3": {
+      "runtime_sec": 4.97,
+      "input_tokens": 2739,
+      "output_tokens": 345,
+      "total_tokens": 3084
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274173\\274169_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU31800708",
+        "ATU31800708"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        25.81,
+        "25,81"
+      ],
+      "Net.Amount": [
+        true,
+        23.46,
+        "23,46"
+      ],
+      "Vat.Amount": [
+        true,
+        2.35,
+        "2,35"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "2024-01-29",
+        "2024-01-29"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  }
+}

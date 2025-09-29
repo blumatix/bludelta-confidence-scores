@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\273632\\273586_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 29193.12,
+    "Invoice.Date": "25.01.2024",
+    "Sender.VatId": "ATU39103108",
+    "Vat.Rate": 10,
+    "Net.Amount": 26539.2,
+    "Vat.Amount": 2653.92
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains header \"Rechnung\" and invoice-like sections (Nummer, Datum, Rechnungsempfänger, line items, MwSt.-% table) → classify as invoice.\n\nPlanned extraction targets and where to find them:\n- Invoice.Date: look for \"Datum\" header on page 1 (near top-right).\n- Sender.VatId: look for \"VAT Registration n°\" / \"ATU...\" on page 1 and repeated IBAN block.\n- GrandTotal.Amount: look for final gross total in the VAT summary table / totals section (page 1 shows totals and a gross amount).\n- Vat.Rate / Net.Amount / Vat.Amount: extract VAT group rows from the VAT summary table (columns showing MwSt.-% , MwSt.-€ , Wert netto / Gesamtsumme netto / brutto). There is a single VAT group 10,00% with corresponding net and VAT amounts.\n- Net.Amount: take the net total corresponding to the VAT group (preserve decimals).\n- Vat.Amount: take the VAT euro amount corresponding to that group (preserve decimals).\nNotes and rules applied:\n- No inference: only explicit text values will be used.\n- Preserve decimal formatting as in document.\n- VAT rate will be returned without the \"%\" symbol.\n- If any target value is not explicitly present, it will be left empty.\nNext step: extract the explicit string/number values for each schema field from the located positions.",
+    "step2": "GrandTotal.Amount — 95%: Visible as \"29.193,12\" in the VAT/total block (brutto / Gesamtsumme brutto). Clear placement as final gross total; formatting uses comma as decimal separator.\n\nInvoice.Date — 99%: \"Datum 25.01.2024\" at top right of page 1; unambiguous.\n\nSender.VatId — 99%: \"VAT Registration n° ATU39103108\" (also repeated near bottom); explicit VAT ID present.\n\nVat.Rate — 99%: Single VAT group shown as \"10,00 %\" in the MwSt.-% column; clear.\n\nNet.Amount — 98%: Net total shown as \"26.539,20\" in the VAT summary (Gesamtsumme netto / Wert netto); matches sum of line-item nettobeträge; formatting with comma decimal.\n\nVat.Amount — 98%: VAT euro amount shown as \"2.653,92\" (MwSt.-€) in the VAT summary; corresponds to 10% of the net amount."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 5.87,
+      "input_tokens": 2664,
+      "cached_input_tokens": null,
+      "output_tokens": 492,
+      "total_tokens": 3156,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.81,
+      "input_tokens": 2971,
+      "cached_input_tokens": null,
+      "output_tokens": 612,
+      "total_tokens": 3583,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.55,
+      "input_tokens": 3468,
+      "cached_input_tokens": null,
+      "output_tokens": 348,
+      "total_tokens": 3816,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273632\\273586_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU39103108",
+        "ATU39103108"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        29193.12,
+        "29.193,12"
+      ],
+      "Net.Amount": [
+        true,
+        26539.2,
+        "26.539,20"
+      ],
+      "Vat.Amount": [
+        true,
+        2653.92,
+        "2.653,92"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "25.01.2024",
+        "25.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 9103,
+    "cached_input_tokens": 0,
+    "output_tokens": 1452,
+    "eur_estimate": 0.004515
+  }
+}

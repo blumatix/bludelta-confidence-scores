@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\254853\\254819_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1045.73,
+    "Invoice.Date": "22.11.2023",
+    "Sender.VatId": "ATU47542609",
+    "Vat.Rate": 20,
+    "Net.Amount": 871.44,
+    "Vat.Amount": 174.29
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will extract invoice fields by locating invoice headers, numeric totals, VAT group lines, dates, and sender VAT IDs, avoiding any inference for missing data.\n\nFindings from the text:\n- Invoice indicators present: \"RECHNUNG\", \"Rechnungsnummer\", \"Rechnungsdatum\", totals, VAT lines.\n- Exclusion terms absent.\n- Invoice Date found: \"22.11.2023\".\n- Grand total (Rechnungsbetrag) found: \"1.045,73 EUR\".\n- VAT group shows taxable amount and VAT: \"Steuerpfl.Betrag 871,44 EUR\" and \"+ 20,00% MWST 174,29 EUR\".\n- Sender VAT: two Ust.-Id. appear. The document issuer \"PAPIER-METTLER Austria GmbH\" lists Ust.-Id.: \"ATU47542609\" (bottom); another Ust.-Id. \"ATU22642807\" belongs to BÄKO-ÖSTERREICH (buyer). Per \"Sender\" = issuer, select ATU47542609.\n- VAT rate: \"20,00%\" → extract as 20 (per rules).\n- Net.Amount: 871,44 (as shown).\n- Vat.Amount: 174,29 (as shown).\n\nNo other relevant invoice-level exchange rates or additional VAT groups detected. All values will be returned without currency symbols and preserving original decimal precision.",
+    "step2": "GrandTotal.Amount (1.045,73)\n- Evidence: Explicit label \"Rechnungsbetrag                                1.045,73     EUR\".\n- Ambiguity: None apparent; only one total shown.\n- Confidence: 99%\n\nInvoice.Date (\"22.11.2023\")\n- Evidence: Labeled \"Rechnungsdatum                                     :    22.11.2023\".\n- Ambiguity: Date format clear; no conflicting dates for invoice issue.\n- Confidence: 99%\n\nSender.VatId (\"ATU47542609\")\n- Evidence: Two Ust.-Id. occur: \"Ust.-Id.:                 ATU22642807\" appears with BÄKO-ÖSTERREICH (buyer) in header block; \"PAPIER-METTLER Austria GmbH\" footer shows \"Ust.-Id.:                    ATU47542609\". The sender/issuer is Papier-Mettler, so the footer VAT corresponds to sender.\n- Ambiguity: Presence of two VAT IDs requires choosing issuer's ID; assignment is supported by layout but could be misread if header/footer roles confused.\n- Confidence: 90%\n\nVat.Rate (20)\n- Evidence: VAT line \"+ 20,00%      MWST                               174,29    EUR\".\n- Ambiguity: Decimal/comma formatting; rule requires dropping % sign and preserving numeric value -> 20.\n- Confidence: 99%\n\nNet.Amount (871,44)\n- Evidence: \"Steuerpfl.Betrag                                 871,44    EUR\" corresponds to taxable/net amount before VAT.\n- Ambiguity: Text also mentions ARA-Netto-Gebühren included (24,24 EUR) but that does not change shown net line.\n- Confidence: 98%\n\nVat.Amount (174,29)\n- Evidence: Directly shown next to VAT rate: \"174,29    EUR\".\n- Ambiguity: None apparent.\n- Confidence: 99%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.54,
+      "input_tokens": 2063,
+      "cached_input_tokens": null,
+      "output_tokens": 682,
+      "total_tokens": 2745,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.88,
+      "input_tokens": 2408,
+      "cached_input_tokens": null,
+      "output_tokens": 473,
+      "total_tokens": 2881,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.49,
+      "input_tokens": 3117,
+      "cached_input_tokens": null,
+      "output_tokens": 282,
+      "total_tokens": 3399,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\254853\\254819_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU47542609",
+        "ATU47542609"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1045.73,
+        "1.045,73"
+      ],
+      "Net.Amount": [
+        true,
+        871.44,
+        "871,44"
+      ],
+      "Vat.Amount": [
+        true,
+        174.29,
+        "174,29"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "22.11.2023",
+        "22.11.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7588,
+    "cached_input_tokens": 0,
+    "output_tokens": 1437,
+    "eur_estimate": 0.004155
+  }
+}

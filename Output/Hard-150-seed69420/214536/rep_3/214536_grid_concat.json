@@ -1,0 +1,112 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\214536\\214536_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 9184.0,
+    "Invoice.Date": "2022-12-26T13:45:45",
+    "Sender.VatId": "DGL210708H70",
+    "Vat.Rate": 16.0,
+    "Net.Amount": 8200.0,
+    "Vat.Amount": 1312.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.97,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.97,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains invoice indicators: \"Factura\", \"Tipo de Comprobante I - Ingreso\", \"Factura No. AFTD1676\", invoice-like headers, subtotal, IVA, TOTAL.\n- No exclusion indicators (\"Zahlungserinnerung\", \"Mahnung\", \"Servicebericht\") present.\n- Therefore treat as an invoice and proceed with extraction.\n\nDetected candidate values (verbatim from document):\n- Grand total: \"TOTAL                                         $9,184.00\"\n- Invoice date/time: \"Fecha y Hora de Emisión\" / \"2022-12-26T13:45:45\" (also shown as \"26/12/2022 13:45:45\")\n- Sender VAT (RFC): \"R.F.C.:      DGL210708H70\" (header of issuer)\n- Sub-Total (Net): \"Sub-Total                                       $8,200.00\"\n- VAT rate and amount: \"I.V.A.   16.00%                                    $1,312.00\"\n- Withheld VAT shown separately: \"I.V.A.   Retenido     4.00%\" with amount \"$328.00\" — this is present but is a withheld VAT line (not primary VAT group).\n- Currency: MXN and exchange rate 1.0000 appear, but exchange rates only required if applicable to entire invoice (not needed here since rate=1.0000 and currency MXN).\n\nMapping to required schema (notes before final extraction):\n- GrandTotal.Amount → numeric 9184.00 (preserve two decimals)\n- Invoice.Date → use ISO timestamp \"2022-12-26T13:45:45\" as present\n- Sender.VatId → \"DGL210708H70\"\n- Vat.Rate → primary VAT rate is 16.00% → numeric 16.00 (no percent symbol)\n- Net.Amount → subtotal 8200.00 (numeric)\n- Vat.Amount → VAT amount corresponding to 16.00% → 1312.00 (numeric)\n\nNo fields require inference beyond text. If multiple occurrences existed for a field, would include each; here single clear occurrences mapped above. Final extraction will follow the schema exactly and leave no-available fields empty (not applicable here).",
+    "step2": "GrandTotal.Amount:\n- Evidence: Line \"TOTAL                                         $9,184.00\".\n- Consistency: Matches Sub-Total ($8,200.00) + I.V.A. 16.00% ($1,312.00) = $9,512.00? Wait recompute: 8,200.00 + 1,312.00 = 9,512.00. Document shows I.V.A. Retenido 4.00% $328.00 which reduces payable: 9,512.00 - 328.00 = 9,184.00, matching TOTAL.\n- Confidence: High (evidence explicit and arithmetically consistent with VAT and withheld VAT). Estimated confidence: 0.95\n\nInvoice.Date:\n- Evidence: \"Fecha y Hora de Emisión\" / \"2022-12-26T13:45:45\" and also \"26/12/2022 13:45:45\".\n- Consistency: ISO timestamp present; no conflicting dates for issuance.\n- Confidence: High. Estimated confidence: 0.98\n\nSender.VatId:\n- Evidence: Header shows \"R.F.C.:      DGL210708H70\" at top under issuer.\n- Consistency: Appears as issuer RFC; no other RFC for issuer conflicting (client RFC also present but different).\n- Confidence: High. Estimated confidence: 0.97\n\nVat.Rate:\n- Evidence: \"I.V.A.   16.00%                                    $1,312.00\" clearly indicates a 16.00% VAT group.\n- Consistency: 16.00% applied to Sub-Total 8,200.00 equals 1,312.00 (8,200 * 0.16 = 1,312.00). There is also \"I.V.A. Retenido 4.00%\" shown (withheld), but primary VAT group is 16.00%.\n- Confidence: High. Estimated confidence: 0.99\n\nNet.Amount:\n- Evidence: \"Sub-Total                                       $8,200.00\"\n- Consistency: Subtotal aligns with VAT calculation above.\n- Confidence: High. Estimated confidence: 0.97\n\nVat.Amount:\n- Evidence: \"I.V.A.   16.00%                                    $1,312.00\"\n- Consistency: Matches Sub-Total * 16% = 1,312.00. Note there is also a withheld VAT 4.00% $328.00 which is separate and was accounted for in total.\n- Confidence: High. Estimated confidence: 0.98"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.39,
+      "input_tokens": 7937,
+      "cached_input_tokens": null,
+      "output_tokens": 857,
+      "total_tokens": 8794,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.0,
+      "input_tokens": 8456,
+      "cached_input_tokens": null,
+      "output_tokens": 547,
+      "total_tokens": 9003,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.56,
+      "input_tokens": 9303,
+      "cached_input_tokens": null,
+      "output_tokens": 229,
+      "total_tokens": 9532,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\214536\\214536.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DGL210708H70",
+        "DGL210708H70"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        9184.0,
+        "9,184.00"
+      ],
+      "Net.Amount": [
+        true,
+        8200.0,
+        [
+          "8,200.00",
+          "8,200.00"
+        ]
+      ],
+      "Vat.Amount": [
+        false,
+        1312.0,
+        [
+          "1,312.00",
+          "328.00"
+        ]
+      ],
+      "Vat.Rate": [
+        false,
+        16.0,
+        [
+          "16.00",
+          "4.00"
+        ]
+      ],
+      "Invoice.Date": [
+        false,
+        "2022-12-26T13:45:45",
+        "26/12/2022"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 25696,
+    "cached_input_tokens": 0,
+    "output_tokens": 1633,
+    "eur_estimate": 0.001856
+  }
+}

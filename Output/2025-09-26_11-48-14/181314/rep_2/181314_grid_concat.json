@@ -1,0 +1,128 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\181331\\181314_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 266.9,
+    "Invoice.Date": "22/03/2023",
+    "Sender.VatId": "ATU19424905",
+    "Vat.Rate": [
+      10,
+      20
+    ],
+    "Net.Amount": [
+      223.59
+    ],
+    "Vat.Amount": [
+      1.41,
+      41.9
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Plan:\n- Confirm document is an invoice (presence of \"Rechnung\", invoice number, invoice date, totals).\n- Locate fields: Invoice date, sender VAT (UID-Nr.), net total, VAT groups (rates, net per group, VAT amounts), grand total.\n- Do not infer missing values; report exact text/numbers found.\n\nFindings (candidates to extract):\n- Invoice.Date: \"22/03/2023\" (appears as RECHNUNGSDATUM: 22/03/2023).\n- Sender.VatId: \"ATU19424905\" (appears as UID-Nr.: ATU19424905).\n- Net.Amount: \"223,59\" (NETTO-WARENWERT / NETTO GESAMTSUMME shows 223,59).\n- Vat groups:\n  - Rate 10.00% -> Vat.Amount \"1,41\" (line: MEHRWERTSTEUER 10,00% ... 1,41).\n  - Rate 20.00% -> Vat.Amount \"41,90\" (line: MEHRWERTSTEUER 20,00% ... 41,90).\n- Vat total (sum): \"43,31\" shown as MWST total.\n- GrandTotal.Amount / BRUTTO GESAMTSUMME: \"266,90\".\n\nPotential ambiguities checked:\n- Multiple VAT rates present (10% and 20%); net/ VAT amounts per rate are shown; will preserve exact decimals and not infer any missing numeric formats or currencies.\n- Document clearly an invoice (header \"Rechnung\"); no exclusion terms present.\n\nI'll now produce the structured JSON extraction.",
+    "step2": "Invoice.Date: Very high confidence. \"RECHNUNGSDATUM: 22/03/2023\" appears clearly in header twice.\n\nSender.VatId: Very high confidence. \"UID-Nr.: ATU19424905\" is shown in sender block near company name.\n\nNet.Amount: High confidence. \"NETTO-WARENWERT: 223,59\" and \"NETTO GESAMTSUMME 223,59\" both appear, consistent.\n\nVat.Rate 10.00 -> Vat.Amount 1,41: High confidence. \"MEHRWERTSTEUER 10,00 % ... 1,41\" is explicitly listed.\n\nVat.Rate 20.00 -> Vat.Amount 41,90: High confidence. \"MEHRWERTSTEUER 20,00 % ... 41,90\" is explicitly listed.\n\nVat total (43,31) consistency check: High confidence for total VAT value. Document shows \"43,31\" as MWST and 223,59 + 43,31 = 266,90 matches BRUTTO.\n\nGrandTotal.Amount: Very high confidence. \"BRUTTO GESAMTSUMME 266,90\" and \"SUMME EUR 266,90\" are explicit.\n\nOverall classification as invoice: Very high confidence. Prominent \"Rechnung\" and invoice headers/fields present; no exclusion terms."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.65,
+      "input_tokens": 4318,
+      "cached_input_tokens": null,
+      "output_tokens": 673,
+      "total_tokens": 4991,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.27,
+      "input_tokens": 4718,
+      "cached_input_tokens": null,
+      "output_tokens": 359,
+      "total_tokens": 5077,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 9.89,
+      "input_tokens": 5313,
+      "cached_input_tokens": null,
+      "output_tokens": 687,
+      "total_tokens": 6000,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\181331\\181314_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU19424905",
+        "ATU19424905"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        266.9,
+        "266,90"
+      ],
+      "Net.Amount": [
+        false,
+        [
+          223.59
+        ],
+        [
+          "14,10",
+          "209,49"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        [
+          1.41,
+          41.9
+        ],
+        [
+          "1,41",
+          "41,90"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        [
+          10,
+          20
+        ],
+        [
+          "10,00",
+          "20,00"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "22/03/2023",
+        "22/03/2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 14349,
+    "cached_input_tokens": 0,
+    "output_tokens": 1719,
+    "eur_estimate": 0.006131
+  }
+}

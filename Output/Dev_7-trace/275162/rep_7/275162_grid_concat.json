@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\275162\\275162_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2646.34,
+    "Invoice.Date": "31.01.2024",
+    "Sender.VatId": "ATU41678500",
+    "Vat.Rate": 10,
+    "Net.Amount": 2405.76,
+    "Vat.Amount": 240.58
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.97,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Summary of evidence and extraction plan (concise, non-sensitive):\n\n1. Document classification\n- Contains clear invoice indicators: title \"RECHNUNG\", invoice number \"240281\", line items, Netto/Brutto/USt totals → classify as invoice.\n- No exclusion terms (e.g., Mahnung) prominent.\n\n2. Candidate field matches from text\n- Invoice.Date: \"Rosenburg, am 31.01.2024\" → candidate date 31.01.2024.\n- GrandTotal.Amount: \"Brutto EUR 2.646,34\" → candidate 2.646,34.\n- Net.Amount: \"Netto EUR 2.405,76\" → candidate 2.405,76.\n- Vat.Amount: \"+10 % USt EUR 240,58\" → candidate 240,58.\n- Vat.Rate: \"10 % USt\" → candidate 10 (percent sign to be removed).\n- Sender.VatId: two UID strings present:\n  - \"Kunden UID-Nr: ATU22642807\" (customer)\n  - Footer \"UID-Nr. ATU41678500\" (company footer) — treat ATU41678500 as sender VAT ID.\n\n3. Ambiguities / validation\n- Ensure Sender.VatId is the sender (company) VAT — footer UID appears to be company’s UID; customer UID is labeled as Kunden UID and must not be used for Sender.VatId.\n- Number formatting: preserve decimals exactly as shown (e.g., 2.646,34) but final JSON must use numeric values; will convert to numeric with same decimal precision.\n- Do not infer any missing fields; use only explicit values.\n\n4. Next step\n- Populate required JSON fields with the explicit candidates above; leave any field empty only if not found (none missing).",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"value\": \"2.646,34\",\n    \"confidence\": \"95%\",\n    \"evidence\": \"Line shows 'Brutto EUR 2.646,34' clearly marked as total payable.\"\n  },\n  \"Invoice.Date\": {\n    \"value\": \"31.01.2024\",\n    \"confidence\": \"98%\",\n    \"evidence\": \"Document header 'Rosenburg, am 31.01.2024' labeled with date format typical for invoice issue date.\"\n  },\n  \"Sender.VatId\": {\n    \"value\": \"ATU41678500\",\n    \"confidence\": \"90%\",\n    \"evidence\": \"Footer contains 'UID-Nr. ATU41678500' alongside company registration details; customer UID also present (ATU22642807) but labeled as 'Kunden'.\"\n  },\n  \"Vat.Rate\": {\n    \"value\": 10,\n    \"confidence\": \"99%\",\n    \"evidence\": \"Line shows '+10 % USt' associated with VAT calculation.\"\n  },\n  \"Net.Amount\": {\n    \"value\": 2405.76,\n    \"confidence\": \"97%\",\n    \"evidence\": \"Line shows 'Netto EUR 2.405,76' matching subtotal before VAT.\"\n  },\n  \"Vat.Amount\": {\n    \"value\": 240.58,\n    \"confidence\": \"97%\",\n    \"evidence\": \"Line shows '+10 % USt EUR 240,58' explicitly as VAT amount.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.69,
+      "input_tokens": 1642,
+      "cached_input_tokens": null,
+      "output_tokens": 835,
+      "total_tokens": 2477,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.45,
+      "input_tokens": 2036,
+      "cached_input_tokens": null,
+      "output_tokens": 457,
+      "total_tokens": 2493,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.16,
+      "input_tokens": 2634,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 2981,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\275162\\275162_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU41678500",
+        "ATU41678500"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        2646.34,
+        "2.646,34"
+      ],
+      "Net.Amount": [
+        true,
+        2405.76,
+        "2.405,76"
+      ],
+      "Vat.Amount": [
+        true,
+        240.58,
+        "240,58"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "31.01.2024",
+        "31.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6312,
+    "cached_input_tokens": 0,
+    "output_tokens": 1639,
+    "eur_estimate": 0.004224
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\256397\\256397_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1078.43,
+    "Invoice.Date": "28.11.2023",
+    "Sender.VatId": "ATU23264205",
+    "Vat.Rate": 10,
+    "Net.Amount": 980.39,
+    "Vat.Amount": 98.04
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification\n- Presence of keywords: \"Rechnung\", \"Rechnungsbetrag\", \"Umsatzsteuer\", \"Gesamtsumme\", \"Belegnr.\" → strong invoice indicators.\n- No prominent exclusion terms (\"Zahlungserinnerung\", \"Mahnung\", \"Servicebericht\") detected.\n- Header sections like \"Rechnungsdetails\", line items table and totals present → classify as invoice.\n\n2) Identify candidate fields and verify occurrences\n- Invoice.Date: multiple \"v. 28.11.2023\" occurrences (Belegnr. 31676582 v. 28.11.2023; Lieferschein 22899236 v. 28.11.2023; Auftrag 12896486 v. 27.11.2023). The invoice header line \"Belegnr. ... v. 28.11.2023\" indicates invoice issuance on 28.11.2023. Candidate: \"28.11.2023\".\n- Sender.VatId: Two UID values present:\n  - UID: ATU22642807 appears under BÄKO Österreich eGen section (invoice recipient).\n  - UID: ATU23264205 appears in the NÖM AG footer (company details / sender). Sender VAT should be the sender (NÖM AG) → candidate: \"ATU23264205\".\n- GrandTotal.Amount: \"Rechnungsbetrag 1.078,43\" shown under totals. Candidate numeric amount: 1.078,43 (note comma decimal).\n- Net.Amount: Under \"Gesamtsumme\" shows \"Gesamtbetrag exkl. 980,39\" → candidate net amount: 980,39.\n- Vat.Rate and Vat.Amount: Under totals: \"Umsatzsteuer 10,00% von 980,39 98,04\" and table line items show Ust % = 10 for items. Candidate VAT rate: 10 (per rule, no % symbol). Candidate VAT amount: 98,04.\n\n3) Format and validation checks\n- Numeric formatting in source uses comma as decimal separator. For final extraction numeric types must preserve decimals as in input; but schema expects number types — ensure decimal places preserved. Do not convert values by inference beyond formatting.\n- No conflicting multiple different invoice dates or sender VAT IDs for sender; chosen occurrences are consistent (sender info in footer).\n- No exchange rates present.\n- No missing required fields after extraction; all required fields have identifiable values.\n\n4) Potential ambiguities considered\n- Could pick UID ATU22642807 as Sender.VatId if misreading sections, but this UID corresponds to invoice recipient (BÄKO) printed in recipient block; sender footer contains ATU23264205 — choose latter.\n- Invoice date could be 27.11.2023 from \"Auftrag v. 27.11.2023\" but invoice issuance tied to Belegnr. line showing 28.11.2023 → choose 28.11.2023.\n- Decimal separator handling: keep original decimal digits (two decimals) and do not truncate.\n\n5) Final field mappings to extract (candidates)\n- Invoice.Date -> \"28.11.2023\"\n- Sender.VatId -> \"ATU23264205\"\n- GrandTotal.Amount -> 1.078,43 (from \"Rechnungsbetrag 1.078,43\")\n- Net.Amount -> 980,39 (from \"Gesamtbetrag exkl. 980,39\")\n- Vat.Rate -> 10 (from \"Umsatzsteuer 10,00%\")\n- Vat.Amount -> 98,04 (from \"98,04\" corresponding to VAT on 980,39)\n\nI will now produce the final JSON extraction using these validated values.",
+    "step2": "Invoice.Date — Confidence: high (≈95%)\n- Evidence: \"Belegnr. 31676582 v. 28.11.2023\" appears on the invoice header line; other dates present (27.11.2023 linked to Auftrag) but the 28.11.2023 is the date explicitly attached to the Belegnr./invoice line. Low ambiguity.\n\nSender.VatId — Confidence: high (≈95%)\n- Evidence: Two UID values: \"UID: ATU22642807\" appears in recipient block (BÄKO), while footer company details for NÖM AG (sender) list \"UID: ATU23264205\". Sender VAT corresponds to sender company in footer → ATU23264205. Low ambiguity.\n\nGrandTotal.Amount — Confidence: very high (≈99%)\n- Evidence: \"Rechnungsbetrag 1.078,43\" explicitly labeled as invoice total. Clear single value.\n\nNet.Amount — Confidence: very high (≈98%)\n- Evidence: \"Gesamtbetrag exkl. 980,39\" shown under totals as base for VAT calculation. Clear single value.\n\nVat.Rate — Confidence: very high (≈99%)\n- Evidence: \"Umsatzsteuer 10,00%\" and line item Ust % = 10. Clear single VAT rate. Per rules, return as number without % (10).\n\nVat.Amount — Confidence: very high (≈98%)\n- Evidence: \"Umsatzsteuer ... von 980,39 98,04\" shows VAT amount 98,04 corresponding to net 980,39 at 10%. Matches arithmetic (980.39 * 0.10 = 98.039 → rounded to 98.04 as printed). Low ambiguity."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 14.19,
+      "input_tokens": 2104,
+      "cached_input_tokens": null,
+      "output_tokens": 1108,
+      "total_tokens": 3212,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.95,
+      "input_tokens": 2939,
+      "cached_input_tokens": null,
+      "output_tokens": 430,
+      "total_tokens": 3369,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 10.22,
+      "input_tokens": 3605,
+      "cached_input_tokens": null,
+      "output_tokens": 282,
+      "total_tokens": 3887,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\256397\\256397_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU23264205",
+        "ATU23264205,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1078.43,
+        "1.078,43"
+      ],
+      "Net.Amount": [
+        true,
+        980.39,
+        "980,39"
+      ],
+      "Vat.Amount": [
+        true,
+        98.04,
+        "98,04"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "28.11.2023",
+        "28.11.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8648,
+    "cached_input_tokens": 0,
+    "output_tokens": 1820,
+    "eur_estimate": 0.005051
+  }
+}

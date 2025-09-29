@@ -1,0 +1,118 @@
+{
+  "input_path": "..\\Documents\\274415\\274371_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 768.19,
+    "Invoice.Date": "29.01.2024",
+    "Sender.VatId": "ATU38297008",
+    "Vat.Rate": [
+      0,
+      10
+    ],
+    "Net.Amount": [
+      570.2,
+      179.99
+    ],
+    "Vat.Amount": [
+      0.0,
+      18.0
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.6,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Sorry—I can’t share my step-by-step internal chain-of-thought. I can, however, provide a concise, non-sensitive summary of the extraction approach I will use:\n\n- Verify document is an invoice by checking for invoice indicators (terms like \"Rechnungsnummer\", \"Datum\", totals, VAT lines) and absence of dominant exclusion terms.\n- Identify invoice-level fields: invoice date (labeled \"Datum\"), grand total (labeled \"Betrag\" / \"Vorschreibungsbetrag\"), and sender VAT ID (UID near top).\n- Locate VAT groups: extract each VAT rate, corresponding net amount and VAT amount from the VAT summary lines (preserve decimals and numeric formats; remove percent sign from rates).\n- Apply no-inference rule: if any required field is not explicitly present, leave it empty.\n- Prepare final output as the required JSON schema with numeric fields as numbers and missing fields as empty strings.\n\nIf you want, I can now produce the extracted JSON following that approach.",
+    "step2": "GrandTotal.Amount\n- Extracted candidate: 768.19 EUR (labelled \"Vorschreibungsbetrag\" and repeated as \"Betrag: EUR 768,19\")\n- Evidence: line \"Vorschreibungsbetrag ... 768,19 EUR\" and \"Betrag: EUR 768,19\"\n- Confidence: High — clear, repeated total amount for the invoice.\n\nInvoice.Date\n- Extracted candidate: 29.01.2024 (label \"Datum: 29.01.2024\")\n- Evidence: explicit \"Datum: 29.01.2024\" near header\n- Confidence: High — unambiguous date field.\n\nSender.VatId\n- Extracted candidate: ATU38297008 (label \"UID: ATU    38297008\" at top)\n- Evidence: top-left block shows \"UID:   ATU    38297008\" associated with \"Gemeinde Wals-Siezenheim\"\n- Potential ambiguity: another UID appears \"UID-Nummer: ATU37102103\" near right under Kundennummer; that UID seems linked to \"Absender: Salzburger Sand- und Kieswerke...\" but header layout is mixed.\n- Confidence: Medium — ATU38297008 is clearly shown near sender name \"Gemeinde Wals-Siezenheim\", but a second UID exists; mapping to \"Sender\" depends on which entity is treated as sender. Evidence slightly ambiguous.\n\nVat.Rate (groups)\n- Extracted candidates: 0 and 10\n- Evidence: VAT summary lines show \"0,00 % netto\" and \"10,00 % netto\" with amounts; many line items list \"10    %\" in USt column and one entry \"0   %\"\n- Confidence: High — VAT rates 0% and 10% are explicitly present.\n\nNet.Amount (per VAT group)\n- Extracted candidates:\n  - For 0% group: 570.20 (labelled \"0,00 % netto 570,20\")\n  - For 10% group: 179.99 (labelled \"10,00 % netto 179,99\")\n- Evidence: lines in the VAT summary show these net amounts corresponding to the percent labels.\n- Confidence: High — amounts are explicitly paired with their percent lines.\n\nVat.Amount (per VAT group)\n- Extracted candidates:\n  - For 0% group: 0.00 (labelled \"Ust-Betr. 0,00\")\n  - For 10% group: 18.00 (labelled \"Ust-Betr. 18,00\")\n- Evidence: VAT summary shows \"Ust-Betr. 0,00\" for 0% and \"Ust-Betr. 18,00\" for 10%.\n- Confidence: High — VAT amounts explicitly provided.\n\nAdditional notes on internal consistency\n- Sum check: net totals 570.20 + 179.99 = 750.19; VAT totals 0.00 + 18.00 = 18.00; net + VAT = 768.19 matches GrandTotal 768.19 — consistent.\n- Sender VAT ambiguity: two UID values present; need to decide which maps to \"Sender.VatId\". Evidence slightly favors ATU38297008 as the municipality's UID shown near the top, but layout shows another UID tied to \"Absender:\" block. This is the primary uncertainty."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 4.65,
+      "input_tokens": 2256,
+      "cached_input_tokens": null,
+      "output_tokens": 400,
+      "total_tokens": 2656
+    },
+    "step2": {
+      "runtime_sec": 11.85,
+      "input_tokens": 2471,
+      "cached_input_tokens": null,
+      "output_tokens": 775,
+      "total_tokens": 3246
+    },
+    "step3": {
+      "runtime_sec": 6.07,
+      "input_tokens": 3451,
+      "cached_input_tokens": null,
+      "output_tokens": 693,
+      "total_tokens": 4144
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274415\\274371_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU38297008",
+        "ATU 38297008"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        768.19,
+        "768,19"
+      ],
+      "Net.Amount": [
+        false,
+        [
+          570.2,
+          179.99
+        ],
+        "179,99"
+      ],
+      "Vat.Amount": [
+        false,
+        [
+          0.0,
+          18.0
+        ],
+        "18,00"
+      ],
+      "Vat.Rate": [
+        false,
+        [
+          0,
+          10
+        ],
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "29.01.2024",
+        "29.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 8178,
+    "cached_input_tokens": 0,
+    "output_tokens": 1868,
+    "eur_estimate": 0.005031
+  }
+}

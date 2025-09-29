@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\272436\\272402_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 6048.0,
+    "Invoice.Date": "10.10.2023",
+    "Sender.VatId": "ATU64007755",
+    "Vat.Rate": 20,
+    "Net.Amount": 5040.0,
+    "Vat.Amount": 1008.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Plan to extract fields (no final values yet):\n\n- Confirm document is an invoice: detect header \"RECHNUNG\" and invoice-like sections (Rechnungsdatum, Nettosumme, Gesamtsumme, USt.).\n- Locate Invoice.Date from \"Rechnungsdatum:\".\n- Locate GrandTotal.Amount from \"Gesamtsumme inkl. Ust.\" (strip currency).\n- Locate Net.Amount from \"Nettosumme:\" (strip currency).\n- Locate Vat.Amount from the line \"davon 20% USt. v. ... 1.008,00\" (strip currency).\n- Locate Vat.Rate from the percentage label (e.g., \"20%\") and return as number without \"%\".\n- Locate Sender.VatId from sender UID labeled \"UID:\" (sender section at bottom shows \"UID: ATU64007755\").\n- Follow No Inference rule: if any field not explicitly present, leave it empty.\n- Preserve original decimal formatting (commas converted to numeric decimals in output).",
+    "step2": "GrandTotal.Amount:\n- Evidence: \"Gesamtsumme inkl. Ust. 6.048,00 EUR\" clearly shown.\n- Confidence: 95%\n\nInvoice.Date:\n- Evidence: \"Rechnungsdatum: 10.10.2023\" clearly shown.\n- Confidence: 99%\n\nSender.VatId:\n- Evidence: Bottom block: \"UID: ATU64007755\" likely sender STT GmbH (matches header).\n- Risk: there is also \"Kunde UID Nr.: ATU64131246\" for the customer; sender UID appears at bottom.\n- Confidence: 90%\n\nVat.Rate:\n- Evidence: Line item shows \"20%\" and breakdown \"davon 20% USt. v. 5.040,00 1.008,00\".\n- Confidence: 98%\n\nNet.Amount:\n- Evidence: \"Nettosumme: 5.040,00\" displayed above VAT breakdown.\n- Confidence: 98%\n\nVat.Amount:\n- Evidence: VAT line shows \"1.008,00\" corresponding to 20% of 5.040,00.\n- Confidence: 98%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 16.93,
+      "input_tokens": 2159,
+      "cached_input_tokens": null,
+      "output_tokens": 470,
+      "total_tokens": 2629,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.77,
+      "input_tokens": 2420,
+      "cached_input_tokens": null,
+      "output_tokens": 307,
+      "total_tokens": 2727,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.68,
+      "input_tokens": 2963,
+      "cached_input_tokens": null,
+      "output_tokens": 284,
+      "total_tokens": 3247,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\272436\\272402_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU64007755",
+        "ATU64007755"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        6048.0,
+        "6.048,00"
+      ],
+      "Net.Amount": [
+        true,
+        5040.0,
+        "5.040,00"
+      ],
+      "Vat.Amount": [
+        true,
+        1008.0,
+        "1.008,00"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "10.10.2023",
+        "10.10.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7542,
+    "cached_input_tokens": 0,
+    "output_tokens": 1061,
+    "eur_estimate": 0.003495
+  }
+}

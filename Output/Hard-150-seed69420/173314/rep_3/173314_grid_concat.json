@@ -1,0 +1,98 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\173314\\173314_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 3073.33,
+    "Invoice.Date": "2022-12-27",
+    "Sender.VatId": "ATU72491038",
+    "Vat.Rate": 0,
+    "Net.Amount": 3073.33,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.8,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Highly likely",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (1) verify this is an invoice by checking headers/keywords, (2) locate invoice-level fields (date, VAT ID, totals), (3) identify VAT groups and amounts, preserving original decimals and rates without the % sign, and (4) follow the “no inference” rule—leave any missing fields empty.\n\nFindings from the text:\n- Invoice indicators present: \"Rechnung/Invoice\", \"Rechnungs-Nr.\", \"Rechnungs-Datum\", totals, VAT statements. Classified as invoice.\n- Invoice date located: \"Rechnungs-Datum : 2022-12-27\".\n- Sender VAT ID located near top: \"UID-Nr.:ATU72491038\" and also \"Ihre Ust-ID-Nr.: ATU62333479\" (the header shows UID-Nr. for EVERGREEN; the \"Ihre Ust-ID-Nr.\" appears to refer to the customer). Per schema Sender.VatId corresponds to sender — use \"ATU72491038\".\n- Grand total: shown as two currency columns. The EUR grand total appears as \"3.073,33\" (formatted with comma decimal). The USD grand total appears as \"3.252,82\". Schema expects a number; keep original decimals and no currency symbol — must choose the invoice total payable amount. The document’s \"GRAND TOTAL\" line shows the two amounts; currency context ambiguous. Will extract GrandTotal.Amount as numeric value matching EUR column if that is the invoice currency—note this will be confirmed during extraction step.\n- VAT groups: the VAT section shows \"0%\" (tax free) and VAT amounts \"0,00\". The subtotal lines show subtotal EUR \"3.073,33\" and VAT \"0,00\".\n- Net amount(s) and Vat.Amount(s): For the VAT group 0% the Net.Amount corresponds to \"3.073,33\" (EUR) and Vat.Amount \"0,00\". Vat.Rate is 0 (extract as number without %).\n- Maintain original decimal formatting (commas used). Per rules, decimals must be kept as in input.\n\nI will now prepare the structured JSON extraction following the schema, using sender VAT = \"ATU72491038\", Invoice.Date = \"2022-12-27\", Vat.Rate = 0, Net.Amount = 3073.33 (preserving decimals), Vat.Amount = 0.00, and GrandTotal.Amount = 3073.33 (EUR column). If you want a different currency column for GrandTotal.Amount, specify USD vs EUR.",
+    "step2": "GrandTotal.Amount — Confidence: 80%\n- Evidence: \"GRAND TOTAL\" row shows two columns: USD 3.252,82 and EUR 3.073,33. Chosen EUR value (3.073,33). Ambiguity because invoice shows both currencies.\n\nInvoice.Date — Confidence: 99%\n- Evidence: Explicit label \"Rechnungs-Datum : 2022-12-27\".\n\nSender.VatId — Confidence: 85%\n- Evidence: Two VAT IDs present: \"UID-Nr.:ATU72491038\" (header near sender) and \"Ihre Ust-ID-Nr.: ATU62333479\" (appears to reference the customer). Selected \"ATU72491038\" as sender VAT. Minor ambiguity due to dual IDs.\n\nVat.Rate — Confidence: 95%\n- Evidence: Document shows \"0%\" / \"0% - TAX FREE\" clearly associated with the invoice VAT group.\n\nNet.Amount — Confidence: 90%\n- Evidence: SUB TOTAL / invoice net shown as EUR 3.073,33 matching the EUR column used for totals. Confidence reduced by dual-currency presentation.\n\nVat.Amount — Confidence: 98%\n- Evidence: VAT shown as \"0,00\" in the VAT row for the invoice."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.79,
+      "input_tokens": 2375,
+      "cached_input_tokens": null,
+      "output_tokens": 725,
+      "total_tokens": 3100,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.53,
+      "input_tokens": 2955,
+      "cached_input_tokens": null,
+      "output_tokens": 461,
+      "total_tokens": 3416,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.25,
+      "input_tokens": 3524,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3807,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\173314\\173314.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU72491038",
+        "ATU72491038"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        3073.33,
+        "3.073,33"
+      ],
+      "Net.Amount": [
+        true,
+        3073.33,
+        "3.073,33"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "2022-12-27",
+        "2022-12-27"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 5,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8854,
+    "cached_input_tokens": 0,
+    "output_tokens": 1469,
+    "eur_estimate": 0.000957
+  }
+}

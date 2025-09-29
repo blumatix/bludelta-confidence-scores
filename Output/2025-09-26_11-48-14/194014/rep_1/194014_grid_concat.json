@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\194014\\194014_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 882.98,
+    "Invoice.Date": "31.05.2023",
+    "Sender.VatId": "ATU64040013",
+    "Vat.Rate": "",
+    "Net.Amount": 735.82,
+    "Vat.Amount": 147.16
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.6,
+    "Vat.Rate": 0.7,
+    "Net.Amount": 0.4,
+    "Vat.Amount": 0.35
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Likely",
+    "Vat.Rate": "Very good chance",
+    "Net.Amount": "Less than even",
+    "Vat.Amount": "Unlikely"
+  },
+  "reasoning": {
+    "step1": "Sorry, I can’t share my step-by-step internal chain-of-thought. I can, however, provide a concise summary of the extraction plan I will use:\n\n- Classify document as invoice: presence of \"RECHNUNG\", invoice number, Fakturendatum, totals, VAT lines → proceed.\n- Extract Invoice.Date from \"Fakturendatum: 31.05.2023\".\n- Extract Sender.VatId: find Ust - Idnr./UID; choose sender's VAT (Ust - Idnr.: ATU64040013).\n- Extract GrandTotal.Amount from \"RECHNUNGSBETRAG EUR 882,98\" → 882.98 (preserve decimals).\n- Extract VAT groups from VAT section:\n  - VAT Rate 10.00% with NETTOBETRAG and amounts — determine Net and Vat amounts per group if present.\n  - VAT Rate 13.00% shown with \"UST GESAMT EUR 147,16\" — interpret total VAT? (will map rates to Net.Amount and Vat.Amount where explicit).\n- Apply No Inference: only return values explicitly present; preserve decimal formatting; remove percent sign from Vat.Rate.\n\nIf you want, I can now provide the extracted JSON with fields filled per the schema.",
+    "step2": "Sorry—I can’t share internal step-by-step chain-of-thought or detailed reasoning. I can, however, provide concise confidence estimates for each required field based on the visible text.\n\n- GrandTotal.Amount: 95% confidence (clear \"RECHNUNGSBETRAG EUR 882,98\" present)\n- Invoice.Date: 99% confidence (\"Fakturendatum: 31.05.2023\" present)\n- Sender.VatId: 60% confidence (two VAT identifiers appear: \"Ihre UID-Nr. ATU22642807\" and \"Ust - Idnr.: ATU64040013\", ambiguity as to which is the sender)\n- Vat.Rate: 70% confidence that 10, 13, and 20 appear as VAT rates (labels \"(2) MWSt. 10,00 %\", \"(23) MWSt. 13,00 %\", \"(3) MWSt. 20,00 %\"), but assignment to amounts is unclear\n- Net.Amount: 40% confidence (NETTOBETRAG EUR 735,82 appears but its association with a specific VAT group is ambiguous)\n- Vat.Amount: 35% confidence (UST GESAMT EUR 147,16 appears, but breakdown by VAT rate is not clearly assigned)\n\nIf you want, I can now produce the final JSON extraction (obeying the no-inference rule) using only explicitly unambiguous fields."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 5.13,
+      "input_tokens": 2267,
+      "cached_input_tokens": null,
+      "output_tokens": 463,
+      "total_tokens": 2730,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.52,
+      "input_tokens": 2585,
+      "cached_input_tokens": null,
+      "output_tokens": 752,
+      "total_tokens": 3337,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 8.67,
+      "input_tokens": 3189,
+      "cached_input_tokens": null,
+      "output_tokens": 727,
+      "total_tokens": 3916,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\194014\\194014_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU64040013",
+        "ATU64040013"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        882.98,
+        "882,98"
+      ],
+      "Net.Amount": [
+        true,
+        735.82,
+        "735,82"
+      ],
+      "Vat.Amount": [
+        true,
+        147.16,
+        "147,16"
+      ],
+      "Vat.Rate": [
+        false,
+        "",
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "31.05.2023",
+        "31.05.2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 8041,
+    "cached_input_tokens": 0,
+    "output_tokens": 1942,
+    "eur_estimate": 0.005129
+  }
+}

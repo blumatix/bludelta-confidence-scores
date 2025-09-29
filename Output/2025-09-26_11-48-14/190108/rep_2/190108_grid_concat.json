@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\190109\\190108_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 71.24,
+    "Invoice.Date": "12.05.2023",
+    "Sender.VatId": "ATU 22642807",
+    "Vat.Rate": 10,
+    "Net.Amount": 66.76,
+    "Vat.Amount": 6.68
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.6,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Likely",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains \"Rechnung\", \"Rechnungs-Nr.\", \"Rechnungsdatum\", line items, Zwischensumme, MwSt, Rechnungsbetrag → qualifies as an invoice (no exclusion keywords like \"Mahnung\" prominent).\n\nIdentify candidate fields from text:\n- Invoice.Date: appears as \"Rechnungsdatum: 12.05.2023\" → candidate: \"12.05.2023\".\n- Sender.VatId: appears as \"USTID: ATU 22642807\" and also \"ATU 22642807\" under address → candidate: \"ATU 22642807\".\n- Vat.Rate: tax label shows \"(MwSt 10,00 %)\" and \"MwSt (10,00 %)\" → candidate rate: 10.\n- Net.Amount: \"Zwischensumme EUR 66,76\" and also \"Warenwert (10,00 %) 66,76\" → candidate net: 66.76.\n- Vat.Amount: \"MwSt (10,00 %) 6,68\" → candidate vat amount: 6.68.\n- GrandTotal.Amount: two occurrences:\n  - \"Rechnungsbetrag EUR 73,44\" (this is gross before possible cash discount).\n  - Later \"Rechnungsbetrag EUR 71,24\" appears associated with Skonto/Skontobetrag (66,76 + VAT 6,68 = 73,44; minus Skonto 2,20 → 71,24). → ambiguous: 73.44 vs 71.24.\n\nDecision on ambiguity (do not infer):\n- Because both \"Rechnungsbetrag EUR 73,44\" and \"Rechnungsbetrag EUR 71,24\" appear, and no unambiguous single \"Total payable amount\" labeled distinctly, both values are evidence. Per \"No Inference Policy\", cannot guess which to pick as GrandTotal.Amount. Will present the extraction candidates and note ambiguity for final selection.",
+    "step2": "Invoice.Date — High confidence\n- \"Rechnungsdatum: 12.05.2023\" appears explicitly.\n\nSender.VatId — High confidence\n- \"USTID: ATU 22642807\" appears clearly.\n\nVat.Rate — High confidence\n- Tax shown as \"MwSt (10,00 %)\" consistently.\n\nNet.Amount — High confidence\n- Net/warenwert shown as \"66,76\" (Zwischensumme / Warenwert (10,00 %): 66,76).\n\nVat.Amount — High confidence\n- \"MwSt (10,00 %) 6,68\" shown explicitly.\n\nGrandTotal.Amount — Low confidence\n- Two explicit \"Rechnungsbetrag\" values appear: 73,44 and 71,24. Ambiguity between gross amount (73,44) and discounted payable amount (71,24); source text does not unambiguously label a single final \"Total payable\" value."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 14.97,
+      "input_tokens": 2155,
+      "cached_input_tokens": null,
+      "output_tokens": 931,
+      "total_tokens": 3086,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.53,
+      "input_tokens": 2621,
+      "cached_input_tokens": null,
+      "output_tokens": 521,
+      "total_tokens": 3142,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 9.62,
+      "input_tokens": 3122,
+      "cached_input_tokens": null,
+      "output_tokens": 474,
+      "total_tokens": 3596,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\190109\\190108_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU 22642807",
+        "ATU38510009"
+      ],
+      "GrandTotal.Amount": [
+        false,
+        71.24,
+        "73,44"
+      ],
+      "Net.Amount": [
+        true,
+        66.76,
+        "66,76"
+      ],
+      "Vat.Amount": [
+        true,
+        6.68,
+        "6,68"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "12.05.2023",
+        "12.05.2023"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7898,
+    "cached_input_tokens": 0,
+    "output_tokens": 1926,
+    "eur_estimate": 0.00507
+  }
+}

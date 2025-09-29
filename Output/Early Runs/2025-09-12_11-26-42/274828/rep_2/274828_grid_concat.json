@@ -1,0 +1,100 @@
+{
+  "input_path": "..\\Documents\\274836\\274828_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 189.97,
+    "Invoice.Date": "29.01.2024",
+    "Sender.VatId": "DE250202095",
+    "Vat.Rate": 19,
+    "Net.Amount": 159.64,
+    "Vat.Amount": 30.33
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.7,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Very good chance",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Sorry, I can’t share my step-by-step internal chain-of-thought or detailed private reasoning. I can, however, provide a concise summary of the approach I will use to extract the invoice fields:\n\n- Confirm document is an invoice by detecting header terms (\"Rechnung\", invoice number, totals, VAT).\n- Locate invoice-level fields: Invoice Date (near \"vom\"), Invoice Number (\"Nummer\"), and VAT ID (\"VAT DE...\"/\"UST ID NR.\").\n- Extract Grand Total, Net and VAT amounts from the totals block on page 2 (lines showing Nettobetrag, MwSt, Gesamtbetrag) preserving decimals and numeric formats.\n- Extract VAT rate(s) from the percent shown (remove percent sign).\n- If any required field is not explicitly present, leave it empty (no guessing).\n- Return the extracted values in the required JSON schema.",
+    "step2": "GrandTotal.Amount\n- Extracted candidate: 189,97 (EUR) — located on page 2 in totals row \"Gesamtbetrag ... 189,97\".\n- Evidence: Clear \"Gesamtbetrag\" label with value \"189,97\" and currency \"EUR\".\n- Confidence: High (≈95%) — label and value clearly present and consistent with line totals.\n\nInvoice.Date\n- Extracted candidate: 29.01.2024 — appears near header \"vom 29.01.2024\" next to \"Nummer\".\n- Evidence: Repeated on both pages as \"vom 29.01.2024\".\n- Confidence: Very high (≈99%) — explicit invoice date wording.\n\nSender.VatId\n- Extracted candidate(s): Two VAT-like IDs present: \"VAT DE250202095\" (page 1) and \"UST ID NR. DE 159518412\" (footer).\n- Evidence: \"VAT DE250202095\" appears near header labeled \"VAT\"; footer shows \"UST ID NR. DE 159518412\".\n- Ambiguity: Which is the sender VAT ID depends on interpretation; both are present. One is prefixed \"VAT\", the other \"UST ID NR.\" Both could be VAT identifiers.\n- Confidence: Medium (≈70%) for presence of at least one VAT ID; lower for choosing which is the canonical Sender.VatId without additional instruction.\n\nVat.Rate\n- Extracted candidate: 19,00 (percent shown as \"19,00\" or \"19,00%\" in document).\n- Evidence: Totals table shows \"19,00\" in a percent column and MwSt lines indicate 19% VAT.\n- Confidence: High (≈95%) — standard VAT rate clearly printed.\n\nNet.Amount\n- Extracted candidate: 159,64 — shown as \"Nettobetrag Ware 159,64\" or totals row with Nettobetrag 159,64.\n- Evidence: Page 2 totals table lists Nettobetrag/Ware 159,64 corresponding to VAT and Gesamtbetrag.\n- Confidence: High (≈95%) — explicit net amount present.\n\nVat.Amount\n- Extracted candidate: 30,33 — shown as \"MwSt 30,33\" in totals row.\n- Evidence: Page 2 totals row lists MwSt 30,33 aligning with 19% of 159,64 (0.19 * 159.64 = 30.3316 → 30,33 rounding matches).\n- Confidence: High (≈95%) — explicit and internally consistent with Net and Vat.Rate.\n\nOverall consistency check\n- Net (159,64) + Vat (30,33) = 189,97 (GrandTotal) — arithmetic consistent with displayed numbers.\n- Invoice date, VAT rate, net/vat/grand totals present and mutually consistent.\n- Main ambiguity remains which VAT identifier to use for Sender.VatId due to two different VAT-like entries."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 4.88,
+      "input_tokens": 2826,
+      "cached_input_tokens": null,
+      "output_tokens": 309,
+      "total_tokens": 3135
+    },
+    "step2": {
+      "runtime_sec": 6.06,
+      "input_tokens": 3014,
+      "cached_input_tokens": null,
+      "output_tokens": 746,
+      "total_tokens": 3760
+    },
+    "step3": {
+      "runtime_sec": 4.72,
+      "input_tokens": 3901,
+      "cached_input_tokens": null,
+      "output_tokens": 472,
+      "total_tokens": 4373
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274836\\274828_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "DE250202095",
+        "DE 159518412"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        189.97,
+        "189,97"
+      ],
+      "Net.Amount": [
+        true,
+        159.64,
+        "159,64"
+      ],
+      "Vat.Amount": [
+        true,
+        30.33,
+        "30,33"
+      ],
+      "Vat.Rate": [
+        true,
+        19,
+        "19,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "29.01.2024",
+        "29.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 9741,
+    "cached_input_tokens": 0,
+    "output_tokens": 1527,
+    "eur_estimate": 0.004785
+  }
+}

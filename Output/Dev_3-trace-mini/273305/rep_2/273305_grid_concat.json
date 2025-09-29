@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\273366\\273305_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 391.68,
+    "Invoice.Date": "12.12.2023",
+    "Sender.VatId": "ATU78657801",
+    "Vat.Rate": 20,
+    "Net.Amount": 326.4,
+    "Vat.Amount": 65.28
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: document is an invoice (contains \"Rechnung\", invoice number, dates, totals, line items).\n\nDetected key values to extract:\n- Invoice number/date: RE074117, 12.12.2023\n- Sender VAT: ATU78657801 (found in footer \"ATU78657801\")\n- VAT rate: 20% (appears as \"20% MWSt\") → will record as 20\n- Net amount: Warenwert 326,40 EUR\n- VAT amount: 65,28 EUR (listed as \"zuzüglich 20% MWSt ... 65,28 EUR\")\n- Grand total: ENDBETRAG 391,68 EUR\n\nVerification notes (concise, non-sensitive):\n- Header shows \"Rechnung\" with invoice number and date at top right.\n- Footer contains company details including VAT ID ATU78657801; ensure this is used as Sender.VatId (not the customer VAT shown near \"Kunde ... ATU64131246\").\n- Totals section lists Warenwert (net), VAT line with 20% and amount, and ENDBETRAG (grand total). Preserve decimal formatting and remove \"%\" from VAT rate for output.",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"confidence\": 0.99,\n    \"reason\": \"Explicitly shown as 'ENDBETRAG: 391,68 EUR' matching net+VAT (326,40 + 65,28 = 391,68).\"\n  },\n  \"Invoice.Date\": {\n    \"confidence\": 0.98,\n    \"reason\": \"Date appears at top right as 'vom 12.12.2023' associated with the invoice header.\"\n  },\n  \"Sender.VatId\": {\n    \"confidence\": 0.95,\n    \"reason\": \"Footer lists 'ATU78657801' next to company details; matches sender context, not the customer VAT shown elsewhere.\"\n  },\n  \"Vat.Rate\": {\n    \"confidence\": 0.99,\n    \"reason\": \"Invoice shows 'zuzüglich 20% MWSt' explicitly; rate clearly stated.\"\n  },\n  \"Net.Amount\": {\n    \"confidence\": 0.99,\n    \"reason\": \"Shown as 'Warenwert: 326,40 EUR' which represents net amount before VAT; arithmetic matches totals.\"\n  },\n  \"Vat.Amount\": {\n    \"confidence\": 0.99,\n    \"reason\": \"Shown explicitly as '65,28 EUR' on the VAT line and equals 20% of net (326,40 * 0.20 = 65,28).\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.56,
+      "input_tokens": 2020,
+      "cached_input_tokens": null,
+      "output_tokens": 575,
+      "total_tokens": 2595,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.94,
+      "input_tokens": 2283,
+      "cached_input_tokens": null,
+      "output_tokens": 690,
+      "total_tokens": 2973,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.2,
+      "input_tokens": 2858,
+      "cached_input_tokens": null,
+      "output_tokens": 409,
+      "total_tokens": 3267,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273366\\273305_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU78657801",
+        "ATU78657801"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        391.68,
+        "391,68"
+      ],
+      "Net.Amount": [
+        true,
+        326.4,
+        "326,40"
+      ],
+      "Vat.Amount": [
+        true,
+        65.28,
+        "65,28"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "12.12.2023",
+        "12.12.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7161,
+    "cached_input_tokens": 0,
+    "output_tokens": 1674,
+    "eur_estimate": 0.004471
+  }
+}

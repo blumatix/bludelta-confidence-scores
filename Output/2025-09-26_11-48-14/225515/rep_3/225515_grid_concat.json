@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\225515\\225515_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 112.0,
+    "Invoice.Date": "18.08.2023",
+    "Sender.VatId": "ATU74770036",
+    "Vat.Rate": 10,
+    "Net.Amount": 100.0,
+    "Vat.Amount": 10.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.8,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Highly likely",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will identify invoice indicators, locate relevant fields, consider alternative interpretations, and choose the most consistent extraction.\n\n1) Document classification\n- Presence of \"Rechnung\", \"Invoice:\", invoice number \"2023000865\", totals (\"Summe\", \"Brutto\", \"Offen\"), line items and prices → document is an invoice (not a reminder).\n\n2) Locate invoice date\n- Header shows \"18.08.2023 09:08:57\" next to \"Rechnung:\" — invoice issue date is 18.08.2023. Alternative: could pick only date portion; choose full date string \"18.08.2023\" as Invoice.Date per schema format.\n\n3) Locate grand total\n- Multiple totals: line \"Summe 112,00 €\" and \"Offen 112,00 €\" and final grouped total shows 112,00 € → GrandTotal.Amount = 112.00.\n\n4) Sender VAT ID\n- Footer shows \"UID. A  TU74770036\" → consolidated as \"ATU74770036\" (remove spaces). No other VAT IDs present.\n\n5) VAT groups — evaluate options\n- There is a VAT grouping area showing:\n  - A row with \"10,001 100,00 10,00 110,00\" (interpreted as Rate ~10.00%, Net 100.00, VAT 10.00, Brutto 110.00).\n  - A separate row for local tax: \"0,00 2 2,00 0,00 2,00\" (interpreted as 0% on 2.00 net = 0.00 VAT, total 2.00).\n- Per rules, include invoice-level exchange rates only (none), and include VAT groups applicable to invoice. Multiple VAT groups allowed; schema ambiguity noted, but select the primary VAT group for standard VAT extraction and ensure no inference beyond OCR content.\n\n6) Final field mappings chosen\n- Vat.Rate: 10 (drop percent sign, preserve numeric)\n- Net.Amount: 100.00\n- Vat.Amount: 10.00\n\n7) Ensure no guessing beyond visible text\n- All values taken directly from OCR text; where multiple VAT groups exist, primary taxable group (10%) was selected because it represents taxed accommodation; local tax (2.00 at 0%) is not used for Vat.Rate/Vat.Amount primary group.",
+    "step2": "GrandTotal.Amount — 95%\n- Evidence: Multiple explicit totals shown: \"Summe 112,00 €\", \"Offen 112,00 €\", grouped total \"112,00\". Clear consistency across document. Low uncertainty only from OCR formatting.\n\nInvoice.Date — 95%\n- Evidence: Timestamp \"18.08.2023 09:08:57\" appears next to \"Rechnung:\" and aligns with stay dates. Date portion \"18.08.2023\" is unambiguous. Minimal uncertainty from choosing date-only vs. full timestamp.\n\nSender.VatId — 85%\n- Evidence: Footer shows \"UID. A  TU74770036\". Interpreting as Austrian VAT ID \"ATU74770036\" requires removing spaces and the extra letter spacing. OCR spacing could hide characters; prefix \"ATU\" is typical. Moderate uncertainty due to OCR spacing and potential missing/extra characters.\n\nVat.Rate — 80%\n- Evidence: VAT grouping shows \"10,001\" which likely denotes 10.00% (displayed with comma as decimal and trailing \"1\" OCR artifact). Context (accommodation VAT) supports 10%. Uncertainty from OCR artifact \"10,001\" and whether rate is exactly 10.00 or 10.001.\n\nNet.Amount — 90%\n- Evidence: Group line shows \"100,00\" associated with VAT group; matches itemization (110.00 gross minus 10.00 VAT). Clear numeric value; standard formatting. Low uncertainty from OCR clarity.\n\nVat.Amount — 90%\n- Evidence: Group line shows \"10,00\" corresponding to VAT for the 100,00 net at 10% rate. Consistent with arithmetic (100.00 * 0.10 = 10.00). Low uncertainty.\n\nOverall note: There is an additional local tax line (2,00 at 0%) visible; decision to treat the 10% group as the VAT group is supported by typical invoicing for accommodation. Uncertainties stem primarily from OCR spacing/artifacts around VAT rate and UID formatting."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.88,
+      "input_tokens": 1539,
+      "cached_input_tokens": null,
+      "output_tokens": 1082,
+      "total_tokens": 2621,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.02,
+      "input_tokens": 2092,
+      "cached_input_tokens": null,
+      "output_tokens": 497,
+      "total_tokens": 2589,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.39,
+      "input_tokens": 2825,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3106,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\225515\\225515_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU74770036",
+        "A TU74770036"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        112.0,
+        "112,00"
+      ],
+      "Net.Amount": [
+        true,
+        100.0,
+        "100,00"
+      ],
+      "Vat.Amount": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "18.08.2023",
+        "18.08.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6456,
+    "cached_input_tokens": 0,
+    "output_tokens": 1860,
+    "eur_estimate": 0.004638
+  }
+}

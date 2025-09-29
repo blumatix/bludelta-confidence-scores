@@ -1,0 +1,112 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\273638\\273607_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 80902.8,
+    "Invoice.Date": "24.01.2024",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": 10,
+    "Net.Amount": 73548.0,
+    "Vat.Amount": 7354.8
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.6,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (1) verify this is an invoice, (2) locate candidate text for each required field, and (3) note any uncertainties or missing data.\n\n1) Document classification\n- Invoice indicators present: title \"RECHNUNG\", \"Nr:\", \"Datum:\", \"USt-Id\", line items, Nettowert, MWSt, Bruttobetrag. No exclusion terms (e.g., \"Mahnung\") prominently. Conclusion: treat as invoice.\n\n2) Locate candidate values from text (exact strings found)\n- Invoice.Date: \"Datum:                 24.01.2024\" (clear).\n- Sender.VatId: two VAT-like strings appear:\n  - \"USt-Id:                   ATU22642807\" near top (likely sender VAT shown).\n  - Footer also shows \"USt-IdNr. ATU14391601\" (company registration VAT). Ambiguity: which is Sender.VatId — the top \"USt-Id: ATU22642807\" is more prominently labeled; both are present.\n- GrandTotal.Amount: candidate \"Bruttobetrag                                                                                                                                                80.902,80\" (Bruttobetrag appears as total payable).\n- Net.Amount: candidate \"Nettowert                        gesamt                                                                                                                                                                                                                 73.548,00\" (Nettowert total).\n- Vat.Rate and Vat.Amount: two VAT groups shown:\n  - \"10%         MWSt            von                    73.548,00                                   7.354,80\" → Vat.Rate 10, Vat.Amount 7.354,80 (applies to Nettowert 73.548,00).\n  - \"00%         MWSt            von                                    0,00                                     0,00\" → Vat.Rate 00, Vat.Amount 0,00 (appears as separate group).\n- Skonto/discount lines present but not required.\n\n3) Ambiguities / validation checks\n- Two different USt-Id/ VAT numbers present; must choose the correct Sender.VatId. The top-page labeled \"USt-Id: ATU22642807\" seems sender-level and will be used unless rules prefer footer \"USt-IdNr. ATU14391601\". Flagged as potential ambiguity.\n- Number formatting uses period as thousands separator and comma as decimal (e.g., \"80.902,80\"). When outputting numeric values, must preserve decimals and not change formatting, but schema expects number types — will convert to numeric with same decimal precision (e.g., 80902.80). (Note: final extraction must keep decimal places as in input per rules.)\n- Vat.Rate must be returned without percent sign (e.g., \"10\"). Two VAT groups exist; include both as separate entries.\n\nNext step: produce final JSON with fields filled from the identified strings, leaving ambiguous or missing fields empty per rules.",
+    "step2": "I will give concise confidence levels for each field (High/Medium/Low) with a short justification (no internal chain-of-thought).\n\n- GrandTotal.Amount: High — \"Bruttobetrag 80.902,80\" clearly labeled as total payable.\n- Invoice.Date: High — \"Datum: 24.01.2024\" explicitly present.\n- Sender.VatId: Medium — two VAT IDs appear: \"USt-Id: ATU22642807\" (top) and \"USt-IdNr. ATU14391601\" (footer); top one was chosen but ambiguity exists.\n- Vat.Rate: High — VAT groups show \"10% MWSt\" and \"00% MWSt\"; identification of 10 and 00 is explicit.\n- Net.Amount: High — \"Nettowert gesamt 73.548,00\" appears clearly.\n- Vat.Amount: High — corresponding VAT amounts \"7.354,80\" for 10% and \"0,00\" for 00% are explicitly shown."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.45,
+      "input_tokens": 2759,
+      "cached_input_tokens": null,
+      "output_tokens": 866,
+      "total_tokens": 3625,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.96,
+      "input_tokens": 3416,
+      "cached_input_tokens": null,
+      "output_tokens": 287,
+      "total_tokens": 3703,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.45,
+      "input_tokens": 3939,
+      "cached_input_tokens": null,
+      "output_tokens": 412,
+      "total_tokens": 4351,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\273638\\273607_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU14391601,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        80902.8,
+        "80.902,80"
+      ],
+      "Net.Amount": [
+        true,
+        73548.0,
+        [
+          "73.548,00",
+          "73.548,00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        7354.8,
+        [
+          "7.354,80",
+          "7.354,80"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        [
+          "10",
+          "10"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "24.01.2024",
+        "24.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 10114,
+    "cached_input_tokens": 0,
+    "output_tokens": 1565,
+    "eur_estimate": 0.004933
+  }
+}

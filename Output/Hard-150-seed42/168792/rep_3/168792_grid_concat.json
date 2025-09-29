@@ -1,0 +1,94 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\168792\\168792_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 7774.54,
+    "Invoice.Date": "2021-12-30",
+    "Sender.VatId": "ATU72491038",
+    "Vat.Rate": 0,
+    "Net.Amount": 7774.54,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (1) validate this is an invoice, (2) locate the required fields, (3) note candidate values found and ambiguities to resolve when producing the final JSON.\n\nValidation\n- Document contains clear invoice indicators: \"Rechnung/Invoice\", \"Rechnungs-Nr.\", \"Rechnungs-Datum\", line items, \"SUB TOTAL\", \"GRAND TOTAL\", currency columns — so it is an invoice (no exclusion keywords dominate).\n\nField identification and candidate values found\n- Invoice.Date: \"Rechnungs-Datum : 2021-12-30\" → candidate: 2021-12-30.\n- Sender.VatId: header shows \"UID-Nr.:ATU72491038\" (company EVERGREEN) → candidate: ATU72491038. (Also present: \"Ihre Ust-ID-Nr.: ATU62333479\" which is the customer VAT — do not use for sender.)\n- GrandTotal.Amount: the invoice shows totals in two currency columns. Under USD column \"8.762,69\" and under EUR column \"7.774,54\" with \"GRAND TOTAL\" line. Ambiguity: which currency amount to return as the GrandTotal.Amount. Candidate values: 8.762,69 (USD) and 7.774,54 (EUR).\n- Net.Amount: the \"SUB TOTAL\" in EUR column is 7.774,54 — candidate net amount (EUR). In USD column SUB TOTAL is 8.762,69.\n- Vat.Rate: each line and the VAT line show \"0%\" / \"0% TAX FREE\" / \"0% -TAX FREE\" → candidate VAT rate: 0.\n- Vat.Amount: VAT total shown as \"0,00\" in both currency columns → candidate: 0,00 (EUR) and 0,00 (USD). For VAT amount applicable to the invoice-level VAT group, candidate is 0,00.\n\nNotes / ambiguities to resolve when creating final JSON\n- Currency selection: amounts appear in both USD and EUR columns. The schema does not include currency fields; must choose which numeric column to supply. The EUR column shows 7.774,54 (Net) and 0,00 (VAT) and 7.774,54 or 7.774,54 as grand total in EUR; USD column shows 8.762,69. I will pick the EUR column amounts unless instructed otherwise.\n- Number formatting: input uses comma as decimal separator and thousands dot; schema requires numeric types preserving decimal places. Will convert to numeric form preserving decimals (e.g., 7774.54) in final output, but keep the same number of decimal places as in source.\n\nNext step: produce the final JSON with the chosen values (likely using the EUR column amounts: GrandTotal.Amount 7774.54, Invoice.Date \"2021-12-30\", Sender.VatId \"ATU72491038\", Vat.Rate 0, Net.Amount 7774.54, Vat.Amount 0.00).",
+    "step2": "GrandTotal.Amount — confidence 90%\n- Evidence: \"GRAND TOTAL\" row shows two totals: USD 8.762,69 and EUR 7.774,54. Chosen value (EUR 7.774,54) matches the EUR column under Grand Total and the SUB TOTAL EUR. Clear printed label; minor ambiguity only about currency choice.\n\nInvoice.Date — confidence 99%\n- Evidence: Explicit line \"Rechnungs-Datum : 2021-12-30\". Unambiguous.\n\nSender.VatId — confidence 95%\n- Evidence: Header shows \"UID-Nr.:ATU72491038\" beside company EVERGREEN (sender). There is another VAT \"Ihre Ust-ID-Nr.: ATU62333479\" referring to the customer; contextual placement supports chosen sender VAT.\n\nVat.Rate — confidence 98%\n- Evidence: Multiple places indicate \"0%\" / \"0% -TAX FREE\" and note \"0% TAX FREE/ STEUERFREI\" on page 2. Consistent across document.\n\nNet.Amount — confidence 90%\n- Evidence: \"SUB TOTAL\" row shows EUR 7.774,54 (and USD 8.762,69). Chosen value (EUR 7.774,54) consistent with selected Grand Total and EUR column. Ambiguity only due to dual-currency presentation.\n\nVat.Amount — confidence 99%\n- Evidence: VAT line shows \"0,00\" in both currency columns and VAT total printed as 0,00. Clear and consistent."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.06,
+      "input_tokens": 3179,
+      "cached_input_tokens": null,
+      "output_tokens": 1148,
+      "total_tokens": 4327,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.32,
+      "input_tokens": 3862,
+      "cached_input_tokens": null,
+      "output_tokens": 451,
+      "total_tokens": 4313,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.35,
+      "input_tokens": 4485,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 4768,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\168792\\168792.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU72491038",
+        [
+          "ATU72491038",
+          "ATU72491038"
+        ]
+      ],
+      "GrandTotal.Amount": [
+        true,
+        7774.54,
+        "7.774,54"
+      ],
+      "Invoice.Date": [
+        true,
+        "2021-12-30",
+        [
+          "2021-12-30",
+          "2021-12-30"
+        ]
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 3,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 11526,
+    "cached_input_tokens": 0,
+    "output_tokens": 1882,
+    "eur_estimate": 0.001235
+  }
+}

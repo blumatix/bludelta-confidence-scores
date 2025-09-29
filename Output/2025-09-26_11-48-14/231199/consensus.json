@@ -1,0 +1,312 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231199\\231199_grid_concat.txt",
+  "n_paths": 3,
+  "final_answer": {
+    "Vat.Amount": {
+      "value": 4669.87,
+      "sum_confidence": 1.9,
+      "vote_count": 2,
+      "avg_confidence": 0.95,
+      "correct": true
+    },
+    "Invoice.Date": {
+      "value": "2023-09-25",
+      "sum_confidence": 1.8,
+      "vote_count": 2,
+      "avg_confidence": 0.9,
+      "correct": true
+    },
+    "Vat.Rate": {
+      "value": 10,
+      "sum_confidence": 1.85,
+      "vote_count": 2,
+      "avg_confidence": 0.93,
+      "correct": true
+    },
+    "Sender.VatId": {
+      "value": "ATU31800708",
+      "sum_confidence": 1.94,
+      "vote_count": 2,
+      "avg_confidence": 0.97,
+      "correct": true
+    },
+    "GrandTotal.Amount": {
+      "value": 51368.55,
+      "sum_confidence": 1.9,
+      "vote_count": 2,
+      "avg_confidence": 0.95,
+      "correct": true
+    },
+    "Net.Amount": {
+      "value": 46698.68,
+      "sum_confidence": 1.9,
+      "vote_count": 2,
+      "avg_confidence": 0.95,
+      "correct": true
+    }
+  },
+  "runs": [
+    {
+      "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231199\\231199_grid_concat.txt",
+      "answer": {
+        "GrandTotal.Amount": 51368.55,
+        "Invoice.Date": "2023-09-25",
+        "Sender.VatId": "ATU31800708",
+        "Vat.Rate": 10,
+        "Net.Amount": 46698.68,
+        "Vat.Amount": 4669.87
+      },
+      "confidence_numeric": {
+        "GrandTotal.Amount": 0.95,
+        "Invoice.Date": 0.85,
+        "Sender.VatId": 0.95,
+        "Vat.Rate": 0.9,
+        "Net.Amount": 0.95,
+        "Vat.Amount": 0.95
+      },
+      "confidence_verbal": {
+        "GrandTotal.Amount": "Almost certain",
+        "Invoice.Date": "Highly likely",
+        "Sender.VatId": "Almost certain",
+        "Vat.Rate": "Almost certain",
+        "Net.Amount": "Almost certain",
+        "Vat.Amount": "Almost certain"
+      },
+      "reasoning": {
+        "step1": "I will (1) verify this is an invoice, (2) locate required fields, (3) avoid guessing if a field is missing, and (4) preserve original decimals.\n\nEvidence that this is an invoice:\n- Clear header \"Rechnung\" appears repeatedly.\n- Invoice number present: \"2317604\".\n- Invoice date appears near \"vom: 2023-09-19\" (but also “Stans, 2023-09-25” next to order info) — candidate invoice date: 2023-09-25 (appears as document date).\n- Totals block on page 4 shows MWSt-Basis 46.698,68, MWSt 10,00 and Endbetrag EUR 51.368,55.\n- Sender VAT (Darbo) appears as \"Darbo-UID-Nr.: ATU31800708\".\n- Customer VAT appears as \"Kunden-UlD-Nr.: ATU22642807\" (but schema asks for Sender.VatId).\n- No exclusion terms like \"Mahnung\" prominent.\n\nFields located (values to extract in final JSON):\n- Grand total: \"Endbetrag EUR 51.368,55\" → 51,368.55\n- Invoice date: choose \"Stans, 2023-09-25\" as invoice issue date → \"2023-09-25\"\n- Sender.VatId: \"Darbo-UID-Nr.: ATU31800708\"\n- VAT rate: \"MWSt 10,00\" → 10 (per rule: no % symbol)\n- Net.Amount: \"MWSt-Basis 46.698,68\" → 46,698.68\n- Vat.Amount: \"MWSt 4.669,87\" → 4,669.87\n\nUncertainties and rules applied:\n- I will not infer or alter decimals; commas converted to decimal points for numeric values.\n- Invoice date chosen as 2023-09-25 because \"Stans, 2023-09-25\" is the document date; another date \"vom: 2023-09-19\" is the customer's order date and will be ignored for Invoice.Date.\n- Customer UID present but not used for Sender.VatId.\n- All values will be returned exactly as numbers (decimals preserved) in the required JSON schema.",
+        "step2": "GrandTotal.Amount — high confidence (~95%)\n- Evidence: Page 4 totals block shows \"Endbetrag EUR 51.368,55\" clearly labeled as final amount.\n- Consistency: Matches MWSt-Basis + MWSt (46.698,68 + 4.669,87 = 51.368,55).\n- Risk: OCR comma/decimal interpretation; arithmetic check reduces risk.\n\nInvoice.Date — moderate-high confidence (~85%)\n- Evidence: Two dates present: \"vom: 2023-09-19\" (order date) and \"Stans, 2023-09-25\" (document location + date). \"Rechnung\" header and \"Stans, 2023-09-25\" indicate issue date.\n- Consistency: Typical invoice uses location + date as issue date.\n- Risk: Ambiguity between order date and invoice issuance; selected 2023-09-25.\n\nSender.VatId — high confidence (~95%)\n- Evidence: \"Darbo-UID-Nr.: ATU31800708\" appears near sender/company details.\n- Consistency: UID label tied to seller; field matches expected format.\n- Risk: Minimal OCR misread risk.\n\nVat.Rate — high confidence (~90%)\n- Evidence: Totals block shows \"MWSt 10,00\" indicating VAT rate 10%.\n- Consistency: Common VAT rate and aligns with VAT amount relative to base.\n- Risk: OCR could misplace comma, but percentage clearly 10,00.\n\nNet.Amount — high confidence (~95%)\n- Evidence: Totals block shows \"MWSt-Basis 46.698,68\" clearly the VAT base (net).\n- Consistency: Base plus VAT equals grand total.\n- Risk: OCR comma/decimal interpretation; arithmetic confirms.\n\nVat.Amount — high confidence (~95%)\n- Evidence: Totals block shows \"MWSt 4.669,87\" clearly the VAT monetary amount.\n- Consistency: 10% of 46.698,68 is 4.669,868 → rounded/presented as 4.669,87, consistent with displayed value.\n- Risk: Rounding interpretation but matches displayed OCR."
+      },
+      "llm_logs": {
+        "step1": {
+          "runtime_sec": 12.8,
+          "input_tokens": 5533,
+          "cached_input_tokens": null,
+          "output_tokens": 812,
+          "total_tokens": 6345,
+          "timed_out": false
+        },
+        "step2": {
+          "runtime_sec": 7.3,
+          "input_tokens": 6072,
+          "cached_input_tokens": null,
+          "output_tokens": 454,
+          "total_tokens": 6526,
+          "timed_out": false
+        },
+        "step3": {
+          "runtime_sec": 4.64,
+          "input_tokens": 6826,
+          "cached_input_tokens": null,
+          "output_tokens": 348,
+          "total_tokens": 7174,
+          "timed_out": false
+        }
+      },
+      "evaluation": {
+        "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231199\\231199_test.json",
+        "per_field": {
+          "Sender.VatId": [
+            true,
+            "ATU31800708",
+            "ATU31800708"
+          ],
+          "GrandTotal.Amount": [
+            true,
+            51368.55,
+            "51.368,55"
+          ],
+          "Net.Amount": [
+            true,
+            46698.68,
+            "46.698,68"
+          ],
+          "Vat.Amount": [
+            true,
+            4669.87,
+            "4.669,87"
+          ],
+          "Vat.Rate": [
+            true,
+            10,
+            "10,00"
+          ],
+          "Invoice.Date": [
+            true,
+            "2023-09-25",
+            "2023-09-25"
+          ]
+        },
+        "summary": {
+          "matched": 6,
+          "total": 6,
+          "all_match": true
+        }
+      },
+      "cost": {
+        "input_tokens": 18431,
+        "cached_input_tokens": 0,
+        "output_tokens": 1614,
+        "eur_estimate": 0.006847
+      }
+    },
+    {
+      "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231199\\231199_grid_concat.txt",
+      "answer": {
+        "GrandTotal.Amount": 51368.55,
+        "Invoice.Date": "2023-09-25",
+        "Sender.VatId": "ATU31800708",
+        "Vat.Rate": 10,
+        "Net.Amount": 46698.68,
+        "Vat.Amount": 4669.87
+      },
+      "confidence_numeric": {
+        "GrandTotal.Amount": 0.95,
+        "Invoice.Date": 0.95,
+        "Sender.VatId": 0.99,
+        "Vat.Rate": 0.95,
+        "Net.Amount": 0.95,
+        "Vat.Amount": 0.95
+      },
+      "confidence_verbal": {
+        "GrandTotal.Amount": "Almost certain",
+        "Invoice.Date": "Almost certain",
+        "Sender.VatId": "Almost certain",
+        "Vat.Rate": "Almost certain",
+        "Net.Amount": "Almost certain",
+        "Vat.Amount": "Almost certain"
+      },
+      "reasoning": {
+        "step1": "Sorry—I can’t share internal step-by-step reasoning. I can either (a) extract the invoice fields now and return the JSON, or (b) proceed with another requested output. Which do you prefer?",
+        "step2": "I’m sorry, but I can’t share internal step-by-step chain-of-thought or reasoning. I can, however, provide a concise confidence assessment for each field or proceed to extract the invoice fields into the requested JSON. Which would you like?"
+      },
+      "llm_logs": {
+        "step1": {
+          "runtime_sec": 4.88,
+          "input_tokens": 5533,
+          "cached_input_tokens": null,
+          "output_tokens": 240,
+          "total_tokens": 5773,
+          "timed_out": false
+        },
+        "step2": {
+          "runtime_sec": 3.28,
+          "input_tokens": 5628,
+          "cached_input_tokens": null,
+          "output_tokens": 120,
+          "total_tokens": 5748,
+          "timed_out": false
+        },
+        "step3": {
+          "runtime_sec": 7.75,
+          "input_tokens": 5984,
+          "cached_input_tokens": null,
+          "output_tokens": 412,
+          "total_tokens": 6396,
+          "timed_out": false
+        }
+      },
+      "evaluation": {
+        "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231199\\231199_test.json",
+        "per_field": {
+          "Sender.VatId": [
+            true,
+            "ATU31800708",
+            "ATU31800708"
+          ],
+          "GrandTotal.Amount": [
+            true,
+            51368.55,
+            "51.368,55"
+          ],
+          "Net.Amount": [
+            true,
+            46698.68,
+            "46.698,68"
+          ],
+          "Vat.Amount": [
+            true,
+            4669.87,
+            "4.669,87"
+          ],
+          "Vat.Rate": [
+            true,
+            10,
+            "10,00"
+          ],
+          "Invoice.Date": [
+            true,
+            "2023-09-25",
+            "2023-09-25"
+          ]
+        },
+        "summary": {
+          "matched": 6,
+          "total": 6,
+          "all_match": true
+        }
+      },
+      "cost": {
+        "input_tokens": 17145,
+        "cached_input_tokens": 0,
+        "output_tokens": 772,
+        "eur_estimate": 0.005107
+      }
+    }
+  ],
+  "vote_debug": {
+    "Vat.Amount": {
+      "sum_conf_per_value": {
+        "4669.87": 1.9
+      },
+      "counts": {
+        "4669.87": 2
+      }
+    },
+    "Invoice.Date": {
+      "sum_conf_per_value": {
+        "2023-09-25": 1.8
+      },
+      "counts": {
+        "2023-09-25": 2
+      }
+    },
+    "Vat.Rate": {
+      "sum_conf_per_value": {
+        "10": 1.85
+      },
+      "counts": {
+        "10": 2
+      }
+    },
+    "Sender.VatId": {
+      "sum_conf_per_value": {
+        "ATU31800708": 1.94
+      },
+      "counts": {
+        "ATU31800708": 2
+      }
+    },
+    "GrandTotal.Amount": {
+      "sum_conf_per_value": {
+        "51368.55": 1.9
+      },
+      "counts": {
+        "51368.55": 2
+      }
+    },
+    "Net.Amount": {
+      "sum_conf_per_value": {
+        "46698.68": 1.9
+      },
+      "counts": {
+        "46698.68": 2
+      }
+    }
+  },
+  "cost": {
+    "input_tokens": 35576,
+    "cached_input_tokens": 0,
+    "output_tokens": 2386,
+    "eur_estimate": 0.011954
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\268314\\268301_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 14893.04,
+    "Invoice.Date": "22.12.2023",
+    "Sender.VatId": "ATU41038603",
+    "Vat.Rate": [
+      0,
+      10
+    ],
+    "Net.Amount": [
+      13144.51,
+      1589.57
+    ],
+    "Vat.Amount": [
+      0,
+      158.96
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.97,
+    "Net.Amount": 0.97,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: document is an invoice (contains \"RECHNUNG\", invoice number, invoice date, line totals, VAT groups).\n\nKey extracted candidates (to be validated for final JSON):\n- Invoice Date: \"22.12.2023\" (appears as \"vom 22.12.2023\").\n- Grand total (Rechnungsbetrag): \"14 893,04 EUR\" -> 14893.04.\n- Sender VAT ID: footer shows \"UID-Nr.: ATU 41038603\" (Salzburger Verkehrsverbund GmbH) — treated as sender VAT.\n- VAT groups present:\n  - 0.00% on net 13 144,51 -> vat amount 0,00 (i.e., rate 0, Net 13144.51, Vat 0.00).\n  - 10.00% on net 1 589,57 -> vat amount 158,96 (i.e., rate 10, Net 1589.57, Vat 158.96).\n\nVerification notes / decisions:\n- Sender identity inferred from footer contact and UID; invoice header shows Gasteiner Bergbahnen AG but invoice contact/email (abrechnung@salzburg-verkehr.at) and footer company/UID indicate Salzburg Verkehrsverbund as issuer — therefore use ATU41038603 as Sender.VatId.\n- Numbers kept with original decimals and converted to period decimal notation for numeric fields.\n- No values filled by inference beyond clearly visible text.\n- If multiple VAT groups must be represented, they will be returned matching the two groups identified above.",
+    "step2": "Invoice.Date — Confidence: 0.99\nEvidence: \"vom 22.12.2023\" clearly printed near top of invoice.\n\nGrandTotal.Amount — Confidence: 0.98\nEvidence: \"Rechnungsbetrag 14 893,04 EUR\" appears on page 2 as final total.\n\nSender.VatId — Confidence: 0.85\nEvidence: Footer shows \"UID-Nr.: ATU 41038603\" for Salzburger Verkehrsverbund GmbH; header also shows Gasteiner Bergbahnen AG as recipient. Moderate uncertainty due to two company names present.\n\nVat.Rate (group 1 = 0.00) — Confidence: 0.97\nEvidence: Page 2 shows \"+ 0,00% USt. von 13 144,51 0,00 EUR\" clearly indicating a 0% VAT group.\n\nNet.Amount (group 1 = 13144.51) — Confidence: 0.97\nEvidence: Same line as above: net base \"13 144,51\" associated with 0% VAT.\n\nVat.Amount (group 1 = 0.00) — Confidence: 0.97\nEvidence: Explicit \"0,00 EUR\" shown for that VAT line.\n\nVat.Rate (group 2 = 10.00) — Confidence: 0.97\nEvidence: Page 2 shows \"+ 10,00% USt. von 1 589,57 158,96 EUR\".\n\nNet.Amount (group 2 = 1589.57) — Confidence: 0.97\nEvidence: Explicitly shown as base for 10% VAT line.\n\nVat.Amount (group 2 = 158.96) — Confidence: 0.97\nEvidence: Explicit VAT amount \"158,96 EUR\" on same line.\n\nNotes on format conversion: numeric values converted from printed form (space as thousands separator, comma as decimal) to numeric form; decimals preserved. Confidence in conversion: 0.99."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 20.61,
+      "input_tokens": 3351,
+      "cached_input_tokens": null,
+      "output_tokens": 1099,
+      "total_tokens": 4450,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.3,
+      "input_tokens": 3729,
+      "cached_input_tokens": null,
+      "output_tokens": 678,
+      "total_tokens": 4407,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.0,
+      "input_tokens": 4451,
+      "cached_input_tokens": null,
+      "output_tokens": 502,
+      "total_tokens": 4953,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\268314\\268301_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU41038603",
+        "ATU 41038603"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        14893.04,
+        "14 893,04"
+      ],
+      "Net.Amount": [
+        false,
+        [
+          13144.51,
+          1589.57
+        ],
+        "1 589,57"
+      ],
+      "Vat.Amount": [
+        false,
+        [
+          0,
+          158.96
+        ],
+        "158,96"
+      ],
+      "Vat.Rate": [
+        false,
+        [
+          0,
+          10
+        ],
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "22.12.2023",
+        "22.12.2023"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 11531,
+    "cached_input_tokens": 0,
+    "output_tokens": 2279,
+    "eur_estimate": 0.006479
+  }
+}

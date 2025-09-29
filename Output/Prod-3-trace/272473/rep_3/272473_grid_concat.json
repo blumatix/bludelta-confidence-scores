@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\272489\\272473_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2029.44,
+    "Invoice.Date": "22.01.2024",
+    "Sender.VatId": "ATU62895905",
+    "Vat.Rate": 20,
+    "Net.Amount": 3868.22,
+    "Vat.Amount": 773.64
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Plan:\n- Confirm document is an invoice by checking headers (\"Rechnung\", totals, invoice number, dates).\n- Locate key fields: invoice date, grand total payable, sender VAT (UID), VAT rate(s), net amount(s), VAT amount(s).\n- Extract only explicit text occurrences; do not infer missing values.\n\nEvidence found (explicit items to extract later):\n- Invoice indicator: \"Ihre A1 Rechnung\", \"Rechnungsnummer: 295192525896\".\n- Invoice date: \"Rechnungsdatum: 22.01.2024\".\n- Zu zahlender Betrag (payable): \"€ 2.029,44\".\n- Rechnungsbetrag netto: \"3.868,22\".\n- Summe USt 20% von netto 3.868,22: \"773,64\".\n- Rechnungsbetrag brutto: \"4.641,86\".\n- VAT rate present repeatedly as \"20\" (20%).\n- Sender (A1 Telekom Austria AG) UID shown as \"UID: ATU62895905\" (also recipient UID: \"UID: ATU31771008\" appears under Bergbahn Kitzbühel AG).\n\nExtraction rules to follow:\n- Return empty fields only if invoice criteria fail (but criteria satisfied).\n- Do not guess; use exact numeric formats and decimals as in text.\n- VAT rate values to be returned without \"%\" (e.g., 20).",
+    "step2": "Confidence assessment:\n\n- Document classification as invoice: Very high — multiple invoice indicators present (titles \"Ihre A1 Rechnung\", \"Rechnungsnummer\", \"Rechnungsdatum\", totals, line items).\n\n- Invoice.Date (\"22.01.2024\"): Very high — explicitly labeled \"Rechnungsdatum: 22.01.2024\".\n\n- GrandTotal.Amount (2.029,44): High — explicitly shown as \"Zu zahlender Betrag € 2.029,44\" in header and repeated; formatting with comma as decimal consistent. Slight uncertainty only if different payable shown elsewhere, but repeated on page 2.\n\n- Net.Amount (3.868,22): High — explicitly shown as \"Rechnungsbetrag netto 3.868,22\". Clear and consistent with subsequent VAT calculation.\n\n- Vat.Rate (20): Very high — VAT percentage repeatedly shown as \"20\" in line items and summary \"Summe USt 20% von netto 3.868,22\".\n\n- Vat.Amount (773,64): High — explicitly shown as \"Summe USt 20% von netto 3.868,22 773,64\". Consistent arithmetically: 3.868,22 * 0.20 = 773,644 → rounded/presented as 773,64 matching printed value (minor rounding behavior consistent).\n\n- Sender.VatId (ATU62895905): High — Sender block shows \"UID: ATU62895905\" for A1 Telekom Austria AG; clear. Note recipient UID (ATU31771008) also present but labeled under Bergbahn Kitzbühel AG (customer). Confident sender VAT is ATU62895905.\n\nOverall consistency: High — net + VAT = 4.641,86 equals stated brutto; brutto minus prior balance (-2.612,42) yields payable 2.029,44 as shown. Minor rounding checked and consistent."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.48,
+      "input_tokens": 15036,
+      "cached_input_tokens": null,
+      "output_tokens": 678,
+      "total_tokens": 15714,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.87,
+      "input_tokens": 15377,
+      "cached_input_tokens": null,
+      "output_tokens": 406,
+      "total_tokens": 15783,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.17,
+      "input_tokens": 16083,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 16366,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\272489\\272473_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU62895905",
+        "ATU62895905"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        2029.44,
+        "2.029,44"
+      ],
+      "Net.Amount": [
+        true,
+        3868.22,
+        "3.868,22"
+      ],
+      "Vat.Amount": [
+        true,
+        773.64,
+        "773,64"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "22.01.2024",
+        "22.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 46496,
+    "cached_input_tokens": 0,
+    "output_tokens": 1367,
+    "eur_estimate": 0.012594
+  }
+}

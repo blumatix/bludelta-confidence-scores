@@ -1,0 +1,109 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198307\\198307_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 6455.56,
+    "Invoice.Date": "14.03.2023",
+    "Sender.VatId": "DE 346615600",
+    "Vat.Rate": 19,
+    "Net.Amount": 5424.84,
+    "Vat.Amount": 1030.72
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (a) verify this is an invoice by checking headers/keywords, (b) locate labeled fields, (c) extract exact text/numeric values without guessing, and (d) preserve decimals and percentage formatting rules.\n\nFindings (candidate values identified in the text):\n- Invoice indicator: \"Rechnung\", Invoice No.: \"R/F/0008/03/2023\"\n- Invoice Date: \"14.03.2023\"\n- Sender VAT ID (Ust-ID-Nr): \"DE 346615600\"\n- VAT rate(s): \"19%\" (appears on line items and summary)\n- Net total (Gesamt netto): \"5 424,84\" (EUR)\n- VAT total (MwSt / Gesamt MwSt): \"1 030,72\" (EUR)\n- Grand total / Rechnungsbetrag EUR: \"6 455,56\" (EUR)\n\nI will not infer any missing fields and will preserve numeric formatting/decimals exactly when producing the final structured JSON.",
+    "step2": "Invoice indicator check:\n- Strong: multiple occurrences of \"Rechnung\", invoice number, invoice date, totals, line items.\n\nConfidence assessments per field:\n\n1) Invoice.Date = \"14.03.2023\"\n- Evidence: explicit label \"Rechnungs-Datum                                 14.03.2023\" at top.\n- Confidence: Very high.\n\n2) Sender.VatId = \"DE 346615600\"\n- Evidence: labeled \"Ust-ID-Nr:           DE     346615600\" under Verkäufer block.\n- Formatting: spaces in OCR; core value DE346615600 clear.\n- Confidence: Very high.\n\n3) Vat.Rate = 19\n- Evidence: \"19%\" appears repeatedly for each line item and summary shows \"[%] 19%\" aligned with totals.\n- Rule: return numeric without percent; should be 19.\n- Confidence: Very high.\n\n4) Net.Amount = 5424,84 (numeric)\n- Evidence: Summary shows \"Gesamt netto 5 424,84\" and further \"Gesamt EUR 5   424,84\".\n- OCR spacing uses group separator as space; decimal comma present.\n- Must preserve decimals; numeric type expected. Interpretation as 5424.84 is clear.\n- Confidence: High (very likely correct).\n\n5) Vat.Amount = 1 030,72 (numeric)\n- Evidence: Summary shows \"MwSt 1 030,72\" and \"Gesamt EUR ... 1 030,72\".\n- OCR spacing similar; decimal comma present.\n- Confidence: High.\n\n6) GrandTotal.Amount = 6 455,56 (numeric)\n- Evidence: \"Rechnungsbetrag EUR: 6   455,56\" and summary \"Gesamt brutto 6 455,56\".\n- Consistency check: Net 5,424.84 + VAT 1,030.72 = 6,455.56 matches.\n- Confidence: Very high.\n\nNotes on formatting and no-inference policy:\n- Values extracted directly from labeled fields; spacing/commas from OCR noted.\n- Will output numeric types preserving decimals; no additional inferred fields."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.4,
+      "input_tokens": 2617,
+      "cached_input_tokens": null,
+      "output_tokens": 597,
+      "total_tokens": 3214,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.56,
+      "input_tokens": 2877,
+      "cached_input_tokens": null,
+      "output_tokens": 449,
+      "total_tokens": 3326,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.51,
+      "input_tokens": 3626,
+      "cached_input_tokens": null,
+      "output_tokens": 348,
+      "total_tokens": 3974,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198307\\198307.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DE 346615600",
+        "DE 346615600"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        6455.56,
+        "6 455,56"
+      ],
+      "Net.Amount": [
+        true,
+        5424.84,
+        [
+          "5 424,84",
+          "5 424,84"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        1030.72,
+        [
+          "1 030,72",
+          "1 030,72"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        19,
+        "19"
+      ],
+      "Invoice.Date": [
+        true,
+        "14.03.2023",
+        "14.03.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 9120,
+    "cached_input_tokens": 0,
+    "output_tokens": 1394,
+    "eur_estimate": 0.000944
+  }
+}

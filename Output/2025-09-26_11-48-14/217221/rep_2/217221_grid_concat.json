@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\217236\\217221_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1548.8,
+    "Invoice.Date": "04.08.2023",
+    "Sender.VatId": "ATU35980300",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 1408.0,
+    "Vat.Amount": 140.8
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Step 1 — Identify document type\n- Look for invoice indicators: \"RECHNUNG\" present (header), invoice number \"4391262950\", dates, totals (\"Bruttowert\", \"Nettowert\", \"UST\", \"Fakturabetrag\") and line items → qualifies as an invoice.\n- Exclusion terms (\"Zahlungserinnerung\", \"Mahnung\", \"Servicebericht\") are absent → not excluded.\n\nStep 2 — Locate candidate fields in text\n- Invoice date: \"04.08.2023\" appears on same line as \"RECHNUNG 4391262950 04.08.2023\".\n- Sender identification / VAT: Top block shows \"Mondelez Österreich GmbH\" and \"UID-Nr   ATU    35980300\" — this is sender VAT ID candidate.\n- Totals block (bottom) shows table header with values:\n  - \"Bruttowert 3.743,52\"\n  - \"Nettowert 1.408,00\"\n  - \"UST 140,80\"\n  - \"inkl.UST 1.548,80\"\n  - \"UST % 10,00\"\n  - \"Fakturabetrag EUR 1.548,80\"\n- Grand total likely \"Fakturabetrag\" / \"inkl.UST\" = 1.548,80 EUR.\n\nStep 3 — Map to schema fields, consider alternatives and verify\n- Invoice.Date: clear exact string \"04.08.2023\". No ambiguity.\n- Sender.VatId: \"UID-Nr ATU 35980300\" appears adjacent to company header (Mondelez Österreich GmbH). Alternative candidate: \"UID Warenempfänger: ATU22642807\" exists but that is recipient; schema asks for Sender.VatId, so choose ATU35980300. Verify formatting: keep as string \"ATU35980300\" (no spaces).\n- GrandTotal.Amount: \"Fakturabetrag EUR 1.548,80\" and \"inkl.UST 1.548,80\" match; choose 1548.80 as numeric value. Preserve two decimals.\n- Net.Amount: \"Nettowert 1.408,00\" → 1408.00 numeric.\n- Vat.Amount: \"UST 140,80\" → 140.80 numeric.\n- Vat.Rate: \"UST % 10,00\" → percent value is 10.00; rule: extract without percentage symbol, keep decimals as in input. Schema allows number; use 10 (or 10.00?). Instruction 5: extract rates without the percentage symbol (e.g., \"19%\" as \"19\"). Input shows \"10,00\" so represent as number 10 or 10.00. To preserve decimals as input, use 10.00. But schema type is number; both acceptable. Choose 10 (no decimals) vs 10.00 — earlier rule 7: keep decimal places same as input. Input had two decimals \"10,00\" -> so use 10.00.\n- Confirm no inference used: all fields directly present in text.\n\nStep 4 — Decimal and formatting decisions\n- Convert comma decimals to dot for numeric fields, preserving decimal places:\n  - GrandTotal.Amount: \"1.548,80\" → 1548.80 (two decimals)\n  - Net.Amount: \"1.408,00\" → 1408.00 (two decimals)\n  - Vat.Amount: \"140,80\" → 140.80 (two decimals)\n  - Vat.Rate: \"10,00\" → 10.00 (two decimals)\n\nStep 5 — Multiple occurrences / edge cases\n- There is a \"UID Auftraggeber\" and \"UID Rechnungsempfänger\" both ATU22642807 — these are recipient IDs; do not override sender VAT.\n- Ensure Sender.VatId is the company UID near company header (ATU35980300); no other sender UID present.\n- No exchange rates present.\n- All required schema fields found; no missing values.",
+    "step2": "Invoice.Date\n- Evidence: \"RECHNUNG ... 04.08.2023\" clearly shown next to invoice number.\n- Confidence: Very high (≈ 99%).\n\nSender.VatId\n- Evidence: Top-right block lists company \"Mondelez Österreich GmbH\" and \"UID-Nr   ATU    35980300\". Other UIDs (ATU22642807) are labeled as Auftraggeber/Rechnungsempfänger (recipient).\n- Ambiguity: Multiple UID occurrences could cause confusion, but labeling indicates ATU35980300 is sender.\n- Confidence: High (≈ 95%).\n\nGrandTotal.Amount\n- Evidence: \"Fakturabetrag EUR 1.548,80\" and \"inkl.UST 1.548,80\" both match.\n- Confidence: Very high (≈ 99%).\n\nNet.Amount\n- Evidence: \"Nettowert 1.408,00\" appears in totals row.\n- Confidence: Very high (≈ 99%).\n\nVat.Amount\n- Evidence: \"UST 140,80\" shown in totals row corresponding to VAT amount.\n- Confidence: Very high (≈ 99%).\n\nVat.Rate\n- Evidence: \"UST % 10,00\" present in totals row.\n- Ambiguity: Need to convert \"10,00\" to numeric without percent; preserving decimals required.\n- Confidence: High (≈ 95%)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 16.75,
+      "input_tokens": 1705,
+      "cached_input_tokens": null,
+      "output_tokens": 1373,
+      "total_tokens": 3078,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.38,
+      "input_tokens": 2613,
+      "cached_input_tokens": null,
+      "output_tokens": 358,
+      "total_tokens": 2971,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.72,
+      "input_tokens": 3207,
+      "cached_input_tokens": null,
+      "output_tokens": 285,
+      "total_tokens": 3492,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\217236\\217221_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU35980300",
+        "ATU 35980300"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1548.8,
+        "1.548,80"
+      ],
+      "Net.Amount": [
+        true,
+        1408.0,
+        "1.408,00"
+      ],
+      "Vat.Amount": [
+        true,
+        140.8,
+        "140,80"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "04.08.2023",
+        "04.08.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7525,
+    "cached_input_tokens": 0,
+    "output_tokens": 2016,
+    "eur_estimate": 0.005143
+  }
+}

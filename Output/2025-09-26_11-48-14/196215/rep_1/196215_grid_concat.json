@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\196215\\196215_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 333.07,
+    "Invoice.Date": "15.06.2023",
+    "Sender.VatId": "ATU33963805",
+    "Vat.Rate": 10,
+    "Net.Amount": 302.79,
+    "Vat.Amount": 30.28
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.92,
+    "Vat.Rate": 0.93,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I can’t share my internal chain-of-thought. Brief, non-sensitive extraction plan and observations instead:\n\n- Document classification: contains headings \"RECHNUNG\" and invoice elements → treat as invoice.\n- Candidate fields located:\n  - Invoice.Date: \"15.06.2023\" (appears near \"Rechnungsdatum\").\n  - Sender.VatId: \"ATU33963805\" (company VAT shown in footer).\n  - GrandTotal.Amount: \"333,07\" (labeled \"Rechnungsbetrag\" and repeated).\n  - Net.Amount: \"302,79\" (labeled \"Netto\" / listed in totals).\n  - Vat.Rate: \"10\" (appears as \"10%\" in VAT column; will extract without %).\n  - Vat.Amount: \"30,28\" (appears in VAT amount column).\n- Verification notes:\n  - Two different ATU-like numbers appear: \"ATU2 642807\" (possibly a customer UID) and \"ATU33963805\" (clearly in company footer). Per schema, use sender VAT = footer value.\n  - Preserve original decimal formatting (commas in source). For numeric fields will convert comma to dot only if producing JSON numeric values; otherwise keep numeric precision as in source.\n- Next step: produce the final JSON with these exact extracted values (empty strings for any missing fields).",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"value\": 333.07,\n    \"confidence\": \"95%\",\n    \"justification\": \"Explicitly labeled 'Rechnungsbetrag' and repeated as total 333,07.\"\n  },\n  \"Invoice.Date\": {\n    \"value\": \"15.06.2023\",\n    \"confidence\": \"98%\",\n    \"justification\": \"Clearly printed next to 'Rechnungsdatum'.\"\n  },\n  \"Sender.VatId\": {\n    \"value\": \"ATU33963805\",\n    \"confidence\": \"92%\",\n    \"justification\": \"VAT shown in footer; another ATU appears near header but footer value matches company info.\"\n  },\n  \"Vat.Rate\": {\n    \"value\": 10,\n    \"confidence\": \"93%\",\n    \"justification\": \"VAT percent shown as 10% in the totals/VAT column.\"\n  },\n  \"Net.Amount\": {\n    \"value\": 302.79,\n    \"confidence\": \"90%\",\n    \"justification\": \"Net total listed as 302,79 in totals row.\"\n  },\n  \"Vat.Amount\": {\n    \"value\": 30.28,\n    \"confidence\": \"90%\",\n    \"justification\": \"VAT amount shown as 30,28 in the totals/VAT column.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.64,
+      "input_tokens": 1990,
+      "cached_input_tokens": null,
+      "output_tokens": 677,
+      "total_tokens": 2667,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.43,
+      "input_tokens": 2330,
+      "cached_input_tokens": null,
+      "output_tokens": 539,
+      "total_tokens": 2869,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.94,
+      "input_tokens": 2913,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3194,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\196215\\196215_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU33963805",
+        "ATU33963805,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        333.07,
+        "333,07"
+      ],
+      "Net.Amount": [
+        true,
+        302.79,
+        "302,79"
+      ],
+      "Vat.Amount": [
+        true,
+        30.28,
+        "30,28"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "15.06.2023",
+        "15.06.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7233,
+    "cached_input_tokens": 0,
+    "output_tokens": 1497,
+    "eur_estimate": 0.004181
+  }
+}

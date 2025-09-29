@@ -1,0 +1,101 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198257\\198257_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1900.8,
+    "Invoice.Date": "31/01/2023",
+    "Sender.VatId": "FR47546650334",
+    "Vat.Rate": "",
+    "Net.Amount": 1900.8,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.93,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will determine whether this is an invoice and extract the required fields per the schema.\n\n1) Document classification\n- The document title shows \"FACTURE\" and contains invoice-like elements: invoice number (2300190), invoice date (\"au 31/01/2023\"), payment terms, line-item transport charges, totals, IBAN/BIC. No exclusion keywords like \"Zahlungserinnerung\" or \"Mahnung\" dominate. Conclusion: it is an invoice.\n\n2) Locate candidate fields\n- Invoice.Date: \"au 31/01/2023\" appears near the FACTURE header — extract as 31/01/2023.\n- Sender.VatId: Near header there is \"TVA : FR   47546650334\" — extract as FR47546650334 (remove spaces).\n  Note: the document also has \"N° D'IDENTIFICATION FISCALE :FR 56 391 373 610\" (SIRET/identifier), but the explicit \"TVA :\" label points to FR47546650334 as VAT ID.\n- GrandTotal.Amount: The bottom shows \"Net à payer T.T.C 1 900,80 €\" and repeated totals; grand total is 1 900,80. Convert comma to dot: 1900.80.\n- Net.Amount: The invoice shows base/net value corresponding to the taxable base as 1 900,80 (the VAT is exempt), so Net.Amount = 1900.80.\n- Vat.Amount: The totals section shows VAT = 0,00 — so Vat.Amount = 0.00.\n- Vat.Rate: The invoice states \"Exonération de TVA - Reverse Charge - art.44D.2008/8CE\" and lists VAT on debits with 0,00; no explicit percentage rate is given. Per No Inference policy, do not guess a percentage. Therefore Vat.Rate should be left empty.\n\n3) Decimal formatting and rules\n- Preserve two decimal places as in source: 1900.80 and 0.00.\n- Do not add percent symbol for Vat.Rate; but field will be empty because no explicit rate present.\n\n4) Verify no contradictions\n- Multiple occurrences of amounts consistently show 1 900,80 as base and total and VAT 0,00. Sender VAT has the clear \"TVA : FR 47546650334\" label.\n\nConclusion: proceed to produce JSON with:\n- GrandTotal.Amount: 1900.80\n- Invoice.Date: \"31/01/2023\"\n- Sender.VatId: \"FR47546650334\"\n- Vat.Rate: \"\" (empty)\n- Net.Amount: 1900.80\n- Vat.Amount: 0.00",
+    "step2": "GrandTotal.Amount (1900.80) — Confidence: High.\n- Evidence: Multiple occurrences at bottom and elsewhere show \"1 900,80\" and \"Net à payer T.T.C 1 900,80 €\". Consistent across pages. Conversion from comma to dot is straightforward.\n\nInvoice.Date (\"31/01/2023\") — Confidence: High.\n- Evidence: Header near \"FACTURE\" reads \"au 31/01/2023\". Clear explicit date.\n\nSender.VatId (\"FR47546650334\") — Confidence: High.\n- Evidence: Labeled \"TVA : FR   47546650334\" in the header. Spaces removed for normalized ID. No competing VAT-like field with the same label.\n\nVat.Rate (empty) — Confidence: High (in decision to leave empty).\n- Evidence: Invoice states \"Exonération de TVA - Reverse Charge...\" and shows VAT amount 0,00 but does not list a percentage rate. Per no-inference rule, leaving blank is correct.\n\nNet.Amount (1900.80) — Confidence: High.\n- Evidence: The invoice shows taxable base/Net matching \"1 900,80\" and the line \"Exonéré Net à payer T.T.C 1 900,80 €\". Consistent with GrandTotal and VAT 0,00.\n\nVat.Amount (0.00) — Confidence: High.\n- Evidence: Totals table lists VAT as \"0,00\" and the wording indicates VAT exemption/reverse charge."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 15.19,
+      "input_tokens": 2564,
+      "cached_input_tokens": null,
+      "output_tokens": 1151,
+      "total_tokens": 3715,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.23,
+      "input_tokens": 3186,
+      "cached_input_tokens": null,
+      "output_tokens": 381,
+      "total_tokens": 3567,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.06,
+      "input_tokens": 3803,
+      "cached_input_tokens": null,
+      "output_tokens": 345,
+      "total_tokens": 4148,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198257\\198257.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "FR47546650334",
+        [
+          "FR 56 391 373 610",
+          "FR 56 391 373 610"
+        ]
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1900.8,
+        "1 900,80"
+      ],
+      "Net.Amount": [
+        true,
+        1900.8,
+        "1 900,80"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "31/01/2023",
+        "31/01/2023"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 5,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 9553,
+    "cached_input_tokens": 0,
+    "output_tokens": 1877,
+    "eur_estimate": 0.001135
+  }
+}

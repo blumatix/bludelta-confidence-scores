@@ -1,0 +1,109 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198424\\198424_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 345.1,
+    "Invoice.Date": "16.02.2023",
+    "Sender.VatId": "DE242715575",
+    "Vat.Rate": 19,
+    "Net.Amount": 290.0,
+    "Vat.Amount": 55.1
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.6,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (1) verify this is an invoice, (2) locate invoice-relevant fields, (3) determine whether values are present and unambiguous, and (4) note any uncertainties or missing items before producing the final JSON.\n\n1) Classification\n- Positive invoice indicators found: the document header shows \"Rechnung\", an invoice number (\"Rechnung: 23164\"), explicit monetary totals and VAT lines (\"19 %\", \"MwSt.\", \"Summe gesamt\"), and line-item section with \"Pos. Anzahl Artikel ... Einzelpreis Gesamtpreis\". Exclusion terms like \"Mahnung\" or \"Zahlungserinnerung\" do not appear prominently. Conclusion: document qualifies as an invoice.\n\n2) Candidate field locations and values (evidence-only, no inference)\n- Invoice.Date: \"Ennigerloh, den 16.02.2023\" appears as the invoice issue date line.\n- GrandTotal.Amount: The text shows \"Summe gesamt 345,10 EUR\" — candidate for total payable amount.\n- Vat.Rate: VAT group shows \"19 %\" associated with the Pauschalfracht line and the VAT breakdown line \"19,00%\".\n- Net.Amount: The net line shows \"netto ... 290,00 EUR\" (explicit net base).\n- Vat.Amount: VAT amount is shown as \"EUR 55,10 MwSt. zu 19,00% auf EUR 290,00 netto\" — candidate VAT amount 55,10.\n- Sender.VatId: The header includes \"Ust-Id.Nr.: DE 242   715  575\" (sender VAT ID) and also a \"Ust. ID Kunde: DE815512007\" (customer VAT ID). The sender VAT appears as DE242715575 (with spaces in OCR).\n\n3) Ambiguities and validation\n- Currency: amounts are in EUR; schema expects numeric values without currency. Will strip currency symbol when forming numbers.\n- Decimal formatting: amounts use comma as decimal separator in the text (e.g., \"345,10\"). Must preserve decimals and convert to numeric format with dot if required by JSON numeric type. Keep same number of decimal places as in input.\n- VAT rate: must be returned as number without \"%\" (i.e., 19).\n- Multiple VAT groups: only one VAT group (19%) is present; treat it as the single VAT item.\n- Sender vs. customer VAT: ensure Sender.VatId corresponds to the invoice issuer (Ust-Id.Nr. near bank details). Do not fill with customer VAT.\n- If any field is missing or ambiguous in the text, per rules leave empty rather than infer.\n\n4) Extraction decision summary to use for JSON:\n- Document classified as invoice — proceed to extract.\n- Expected extracted values (to be placed exactly as found, numeric types where appropriate):\n  - Invoice.Date → \"16.02.2023\"\n  - GrandTotal.Amount → 345.10 (from \"345,10 EUR\")\n  - Net.Amount → 290.00 (from \"290,00 EUR\")\n  - Vat.Amount → 55.10 (from \"55,10 MwSt.\")\n  - Vat.Rate → 19\n  - Sender.VatId → \"DE 242   715  575\" (normalize spacing to \"DE242715575\" when appropriate, but do not invent digits)\n\nI will now produce the final JSON following the schema, adhering to no-inference and formatting rules.",
+    "step2": "GrandTotal.Amount:\n- Evidence: Text line \"Summe  gesamt                          345,10 EUR\".\n- Consistency: Matches net (290,00) + VAT (55,10) = 345,10.\n- OCR issues: Comma decimal used; grouping unambiguous.\n- Confidence: High.\n\nInvoice.Date:\n- Evidence: \"Ennigerloh, den 16.02.2023\" appears on invoice header line.\n- Ambiguity: Could there be other dates (B/E dates 15.02.2023, 16.02.2023 shipping). However header phrasing indicates issue date.\n- Confidence: High.\n\nSender.VatId:\n- Evidence: \"Ust-Id.Nr.:  DE  242   715  575\" appears near bank details (seller block).\n- Ambiguity: OCR spacing and possible misreads of digits; there is also \"Ust. ID Kunde: DE815512007\" (customer VAT) elsewhere—must not confuse.\n- Confidence: Medium (value clearly present but OCR spacing and digit grouping may contain errors).\n\nVat.Rate:\n- Evidence: \"19 %\" on line item and \"19,00% auf EUR   290,00 netto\".\n- Consistency: VAT amount corresponds to 19% of 290,00 (55,10).\n- Confidence: High.\n\nNet.Amount:\n- Evidence: \"netto           Summelinetto.                          290,00 EUR\" and line item shows 290,00 Einzelpreis/Gesamtpreis.\n- Consistency: Matches VAT calculation and total.\n- Confidence: High.\n\nVat.Amount:\n- Evidence: \"EUR   55,10MwSt. zu        19,00% auf EUR   290,00netto\".\n- Consistency: 19% of 290,00 = 55,10.\n- OCR issues: spacing/concatenation but numeric clear.\n- Confidence: High."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.87,
+      "input_tokens": 3330,
+      "cached_input_tokens": null,
+      "output_tokens": 981,
+      "total_tokens": 4311,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.33,
+      "input_tokens": 4102,
+      "cached_input_tokens": null,
+      "output_tokens": 474,
+      "total_tokens": 4576,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.9,
+      "input_tokens": 4812,
+      "cached_input_tokens": null,
+      "output_tokens": 280,
+      "total_tokens": 5092,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198424\\198424.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DE242715575",
+        "DE242715575"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        345.1,
+        "345,10"
+      ],
+      "Net.Amount": [
+        true,
+        290.0,
+        [
+          "290,00",
+          "290,00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        55.1,
+        [
+          "55,10",
+          "55,10"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        19,
+        "19,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "16.02.2023",
+        "16.02.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 12244,
+    "cached_input_tokens": 0,
+    "output_tokens": 1735,
+    "eur_estimate": 0.001219
+  }
+}

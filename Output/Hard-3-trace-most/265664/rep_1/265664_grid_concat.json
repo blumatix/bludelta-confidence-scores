@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\265664\\265664_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 270.0,
+    "Invoice.Date": "2023-09-26",
+    "Sender.VatId": "",
+    "Vat.Rate": 12,
+    "Net.Amount": 3087.86,
+    "Vat.Amount": 370.54
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.6,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.1,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Likely",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly unlikely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Brief, non-sensitive summary of my extraction plan and observations:\n\n- Validate document as an invoice by checking for invoice keywords (Invoice/Tosite/YHTEENSÄ/ALV-erittely) and presence of totals and VAT lines — document contains these, so proceed.\n- Note potential ambiguity: two monetary totals appear:\n  - Page 1 shows \"YHTEENSÄ: 270,00\" (appears as the submitted expense total, likely EUR).\n  - Page 2 is a hotel bill showing totals in SEK: NET 3.087,86 SEK, VAT 370,54 SEK, GROSS 3.458,40 SEK, and payment zero balance.\n- Extract fields without guessing currency conversions or inferring missing labels:\n  - Invoice.Date: take explicit dates labeled (26.9.2023 / 2023-09-26) where available.\n  - GrandTotal.Amount: choose the invoice-level total corresponding to the primary document header (the expense submission total 270,00). (I will not convert or combine totals.)\n  - Sender.VatId: look for VAT/tax identifiers; none clearly labeled as sender VAT ID on the expense summary — hotel org nr appears but not explicitly VAT ID.\n  - Vat.Rate / Net.Amount / Vat.Amount: extract VAT group values exactly as shown where present (e.g., 12, net 3087,86, vat 370,54) from the hotel bill; preserve decimals and remove percent sign for rate.\n- Follow rules: do not infer missing values; leave any unavailable fields empty; preserve decimal places; return numeric fields as numbers.\n\nI will now produce the final JSON extraction according to the schema.",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"confidence\": \"medium\",\n    \"explanation\": \"270,00 appears prominently as 'YHTEENSÄ' on page 1 (expense submission). However page 2 shows a hotel gross of 3.458,40 SEK; ambiguity which total is primary.\"\n  },\n  \"Invoice.Date\": {\n    \"confidence\": \"high\",\n    \"explanation\": \"26.9.2023 / 2023-09-26 appears explicitly in multiple places.\"\n  },\n  \"Sender.VatId\": {\n    \"confidence\": \"low\",\n    \"explanation\": \"No clear VAT ID labeled for sender; org number present but not explicitly marked as VAT ID.\"\n  },\n  \"Vat.Rate\": {\n    \"confidence\": \"high\",\n    \"explanation\": \"12% rate is explicitly shown on the hotel bill; extracting as '12' is direct.\"\n  },\n  \"Net.Amount\": {\n    \"confidence\": \"high\",\n    \"explanation\": \"Net 3.087,86 SEK is explicitly listed on page 2 VAT breakdown.\"\n  },\n  \"Vat.Amount\": {\n    \"confidence\": \"high\",\n    \"explanation\": \"VAT 370,54 SEK is explicitly listed on page 2 VAT breakdown.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 6.87,
+      "input_tokens": 1960,
+      "cached_input_tokens": null,
+      "output_tokens": 618,
+      "total_tokens": 2578,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.86,
+      "input_tokens": 2369,
+      "cached_input_tokens": null,
+      "output_tokens": 466,
+      "total_tokens": 2835,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.38,
+      "input_tokens": 2943,
+      "cached_input_tokens": null,
+      "output_tokens": 340,
+      "total_tokens": 3283,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\265664\\265664.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "",
+        []
+      ],
+      "GrandTotal.Amount": [
+        false,
+        270.0,
+        null
+      ],
+      "Net.Amount": [
+        false,
+        3087.86,
+        []
+      ],
+      "Vat.Amount": [
+        false,
+        370.54,
+        []
+      ],
+      "Vat.Rate": [
+        false,
+        12,
+        []
+      ],
+      "Invoice.Date": [
+        true,
+        "2023-09-26",
+        "2023-09-26"
+      ]
+    },
+    "summary": {
+      "matched": 1,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7272,
+    "cached_input_tokens": 0,
+    "output_tokens": 1424,
+    "eur_estimate": 0.000862
+  }
+}

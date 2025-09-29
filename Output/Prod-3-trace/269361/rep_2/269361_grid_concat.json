@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\269375\\269361_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 39.42,
+    "Invoice.Date": "10.01.2024",
+    "Sender.VatId": "ATU38510009",
+    "Vat.Rate": 20,
+    "Net.Amount": 32.85,
+    "Vat.Amount": 6.57
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.96,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I'll extract invoice fields by verifying invoice indicators, locating explicit labels, and avoiding inference.\n\n1) Document classification\n- Contains header \"Rechnung\", \"Rechnungs-Nr.\", \"Rechnungsdatum\", \"Rechnungsbetrag\", \"MwSt\" — confirms invoice.\n- No exclusion indicators like \"Mahnung\" or \"Zahlungserinnerung\" dominant. Proceed with extraction.\n\n2) GrandTotal.Amount\n- Look for final payable amount labeled \"Rechnungsbetrag\".\n- Two occurrences: \"Rechnungsbetrag EUR 38,24\" and \"Rechnungsbetrag EUR 39,42\". Context: Zwischensumme 32,85 + MwSt (20%) 6,57 = 39,42, so \"Rechnungsbetrag EUR 39,42\" is the final total. Extract 39.42 (preserve decimals).\n\n3) Invoice.Date\n- \"Rechnungsdatum: 10.01.2024\" — extract \"10.01.2024\" as-is.\n\n4) Sender.VatId\n- Sender is Günthart GmbH (footer). Footer shows \"ATU38510009\" next to other company details. The Lieferadresse section shows \"USTID: ATU 22642807\" (customer). Sender VAT ID is ATU38510009 — extract \"ATU38510009\".\n\n5) VAT group(s) (Vat.Rate, Net.Amount, Vat.Amount)\n- VAT rate shown as \"(20,00 %)\" and \"MwSt (20,00 %) 6,57\".\n- Net/Warenwert for that VAT group shown as \"Warenwert (20,00 %) 32,85\".\n- Therefore extract Vat.Rate = 20, Net.Amount = 32.85, Vat.Amount = 6.57 (preserve decimals, rate without percent sign).\n\n6) Verify No Inference / Missing data\n- All extracted values are explicitly present in the document; no guessing required.\n\nReady to produce the final JSON with these values.",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"value\": 39.42,\n    \"confidence\": \"95%\",\n    \"evidence\": \"Explicit 'Rechnungsbetrag EUR 39,42' and matches Zwischensumme 32,85 + MwSt 6,57 = 39,42.\"\n  },\n  \"Invoice.Date\": {\n    \"value\": \"10.01.2024\",\n    \"confidence\": \"99%\",\n    \"evidence\": \"Labeled 'Rechnungsdatum: 10.01.2024'.\"\n  },\n  \"Sender.VatId\": {\n    \"value\": \"ATU38510009\",\n    \"confidence\": \"90%\",\n    \"evidence\": \"Footer near sender details shows 'ATU38510009'.\"\n  },\n  \"Vat.Rate\": {\n    \"value\": 20,\n    \"confidence\": \"98%\",\n    \"evidence\": \"Document indicates 'MwSt (20,00 %)' and 'Warenwert (20,00 %)'.\"\n  },\n  \"Net.Amount\": {\n    \"value\": 32.85,\n    \"confidence\": \"96%\",\n    \"evidence\": \"Shown as 'Warenwert (20,00 %) 32,85' corresponding to net for 20% VAT.\"\n  },\n  \"Vat.Amount\": {\n    \"value\": 6.57,\n    \"confidence\": \"97%\",\n    \"evidence\": \"Shown as 'MwSt (20,00 %) 6,57'.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 14.36,
+      "input_tokens": 2216,
+      "cached_input_tokens": null,
+      "output_tokens": 1001,
+      "total_tokens": 3217,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.86,
+      "input_tokens": 2688,
+      "cached_input_tokens": null,
+      "output_tokens": 516,
+      "total_tokens": 3204,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.85,
+      "input_tokens": 3312,
+      "cached_input_tokens": null,
+      "output_tokens": 217,
+      "total_tokens": 3529,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\269375\\269361_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU38510009",
+        "ATU38510009"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        39.42,
+        "39,42"
+      ],
+      "Net.Amount": [
+        true,
+        32.85,
+        "32,85"
+      ],
+      "Vat.Amount": [
+        true,
+        6.57,
+        "6,57"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "10.01.2024",
+        "10.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8216,
+    "cached_input_tokens": 0,
+    "output_tokens": 1734,
+    "eur_estimate": 0.004807
+  }
+}

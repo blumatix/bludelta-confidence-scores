@@ -1,0 +1,112 @@
+{
+  "input_path": "..\\Documents\\274252\\274243_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 64.41,
+    "Invoice.Date": "26.01.2024",
+    "Sender.VatId": "ATU69710958",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 55.91,
+    "Vat.Amount": 11.18
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification\n- Presence of explicit invoice indicators: title \"Rechnung\", \"Nummer\", \"Datum\", line items, totals (\"Gesamtbetrag\", \"Netto\", \"Brutto\", \"Zahlbetrag\"), VAT lines → qualifies as invoice.\n- No exclusion headers (\"Mahnung\", \"Zahlungserinnerung\", \"Servicebericht\") present → not excluded.\n\n2) Identify candidate fields and locations in text\n- Invoice.Date: \"Datum 26.01.2024\" (top right) — clear, unambiguous.\n- GrandTotal.Amount: \"Zahlbetrag 64,41 EUR\" — indicates amount due after skonto; main payable amount shown as 64,41 EUR.\n  - Alternative: \"Gesamtbetrag Brutto 67,09 EUR\" is gross total before skonto; but \"Zahlbetrag\" is final payable. Choose Zahlbetrag per label.\n- Net.Amount: \"Gesamtbetrag Netto 55,91 EUR\" — clear net total.\n- Vat.Amount: \"R2  -  20,00%       USt    auf   55,91 ... 11,18 EUR\" — VAT amount shown as 11,18 EUR.\n- Vat.Rate: \"20,00%\" appears associated with R2 VAT group; per rules extract rate without percent and keep decimals -> 20.00.\n- Sender.VatId: Two VAT IDs appear:\n  - \"Ihre Ust-Id-Nr. ATU64131246\" — this is labeled \"Ihre\" (your/customer VAT ID), so it's the recipient's VAT ID, not sender.\n  - Bottom footer: \"Ust.-ID-Nr.     ATU69710958\" (in company footer) — this corresponds to CREATON (issuer). Therefore Sender.VatId = ATU69710958.\n  - Alternative would be ATU64131246 if misinterpreting \"Ihre\", but header wording indicates it is customer's VAT ID so choose ATU69710958.\n\n3) Conformity with rules\n- No inference beyond visible text; all selected values explicitly present.\n- VAT rate returned without \"%\" and preserving decimals (\"20.00\").\n- Decimal separators converted to dot for numeric JSON fields; number of decimals maintained (e.g., 55,91 -> 55.91; 11,18 -> 11.18; 64,41 -> 64.41).\n- Ensure fields present per schema.\n\n4) Final mapping (values identified)\n- Invoice.Date -> \"26.01.2024\"\n- GrandTotal.Amount -> 64.41\n- Net.Amount -> 55.91\n- Vat.Amount -> 11.18\n- Vat.Rate -> 20.00\n- Sender.VatId -> \"ATU69710958\"",
+    "step2": "Invoice.Date — High confidence (≈95%): \"Datum 26.01.2024\" appears explicitly in header.\n\nGrandTotal.Amount — High confidence (≈90%): \"Zahlbetrag 64,41 EUR\" is labeled final payable; alternative gross total (67,09 EUR) is present but clearly marked before skonto.\n\nNet.Amount — High confidence (≈95%): \"Gesamtbetrag Netto 55,91 EUR\" is explicitly shown.\n\nVat.Amount — High confidence (≈95%): \"R2 ... 20.00% ... 11,18 EUR\" lists VAT amount as 11,18 EUR tied to the net base 55,91.\n\nVat.Rate — High confidence (≈95%): VAT group shows \"20.00%\"; per rules extract as numeric 20.00.\n\nSender.VatId — Medium-high confidence (≈85%): Footer shows \"Ust.-ID-Nr. ATU69710958\" (company footer); header also shows \"Ihre Ust-Id-Nr. ATU64131246\" (likely recipient). Chosen value is the footer VAT ID as sender, but interpretation depends on header labeling."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.35,
+      "input_tokens": 2753,
+      "cached_input_tokens": null,
+      "output_tokens": 839,
+      "total_tokens": 3592,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.57,
+      "input_tokens": 3343,
+      "cached_input_tokens": null,
+      "output_tokens": 376,
+      "total_tokens": 3719,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.16,
+      "input_tokens": 3860,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 4207,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274252\\274243_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU69710958",
+        "ATU69710958,"
+      ],
+      "GrandTotal.Amount": [
+        false,
+        64.41,
+        "67,09"
+      ],
+      "Net.Amount": [
+        true,
+        55.91,
+        [
+          "55,91",
+          "55,91"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        11.18,
+        [
+          "11,18",
+          "11,18"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        [
+          "20.00",
+          "20,00"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "26.01.2024",
+        "26.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 9956,
+    "cached_input_tokens": 0,
+    "output_tokens": 1562,
+    "eur_estimate": 0.004893
+  }
+}

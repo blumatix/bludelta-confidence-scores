@@ -1,0 +1,121 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\226104\\226075_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 99.5,
+    "Invoice.Date": "23.08.2023",
+    "Sender.VatId": "ATU55640701",
+    "Vat.Rate": [
+      10,
+      0.001
+    ],
+    "Net.Amount": [
+      87.73,
+      3.0
+    ],
+    "Vat.Amount": [
+      8.77,
+      0.0
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.8,
+    "Net.Amount": 0.88,
+    "Vat.Amount": 0.88
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Highly likely",
+    "Net.Amount": "Highly likely",
+    "Vat.Amount": "Highly likely"
+  },
+  "reasoning": {
+    "step1": "Plan:\n- Confirm document is an invoice (presence of \"Rechnung\", invoice number, totals, line-item table) — proceed.\n- Locate invoice date: found \"23.08.2023\" next to location/time.\n- Determine sender VAT: two UIDs present; sender company at bottom \"Trofana Erlebnisdorf...\" with \"UID: ATU55640701\" — treat as Sender.VatId.\n- Extract grand total: table shows Brutto sum and \"Summe 99,50 €\" / \"Offen 99,50 €\" → GrandTotal.Amount = 99.50.\n- Extract VAT groups from the VAT summary table:\n  - Group 1: Rate \"10,00\", Netto \"87,73\", MwSt \"8,77\" (Brutto 96,50).\n  - Group 2: Rate \"0,001\", Netto \"3,00\", MwSt \"0,00\" (Brutto 3,00).\n- Apply rules: keep decimal precision, remove percent symbol (rates as numbers), no inference for missing fields.\n\nConfirmed extracted values to output:\n- Invoice.Date: \"23.08.2023\"\n- Sender.VatId: \"ATU55640701\"\n- GrandTotal.Amount: 99.50\n- Vat.Rate entries: 10.00 and 0.001\n- Net.Amount entries: 87.73 and 3.00\n- Vat.Amount entries: 8.77 and 0.00",
+    "step2": "GrandTotal.Amount — 95%: \"Summe 99,50 €\" and \"Offen 99,50 €\" explicitly shown.\n\nInvoice.Date — 90%: \"Mils bei Imst, 23.08.2023 17:50:52\" clearly indicates the invoice date.\n\nSender.VatId — 85%: Two UIDs present; bottom block lists \"UID: ATU55640701\" for Trofana Erlebnisdorf (sender details) — likely sender VAT.\n\nVat.Rate (10.00) — 90%: VAT summary table shows \"10,00\" associated with net 87,73 and VAT 8,77.\n\nNet.Amount (87.73) — 90%: Explicit in VAT summary row paired with 10,00% rate.\n\nVat.Amount (8.77) — 90%: Explicit in same VAT summary row.\n\nVat.Rate (0.001) — 70%: Table shows \"0,001\" (unusual formatting); matches the small-item (Kurtaxe) row but formatting could be OCR artifact.\n\nNet.Amount (3.00) — 85%: \"inkl. Kurtaxe 3,00 €\" and summary row show 3,00.\n\nVat.Amount (0.00) — 85%: Summary shows 0,00 for that row."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.93,
+      "input_tokens": 1689,
+      "cached_input_tokens": null,
+      "output_tokens": 1019,
+      "total_tokens": 2708,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.21,
+      "input_tokens": 2051,
+      "cached_input_tokens": null,
+      "output_tokens": 480,
+      "total_tokens": 2531,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 9.05,
+      "input_tokens": 2639,
+      "cached_input_tokens": null,
+      "output_tokens": 759,
+      "total_tokens": 3398,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\226104\\226075_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU55640701",
+        "ATU55640701"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        99.5,
+        "99,50"
+      ],
+      "Net.Amount": [
+        false,
+        [
+          87.73,
+          3.0
+        ],
+        "87,73"
+      ],
+      "Vat.Amount": [
+        false,
+        [
+          8.77,
+          0.0
+        ],
+        "8,77"
+      ],
+      "Vat.Rate": [
+        false,
+        [
+          10,
+          0.001
+        ],
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "23.08.2023",
+        "23.08.2023"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 6379,
+    "cached_input_tokens": 0,
+    "output_tokens": 2258,
+    "eur_estimate": 0.00531
+  }
+}

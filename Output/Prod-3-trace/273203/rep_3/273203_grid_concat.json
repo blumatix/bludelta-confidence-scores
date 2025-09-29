@@ -1,0 +1,130 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\273205\\273203_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 59217.18,
+    "Invoice.Date": "22.01.2024",
+    "Sender.VatId": "ATU14391601",
+    "Vat.Rate": [
+      10,
+      20
+    ],
+    "Net.Amount": [
+      52182.1,
+      1514.06
+    ],
+    "Vat.Amount": [
+      5218.21,
+      302.81
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification\n- Presence of multiple invoice indicators: headline \"RECHNUNG\", \"Nr:\", \"Datum:\", \"Kunden-Nummer:\", line items, Netto/Mehrwertsteuer/Bruttobetrag. No prominent exclusion terms. Conclusion: document is an invoice.\n\n2) Locate invoice-level fields\n- Invoice date: \"Datum: 22.01.2024\" appears in header on pages 1–4. Candidate value: \"22.01.2024\".\n- Grand total: \"Bruttobetrag 59.217,18\" and later \"Bruttobetrag                                                                                59.217,18\" (page 4). Candidate value: 59.217,18 (EUR).\n- Sender VAT ID: two VAT-like values present:\n  - Near top under header: \"USt-Id: ATU22642807\" (context ambiguous, appears near \"Kunden-Nummer\" area).\n  - Footer/company block: \"USt-IdNr. ATU14391601\" associated with \"STAMAG Stadlauer Malzfabrik GesmbH\" (explicit company sender). By strict sender labeling, the footer value ATU14391601 is the sender's VAT ID. Candidate: \"ATU14391601\".\n  - Note: not inferring beyond visible labels; record the VAT tied to sender name in footer.\n\n3) VAT groups, nets and VAT amounts\n- Page 4 shows grouped totals:\n  - \"Nettowert gesamt 53.696,16\"\n  - \"10% MWSt von 52.182,10 5.218,21 + USt verrechnet.\"\n    - Interpretation: For 10% group: Net = 52.182,10 ; VAT = 5.218,21 ; Rate = 10\n  - \"20% MWSt von 1.514,06 302,81\"\n    - For 20% group: Net = 1.514,06 ; VAT = 302,81 ; Rate = 20\n- Verify sums:\n  - Net sum = 52.182,10 + 1.514,06 = 53.696,16 (matches Nettowert gesamt).\n  - VAT sum = 5.218,21 + 302,81 = 5.521,02\n  - Net + VAT = 53.696,16 + 5.521,02 = 59.217,18 (matches Bruttobetrag).\n\n4) Field mapping decisions per schema and rules\n- GrandTotal.Amount: use invoice-level Bruttobetrag = 59.217,18 -> numeric with decimals preserved.\n- Invoice.Date: \"22.01.2024\" as string.\n- Sender.VatId: choose footer \"ATU14391601\" as sender VAT (explicitly associated with STAMAG).\n- VAT groups: two VAT rates present (10 and 20). Per rules, rates should be extracted without \"%\" symbol.\n- Net.Amount and Vat.Amount: preserve decimals as in document for each VAT group. Because schema lists single Net.Amount, Vat.Rate, Vat.Amount but notes allow multiple occurrences, plan to represent the two VAT-group values (10% and 20%) as the separate occurrences to be returned.\n\n5) No-inference and precision\n- Do not invent currency symbols; numbers kept with original decimal/comma formatting and numeric precision preserved.\n- Do not fill missing fields (none of the required fields are missing).\n- If ambiguity existed for Sender.VatId, preference given to VAT explicitly tied to sender name in footer (ATU14391601), not the other USt-Id which may correspond to the customer.\n\n6) Final extracted candidate values to output (to be placed into final JSON):\n- Invoice.Date: \"22.01.2024\"\n- GrandTotal.Amount: 59.217,18\n- Sender.VatId: \"ATU14391601\"\n- Vat groups:\n  - Rate: 10 ; Net.Amount: 52.182,10 ; Vat.Amount: 5.218,21\n  - Rate: 20 ; Net.Amount: 1.514,06 ; Vat.Amount: 302,81\n\n(These are the most consistent, evidence-supported extractions after checking header/footer context and verifying arithmetic consistency.)",
+    "step2": "Invoice.Date — Confidence: 95%\n- Strong evidence: explicit header \"Datum: 22.01.2024\" appears on multiple pages.\n\nGrandTotal.Amount (59.217,18) — Confidence: 95%\n- Strong evidence: \"Bruttobetrag 59.217,18\" clearly shown; matches Net + VAT totals.\n\nSender.VatId (\"ATU14391601\") — Confidence: 85%\n- Evidence: footer shows \"USt-IdNr. ATU14391601\" tied to STAMAG (sender). Slight ambiguity because another USt-Id (ATU22642807) appears near header; chosen footer value as sender VAT.\n\nVat.Rate = 10 ; Net.Amount = 52.182,10 ; Vat.Amount = 5.218,21 — Confidence: 95%\n- Evidence: explicit lines \"10% MWSt von 52.182,10\" and \"5.218,21\"; arithmetic consistency with totals.\n\nVat.Rate = 20 ; Net.Amount = 1.514,06 ; Vat.Amount = 302,81 — Confidence: 95%\n- Evidence: explicit lines \"20% MWSt von 1.514,06\" and \"302,81\"; arithmetic consistency with totals."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 21.68,
+      "input_tokens": 4831,
+      "cached_input_tokens": null,
+      "output_tokens": 1482,
+      "total_tokens": 6313,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.02,
+      "input_tokens": 5784,
+      "cached_input_tokens": null,
+      "output_tokens": 397,
+      "total_tokens": 6181,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 9.37,
+      "input_tokens": 6353,
+      "cached_input_tokens": null,
+      "output_tokens": 697,
+      "total_tokens": 7050,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\273205\\273203_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU14391601",
+        "ATU14391601,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        59217.18,
+        "59.217,18"
+      ],
+      "Net.Amount": [
+        true,
+        [
+          52182.1,
+          1514.06
+        ],
+        [
+          "1.514,06",
+          "52.182,10"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        [
+          5218.21,
+          302.81
+        ],
+        [
+          "302,81",
+          "5.218,21"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        [
+          10,
+          20
+        ],
+        [
+          "20",
+          "10"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "22.01.2024",
+        "22.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 16968,
+    "cached_input_tokens": 0,
+    "output_tokens": 2576,
+    "eur_estimate": 0.008189
+  }
+}

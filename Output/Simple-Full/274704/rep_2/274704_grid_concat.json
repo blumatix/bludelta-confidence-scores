@@ -1,0 +1,103 @@
+{
+  "input_path": "C:\\Users\\jonas\\Desktop\\LLM-Confidence\\Documents\\274773\\274704_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1621.96,
+    "Invoice.Date": "30.01.2024",
+    "Sender.VatId": "ATU18804300",
+    "Vat.Rate": 20,
+    "Net.Amount": 1351.63,
+    "Vat.Amount": 270.33
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "- Identify document type: header shows \"Gutschrift\" (credit note) and invoice-like elements (Belegdatum, Line items, Sum, USt, UID). No exclusion keywords dominating — treat as invoice/credit-invoice for extraction.\n- Locate Invoice.Date: \"Belegdatum: 30.01.2024\" → Invoice.Date = \"30.01.2024\".\n- Locate Sender.VatId: \"Unsere UID: ATU18804300\" → Sender.VatId = \"ATU18804300\".\n- Locate totals:\n  - Net.Amount (net excl. VAT): line \"Summe ... 1.351,63 EUR\" and line item \"1.351,63\" → Net.Amount = 1351.63.\n  - Vat.Rate: \"20,00% USt\" → Vat.Rate = 20 (drop %).\n  - Vat.Amount: \"EUR 270,33\" for 20% → Vat.Amount = 270.33.\n  - GrandTotal.Amount: final \"Summe ... 1.621,96 EUR\" → GrandTotal.Amount = 1621.96.\n- Preserve decimal places and convert commas to decimal points; do not infer missing fields.",
+    "step2": "- Document classification confidence: High. Evidence: header contains \"Gutschrift\", \"Belegdatum\", line items, \"Summe\", \"USt\", and UIDs; no exclusion terms like \"Mahnung\" dominating.\n\n- Invoice.Date = \"30.01.2024\": Very high. Explicit label \"Belegdatum: 30.01.2024\" clearly present.\n\n- Sender.VatId = \"ATU18804300\": Very high. Explicit label \"Unsere UID: ATU18804300\".\n\n- Net.Amount = 1351.63: High. The line item and an explicit \"Summe\" show \"1.351,63 EUR\" which corresponds to net before VAT. Minor uncertainty only if that \"Summe\" could be something else, but context (USt von EUR 1.351,63) confirms net base.\n\n- Vat.Rate = 20: Very high. Shown as \"20,00% USt\", conversion to integer 20 follows rule to remove %.\n\n- Vat.Amount = 270.33: High. Explicit line \"20,00% USt von EUR 1.351,63 ... EUR 270,33\" matches calculation (1351.63 * 0.20 = 270.326 → rounded/displayed 270.33). Matches printed amount.\n\n- GrandTotal.Amount = 1621.96: High. Final \"Summe ... EUR 1.621,96\" explicitly present as total including VAT."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.31,
+      "input_tokens": 1814,
+      "cached_input_tokens": null,
+      "output_tokens": 644,
+      "total_tokens": 2458,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.02,
+      "input_tokens": 2121,
+      "cached_input_tokens": null,
+      "output_tokens": 314,
+      "total_tokens": 2435,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.17,
+      "input_tokens": 2735,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3018,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "C:\\Users\\jonas\\Desktop\\LLM-Confidence\\Documents\\274773\\274704_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU18804300",
+        "ATU18804300"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1621.96,
+        "1.621,96"
+      ],
+      "Net.Amount": [
+        true,
+        1351.63,
+        "1.351,63"
+      ],
+      "Vat.Amount": [
+        true,
+        270.33,
+        "270,33"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "30.01.2024",
+        "30.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6670,
+    "cached_input_tokens": 0,
+    "output_tokens": 1241,
+    "eur_estimate": 0.003614
+  }
+}

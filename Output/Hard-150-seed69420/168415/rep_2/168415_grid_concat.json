@@ -1,0 +1,88 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\168415\\168415_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 790.0,
+    "Invoice.Date": "2021-12-28",
+    "Sender.VatId": "PL7343034781",
+    "Vat.Rate": "",
+    "Net.Amount": 790.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "High-level plan\n- Confirm document is an invoice by checking headers/keywords.\n- Locate candidate fields: invoice date, seller VAT ID, line totals and summary totals, VAT group(s) (rate, net, VAT amount), grand total.\n- Apply No Inference rule: only accept values explicitly present; if ambiguous or represented by nonstandard abbreviations, leave empty.\n- Preserve numeric format/decimals as in source; drop currency symbols for numeric fields in final output.\n\nEvidence and candidate extractions (from the text)\n- Invoice indicator: Header \"RECHNUNG\" clearly present → treat as invoice.\n- Invoice date: \"Datum: 2021-12-28\" (appears near header) — candidate Invoice.Date = \"2021-12-28\".\n- Sender VAT ID: near top \"UE: PL7343034781\" associated with Verkäufer — candidate Sender.VatId = \"PL7343034781\".\n- Line item and totals: single line with Netto 790,00 and Bruttowert 790,00; summary shows \"Gesamt EUR 790,00 0,00 790,00\" and \"In Worten: 790,00 EUR\".\n  - Candidate GrandTotal.Amount = 790,00 (currency EUR shown; numeric should be number without symbol).\n  - Candidate Net.Amount = 790,00.\n  - Candidate Vat.Amount = 0,00 (summary shows 0,00).\n- VAT rate: table shows \"np\" under MW (Mehrwertsteuer) for the line and in summary (np, 0) indicating tax-exempt / no VAT. Because \"np\" is not a numeric percentage and No Inference rule forbids guessing, do not convert \"np\" to a numeric rate. Candidate Vat.Rate = \"\" (empty).\n- Consistency check: Net 790,00 + Vat 0,00 = Grand Total 790,00 — consistent.\n\nDecision notes before final extraction\n- Treat numeric values preserving decimals (e.g., \"790,00\"). Final schema expects numbers; will convert to numeric form preserving decimals.\n- Do not infer a numeric VAT percent from \"np\" or other text; leave Vat.Rate empty.\n- If multiple VAT groups had appeared, would include multiple entries; here only one VAT group is evident (net 790,00 / vat 0,00).\n\nI will now prepare the final JSON extraction following these findings.",
+    "step2": "Confidence estimates (per field)\n\n- GrandTotal.Amount = 790,00\n  - Evidence: Multiple clear occurrences: line Bruttowert 790,00; summary \"Gesamt EUR 790,00\"; \"In Worten: 790,00 EUR\".\n  - Consistency: matches Net + Vat shown (790,00 + 0,00).\n  - Confidence: Very high.\n\n- Invoice.Date = \"2021-12-28\"\n  - Evidence: Near the top under header \"Datum: 2021-12-28 Nowy Sącz\".\n  - Ambiguity: Date label is explicit and unambiguous.\n  - Confidence: Very high.\n\n- Sender.VatId = \"PL7343034781\"\n  - Evidence: Top section: \"Steuernummer   UE: PL7343034781\" next to Verkäufer.\n  - Ambiguity: Appears clearly tied to seller; formatted as PL...\n  - Confidence: High.\n\n- Vat.Rate = \"\" (empty)\n  - Evidence: The invoice shows \"np\" (tax-exempt) in MW column and summary; no numeric percentage present.\n  - Ambiguity: Could be interpreted as 0% but that would be inference; specification forbids guessing.\n  - Confidence in empty value being correct (per rules): High.\n\n- Net.Amount = 790,00\n  - Evidence: Line Nettowert 790,00 and summary Nettowert 790,00.\n  - Consistency: Matches grand total when VAT is 0.\n  - Confidence: Very high.\n\n- Vat.Amount = 0,00\n  - Evidence: Summary shows 0,00 for VAT; line shows \"np\" and St.-Wert 0,00.\n  - Ambiguity: Explicit numeric 0,00 present.\n  - Confidence: Very high."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.45,
+      "input_tokens": 9554,
+      "cached_input_tokens": null,
+      "output_tokens": 888,
+      "total_tokens": 10442,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.27,
+      "input_tokens": 10105,
+      "cached_input_tokens": null,
+      "output_tokens": 388,
+      "total_tokens": 10493,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.82,
+      "input_tokens": 10793,
+      "cached_input_tokens": null,
+      "output_tokens": 343,
+      "total_tokens": 11136,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\168415\\168415.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "PL7343034781",
+        "PL7343034781"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        790.0,
+        "790,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "2021-12-28",
+        "2021-12-28"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 3,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 30452,
+    "cached_input_tokens": 0,
+    "output_tokens": 1619,
+    "eur_estimate": 0.002089
+  }
+}

@@ -1,0 +1,100 @@
+{
+  "input_path": "..\\Documents\\273638\\273628_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2458.5,
+    "Invoice.Date": "25.01.2024",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": 10,
+    "Net.Amount": 2235.0,
+    "Vat.Amount": 223.5
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.8,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Plan: identify whether document is an invoice, locate required fields (GrandTotal.Amount, Invoice.Date, Sender.VatId, Vat.Rate(s), Net.Amount(s), Vat.Amount(s)), ensure no guesses, preserve decimals, handle multiple VAT groups if present.\n\n1) Document classification:\n- Presence of clear invoice indicators: title \"RECHNUNG\" (German for Invoice), \"Nr:\", \"Datum:\", totals displayed (\"Nettowert gesamt\", \"MWSt\", \"Bruttobetrag\"). No prominent exclusion terms like \"Zahlungserinnerung\" or \"Mahnung\". Conclusion: document is an invoice → proceed.\n\n2) Locate Invoice.Date:\n- Header shows \"Datum: 25.01.2024\". That is an explicit invoice date. Candidate value: \"25.01.2024\".\n\n3) Locate Sender.VatId:\n- Two VAT IDs appear: near top \"USt-Id: ATU22642807\" and footer shows \"USt-IdNr. ATU14391601\". Which is sender VAT? Header area lists company STAMAG and directly below \"USt-Id: ATU22642807\" — likely the sender tax ID. Footer line with \"Sitz:Wien... USt-IdNr. ATU14391601\" appears also company info but ambiguous. Rule: if multiple occurrences, return each occurrence in same structure? Schema only has one Sender.VatId field (string). Instruction earlier: \"Multiple Occurrences... return each occurrence in the same structure.\" But schema doesn't allow array. Given ambiguity, prefer the VAT directly labeled \"USt-Id:\" near header as Sender.VatId: \"ATU22642807\". Note: cannot infer; both are explicit; but choose header one. Will record \"ATU22642807\".\n\n4) Locate GrandTotal.Amount:\n- Search totals: \"Bruttobetrag 2.458,50\" appears near totals. Also lines: \"Nettowert gesamt 2.235,00\", \"10% MWSt von 2.235,00 223,50\", \"Bruttobetrag 2.458,50\". Grand total = Bruttobetrag = 2.458,50 (German format uses comma as decimal). Need numeric type; keep decimals as in input but convert to number using dot decimal per schema? Schema allows number. Will convert comma to decimal point: 2458.50.\n\n5) Locate VAT groups (Vat.Rate, Net.Amount, Vat.Amount):\n- There is a VAT group for 10%: line \"10% MWSt von 2.235,00 223,50\" — indicates VAT rate 10, Net amount 2.235,00, VAT amount 223,50.\n- Also a 00% group: \"00% MWSt von 0,00 0,00\" — indicates zero-rate group with net 0,00 and vat 0,00. According to instruction, Vat.Item is an array; but schema fields are singular. However guidance said multiple entries allowed. But provided schema lists Vat.Rate, Net.Amount, Vat.Amount as top-level fields (not arrays). The last note: \"Important: Vat.Item is an array, so you are allowed to have multiple entries for Vat.Rate...\" but schema doesn't show Vat.Item. Ambiguity. We'll need to represent only one value? But required fields include Vat.Rate, Net.Amount, Vat.Amount — they may accept arrays? The type allows \"number\" or \"\" only. Hmm.\n\nGiven instruction: \"Treat them as entries in the Vat.Item Array\" but schema provided earlier doesn't include Vat.Item. Conflict. Best approach: since multiple VAT groups exist, but schema expects fields, maybe return the primary VAT group (10%). Choose VAT group 10% with Net 2235.00 and Vat 223.50.\n\n6) Ensure No Inference and exact decimals:\n- Use exact presented decimals: net \"2.235,00\" -> numeric 2235.00; vat \"223,50\" -> 223.50; grand total \"2.458,50\" -> 2458.50.\n- Vat.Rate should be numeric without percent symbol: \"10\".\n\n7) Check Net.Amount field (top-level):\n- Use net amount corresponding to VAT group: 2235.00.\n\n8) Check Vat.Amount field:\n- Use 223.50.\n\n9) Cross-check:\n- Net + Vat = 2235.00 + 223.50 = 2458.50 matches GrandTotal.Amount. Consistent.\n\n10) Missing fields:\n- If alternative VAT ID (ATU14391601) was intended, cannot fill both in single string per schema. We chose header \"ATU22642807\" because it's adjacent to main header and labeled \"USt-Id:\".\n\nConclusion: extract Invoice.Date \"25.01.2024\"; Sender.VatId \"ATU22642807\"; GrandTotal.Amount 2458.50; Vat.Rate 10; Net.Amount 2235.00; Vat.Amount 223.50.",
+    "step2": "Invoice classification: high confidence — clear \"RECHNUNG\" header and invoice totals present.\n\nInvoice.Date — extracted \"25.01.2024\"\n- Evidence: explicit \"Datum: 25.01.2024\" in header.\n- Confidence: 99%\n\nSender.VatId — extracted \"ATU22642807\"\n- Evidence: \"USt-Id: ATU22642807\" appears near top under company heading.\n- Ambiguity: another VAT ID \"USt-IdNr. ATU14391601\" appears in footer; unclear which is sender primary VAT. Chose the header one labeled \"USt-Id:\".\n- Confidence: 80%\n\nGrandTotal.Amount — extracted 2458.50\n- Evidence: \"Bruttobetrag 2.458,50\" present; arithmetic check: Nettowert (2.235,00) + MWSt (223,50) = 2.458,50.\n- Confidence: 99%\n\nVat.Rate — extracted 10\n- Evidence: \"10% MWSt von 2.235,00 223,50\" clearly shows a 10% VAT group.\n- Confidence: 99%\n\nNet.Amount — extracted 2235.00\n- Evidence: \"Nettowert gesamt 2.235,00\" and corresponds to the 10% VAT group.\n- Confidence: 99%\n\nVat.Amount — extracted 223.50\n- Evidence: \"10% MWSt ... 223,50\" explicitly given and matches Net × 10%.\n- Confidence: 99%\n\nOverall consistency: high — Net + Vat equals GrandTotal, and values are explicitly printed. Primary residual uncertainty is which of the two VAT IDs is the authoritative sender VAT."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.24,
+      "input_tokens": 1948,
+      "cached_input_tokens": null,
+      "output_tokens": 1258,
+      "total_tokens": 3206
+    },
+    "step2": {
+      "runtime_sec": 5.52,
+      "input_tokens": 3021,
+      "cached_input_tokens": null,
+      "output_tokens": 433,
+      "total_tokens": 3454
+    },
+    "step3": {
+      "runtime_sec": 5.38,
+      "input_tokens": 3659,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3942
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273638\\273628_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU14391601,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        2458.5,
+        "2.458,50"
+      ],
+      "Net.Amount": [
+        true,
+        2235.0,
+        "2.235,00"
+      ],
+      "Vat.Amount": [
+        true,
+        223.5,
+        "223,50"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "25.01.2024",
+        "25.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 8628,
+    "cached_input_tokens": 0,
+    "output_tokens": 1974,
+    "eur_estimate": 0.005313
+  }
+}

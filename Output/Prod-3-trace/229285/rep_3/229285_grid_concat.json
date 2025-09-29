@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\229309\\229285_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 3382.5,
+    "Invoice.Date": "12.09.2023",
+    "Sender.VatId": "ATU58198337",
+    "Vat.Rate": 10,
+    "Net.Amount": 3075.0,
+    "Vat.Amount": 307.5
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 1.0,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will determine whether this is an invoice and extract the required fields by examining the text for invoice indicators, locating relevant values, and verifying alternatives.\n\n1) Document classification:\n- Presence of clear invoice indicators: header \"Rechnung\" (Invoice), \"Fakturadatum\", \"Kundennummer\", line items, \"Umsatzsteuer\", and totals. No exclusion headers like \"Zahlungserinnerung\" or \"Mahnung\". Conclusion: document is an invoice.\n\n2) Locate invoice date:\n- Found \"Fakturadatum                                        12.09.2023\". Extract Invoice.Date = \"12.09.2023\".\n\n3) Locate sender VAT ID:\n- Found \"Unsere          USt.-ID-Nr.                         ATU58198337\". This is sender VAT. Extract Sender.VatId = \"ATU58198337\".\n\n4) Locate VAT rates and VAT amounts:\n- Found line \"Umsatzsteuer            10,00      %   von    3.075,00        EUR\" and the VAT amount shown nearby as \"307,50\". VAT rate is 10,00% -> extract Vat.Rate = 10 (per rule: without %). Vat.Amount = 307.50 (preserve decimals as in input).\n\n5) Locate net amount:\n- Net (Zwischensumme o. Mwst) listed as \"3.075,00\" which is the base for VAT. Extract Net.Amount = 3075.00.\n\n6) Locate grand total:\n- Final summed total shown as \"3.382,50\" (immediately after VAT and subtotals). Extract GrandTotal.Amount = 3382.50.\n\n7) No inference used:\n- All fields matched explicitly in text; none were guessed. Numeric values converted to numeric form preserving decimals.\n\nPotential ambiguities considered:\n- Confirmed \"Unsere USt.-ID-Nr.\" is sender VAT (not customer's). Customer USt.-ID (\"Ihre USt.-ID-Nr.\") is ATU22642807 but schema asks Sender.VatId, so used ATU58198337.\n- VAT rate formatted \"10,00 %\" -> returned as 10 per rule to omit percent sign.\n\nAll extracted fields are present and supported by exact text locations above.",
+    "step2": "GrandTotal.Amount — 98% confident.\n- Evidence: Visible summed total \"3.382,50\" directly beneath VAT line and totals area. Formatting consistent with invoice totals. Low uncertainty only from potential OCR misread of punctuation.\n\nInvoice.Date — 100% confident.\n- Evidence: Field labeled \"Fakturadatum                                        12.09.2023\" clearly matches invoice date.\n\nSender.VatId — 99% confident.\n- Evidence: Text contains \"Unsere          USt.-ID-Nr.                         ATU58198337\". Label explicitly indicates sender VAT ID. Low uncertainty only if \"Unsere\" were misinterpreted, but context (sender section) supports it.\n\nVat.Rate — 99% confident.\n- Evidence: Line \"Umsatzsteuer            10,00      %   von    3.075,00\" clearly shows 10,00%. Converted per rule to numeric 10. Minor OCR/comma vs. decimal representation risk but semantics clear.\n\nNet.Amount — 98% confident.\n- Evidence: \"Zwischensumme                     o.    Mwst                                            1.500,000             KG                                                                                     3.075,00\" indicates net base amount 3.075,00. Matches VAT base used. Low uncertainty from OCR grouping.\n\nVat.Amount — 98% confident.\n- Evidence: VAT calculation shown as \"Umsatzsteuer ... von 3.075,00 EUR\" and nearby \"307,50\" aligned as VAT amount. Numeric matches 10% of 3,075.00. Low uncertainty from OCR alignment."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.37,
+      "input_tokens": 2034,
+      "cached_input_tokens": null,
+      "output_tokens": 728,
+      "total_tokens": 2762,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.4,
+      "input_tokens": 2553,
+      "cached_input_tokens": null,
+      "output_tokens": 395,
+      "total_tokens": 2948,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.38,
+      "input_tokens": 3184,
+      "cached_input_tokens": null,
+      "output_tokens": 219,
+      "total_tokens": 3403,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\229309\\229285_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU58198337",
+        "ATU58198337"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        3382.5,
+        "3.382,50"
+      ],
+      "Net.Amount": [
+        true,
+        3075.0,
+        "3.075,00"
+      ],
+      "Vat.Amount": [
+        true,
+        307.5,
+        "307,50"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "12.09.2023",
+        "12.09.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7771,
+    "cached_input_tokens": 0,
+    "output_tokens": 1342,
+    "eur_estimate": 0.004031
+  }
+}

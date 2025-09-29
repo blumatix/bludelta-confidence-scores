@@ -1,0 +1,109 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198459\\198459_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1788.0,
+    "Invoice.Date": "31/01/2023",
+    "Sender.VatId": "FR 53 834 039 802",
+    "Vat.Rate": 20,
+    "Net.Amount": 1490.0,
+    "Vat.Amount": 298.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.8,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will identify invoice indicators, locate required fields, consider alternatives, and decide which values to extract:\n\n1) Document classification\n- Contains \"facture\", \"Nr / Date doc 41/G - 31/01/2023\", \"Monnaie: EURO\", \"Base H.T.\", \"TVA\", \"Total\" — strong invoice indicators.\n- No dominant exclusion terms like \"Mahnung\" etc. => treat as invoice.\n\n2) Locate invoice date\n- Text: \"Nr / Date  doc 41/G   - 31/01/2023\" → Invoice date = \"31/01/2023\".\n- Alternative occurrences: email header Date 20 Feb 2023 (email), but that is not invoice issue date. Choose 31/01/2023.\n\n3) Locate grand total\n- Text shows \"Totalocument: 298,00  1.788,00\" and earlier \"Totalarchandise: 1.788,00\" — grand total appears as 1.788,00 (European format with comma decimal).\n- Interpret as 1788.00 (preserve decimals). No other larger total present.\n\n4) Sender VAT ID\n- Multiple VAT-like strings: top block \"TVA01FR 53 834  039 802\" and footer in email block \"TVA FR 53 834 039 802\".\n- Use the explicit VAT string as presented: \"FR 53 834 039 802\" (as in \"TVA FR 53 834 039 802\"). Do not normalize beyond removing nothing aside from type—keep spacing as in text.\n\n5) VAT rate, net amount, VAT amount (VAT group)\n- In totals block: \"Base H.T. 1.490,00\", \"TVA 20,00\", \"Montant TVA 298,00\", and line \"IVA20%\".\n- VAT rate = 20 (drop percent symbol per rules).\n- Net amount = 1.490,00 -> 1490.00.\n- VAT amount = 298,00 -> 298.00.\n\n6) Verify no inference or ambiguity\n- All chosen values appear explicitly. Email date ignored per rule. If any field missing, would leave empty, but all required fields found.\n\nConclusion: fields to extract:\n- Invoice.Date = \"31/01/2023\"\n- GrandTotal.Amount = 1788.00\n- Sender.VatId = \"FR 53 834 039 802\"\n- Vat.Rate = 20\n- Net.Amount = 1490.00\n- Vat.Amount = 298.00",
+    "step2": "GrandTotal.Amount — High confidence (~90%):\n- Evidence: \"Totalocument: 298,00  1.788,00\" and \"Totalarchandise: 1.788,00\" clearly present; 1.788,00 matches as overall total.\n- Alternative: could be mis-placed subtotal, but repetition supports grand total.\n\nInvoice.Date — High confidence (~95%):\n- Evidence: \"Nr / Date  doc 41/G   - 31/01/2023\" explicitly labels date for document.\n- Alternative dates (email 20/02/2023) are clearly email metadata, not invoice date.\n\nSender.VatId — Medium-high confidence (~80%):\n- Evidence: \"TVA FR 53 834 039 802\" appears in email/footer and top block with similar spacing \"TVA01FR 53 834  039 802\".\n- Uncertainty: OCR spacing/formatting inconsistent; country code and number present but formatting variations may exist.\n\nVat.Rate — High confidence (~90%):\n- Evidence: \"TVA 20,00\", \"IVA20%\" and \"Montant TVA 298,00\" indicate 20% VAT.\n- Alternative: none plausible.\n\nNet.Amount — High confidence (~90%):\n- Evidence: \"Base H.T.: 1.490,00\" and \"Base  H.T. 1.490,00\" clearly shown.\n- Matches VAT amount (1,490 * 20% = 298), supporting consistency.\n\nVat.Amount — High confidence (~90%):\n- Evidence: \"Montant TVA 298,00\" and \"TVA: 298,00\" explicitly present.\n- Consistent with Net.Amount and Vat.Rate."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.92,
+      "input_tokens": 6194,
+      "cached_input_tokens": null,
+      "output_tokens": 1062,
+      "total_tokens": 7256,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.54,
+      "input_tokens": 6791,
+      "cached_input_tokens": null,
+      "output_tokens": 364,
+      "total_tokens": 7155,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.98,
+      "input_tokens": 7455,
+      "cached_input_tokens": null,
+      "output_tokens": 351,
+      "total_tokens": 7806,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198459\\198459.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "FR 53 834 039 802",
+        "FR 53 834 039 802"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1788.0,
+        "1.788,00"
+      ],
+      "Net.Amount": [
+        true,
+        1490.0,
+        [
+          "1.490,00",
+          "1.490,00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        298.0,
+        [
+          "298,00",
+          "298,00"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "31/01/2023",
+        "31/01/2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 20440,
+    "cached_input_tokens": 0,
+    "output_tokens": 1777,
+    "eur_estimate": 0.001644
+  }
+}

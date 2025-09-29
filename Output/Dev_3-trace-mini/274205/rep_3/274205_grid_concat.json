@@ -1,0 +1,112 @@
+{
+  "input_path": "..\\Documents\\274205\\274205_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 7225.4,
+    "Invoice.Date": "01.2024",
+    "Sender.VatId": "ATU76204938",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 6021.17,
+    "Vat.Amount": 1204.23
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.6,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Likely",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Found invoice indicators: \"Belegnummer\", \"Belegdatum\", totals, \"MwSt.\" Detected candidate values:\n\n- Invoice ID: \"Belegnummer: 2024/1800000032\" (used to confirm invoice, not requested in schema).\n- Sender VAT ID: \"ATU76204938\"\n- VAT rate: \"20,00\" → 20\n- Net amount / Summe: \"6.021,17\" → 6021.17\n- VAT amount / Ausgangssteuer 20%: \"1.204,23\" → 1204.23\n- Grand total / Endbetrag: \"7.225,40\" → 7225.40\n- Invoice date: \"Belegdatum:Kundennummer.01.2024\" — date appears as \"01.2024\" (no day present / ambiguous)\n\nPlan: populate JSON fields with the numeric values converted to standard decimal notation (maintaining input decimals), Sender.VatId as \"ATU76204938\", Invoice.Date as \"01.2024\" (since no day is given). If you want a different handling for the ambiguous date, specify.",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"confidence\": \"high\",\n    \"evidence\": \"Label 'Endbetrag' followed by '7.225,40' clearly indicates the invoice total.\"\n  },\n  \"Invoice.Date\": {\n    \"confidence\": \"medium\",\n    \"evidence\": \"Only 'Belegdatum:Kundennummer.01.2024' appears; month and year '01.2024' are present but no explicit day, making the exact date ambiguous.\"\n  },\n  \"Sender.VatId\": {\n    \"confidence\": \"high\",\n    \"evidence\": \"Text contains 'ATU76204938' adjacent to sender address, formatted like an Austrian VAT ID.\"\n  },\n  \"Vat.Rate\": {\n    \"confidence\": \"high\",\n    \"evidence\": \"Shows '20,00' near 'MwSt.' and in 'Ausgangssteuer 2 = 20%'.\"\n  },\n  \"Net.Amount\": {\n    \"confidence\": \"high\",\n    \"evidence\": \"A 'Summe' of '6.021,17' appears above the VAT calculation, indicating the net amount.\"\n  },\n  \"Vat.Amount\": {\n    \"confidence\": \"high\",\n    \"evidence\": \"Line 'Ausgangssteuer ... 20%: 6.021,17 1.204,23' lists '1.204,23' as the VAT amount.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.46,
+      "input_tokens": 1740,
+      "cached_input_tokens": null,
+      "output_tokens": 697,
+      "total_tokens": 2437,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.01,
+      "input_tokens": 1996,
+      "cached_input_tokens": null,
+      "output_tokens": 562,
+      "total_tokens": 2558,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.72,
+      "input_tokens": 2571,
+      "cached_input_tokens": null,
+      "output_tokens": 412,
+      "total_tokens": 2983,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274205\\274205_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU76204938",
+        "ATU76204938"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        7225.4,
+        "7.225,40"
+      ],
+      "Net.Amount": [
+        true,
+        6021.17,
+        [
+          "6.021,17",
+          "6.021,17"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        1204.23,
+        [
+          "1.204,23",
+          "1.204,23"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        [
+          "20",
+          "20"
+        ]
+      ],
+      "Invoice.Date": [
+        false,
+        "01.2024",
+        "01.01.2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 6307,
+    "cached_input_tokens": 0,
+    "output_tokens": 1671,
+    "eur_estimate": 0.004278
+  }
+}

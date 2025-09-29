@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198313\\198313_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 240.0,
+    "Invoice.Date": "31/01/2023",
+    "Sender.VatId": "FR38429402357",
+    "Vat.Rate": 20,
+    "Net.Amount": 200.0,
+    "Vat.Amount": 40.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Below is a concise, non-sensitive summary of the extraction steps I will take from the provided invoice text:\n\n1. Document classification: confirm presence of invoice indicators (“Facture”, invoice number, dates, totals, VAT) and absence of exclusion terms — classify as invoice and proceed.  \n2. Locate invoice metadata: extract Invoice Number (FC9707) and Invoice Date (31/01/2023).  \n3. Identify Grand Total: locate Total TTC / Net à payer — extract 240,00 as GrandTotal.Amount. Preserve decimal format and comma as in source; convert to numeric format with same decimals when populating schema.  \n4. Find VAT/Vat groups: identify VAT rate and amounts in totals section:\n   - Total HT = 200,00\n   - Total TVA = 40,00\n   - VAT rate derived from amounts = 20 (from 40 on 200 => 20%). Extract Vat.Rate as 20 (no percent sign), Net.Amount as 200,00, Vat.Amount as 40,00.  \n5. Sender VAT ID: locate “N° TVA intracom : FR38429402357” and extract as Sender.VatId = \"FR38429402357\".  \n6. Validation: ensure no guessing — if any required field missing, leave it empty. Maintain decimal precision exactly as in source.  \n7. Output: populate the JSON schema fields with the extracted values (numbers preserved with same decimals), or empty strings if unavailable.",
+    "step2": "GrandTotal.Amount (240,00)\n- Evidence: \"Net à payer                                                                  240,00\" and \"Total TTC                                                                          240,001\" and the payment schedule showing \"240,00 €\".\n- Consistency: matches Net à payer and Total TTC (ignoring OCR stray trailing \"1\").\n- Confidence: High (~95%).\n\nInvoice.Date (31/01/2023)\n- Evidence: Header line: \"Date ... 31/01/2023\" next to invoice number.\n- Consistency: standard invoice date format; no conflicting dates (due date 28/02/2023 is distinct).\n- Confidence: High (~98%).\n\nSender.VatId (FR38429402357)\n- Evidence: Footer: \"N° TVA intracom      : FR38429402357\".\n- Consistency: Clearly labeled as intracom VAT number for the sender.\n- Confidence: High (~99%).\n\nVat.Rate (20)\n- Evidence: VAT total 40,00 on Net HT 200,00 implies 40/200 = 0.20 → 20%.\n- Explicit VAT rate not printed numerically aside from line items showing \"TVA 20,00\" visually near amounts; OCR shows \"20,00\" adjacent to line item.\n- Consistency: arithmetic supports 20%.\n- Confidence: High (~95%).\n\nNet.Amount (200,00)\n- Evidence: \"Total HT                                                                           200,00\" and line item HT 200,00.\n- Consistency: Net HT plus VAT equals Total TTC (200,00 + 40,00 = 240,00).\n- Confidence: High (~98%).\n\nVat.Amount (40,00)\n- Evidence: \"Total TVA                                                                            40,00\" and arithmetic from HT and TTC.\n- Consistency: matches totals.\n- Confidence: High (~98%)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.1,
+      "input_tokens": 1833,
+      "cached_input_tokens": null,
+      "output_tokens": 577,
+      "total_tokens": 2410,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.12,
+      "input_tokens": 2201,
+      "cached_input_tokens": null,
+      "output_tokens": 445,
+      "total_tokens": 2646,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.33,
+      "input_tokens": 2882,
+      "cached_input_tokens": null,
+      "output_tokens": 409,
+      "total_tokens": 3291,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198313\\198313.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "FR38429402357",
+        "FR38429402357"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        240.0,
+        "240,00"
+      ],
+      "Net.Amount": [
+        true,
+        200.0,
+        "200,00"
+      ],
+      "Vat.Amount": [
+        true,
+        40.0,
+        "40,00"
+      ],
+      "Vat.Rate": [
+        false,
+        20,
+        []
+      ],
+      "Invoice.Date": [
+        true,
+        "31/01/2023",
+        "31/01/2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 6916,
+    "cached_input_tokens": 0,
+    "output_tokens": 1431,
+    "eur_estimate": 0.000847
+  }
+}

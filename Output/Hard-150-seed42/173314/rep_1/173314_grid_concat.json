@@ -1,0 +1,98 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\173314\\173314_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 3073.33,
+    "Invoice.Date": "2022-12-27",
+    "Sender.VatId": "ATU72491038",
+    "Vat.Rate": 0,
+    "Net.Amount": 3073.33,
+    "Vat.Amount": 0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.85,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.85,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Highly likely",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Highly likely",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: document is an invoice (headers: Rechnung/Invoice, Rechnungs-Nr., Rechnungs-Datum, line items, totals).\n\nExtraction plan (concise):\n- Locate invoice date -> found \"Rechnungs-Datum : 2022-12-27\".\n- Locate sender VAT/UID -> top-right \"UID-Nr.:ATU72491038\" (sender); ignore \"Ihre Ust-ID-Nr.: ATU62333479\" (recipient).\n- Locate totals -> two currency columns: USD 3.252,82 and EUR 3.073,33 (labels show SUB TOTAL, VAT 0,00, GRAND TOTAL 3.252,82 / 3.073,33). Invoice country = Austria and invoice shows EUR column; use EUR totals as invoice amounts.\n- VAT rate and VAT amount -> shown as \"0%\" and \"VAT 0,00\" in EUR column.\n- Net amount (excluding VAT) -> EUR subtotal 3.073,33 (matches GRAND TOTAL since VAT 0).\n\nCandidate extracted values to return in final JSON:\n- Invoice.Date: \"2022-12-27\"\n- Sender.VatId: \"ATU72491038\"\n- GrandTotal.Amount: 3073.33\n- Net.Amount: 3073.33\n- Vat.Rate: 0\n- Vat.Amount: 0.00",
+    "step2": "Invoice.Date — Confidence: High (~95%)\n- Evidence: Explicit field \"Rechnungs-Datum : 2022-12-27\" clearly matches invoice date format.\n- Possible ambiguity: none apparent.\n\nSender.VatId — Confidence: High (~90%)\n- Evidence: \"UID-Nr.:ATU72491038\" appears at top near sender block (EVERGREEN ... UID-Nr.).\n- Possible ambiguity: another VAT-like value \"Ihre Ust-ID-Nr.: ATU62333479\" is present but labeled as \"Ihre\" (your/recipient), so selection of ATU72491038 for sender is well supported.\n\nGrandTotal.Amount — Confidence: Medium-High (~85%)\n- Evidence: Two currency columns show totals: USD 3.252,82 and EUR 3.073,33. The invoice is Austrian and shows EUR column; subtotal/VAT/GRAND TOTAL block lists 3.252,82 and 3.073,33 with \"GRAND TOTAL\" aligned to those. Using EUR value 3.073,33 as Grand Total is consistent.\n- Possible ambiguity: placement of 3.252,82 (USD) vs 3.073,33 (EUR); choice of EUR is reasonable but assumes invoice primary currency is EUR.\n\nNet.Amount — Confidence: Medium-High (~85%)\n- Evidence: \"SUB TOTAL 3.252,82 3.073,33\" and \"VAT 0,00 0,00\" imply Net = EUR 3.073,33.\n- Possible ambiguity: formatting and alignment might cause misreading, but net matching subtotal is consistent with VAT 0%.\n\nVat.Rate — Confidence: High (~90%)\n- Evidence: Multiple places show \"0%\" and \"0% - TAX FREE/ STEUERFREI ...\" and line-item VAT columns show 0%.\n- Possible ambiguity: none significant.\n\nVat.Amount — Confidence: High (~90%)\n- Evidence: VAT line shows \"0,00\" in EUR column and overall VAT displayed as 0,00.\n- Possible ambiguity: decimal formatting (comma) converted to numeric 0.00 — straightforward."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.84,
+      "input_tokens": 2375,
+      "cached_input_tokens": null,
+      "output_tokens": 994,
+      "total_tokens": 3369,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.98,
+      "input_tokens": 2712,
+      "cached_input_tokens": null,
+      "output_tokens": 444,
+      "total_tokens": 3156,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.85,
+      "input_tokens": 3456,
+      "cached_input_tokens": null,
+      "output_tokens": 217,
+      "total_tokens": 3673,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\173314\\173314.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU72491038",
+        "ATU72491038"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        3073.33,
+        "3.073,33"
+      ],
+      "Net.Amount": [
+        true,
+        3073.33,
+        "3.073,33"
+      ],
+      "Vat.Amount": [
+        true,
+        0,
+        "0,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "2022-12-27",
+        "2022-12-27"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 5,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8543,
+    "cached_input_tokens": 0,
+    "output_tokens": 1655,
+    "eur_estimate": 0.001006
+  }
+}

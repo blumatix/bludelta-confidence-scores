@@ -1,0 +1,112 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\172282\\172282_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 400.0,
+    "Invoice.Date": "16.12.2022",
+    "Sender.VatId": "SI93319355",
+    "Vat.Rate": 0,
+    "Net.Amount": 400.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.8,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Highly likely",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains invoice indicators: \"Račun 22-300-004487\" (invoice number), \"Datum računa: 16.12.2022\", totals (\"Za plačilo EUR 400,00\"), VAT lines (\"DDV 0,00\", \"Storitve, od katerih se DDV ne obračuna\"), sender VAT ID \"ID za DDV: SI93319355\". No prominent exclusion terms (\"Zahlungserinnerung\", \"Mahnung\", \"Servicebericht\") in header/upper half. => Document qualifies as an invoice.\n\nField-by-field extraction candidates and verification:\n- Invoice.Date: \"Datum računa: 16.12.2022\" — clear explicit invoice date. Use string \"16.12.2022\".\n- Sender.VatId: Header shows \"ID za DDV: SI93319355\" near sender details and later \"UID Nr.: SI93319355\" — consistent. Use \"SI93319355\".\n- GrandTotal.Amount: The invoice shows \"Za plačilo EUR 400,00\" and summary lines \"Skupaj 400,00\" and \"Za plačilo EUR 400,00\". Value = 400,00. Preserve decimals as in input => 400.00 (two decimals).\n- Net.Amount and Vat.Amount: Table shows line \"Vrednost brez DDV\" with 400,00 and \"DDV 0,00\". Also \"Storitve, od katerih se DDV ne obračuna 400,00 0,00 400,00\" and statement \"PO ČLENU 25/1 ZDDV-1 DDV NI OBRAČUNAN.\" So Net = 400,00 and VAT amount = 0,00. Preserve decimals => 400.00 and 0.00.\n- Vat.Rate: No explicit percentage given for VAT rate; VAT amount is 0.00 and text indicates VAT not charged by law. Rule: do not guess. Possible options:\n  1) Set Vat.Rate = 0 (explicit zero percent) — supported by \"DDV 0,00\" but not an explicit \"0%\" label.\n  2) Leave Vat.Rate empty \"\" because percentage is not explicitly printed.\nGiven presence of \"DDV 0,00\" and the net/ VAT grouping showing 0 VAT, treating rate as 0 is reasonable but conflicts with \"No Inference Policy\" if percentage not explicitly present. However extraction rule 5: \"Extract rates without the percentage symbol (e.g., '19%' as '19').\" The document does not show a percent, but the VAT amount is zero and statement says VAT is not charged. The most evidence-supported numeric value is 0. Therefore choose Vat.Rate = 0.\n- Decimal formatting: Keep two decimals as in source.\n\nMultiple occurrences:\n- VAT appears only once as group => single set of Net.Amount and Vat.Amount.\n\nFinal chosen extracted values to be output later:\n- GrandTotal.Amount = 400.00\n- Invoice.Date = \"16.12.2022\"\n- Sender.VatId = \"SI93319355\"\n- Vat.Rate = 0\n- Net.Amount = 400.00\n- Vat.Amount = 0.00",
+    "step2": "GrandTotal.Amount — Confidence: 98%\n- Evidence: \"Za plačilo EUR 400,00\", \"Skupaj 400,00\" and line item value 400,00 consistently indicate total payable 400,00.\n\nInvoice.Date — Confidence: 99%\n- Evidence: Explicit label \"Datum računa: 16.12.2022\" appears unambiguous.\n\nSender.VatId — Confidence: 99%\n- Evidence: \"ID za DDV: SI93319355\" in header and repeated as \"UID Nr.: SI93319355\"; consistent sender VAT ID.\n\nVat.Rate — Confidence: 80%\n- Evidence: No explicit percent printed. VAT amount is 0,00 and text states VAT not charged (\"DDV NI OBRAČUNAN\"). Interpreting rate as 0 is strongly supported but relies on inferring a numeric rate rather than an explicit \"% 0\" token.\n\nNet.Amount — Confidence: 98%\n- Evidence: \"Vrednost brez DDV\" / base amounts shown as 400,00 and summary lines indicate net amount 400,00.\n\nVat.Amount — Confidence: 99%\n- Evidence: Multiple occurrences show \"DDV 0,00\" and group total VAT 0,00."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 15.5,
+      "input_tokens": 3563,
+      "cached_input_tokens": null,
+      "output_tokens": 1070,
+      "total_tokens": 4633,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.94,
+      "input_tokens": 4296,
+      "cached_input_tokens": null,
+      "output_tokens": 394,
+      "total_tokens": 4690,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.59,
+      "input_tokens": 4862,
+      "cached_input_tokens": null,
+      "output_tokens": 280,
+      "total_tokens": 5142,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\172282\\172282.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "SI93319355",
+        [
+          "SI93319355",
+          "SI93319355"
+        ]
+      ],
+      "GrandTotal.Amount": [
+        true,
+        400.0,
+        "400,00"
+      ],
+      "Net.Amount": [
+        true,
+        400.0,
+        [
+          "400,00",
+          "400,00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        [
+          "0,00",
+          "0,00"
+        ]
+      ],
+      "Vat.Rate": [
+        false,
+        0,
+        []
+      ],
+      "Invoice.Date": [
+        true,
+        "16.12.2022",
+        "16.12.2022"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 12721,
+    "cached_input_tokens": 0,
+    "output_tokens": 1744,
+    "eur_estimate": 0.001246
+  }
+}

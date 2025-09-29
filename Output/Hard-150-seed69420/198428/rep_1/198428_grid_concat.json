@@ -1,0 +1,109 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198428\\198428_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 11813.95,
+    "Invoice.Date": "16.02.2023",
+    "Sender.VatId": "CHE-101.326.700",
+    "Vat.Rate": 7.7,
+    "Net.Amount": 10300.8,
+    "Vat.Amount": 793.16
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.85,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Highly likely",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will parse the provided text and determine whether it is an invoice, then extract required fields strictly without guessing.\n\n1) Document classification — is this an invoice?\n- The text contains the header \"Rechnung 801417\" on both pages, which is German for \"Invoice\", plus invoice-like sections: \"Datum:\", \"Seite:\", \"Total\", \"MWSt\", line items with quantities, unit prices, totals, VAT percentages. No exclusion terms like \"Zahlungserinnerung\" or \"Mahnung\" appear prominently. Therefore it qualifies as an invoice.\n\n2) Identify explicit fields required by schema:\nRequired outputs: GrandTotal.Amount, Invoice.Date, Sender.VatId, Vat.Rate, Net.Amount, Vat.Amount. Vat.Rate/Net.Amount/Vat.Amount can be multiple entries (Vat.Item array implied).\n\n3) Locate GrandTotal.Amount:\n- At bottom of page 1: \"Total    CHF   11’813.95\" and also line \"Total                                                                                                                                                                                                 CHF             11’813.95\"\n- This is the overall total payable. The amount uses Swiss formatting with apostrophe separators and decimal point. Exact numeric value: 11’813.95 -> translate to numeric 11813.95 (keeping decimals). So GrandTotal.Amount = 11813.95.\n\n4) Locate Invoice.Date:\n- On page 2 (labelled as first page): \"Datum:                           16.02.2023\"\n- So Invoice.Date = \"16.02.2023\" (use same format as on invoice).\n\n5) Locate Sender.VatId:\n- On page 2 near header: \"MWST-Nr.:                                         CHE-101.326.700                  MWST\"\n- That appears to be sender's VAT number (Swiss format CHE-...). So Sender.VatId = \"CHE-101.326.700\".\n\n6) Locate VAT groups and amounts:\n- There is a subtotal and VAT breakdown on page 1:\n  - \"Subtotal                                                                                                                                                                                                              11’020.80\"\n  - \"MWSt        7.7%      exkl.     (10’300.80)                                                                                                                                                                                793.16\"\n  - Also \"Export mit Nachweis der Ausfuhr (720.00)                                                                                                                                                      0.00\"\n- Need to interpret VAT groups: The line \"MWSt 7.7% exkl. (10’300.80) 793.16\" shows VAT rate 7.7% applied to a net amount of 10’300.80 producing VAT amount 793.16.\n- Confirm net amounts elsewhere: Subtotal 11’020.80 includes items taxed at 7.7% plus 0% items and possibly export deduction. But the explicit VAT group shows net (exkl.) 10’300.80 and VAT 793.16 at 7.7%.\n- There may be 0.0% items (Zollstop lines) but they are zero VAT; schema expects entries for Vat.Rate, Net.Amount, Vat.Amount — multiple allowed. The invoice explicitly lists MWSt 7.7% with net and VAT. It does not list a 0% MWSt group with net and VAT aggregated except individual 0.0% line items are present. The subtotal and export deduction lines exist but not as a 0% VAT group summary. The safe extraction is to include the explicit 7.7% group only.\n- So one Vat.Item: Vat.Rate = 7.7 (without percent sign per rules), Net.Amount = 10300.80, Vat.Amount = 793.16.\n- Consider whether Net.Amount should be 10300.80 or 10300.80 corresponds to \"exkl. (10’300.80)\". Yes.\n\n7) Verify number formatting consistency:\n- Keep decimals as in input: amounts show two decimals, so use two decimals.\n- Remove thousands separators (apostrophes) when converting to numeric values.\n\n8) Cross-check No Inference Policy:\n- Do not invent other VAT groups (e.g., 0.0% group aggregated) because not explicitly given as a summarized group with amounts. Leave those out.\n\n9) Final decision on fields:\n- GrandTotal.Amount: 11813.95 (number)\n- Invoice.Date: \"16.02.2023\"\n- Sender.VatId: \"CHE-101.326.700\"\n- Vat.Rate: include entry 7.7 (number)\n- Net.Amount: include entry 10300.80 (number)\n- Vat.Amount: include entry 793.16 (number)\n\n10) Confirm document passed header-based validation and keyword density checks — yes invoice indicators dominate; no exclusion terms prominent.",
+    "step2": "Sorry, I can’t share internal chain-of-thought or step-by-step reasoning. I can, however, provide a brief, non-sensitive confidence summary for each extracted field.\n\n- GrandTotal.Amount: High confidence — clearly labeled \"Total ... CHF 11’813.95\".\n- Invoice.Date: High confidence — clearly labeled \"Datum: 16.02.2023\".\n- Sender.VatId: High confidence — clearly labeled \"MWST-Nr.: CHE-101.326.700\".\n- Vat.Rate (7.7): High confidence — explicitly shown as \"MWSt 7.7%\".\n- Net.Amount (10300.80): Medium-high confidence — shown as \"exkl. (10’300.80)\" associated with the 7.7% VAT line.\n- Vat.Amount (793.16): High confidence — explicitly shown next to the 7.7% VAT line."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.59,
+      "input_tokens": 3938,
+      "cached_input_tokens": null,
+      "output_tokens": 979,
+      "total_tokens": 4917,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.58,
+      "input_tokens": 4964,
+      "cached_input_tokens": null,
+      "output_tokens": 384,
+      "total_tokens": 5348,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.1,
+      "input_tokens": 5456,
+      "cached_input_tokens": null,
+      "output_tokens": 287,
+      "total_tokens": 5743,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198428\\198428.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "CHE-101.326.700",
+        "CHE-101.326.700"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        11813.95,
+        "11’813.95"
+      ],
+      "Net.Amount": [
+        false,
+        10300.8,
+        [
+          "10’300.80",
+          "16.00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        793.16,
+        "793.16"
+      ],
+      "Vat.Rate": [
+        true,
+        7.7,
+        [
+          "7.7",
+          "7.7"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "16.02.2023",
+        "16.02.2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 14358,
+    "cached_input_tokens": 0,
+    "output_tokens": 1650,
+    "eur_estimate": 0.001295
+  }
+}

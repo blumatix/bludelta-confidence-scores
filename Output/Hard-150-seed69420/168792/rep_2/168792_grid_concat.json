@@ -1,0 +1,94 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\168792\\168792_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 7774.54,
+    "Invoice.Date": "2021-12-30",
+    "Sender.VatId": "ATU72491038",
+    "Vat.Rate": 0,
+    "Net.Amount": 7774.54,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.88,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.97,
+    "Net.Amount": 0.88,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Highly likely",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Highly likely",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will extract the required fields by locating explicit invoice headers, totals, VAT lines, dates, and VAT identifiers in the text and avoid filling any missing values by inference.\n\n1) Document classification\n- The document clearly contains headings \"Rechnung/Invoice\", \"Rechnungs-Nr.\", \"Rechnungs-Datum\", line items, subtotal, VAT and GRAND TOTAL lines. No exclusion terms like \"Mahnung\" or \"Zahlungserinnerung\" dominate. So treat as an invoice and proceed.\n\n2) Invoice date (Invoice.Date)\n- Search for lines with \"Rechnungs-Datum\" / \"Rechnungs-Datum                               :    2021-12-30\".\n- Candidate value found: 2021-12-30.\n- Decision: Invoice.Date = \"2021-12-30\" (exact string from invoice).\n\n3) Sender VAT ID (Sender.VatId)\n- Look for UID/UST/Tax IDs near sender header.\n- At top-right under EVERGREEN header appears \"UID-Nr.:ATU72491038\" associated with EVERGREEN SHIPPING AGENCY (EUROPE) GmbH — this is the sender's VAT ID.\n- Another \"Ihre Ust-ID-Nr.: ATU62333479\" appears but is labelled \"Ihre\" (your VAT ID) — that is the customer's VAT ID, not the sender.\n- Decision: Sender.VatId = \"ATU72491038\".\n\n4) VAT rate(s) (Vat.Rate)\n- Inspect VAT column and per-line VAT indications. Each line shows \"0%\" in the VAT column, and the page 2 shows \"0% -TAX FREE/ STEUERFREI ...\".\n- Candidate VAT rate: 0.\n- Decision: single VAT rate entry = 0 (no percent symbol per rules).\n\n5) Net amount (Net.Amount) and VAT amount (Vat.Amount)\n- Identify subtotal, VAT and grand total rows. The invoice shows two currency columns (USD and EUR) under the header \"WHG USD EUR VAT\".\n- The \"SUB TOTAL\" row shows \"8.762,69\" (first column) and \"7.774,54\" (second column).\n- The \"VAT\" row shows \"0,00\" beneath both columns.\n- The \"GRAND TOTAL\" line shows again \"8.762,69\" and \"7.774,54\".\n- Need to decide which currency/column to use for Net.Amount and GrandTotal.Amount. Options:\n  a) Use the first-column value (8.762,69) — this corresponds to USD column.\n  b) Use the second-column value (7.774,54) — this corresponds to EUR column.\n- Evidence favoring EUR column: invoice includes a stated exchange rate \"1 USD = 0,8872327 EUR\" and the bank details list EUR IBAN first; the subtotal/VAT/GRAND TOTAL are shown in both currencies, but the invoice often presents a payable EUR total. However, the schema does not include currency; to avoid inference beyond visible numbers, select the explicit EUR total value shown on the same line as \"SUB TOTAL / VAT / GRAND TOTAL\" and the VAT is 0,00 in the corresponding column.\n- Decision: use the EUR column values for Net.Amount and GrandTotal.Amount because they are explicitly shown and have corresponding VAT (0,00) in the same column.\n\n- Convert the visual numeric formats to standard numeric values (keep number of decimals as in input):\n  - \"7.774,54\" corresponds to 7774.54 (retain two decimals as in source).\n  - VAT amount \"0,00\" corresponds to 0.00.\n\n6) GrandTotal.Amount\n- Per above decision, GrandTotal.Amount = 7774.54 (from \"7.774,54\").\n\n7) Net.Amount\n- The SUB TOTAL in EUR is \"7.774,54\" and VAT line is 0,00; thus Net.Amount = 7774.54.\n\n8) Vat.Amount\n- VAT in EUR column is \"0,00\" → Vat.Amount = 0.00.\n\n9) Consistency checks\n- Vat.Rate 0 matches \"0%\" per-line and VAT amount 0.00.\n- Sender.VatId corresponds to UID-Nr. on sender header.\n- Invoice date aligns with \"Rechnungs-Datum\" line.\n\n10) No inference beyond shown values was used; fields chosen are explicitly present in the invoice text.",
+    "step2": "1) Document classification — Confidence: 0.95\n- Evidence: Multiple invoice-specific headers (\"Rechnung/Invoice\", \"Rechnungs-Nr.\", \"Rechnungs-Datum\", line items, SUB TOTAL/VAT/GRAND TOTAL). No exclusion terms prominent. Low residual uncertainty from OCR artifacts.\n\n2) Invoice.Date = \"2021-12-30\" — Confidence: 0.98\n- Evidence: Explicit \"Rechnungs-Datum : 2021-12-30\" appears twice (page 1 & 2). Clear, unambiguous date format.\n\n3) Sender.VatId = \"ATU72491038\" — Confidence: 0.90\n- Evidence: \"UID-Nr.:ATU72491038\" located under the EVERGREEN header (sender). Slight OCR/layout risk: another VAT-like \"Ihre Ust-ID-Nr.: ATU62333479\" exists but is labeled as recipient's (\"Ihre\"), so mapping to sender is strong but small chance of mis-association.\n\n4) Vat.Rate = 0 — Confidence: 0.97\n- Evidence: Multiple line items show \"0%\" in VAT column; page 2 states \"0% - TAX FREE/ STEUERFREI\". Very consistent.\n\n5) Net.Amount = 7774.54 — Confidence: 0.88\n- Evidence: \"SUB TOTAL\" shows \"7.774,54\" in the EUR column; decimals preserved. Some ambiguity which currency column to treat as primary (USD vs EUR) introduces uncertainty; chosen EUR column based on context (exchange rate shown, EUR IBAN listed), but this is an interpretive mapping—value extraction itself is unambiguous once column chosen.\n\n6) Vat.Amount = 0.00 — Confidence: 0.98\n- Evidence: \"VAT 0,00\" shown in EUR column; matches VAT rate 0%. Clear numeric.\n\n7) GrandTotal.Amount = 7774.54 — Confidence: 0.88\n- Evidence: \"GRAND TOTAL\" corresponds to the same EUR value \"7.774,54\" as subtotal (VAT zero). Same currency-choice ambiguity as Net.Amount; numeric extraction is clear once EUR column selection is accepted."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 17.51,
+      "input_tokens": 3179,
+      "cached_input_tokens": null,
+      "output_tokens": 1507,
+      "total_tokens": 4686,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.65,
+      "input_tokens": 4157,
+      "cached_input_tokens": null,
+      "output_tokens": 467,
+      "total_tokens": 4624,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.42,
+      "input_tokens": 4924,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 5271,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\168792\\168792.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU72491038",
+        [
+          "ATU72491038",
+          "ATU72491038"
+        ]
+      ],
+      "GrandTotal.Amount": [
+        true,
+        7774.54,
+        "7.774,54"
+      ],
+      "Invoice.Date": [
+        true,
+        "2021-12-30",
+        [
+          "2021-12-30",
+          "2021-12-30"
+        ]
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 3,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 12260,
+    "cached_input_tokens": 0,
+    "output_tokens": 2321,
+    "eur_estimate": 0.001425
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\273900\\273885_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 7498.89,
+    "Invoice.Date": "26-01-2024",
+    "Sender.VatId": "ATU43349701",
+    "Vat.Rate": 10,
+    "Net.Amount": 6817.17,
+    "Vat.Amount": 681.72
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.96,
+    "Net.Amount": 0.96,
+    "Vat.Amount": 0.96
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I'll analyze the document to decide whether it's an invoice and identify candidate values for each schema field.\n\n1) Document classification (invoice vs non-invoice)\n- Many invoice indicators are present: headings \"RECHNUNG\", \"Rechnung: KB 43926 26-01-2024\", invoice-like sections (positions, Mengen, Preise, Auftragssumme, Endbetrag), payment terms and bank details. No exclusion terms like \"Mahnung\" or \"Zahlungserinnerung\" in prominent headers. Conclusion: this is an invoice.\n\n2) Locate explicit fields and alternatives\n- Invoice date:\n  - Evidence: \"Rechnung: KB 43926 26-01-2024\" (page 2 header) and earlier \"Wien am 26-01-2024\" (page 1). Both indicate 26-01-2024. Candidate: \"26-01-2024\".\n\n- Grand total amount:\n  - Evidence: Page 2 near bottom: \"Endbetrag EUR 7.498,89\". Also numeric line: \"Endbetrag EUR 7.498,89\" and rounded amounts shown. Candidate: 7,498.89 (preserve decimal format as numeric type).\n\n- Sender VAT ID:\n  - Evidence: Page 1 and 2 show \"UID-Nr.: ATU 43349701\" (sender). Candidate: \"ATU43349701\" (remove space).\n\n- VAT rate(s) and grouping:\n  - Evidence: A summary shows \"+ 10 % Mehrwertsteuer\" applied to the Auftragssumme. Individual line-item annotations show \"5,00- MR\" and \"4,20- RB\" which seem to be discounts/charges or tax breakdowns per item, but the invoice-level VAT line clearly shows 10% Mehrwertsteuer on the invoice subtotal. According to Exchange/Rate rules, we take only invoice-level VAT groups. Candidate VAT rate: 10.\n\n- Net amount and VAT amount for that group:\n  - Evidence: The summary shows \"Auftragssumme 6.817,17\" then \"+ 10 % Mehrwertsteuer 681,72\" and \"Endbetrag EUR 7.498,89\". So Net.Amount = 6,817.17 and Vat.Amount = 681.72. Preserve decimals as given.\n\n3) Verify consistency\n- Net 6,817.17 + VAT 681.72 = 7,498.89 matches GrandTotal. VAT rate 10% of 6,817.17 = 681.717 -> rounded to 681.72 in document (preserve shown 681.72). This is consistent.\n\n4) No-inference check\n- All these fields are explicitly present in the text; no need to guess. If any were missing, would leave as empty.\n\n5) Multiple occurrences rule\n- VAT appears as a single invoice-level group (10%). Although line items have other percent-looking values, they are per-item annotations; per instructions, do not include those as Invoice-level Vat.Item entries.\n\nConclusion of reasoning: the document is an invoice. Candidate extracted values:\n- Invoice.Date: \"26-01-2024\"\n- GrandTotal.Amount: 7498.89\n- Sender.VatId: \"ATU43349701\"\n- Vat.Rate: 10\n- Net.Amount: 6817.17\n- Vat.Amount: 681.72\n\nI will now wait for your instruction to output the final JSON.",
+    "step2": "Invoice classification: High confidence — multiple invoice indicators (\"RECHNUNG\", positions, Auftragssumme, Endbetrag, payment terms, bank details); no exclusion terms prominent.\n\nField-by-field confidence:\n\n- Invoice.Date = \"26-01-2024\"\n  - Evidence: \"Rechnung: KB 43926 26-01-2024\" (page 2) and \"Wien am 26-01-2024\" (page 1).\n  - Confidence: Very high.\n\n- GrandTotal.Amount = 7498.89\n  - Evidence: \"Endbetrag EUR 7.498,89\" (page 2). Matches subtotal + VAT.\n  - Confidence: Very high.\n\n- Sender.VatId = \"ATU43349701\"\n  - Evidence: \"UID-Nr.: ATU 43349701\" appears on pages; matches sender details.\n  - Confidence: Very high.\n\n- Vat.Rate = 10\n  - Evidence: Summary line \"+     10       %    Mehrwertsteuer\" applied to Auftragssumme.\n  - Note: Other percent figures appear per line items but invoice-level VAT is 10%.\n  - Confidence: Very high.\n\n- Net.Amount = 6817.17\n  - Evidence: \"Auftragssumme 6.817,17\" shown as invoice net subtotal.\n  - Consistency: Net + VAT = GrandTotal.\n  - Confidence: Very high.\n\n- Vat.Amount = 681.72\n  - Evidence: \"+ 10 % Mehrwertsteuer 681,72\" shown; 10% of 6,817.17 ≈ 681.717 → rounded to 681.72 in document.\n  - Confidence: Very high."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.38,
+      "input_tokens": 2983,
+      "cached_input_tokens": null,
+      "output_tokens": 1043,
+      "total_tokens": 4026,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.4,
+      "input_tokens": 3713,
+      "cached_input_tokens": null,
+      "output_tokens": 427,
+      "total_tokens": 4140,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.39,
+      "input_tokens": 4345,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 4692,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273900\\273885_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU43349701",
+        "ATU 43349701"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        7498.89,
+        "7.498,89"
+      ],
+      "Net.Amount": [
+        true,
+        6817.17,
+        "6.817,17"
+      ],
+      "Vat.Amount": [
+        true,
+        681.72,
+        "681,72"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "26-01-2024",
+        "26-01-2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 11041,
+    "cached_input_tokens": 0,
+    "output_tokens": 1817,
+    "eur_estimate": 0.005572
+  }
+}

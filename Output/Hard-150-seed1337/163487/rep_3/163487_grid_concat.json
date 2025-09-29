@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\163487\\163487_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 384.0,
+    "Invoice.Date": "22.06.2022",
+    "Sender.VatId": "ATU24900301",
+    "Vat.Rate": 20,
+    "Net.Amount": 320.0,
+    "Vat.Amount": 64.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.7,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Very good chance",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Instead, a concise summary of the extraction plan and findings:\n\n- Document classification: The text contains invoice indicators (\"Rechnung\", \"RECHNUNG\", invoice numbers, dates, totals) and thus qualifies as invoice content. There are two distinct invoice sections/pages (one dated 22.06.2022 with Rechnungsbetrag EUR 384,00; another dated 27.06.2022 / Nummer 20220659 with Zwischensumme EUR 1.338,00).\n\n- Ambiguity noted: Two invoices are present. Only one (page 1 / dated 22.06.2022) clearly shows VAT line items with rate and VAT amount; the other lists subtotal but no explicit VAT breakdown.\n\n- Extraction options considered:\n  1. Extract fields from the invoice on page 1 (clear VAT details).\n  2. Extract fields from the invoice on page 2 (missing explicit VAT rate/amount — would leave VAT fields empty per No Inference rule).\n  3. Attempt to merge both invoices into one record — rejected because schema expects single values/arrays per invoice and No Inference disallows guessing.\n\n- Decision: Proceed to extract from the page-1 invoice (22.06.2022) because it provides explicit VAT rate and amounts, enabling full population of the schema without inference.\n\n- Fields identified for extraction from page 1:\n  - Invoice.Date: 22.06.2022\n  - GrandTotal.Amount: 384,00 (EUR)\n  - Net.Amount: 320,00\n  - Vat.Rate: 20 (as percentage without %)\n  - Vat.Amount: 64,00\n  - Sender.VatId: ATU24900301 (appears at top near sender name Ferdinand Mayr)\n\nI will now produce the JSON result based on the selected invoice (page 1) following the schema and rules.",
+    "step2": "Invoice.Date (22.06.2022): 90% — Appears clearly near header \"Datum 22.06.2022\" on page 1; unambiguous.\n\nGrandTotal.Amount (384,00): 95% — Shown as \"Rechnungsbetrag EUR 384,00\" on page 1; matches net+VAT.\n\nNet.Amount (320,00): 95% — Shown as line amount \"320,00\" labeled as base amount for the item on page 1.\n\nVat.Rate (20): 95% — Shown as \"20,00 % MWST\" (VAT) on page 1; converted to \"20\" per rule.\n\nVat.Amount (64,00): 95% — Shown as VAT amount \"64,00\" on page 1 and equals 20% of 320,00.\n\nSender.VatId (ATU24900301): 70% — \"ATU 24900301\" appears near top with sender name Ferdinand Mayr; formatting/spacing OCR noise present but likely correct."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 14.07,
+      "input_tokens": 2983,
+      "cached_input_tokens": null,
+      "output_tokens": 853,
+      "total_tokens": 3836,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.3,
+      "input_tokens": 3435,
+      "cached_input_tokens": null,
+      "output_tokens": 485,
+      "total_tokens": 3920,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.16,
+      "input_tokens": 3964,
+      "cached_input_tokens": null,
+      "output_tokens": 345,
+      "total_tokens": 4309,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\163487\\163487.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU24900301",
+        "ATU 24900301"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        384.0,
+        "384,00"
+      ],
+      "Net.Amount": [
+        true,
+        320.0,
+        "320,00"
+      ],
+      "Vat.Amount": [
+        true,
+        64.0,
+        "64,00"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "22.06.2022",
+        "22.06.2022"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 10382,
+    "cached_input_tokens": 0,
+    "output_tokens": 1683,
+    "eur_estimate": 0.001108
+  }
+}

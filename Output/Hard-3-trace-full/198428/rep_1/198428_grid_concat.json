@@ -1,0 +1,109 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198428\\198428_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 11813.95,
+    "Invoice.Date": "16.02.2023",
+    "Sender.VatId": "CHE-101.326.700",
+    "Vat.Rate": 7.7,
+    "Net.Amount": 10300.8,
+    "Vat.Amount": 793.16
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.92,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will determine whether this is an invoice and extract the requested fields per schema. Stepwise reasoning and verification:\n\n1. Document classification:\n- Presence of clear invoice indicators: the word \"Rechnung\" appears multiple times and \"Total\", \"MWSt\", \"Datum\", invoice number \"801417\", line items, totals — so this is an invoice, not a payment reminder or report. No prominent exclusion terms like \"Mahnung\" or \"Zahlungserinnerung\". Proceed with extraction.\n\n2. Locate Invoice Date:\n- On Page 2 (labelled Seite 1 von 2) I find \"Datum: 16.02.2023\". This is the invoice issue date. Candidate value: \"16.02.2023\".\n\n3. Locate Grand Total.Amount:\n- At bottom of Page 1 (Seite: 2 von 2) I see \"Total CHF 11’813.95\". This is the invoice grand total in CHF. Need numeric type; remove thousand apostrophe punctuation and keep decimals exactly. Candidate numeric: 11813.95.\n\n4. Locate Sender.VatId:\n- On Page 2, near top right I see \"MWST-Nr.: CHE-101.326.700 MWST\". That is the sender VAT number. Candidate value: \"CHE-101.326.700\".\n\n5. VAT groups (Vat.Rate, Net.Amount, Vat.Amount):\n- The invoice shows VAT summary lines:\n  - \"MWSt 7.7% exkl. (10’300.80) 793.16\" — this indicates a VAT rate 7.7%, net amount 10’300.80 and VAT amount 793.16. Need to return numbers without currency symbols and keep decimals and thousand separators removed. Net = 10300.80, Vat.Amount = 793.16, Vat.Rate = 7.7 (per rules, rate without %).\n- There is also \"Export mit Nachweis der Ausfuhr (720.00) 0.00\" which seems to be an export line adjustment but not a VAT group. No other VAT rate summaries appear. Also many line items list MWSt per-line (7.7% or 0.0%), but aggregate VAT group provided is only 7.7% shown. Per schema, Vat.Item is allowed multiple entries, but only this group is explicitly summarized. Therefore include one Vat entry for 7.7% with net 10300.80 and vat 793.16.\n- Verify decimals: net shown as 10’300.80 -> 10300.80; VAT as 793.16 (two decimals) -> 793.16. VAT rate 7.7 -> numeric 7.7.\n\n6. No inference policy checks:\n- Ensure all extracted values are directly present in text. They are. For any missing fields, would return empty string; but all schema fields found.\n\n7. Final mapping to schema fields:\n- GrandTotal.Amount -> 11813.95 (number)\n- Invoice.Date -> \"16.02.2023\" (string)\n- Sender.VatId -> \"CHE-101.326.700\" (string)\n- Vat.Rate -> 7.7 (number)\n- Net.Amount -> 10300.80 (number)\n- Vat.Amount -> 793.16 (number)\n\n8. Confirm no additional VAT group applicable to whole invoice:\n- Individual 0.0% items are per-line (Zollstop). Not summarized as separate invoice-level VAT group. Per rule 6, only exchange rates applicable to entire invoice would be included — none present.\n\nConclusion: extraction values above are supported by invoice text.",
+    "step2": "GrandTotal.Amount:\n- Evidence: \"Total CHF 11’813.95\" explicitly shown on page labeled \"Seite: 2 von 2\".\n- Consistency checks: Sum matches subtotal (11’020.80) + MWSt (793.16) = 11’813.96 if rounding considered, but displayed total is 11’813.95; this small 0.01 discrepancy may be OCR punctuation/typography or rounding.\n- Confidence: High (0.92)\n\nInvoice.Date:\n- Evidence: \"Datum: 16.02.2023\" clearly present on page.\n- Consistency checks: Date format consistent with other dates on document.\n- Confidence: Very high (0.99)\n\nSender.VatId:\n- Evidence: \"MWST-Nr.: CHE-101.326.700\" shown near header.\n- Consistency checks: Format matches Swiss VAT number pattern; explicitly labeled.\n- Confidence: Very high (0.99)\n\nVat.Rate:\n- Evidence: VAT summary line \"MWSt 7.7% exkl. (10’300.80) 793.16\" and many line items labeled \"7.7 %\".\n- Consistency checks: Repeated throughout document; no conflicting invoice-level VAT rate present.\n- Confidence: Very high (0.99)\n\nNet.Amount:\n- Evidence: VAT summary shows \"(10’300.80)\" as net for 7.7% group.\n- Consistency checks: Matches line-item aggregation (subtotal and VAT lines context); thousand apostrophe interpreted as separator -> 10300.80.\n- Minor uncertainty from OCR grouping/parentheses but value explicit.\n- Confidence: High (0.95)\n\nVat.Amount:\n- Evidence: VAT summary shows \"793.16\" corresponding to 7.7% group.\n- Consistency checks: 10300.80 * 7.7% = 793.1556 → rounds to 793.16 which matches shown VAT amount; consistent with arithmetic.\n- Confidence: Very high (0.99)"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.74,
+      "input_tokens": 3938,
+      "cached_input_tokens": null,
+      "output_tokens": 829,
+      "total_tokens": 4767,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.84,
+      "input_tokens": 4750,
+      "cached_input_tokens": null,
+      "output_tokens": 427,
+      "total_tokens": 5177,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.89,
+      "input_tokens": 5477,
+      "cached_input_tokens": null,
+      "output_tokens": 223,
+      "total_tokens": 5700,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198428\\198428.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "CHE-101.326.700",
+        "CHE-101.326.700"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        11813.95,
+        "11’813.95"
+      ],
+      "Net.Amount": [
+        false,
+        10300.8,
+        [
+          "10’300.80",
+          "16.00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        793.16,
+        "793.16"
+      ],
+      "Vat.Rate": [
+        true,
+        7.7,
+        [
+          "7.7",
+          "7.7"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "16.02.2023",
+        "16.02.2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 14165,
+    "cached_input_tokens": 0,
+    "output_tokens": 1479,
+    "eur_estimate": 0.001226
+  }
+}

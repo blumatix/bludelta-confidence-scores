@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\166640\\166640_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 36.0,
+    "Invoice.Date": "20.01.2022",
+    "Sender.VatId": "ATU58499627",
+    "Vat.Rate": 20,
+    "Net.Amount": 30.0,
+    "Vat.Amount": 6.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification:\n- Contains keywords: \"Gutschrift\" (credit note) and \"Rechnung\" and totals like \"Gesamt EUR 36,00\", \"MWSt. 20%\". No exclusion headers like \"Mahnung\" or \"Zahlungserinnerung\". Conclusion: treat as invoice-like document (proceed).\n\n2) Identify candidate fields and verify occurrences:\n- Sender.VatId: Found \"UST-ID-Nr.: ATU58499627\" near top under sender/company block. Also found \"Ihre UST-ID-Nr.: ATU47239901\" (receiver). Per schema Sender.VatId = ATU58499627.\n- Invoice.Date: Date near \"Re.Nr.: 2200982                            20.01.2022\" — interpret 20.01.2022 as invoice issue date.\n- GrandTotal.Amount: Found \"Gesamt EUR 36,00\" / \"36,00\" — total payable.\n- Vat.Rate: Found \"MWSt. 20%\" and \"20%\" line — VAT rate = 20 (drop % per rules).\n- Net.Amount and Vat.Amount: Found lines showing \"Summe MWSt. pfl. 30,00\" and \"MWSt. 20% 6,00\" indicating net = 30,00 and VAT = 6,00.\n\n3) Verify no conflicting/multiple occurrences:\n- Only one sender UST-ID at top; receiver UST-ID is different — use sender one.\n- Totals and VAT numbers appear once and are consistent: 30,00 net + 6,00 VAT = 36,00 total.\n\n4) Formatting decisions (per rules):\n- Rates: return as number without percent sign -> 20.\n- Preserve decimals as in source—numeric JSON requires dot; convert \"36,00\" -> 36.00, \"30,00\" -> 30.00, \"6,00\" -> 6.00 while keeping two decimals.\n- Dates keep original string format \"20.01.2022\".\n\n5) No guessing: if any field missing, would return empty string — all required fields present.\n\nFinal extracted values to output next: Sender.VatId = \"ATU58499627\"; Invoice.Date = \"20.01.2022\"; GrandTotal.Amount = 36.00; Vat.Rate = 20; Net.Amount = 30.00; Vat.Amount = 6.00.",
+    "step2": "Sender.VatId: 95% — explicit label \"UST-ID-Nr.: ATU58499627\" in sender block.\n\nInvoice.Date: 90% — \"20.01.2022\" appears adjacent to \"Re.Nr.\" and in invoice header area.\n\nGrandTotal.Amount: 95% — \"Gesamt EUR 36,00\" clearly shown.\n\nVat.Rate: 95% — \"MWSt. 20%\" explicitly listed; converted to numeric 20 per rules.\n\nNet.Amount: 90% — \"Summe MWSt. pfl. 30,00\" indicates net taxable amount 30,00.\n\nVat.Amount: 90% — \"MWSt. 20% 6,00\" indicates VAT amount 6,00.\n\nOverall consistency: values sum correctly (30,00 + 6,00 = 36,00), supporting high confidence."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.61,
+      "input_tokens": 1793,
+      "cached_input_tokens": null,
+      "output_tokens": 963,
+      "total_tokens": 2756,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.81,
+      "input_tokens": 2355,
+      "cached_input_tokens": null,
+      "output_tokens": 381,
+      "total_tokens": 2736,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.24,
+      "input_tokens": 2844,
+      "cached_input_tokens": null,
+      "output_tokens": 217,
+      "total_tokens": 3061,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\166640\\166640.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU58499627",
+        "ATU58499627"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        36.0,
+        "36,00 -"
+      ],
+      "Net.Amount": [
+        true,
+        30.0,
+        "30,00-"
+      ],
+      "Vat.Amount": [
+        true,
+        6.0,
+        "6,00-"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "20.01.2022",
+        "20.01.2022"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6992,
+    "cached_input_tokens": 0,
+    "output_tokens": 1561,
+    "eur_estimate": 0.000896
+  }
+}

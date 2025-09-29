@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\268241\\268241_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 336.48,
+    "Invoice.Date": "05.01.2024",
+    "Sender.VatId": "ATU45595404",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 280.4,
+    "Vat.Amount": 56.08
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will extract the required fields by verifying invoice indicators, locating exact values, and checking alternatives.\n\n1) Document classification\n- Contains header \"RECHNUNG\" and typical invoice fields (Rechnungs-Nr., Rechnungs-Datum, Warenwert, Mehrwertsteuer, Endbetrag). No exclusion terms like \"Mahnung\" in prominent positions. Therefore it is an invoice.\n\n2) Locate invoice date\n- Found \"Rechnungs-Datum\" row: value \"05.01.2024\". Use that exact string for Invoice.Date.\n\n3) Locate sender VAT ID\n- At top-right block: \"USt.-IdNr.:       ATU45595404\" — this is the sender (PAP STAR Österreich Vertriebs AG). Use \"ATU45595404\" for Sender.VatId.\n- Note: there is also \"Ihre USt-ID-Nr.: ATU22642807\" (recipient). Per schema, we must return sender VAT, so choose ATU45595404.\n\n4) Locate totals and VAT grouping\n- Warenwert (net) shown as \"280,40\" EUR and labeled \"Steuerpflichtig in EUR\" 280,40 — consistent with net amount.\n- Mehrwertsteuer rate shown as \"20,00\" % and Mehrwertsteuer in EUR \"56,08\".\n- Endbetrag / payable amount shown as \"336,48\" (present next to payment terms). This equals net 280,40 + VAT 56,08, confirming group.\n\n5) Decide numeric formats and rules\n- Schema expects numbers for amounts and VAT rate. Maintain same decimal places as input.\n- VAT percentage must be returned without percent sign: \"20\" (input shows \"20,00\", so numeric value 20.00 but per rule return number preserving decimals? Schema Vat.Rate type number; keep value 20 or 20.00. Keep two decimals to match input format—use 20.00).\n- Amounts use comma decimals in text; convert to numeric with dot: 280.40, 56.08, 336.48 preserving two decimals.\n\n6) No inference beyond visible data\n- All values taken exactly from visible invoice fields; no guessing.\n\nExtracted candidate values:\n- Invoice.Date: \"05.01.2024\"\n- Sender.VatId: \"ATU45595404\"\n- Vat.Rate: 20.00 (from \"20,00\")\n- Net.Amount: 280.40\n- Vat.Amount: 56.08\n- GrandTotal.Amount: 336.48\n\nI will now produce the final JSON with these fields.",
+    "step2": "Invoice.Date — Evidence: \"Rechnungs-Datum\" row shows \"05.01.2024\". Likelihood: 99% (clear labeled field, unambiguous).\n\nSender.VatId — Evidence: Top-right block contains \"USt.-IdNr.:       ATU45595404\" associated with PAP STAR Österreich Vertriebs AG (sender). Likelihood: 98% (clear label; minor risk if multiple VAT IDs could be sender/recipient, but header context indicates sender).\n\nGrandTotal.Amount — Evidence: \"336,48\" appears next to payment terms as the Endbetrag/payable amount; equals net 280,40 + VAT 56,08. Likelihood: 99% (consistent arithmetic and placement).\n\nNet.Amount — Evidence: \"Warenwert ... 280,40\" labeled as \"Steuerpflichtig in EUR\" and matches sum components. Likelihood: 99% (clear net total).\n\nVat.Rate — Evidence: \"Mehrwertsteuer ... 20,00\" % shown in VAT table. Likelihood: 98% (clear rate; minor formatting interpretation whether return 20 or 20.00).\n\nVat.Amount — Evidence: \"Mehrwertsteuer ... in EUR 56,08\" shown in VAT table and sums correctly. Likelihood: 99% (clear VAT amount)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.94,
+      "input_tokens": 2242,
+      "cached_input_tokens": null,
+      "output_tokens": 930,
+      "total_tokens": 3172,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.7,
+      "input_tokens": 2835,
+      "cached_input_tokens": null,
+      "output_tokens": 278,
+      "total_tokens": 3113,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.93,
+      "input_tokens": 3413,
+      "cached_input_tokens": null,
+      "output_tokens": 219,
+      "total_tokens": 3632,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\268241\\268241_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU45595404",
+        "ATU45595404"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        336.48,
+        "336,48"
+      ],
+      "Net.Amount": [
+        true,
+        280.4,
+        "280,40"
+      ],
+      "Vat.Amount": [
+        true,
+        56.08,
+        "56,08"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "05.01.2024",
+        "05.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8490,
+    "cached_input_tokens": 0,
+    "output_tokens": 1427,
+    "eur_estimate": 0.004337
+  }
+}

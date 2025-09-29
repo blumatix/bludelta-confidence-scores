@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\234410\\234363_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 88.28,
+    "Invoice.Date": "11.10.2023",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": 10,
+    "Net.Amount": 80.25,
+    "Vat.Amount": 8.03
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.92,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: Document is an invoice — contains \"Rechnung\", \"Rechnungs-Nr.\", \"Rechnungsdatum\", VAT id \"USTID/ATU\", line items, Zwischensumme, MwSt and Rechnungsbetrag.\n\nPlanned extraction steps and observations:\n1. Locate Invoice.Date: found \"Rechnungsdatum: 11.10.2023\".\n2. Locate Sender.VatId: found \"USTID: ATU 22642807\" (appears twice).\n3. Identify VAT groups and rates: document shows \"MwSt (10,00 %)\" and legend marks (H) = reduced rate. So VAT rate = 10.\n4. Identify monetary totals:\n   - Zwischensumme (subtotal) = \"EUR 80,25\".\n   - A VAT amount displayed as \"MwSt (10,00 %) 8,03\".\n   - There are multiple \"Rechnungsbetrag\" values visible: \"Rechnungsbetrag EUR 85,63\" and also \"Rechnungsbetrag EUR 88,28\". Need to disambiguate:\n     - 80,25 (subtotal) + 8,03 (VAT) = 88,28 — matches one Rechnungsbetrag.\n     - 85,63 appears next to \"Rechnungsbetrag EUR 85,63\" after showing \"Skonto (MwSt 10,00 %) 2,65 85,63\", likely the amount after applying a 3% payment discount (skonto) or before/after different rounding.\n   - Net amount (excluding VAT) candidates:\n     - 80,25 (Zwischensumme, likely net before VAT).\n     - 85,63 (appears to be net after adding something but before final Rechnungsbetrag; ambiguous).\n5. Extraction decision rules to apply:\n   - Per schema, GrandTotal.Amount must be the \"Total payable amount on the invoice\" — choose the final gross total the invoice requests to be paid. The invoice shows both 88,28 and 85,63; 88,28 equals 80,25 + 8,03 (gross). 85,63 appears tied to skonto calculations. Determine which is presented as final payable: the line \"Rechnungsbetrag EUR 88,28\" is present and corresponds to subtotal + VAT, so treat 88,28 as GrandTotal.Amount and 80,25 as Net.Amount, Vat.Amount 8,03, Vat.Rate 10, Invoice.Date 11.10.2023, Sender.VatId ATU22642807.\n6. Maintain no-inference policy: if ambiguity remains in final step, flag by leaving value empty — but current evidence supports extracting the values identified in step 5.\n\nNext step (not yet requested): output JSON with fields per schema using values above or leave empty if unresolved.",
+    "step2": "I’m sorry — I can’t share my step-by-step internal chain-of-thought. I can provide a concise confidence summary for each field and a brief justification.\n\n{\n  \"GrandTotal.Amount\": {\n    \"value\": 88.28,\n    \"confidence\": \"90%\",\n    \"justification\": \"Matches Zwischensumme 80,25 + MwSt 8,03 = 88,28; explicitly labeled 'Rechnungsbetrag EUR 88,28' in the text.\"\n  },\n  \"Invoice.Date\": {\n    \"value\": \"11.10.2023\",\n    \"confidence\": \"99%\",\n    \"justification\": \"Clearly printed as 'Rechnungsdatum: 11.10.2023'.\"\n  },\n  \"Sender.VatId\": {\n    \"value\": \"ATU22642807\",\n    \"confidence\": \"95%\",\n    \"justification\": \"Shown as 'USTID: ATU 22642807' (appears twice); formatting normalized by removing space.\"\n  },\n  \"Vat.Rate\": {\n    \"value\": 10,\n    \"confidence\": \"95%\",\n    \"justification\": \"Document lists 'MwSt (10,00 %)' and items marked with reduced rate (H).\"\n  },\n  \"Net.Amount\": {\n    \"value\": 80.25,\n    \"confidence\": \"92%\",\n    \"justification\": \"Shown as 'Zwischensumme EUR 80,25', consistent with net before VAT.\"\n  },\n  \"Vat.Amount\": {\n    \"value\": 8.03,\n    \"confidence\": \"95%\",\n    \"justification\": \"Explicitly printed as 'MwSt (10,00 %) 8,03' in the invoice.\"\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.78,
+      "input_tokens": 2219,
+      "cached_input_tokens": null,
+      "output_tokens": 1043,
+      "total_tokens": 3262,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.98,
+      "input_tokens": 2861,
+      "cached_input_tokens": null,
+      "output_tokens": 496,
+      "total_tokens": 3357,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.56,
+      "input_tokens": 3529,
+      "cached_input_tokens": null,
+      "output_tokens": 217,
+      "total_tokens": 3746,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\234410\\234363_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU38510009"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        88.28,
+        "88,28"
+      ],
+      "Net.Amount": [
+        true,
+        80.25,
+        "80,25"
+      ],
+      "Vat.Amount": [
+        true,
+        8.03,
+        "8,03"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "11.10.2023",
+        "11.10.2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 8609,
+    "cached_input_tokens": 0,
+    "output_tokens": 1756,
+    "eur_estimate": 0.004932
+  }
+}

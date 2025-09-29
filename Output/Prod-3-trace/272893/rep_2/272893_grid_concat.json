@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\272946\\272893_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 406.0,
+    "Invoice.Date": "10.01.2024",
+    "Sender.VatId": "DE147359150",
+    "Vat.Rate": 0,
+    "Net.Amount": 406.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Step 1 — Identify document type\n- Document contains header \"Rechnung\" and invoice-like fields (Rechnungsnummer, Rechnungsdatum, Nettobetrag, MwSt, Bruttobetrag, Positionen). No exclusion keywords (\"Zahlungserinnerung\", \"Mahnung\", \"Servicebericht\", \"Bericht\") dominate. Classify as invoice.\n\nStep 2 — Locate candidate fields in text\n- Invoice date: \"Rechnungsdatum: 10.01.2024\" (page 1 and repeated page 2).\n- Sender VAT ID: \"Unsere Ust.Id.-Nr.: DE147359150\" (page 1 and footer).\n- Totals: Several totals block:\n  - \"Zwischensumme 374,76\"\n  - \"Teuerungszuschlag 3% 11,24\"\n  - \"Frachtkostenanteil EU 20,00\"\n  - Then lines: \"Steuerbetrag/Basis 406,00\", \"MwSt Betrag 0,00\", \"Bruttobetrag 406,00\"\n- VAT summary table (page 2) shows:\n  - Row \"ZM 0 725,24 319,24 406,00 0,00 406,00\"\n    - Interpreting columns: Prozentsatz = 0, Gesamtbetrag 725,24, Gesamtrabatt 319,24, Steuerbetrag/Basis 406,00, MwSt Betrag 0,00, Bruttobetrag 406,00.\n\nStep 3 — Map to schema fields with no inference\n- GrandTotal.Amount: invoice total payable = Bruttobetrag = 406,00 → numeric 406.00 (preserve decimals).\n- Invoice.Date: exact string \"10.01.2024\".\n- Sender.VatId: exact string \"DE147359150\".\n- Vat.Rate: VAT percentage applied = 0% as shown (prozent = 0) → numeric 0.\n- Net.Amount: tax base / net amount excluding VAT for the VAT group = Steuerbetrag/Basis = 406,00 → numeric 406.00.\n- Vat.Amount: VAT amount = MwSt Betrag = 0,00 → numeric 0.00.\n\nStep 4 — Verify consistency\n- Sum check: Zwischensumme 374,76 + 11,24 + 20,00 = 406,00 matches Steuerbetrag/Basis and Bruttobetrag given (and MwSt 0,00), consistent with VAT rate 0.\n- No other VAT groups present that apply to entire invoice; exchange rates not present.\n\nConclusion: fields are directly present; no guessing required.",
+    "step2": "GrandTotal.Amount (406,00)\n- Evidence: \"Bruttobetrag 406,00\" and totals block showing Zwischensumme + Zuschlag + Fracht = 374,76 + 11,24 + 20,00 = 406,00.\n- Consistency: arithmetic matches and is labeled as gross total.\n- Confidence: High.\n\nInvoice.Date (\"10.01.2024\")\n- Evidence: Explicit field \"Rechnungsdatum: 10.01.2024\" appears on page 1 and repeated on page 2.\n- Consistency: clear, unambiguous date format.\n- Confidence: High.\n\nSender.VatId (\"DE147359150\")\n- Evidence: Footer shows \"Unsere Ust.Id.-Nr.: DE147359150\" twice.\n- Consistency: Standard VAT identifier format; directly present.\n- Confidence: High.\n\nVat.Rate (0)\n- Evidence: VAT summary table shows \"Prozentsatz 0\" (row ZM) and \"MwSt Betrag 0,00\".\n- Consistency: VAT rate 0% aligns with zero VAT amount and stated \"Steuerfreie innergemeinschaftliche Lieferung\".\n- Confidence: High.\n\nNet.Amount (406,00)\n- Evidence: In totals block \"Steuerbetrag/Basis 406,00\" and the VAT table indicates Steuerbetrag/Basis 406,00 (taxable base/net).\n- Consistency: Matches Zwischensumme + surcharges leading to base amount; aligns with Bruttobetrag since VAT is 0.\n- Confidence: High.\n\nVat.Amount (0,00)\n- Evidence: \"MwSt Betrag 0,00\" in totals block and VAT table.\n- Consistency: Matches VAT rate 0% and note about tax-free intra-community supply.\n- Confidence: High."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.41,
+      "input_tokens": 2768,
+      "cached_input_tokens": null,
+      "output_tokens": 888,
+      "total_tokens": 3656,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.63,
+      "input_tokens": 3383,
+      "cached_input_tokens": null,
+      "output_tokens": 444,
+      "total_tokens": 3827,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.4,
+      "input_tokens": 4063,
+      "cached_input_tokens": null,
+      "output_tokens": 216,
+      "total_tokens": 4279,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\272946\\272893_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DE147359150",
+        "DE147359150"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        406.0,
+        "406,00"
+      ],
+      "Net.Amount": [
+        true,
+        406.0,
+        "406,00"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Vat.Rate": [
+        true,
+        0,
+        "0"
+      ],
+      "Invoice.Date": [
+        true,
+        "10.01.2024",
+        "10.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 10214,
+    "cached_input_tokens": 0,
+    "output_tokens": 1548,
+    "eur_estimate": 0.004925
+  }
+}

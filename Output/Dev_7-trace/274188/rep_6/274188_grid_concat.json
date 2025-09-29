@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\274202\\274188_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 3267.88,
+    "Invoice.Date": "29-01-2024",
+    "Sender.VatId": "ATU43349701",
+    "Vat.Rate": 10,
+    "Net.Amount": 2970.8,
+    "Vat.Amount": 297.08
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.92,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I'll identify invoice status, locate candidate fields, consider alternatives, and decide the most supported values.\n\n1) Document classification\n- \"RECHNUNG\" appears prominently → document is an invoice.\n- No exclusion headers like \"Mahnung\" present.\n\n2) Locate possible invoice date(s)\n- \"Ihr Auftrag: Mail/Heidegger vom: 22-01-2024\" — this is order date.\n- \"Lieferung ... vom 2024-01-23\" — delivery date.\n- \"Wien am 29-01-2024\" — typical placement for invoice issue date. Most likely Invoice.Date = \"29-01-2024\".\n\n3) Grand total\n- \"Endbetrag EUR 3.267,88\" clearly the total payable. Candidate GrandTotal.Amount = 3.267,88 → numeric 3267.88.\n\n4) Net amount\n- \"Auftragssumme 2.970,80\" listed above VAT. Candidate Net.Amount = 2.970,80 → numeric 2970.80.\n\n5) VAT amount and rate\n- Line shows \"+ 10 % Mehrwertsteuer 297,08\" so Vat.Rate = 10 (per rule remove %), Vat.Amount = 297,08 → numeric 297.08.\n\n6) Sender VAT ID\n- Two UIDs present:\n  - \"Ihre UID: ATU22642807\" (addressed to recipient as \"Your UID\") — likely the customer's UID.\n  - Later: \"UID-Nr.: ATU 43349701\" adjacent to company/legal details and bank info — corresponds to the sender (SENNA). Therefore Sender.VatId = \"ATU43349701\".\n\n7) Verify no inference beyond text\n- All chosen values are explicitly present. No guessing used.\n\n8) Decimal and formatting rules\n- Preserve decimal places as in input when converting to numeric values (use dot for JSON numbers).",
+    "step2": "GrandTotal.Amount — Confidence: 98%\n- Evidence: \"Endbetrag EUR 3.267,88\" clearly states total payable. Minimal ambiguity.\n\nInvoice.Date — Confidence: 92%\n- Evidence: \"Wien am 29-01-2024\" placed near header area typical for invoice issue date. Alternative dates present (order 22-01-2024, Lieferung 2024-01-23) but context strongly indicates 29-01-2024 is invoice date.\n\nSender.VatId — Confidence: 90%\n- Evidence: Two UIDs appear: \"Ihre UID: ATU22642807\" and \"UID-Nr.: ATU 43349701\". The latter appears with company/legal and bank details (FN, DVR, etc.), consistent with sender VAT. Mild ambiguity due to presence of both UIDs.\n\nVat.Rate — Confidence: 99%\n- Evidence: \"+     10       %    Mehrwertsteuer\" explicitly states VAT rate. No conflicting VAT rates shown.\n\nNet.Amount — Confidence: 98%\n- Evidence: \"Auftragssumme 2.970,80\" appears directly above VAT line, matching net amount before VAT.\n\nVat.Amount — Confidence: 98%\n- Evidence: \"297,08\" shown next to the VAT line (and corresponds to 10% of 2.970,80 = 297,08). Calculational consistency reinforces extraction.\n\nOverall notes:\n- No fields required inference beyond visible text; minor ambiguity only for Sender.VatId due to two UIDs."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.36,
+      "input_tokens": 2028,
+      "cached_input_tokens": null,
+      "output_tokens": 918,
+      "total_tokens": 2946,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.61,
+      "input_tokens": 2441,
+      "cached_input_tokens": null,
+      "output_tokens": 386,
+      "total_tokens": 2827,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.77,
+      "input_tokens": 3032,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 3379,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274202\\274188_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU43349701",
+        "ATU 43349701"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        3267.88,
+        "3.267,88"
+      ],
+      "Net.Amount": [
+        true,
+        2970.8,
+        "2.970,80"
+      ],
+      "Vat.Amount": [
+        true,
+        297.08,
+        "297,08"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "29-01-2024",
+        "29-01-2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7501,
+    "cached_input_tokens": 0,
+    "output_tokens": 1651,
+    "eur_estimate": 0.004506
+  }
+}

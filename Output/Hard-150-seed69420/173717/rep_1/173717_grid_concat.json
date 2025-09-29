@@ -1,0 +1,105 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\173717\\173717_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 4643.81,
+    "Invoice.Date": "27-Dez-2022",
+    "Sender.VatId": "CHE-111.954.803",
+    "Vat.Rate": "",
+    "Net.Amount": 4643.81,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.96,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (a) verify this is an invoice by checking for invoice headers, invoice number, dates, totals and line-item totals; (b) locate explicit fields required by the schema without guessing; (c) preserve numeric formats and decimals; (d) treat VAT group entries as the VAT items. Evidence summary and extraction targets:\n\n- Document classification: Multiple clear invoice indicators present: header \"INVOICE / ORIGINAL\", \"Invoice no: DEBRVPM220096521\", \"Invoice date: 27-Dez-2022\", line-item tables with \"Total\", \"VAT\", and a \"Grand Total\". No exclusion keywords dominate. So the document qualifies as an invoice.\n\n- Invoice.Date: Found explicitly as \"27-Dez-2022\" next to \"Invoice date:\" on pages 1–3. Use that exact string.\n\n- Sender.VatId: Found as \"VAT Number: CHE-111.954.803\" in header and repeated \"VAT Number: CHE-111.954.803 TVA\". Use that exact VAT id.\n\n- GrandTotal.Amount: Found as \"Grand Total: 4.643,81 EUR\" on page 3. The invoice uses comma as decimal separator. The schema requires a number type; preserve decimals as in input but convert to numeric form (note later when producing final JSON I will provide numeric value matching input decimals; if schema expects number with dot decimal, I'll follow instruction to keep decimal places as in input).\n\n- VAT group(s): There is a VAT clause stating \"VAT applicable amount 4.643,81\" and \"VAT amount 0,00\" with note \"Receiver is responsible for tax declaration (reverse-charge-rule)\". No explicit VAT rate percentage appears for the group; VAT amount is zero. Therefore:\n  - Vat.Rate: not explicitly provided → must be empty.\n  - Net.Amount: The VAT applicable amount is 4.643,81 EUR — treat as Net.Amount for the VAT group.\n  - Vat.Amount: 0,00 EUR is provided.\n\n- Net.Amount vs line sums: Line-item EUR totals sum to the invoice total shown; use the explicit VAT-applicable amount field (4.643,81) rather than summing individual converted amounts to avoid inference.\n\n- Currency and separators: Input uses comma as decimal separator (4.643,81). Schema requires numeric values—will ensure numeric representation retains two decimals. Do not add currency symbols.\n\n- No inference: If any required field is missing explicitly (e.g., VAT rate), leave it empty.\n\nNext step: produce the final JSON per the schema, using the exact extracted values (with numeric formatting preserved and missing fields empty).",
+    "step2": "I can’t share internal chain-of-thought, but I can provide a concise confidence summary for each extracted field and the evidence supporting it.\n\n- GrandTotal.Amount — Confidence: 98% — Clear label \"Grand Total: 4.643,81 EUR\" on page 3; value unambiguous.\n- Invoice.Date — Confidence: 99% — Explicit \"Invoice date: 27-Dez-2022\" shown on pages 1–3.\n- Sender.VatId — Confidence: 99% — Explicit header \"VAT Number: CHE-111.954.803\" appears multiple times.\n- Vat.Rate — Confidence: 95% (as empty) — No explicit VAT percentage is printed; invoice states reverse-charge and VAT amount 0,00, so leaving rate empty is supported.\n- Net.Amount — Confidence: 96% — \"VAT applicable amount 4.643,81\" is shown and matches the grand total; using this as Net.Amount is directly supported.\n- Vat.Amount — Confidence: 99% — Explicit \"VAT amount 0,00\" in the VAT clause."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.85,
+      "input_tokens": 4436,
+      "cached_input_tokens": null,
+      "output_tokens": 741,
+      "total_tokens": 5177,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.67,
+      "input_tokens": 5032,
+      "cached_input_tokens": null,
+      "output_tokens": 489,
+      "total_tokens": 5521,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.84,
+      "input_tokens": 5565,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 5848,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\173717\\173717.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "CHE-111.954.803",
+        [
+          "CHE-111.954.803",
+          "CHE-111.954.803"
+        ]
+      ],
+      "GrandTotal.Amount": [
+        true,
+        4643.81,
+        "4.643,81"
+      ],
+      "Net.Amount": [
+        true,
+        4643.81,
+        "4.643,81"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "27-Dez-2022",
+        [
+          "27-Dez-2022",
+          "27-Dez-2022",
+          "27-Dez-2022"
+        ]
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 5,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 15033,
+    "cached_input_tokens": 0,
+    "output_tokens": 1513,
+    "eur_estimate": 0.001281
+  }
+}

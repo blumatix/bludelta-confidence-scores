@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198248\\198248_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1373.72,
+    "Invoice.Date": "2023-03-13",
+    "Sender.VatId": "B97805048",
+    "Vat.Rate": 0,
+    "Net.Amount": 1373.72,
+    "Vat.Amount": 0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.85,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Highly likely",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: document contains invoice indicators (\"FACTURA\", \"FACTURA NO.: A23004737\", \"FECHA FRA: 2023-03-13\", line items, totals) — treat as an invoice.\n\nCandidate extractions (evidence and alternatives checked):\n- Invoice.Date: found \"FECHA FRA :2023-03-13\" — extracted as 2023-03-13.\n- Sender.VatId: header shows \"NIF:B97805048\" (Evergreen) — extracted as B97805048.\n- GrandTotal.Amount: totals section shows \"Total Factura EUR 1.373,72\" and corresponding USD 1.418,68. Given invoice currency EUR appears used for Grand Total, candidate GrandTotal = 1373.72 (preserve decimals as in source). Alternative would be USD 1418.68; preference: EUR total shown under \"Total Factura EUR\".\n- Vat.Rate: VAT code shown as \"00\" and tax summary shows \"Cuota de Iva ,00\" and \"BASE EXENTA\" — interpreted VAT rate = 0 (no percent sign in source).\n- Net.Amount: tax summary lists \"Importe Neto 1.373,72\" — candidate Net = 1373.72.\n- Vat.Amount: tax summary shows \",00\" (zero) — candidate Vat.Amount = 0.00.\n\nNo other VAT rate groups found. All numeric decimals will keep original two decimals. No guessing beyond visible fields; unresolved ambiguities noted (USD vs EUR grand total alternative) to be resolved by schema preference for invoice currency — EUR chosen based on \"Total Factura EUR\" line.",
+    "step2": "GrandTotal.Amount — Confidence ~0.85\n- Evidence: \"Total Factura EUR 1.373,72\" appears explicitly on page 2 under totals. Alternative USD total (1.418,68) exists, but EUR appears labeled as \"Total Factura EUR\" matching invoice locale. Low uncertainty due to possible ambiguity about invoice currency.\n\nInvoice.Date — Confidence ~0.98\n- Evidence: \"FECHA FRA :2023-03-13\" clearly formatted as date. Very low ambiguity.\n\nSender.VatId — Confidence ~0.90\n- Evidence: Header shows \"NIF:B97805048\" next to company name EVERGREEN. Strong match for sender VAT/Tax ID. Slight uncertainty if another VAT (e.g., different format) refers to sender, but context indicates company NIF.\n\nVat.Rate — Confidence ~0.95\n- Evidence: Tax summary shows code \"00\" and \"Cuota de Iva ,00\" and \"BASE EXENTA\" indicating tax-exempt; interpreted VAT rate = 0. Very likely.\n\nNet.Amount — Confidence ~0.90\n- Evidence: \"Importe Neto 1.373,72\" appears in tax summary consistent with total exempt base. Matches GrandTotal in EUR. Slight OCR risk but consistent.\n\nVat.Amount — Confidence ~0.95\n- Evidence: \"Cuota de Iva ,00\" (zero) shown explicitly. Low ambiguity."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.14,
+      "input_tokens": 3121,
+      "cached_input_tokens": null,
+      "output_tokens": 667,
+      "total_tokens": 3788,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.64,
+      "input_tokens": 3515,
+      "cached_input_tokens": null,
+      "output_tokens": 299,
+      "total_tokens": 3814,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.98,
+      "input_tokens": 4114,
+      "cached_input_tokens": null,
+      "output_tokens": 280,
+      "total_tokens": 4394,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198248\\198248.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "B97805048",
+        "IT00047820329"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1373.72,
+        "1.373,72"
+      ],
+      "Net.Amount": [
+        true,
+        1373.72,
+        "1.373,72"
+      ],
+      "Vat.Amount": [
+        false,
+        0,
+        []
+      ],
+      "Vat.Rate": [
+        true,
+        0,
+        ",00"
+      ],
+      "Invoice.Date": [
+        true,
+        "2023-03-13",
+        "2023-03-13"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 10750,
+    "cached_input_tokens": 0,
+    "output_tokens": 1246,
+    "eur_estimate": 0.000974
+  }
+}

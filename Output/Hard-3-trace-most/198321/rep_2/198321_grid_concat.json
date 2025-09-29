@@ -1,0 +1,106 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198321\\198321_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 57.79,
+    "Invoice.Date": "29 maart 2023",
+    "Sender.VatId": "NL007726892B01",
+    "Vat.Rate": 21,
+    "Net.Amount": 47.76,
+    "Vat.Amount": 10.03
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: document is an invoice (contains \"Factuurnummer\", \"Factuurdatum\", totals, VAT lines).\n\nExtraction plan and evidence (concise):\n- Invoice.Date: explicitly \"Factuurdatum 29    maart       2023\" → \"29 maart 2023\".\n- GrandTotal.Amount: \"Totaal verschuldigd bedrag EUR 57,79\" → 57.79.\n- Sender.VatId: shows \"BTW nummer UPS: NL007726892B01\" (explicit sender VAT) → \"NL007726892B01\".\n- VAT rate: shows \"21 % BTW\" and \"21,00 % BTW\" → rate 21.\n- Net.Amount and Vat.Amount: page1 shows \"Totaal BTW belastbaar 47,76\" and \"21 % BTW 10,03\" which sum to total 57,79. Use Net.Amount 47.76 and Vat.Amount 10.03.\n- Resolving minor conflicting figures on page2 (a 6,36 VAT for a line) — per rule 6, exchange-rate and per-line-only values excluded; choose invoice-level totals from page1 which match GrandTotal.\n\nNo guessing beyond explicit values; if any field missing, would be empty.",
+    "step2": "Invoice.Date — confidence: high (95%)\n- Evidence: Explicit header \"Factuurdatum 29    maart       2023\" on pages 1 and 2.\n- Consistency: Same date appears twice.\n\nGrandTotal.Amount — confidence: high (95%)\n- Evidence: \"Totaal verschuldigd bedrag EUR 57,79\" on page 1.\n- Consistency: Sum of reported taxable total (47,76) + VAT (10,03) = 57,79 matches.\n\nSender.VatId — confidence: high (90%)\n- Evidence: Two VAT numbers shown; labeled \"BTW nummer UPS: NL007726892B01\" and earlier \"BTW nummer klant: NL819593801B01\".\n- Rationale: Instruction requests sender VAT — document header shows \"BTW nummer UPS\" which indicates UPS as sender; chosen value NL007726892B01. Slight uncertainty only from ambiguity which is considered \"sender\" vs \"customer\".\n\nVat.Rate — confidence: high (95%)\n- Evidence: \"21 % BTW\" and \"21,00 % BTW\" present; also VAT calculation aligns with 21%.\n\nNet.Amount — confidence: high (95%)\n- Evidence: \"Totaal BTW belastbaar 47,76\" shown on page 1 and reiterated on page 2.\n- Consistency: Net (47,76) + VAT (10,03) = GrandTotal (57,79).\n\nVat.Amount — confidence: high (95%)\n- Evidence: \"21 % BTW 10,03\" on page 1 and VAT line showing 21.00% → 6,36 appears on page 2 as per-line VAT for a specific shipment but invoice-level VAT is 10,03. Chosen invoice-level VAT 10,03.\n- Consistency: Matches totals.\n\nOverall note on ambiguity:\n- Per-line VAT (6,36) exists but is per-item; per rules, only invoice-level VAT amounts used. Minor ambiguity only for Sender.VatId selection between two VAT numbers."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.15,
+      "input_tokens": 2357,
+      "cached_input_tokens": null,
+      "output_tokens": 839,
+      "total_tokens": 3196,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.86,
+      "input_tokens": 2667,
+      "cached_input_tokens": null,
+      "output_tokens": 423,
+      "total_tokens": 3090,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.14,
+      "input_tokens": 3390,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3671,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198321\\198321.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "NL007726892B01",
+        "NL007726892B01"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        57.79,
+        "57,79"
+      ],
+      "Net.Amount": [
+        true,
+        47.76,
+        "47,76"
+      ],
+      "Vat.Amount": [
+        true,
+        10.03,
+        "10,03"
+      ],
+      "Vat.Rate": [
+        true,
+        21,
+        "21"
+      ],
+      "Invoice.Date": [
+        true,
+        "29 maart 2023",
+        [
+          "29 maart 2023",
+          "29 maart 2023"
+        ]
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8414,
+    "cached_input_tokens": 0,
+    "output_tokens": 1543,
+    "eur_estimate": 0.000961
+  }
+}

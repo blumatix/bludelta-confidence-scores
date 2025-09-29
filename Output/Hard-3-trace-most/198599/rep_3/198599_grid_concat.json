@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198599\\198599_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 950.0,
+    "Invoice.Date": "27-12-2022",
+    "Sender.VatId": "PL6372194989",
+    "Vat.Rate": "",
+    "Net.Amount": 950.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will determine whether this document is an invoice, locate the required fields, consider alternatives, and decide what to extract.\n\n1) Classify document as invoice\n- Presence of header \"Faktura nr 0228/12/2022/B\", seller (\"SPRZEDAWCA\"), buyer (\"NABYWCA\"), line items, totals and \"Do zapłaty\" indicates this is an invoice. Exclusion terms like \"Zahlungserinnerung\"/\"Mahnung\" do not appear prominently. Conclusion: proceed with extraction.\n\n2) Identify candidate values in text\n- Invoice date: “Gołaczewy dn. 27-12-2022” → candidate \"27-12-2022\".\n- Sender VAT ID: “NIP: PL6372194989” under SPRZEDAWCA → candidate \"PL6372194989\".\n- Grand total / Amount due: “Do zapłaty: 950,00EUR” and also PLN totals shown (4 458,73 PLN) but explicit amount due is 950,00 EUR. The invoice’s payable amount is 950,00 (currency EUR). Choose numeric value without currency: 950.00 (preserve two decimals as in source).\n- Net amount: In the EUR group lines show Netto 950,00 and marked \"NP\" (reverse charge). The net amount corresponding to the amount due is 950,00 → 950.00.\n- VAT amount: EUR VAT shown as 0,00 (NP / reverse charge). Candidate VAT amount: 0.00.\n- VAT rate: The invoice marks \"NP\" (reverse charge) and shows 23% and 0% rows with zeros, but no applied numeric VAT percent for the charged item. Per No Inference Policy, do not infer a numeric VAT rate. Therefore leave Vat.Rate empty (\"\").\n\n3) Verify alternatives and justify choices\n- Grand total could be interpreted as 4 458,73 PLN (a PLN total) vs 950,00 EUR. The explicit \"Do zapłaty: 950,00EUR\" indicates amount due; choose 950.00. Do not convert currencies or mix.\n- VAT rate could be 0 or 23; but the invoice labels the EUR line as NP (reverse charge) and shows VAT amount 0, so we must not infer a numeric percent — leave Vat.Rate empty.\n- Ensure numeric formatting preserves decimals and uses dot as decimal separator for JSON numbers.\n\n4) Final mapping to required schema fields (decisions)\n- GrandTotal.Amount → 950.00\n- Invoice.Date → \"27-12-2022\"\n- Sender.VatId → \"PL6372194989\"\n- Vat.Rate → \"\" (no explicit numeric VAT percent applied)\n- Net.Amount → 950.00\n- Vat.Amount → 0.00",
+    "step2": "GrandTotal.Amount (950.00)\n- Evidence: Explicit line \"Do zapłaty: 950,00EUR\" strongly indicates payable total. Also \"RAZEM EUR: 950,00\" supports this.\n- Ambiguity: There is a PLN total \"4 458,73 PLN\" but that appears as converted amount; invoice explicitly requests 950,00 EUR.\n- Confidence: High (~0.95)\n\nInvoice.Date (\"27-12-2022\")\n- Evidence: Text shows \"Gołaczewy dn. 27-12-2022\" near invoice header; also invoice number contains \"/12/2022\".\n- Ambiguity: Could be document place+date format but standard placement and phrasing indicate invoice issue date.\n- Confidence: High (~0.9)\n\nSender.VatId (\"PL6372194989\")\n- Evidence: Under SPRZEDAWCA block: \"NIP: PL6372194989\".\n- Ambiguity: None apparent.\n- Confidence: Very high (~0.99)\n\nVat.Rate (\"\")\n- Evidence: Invoice shows VAT amount 0, and uses \"NP\" (reverse charge). There is no explicit numeric VAT percentage applied to the EUR line. Other rows show 23%/0% but with zero amounts; none clearly tied as the applied rate.\n- Ambiguity: Could be interpreted as 0 or as 23 for other groups, but per no-inference rule we must not assume.\n- Confidence in leaving empty: High (~0.95)\n\nNet.Amount (950.00)\n- Evidence: EUR line shows Netto 950,00 and \"RAZEM EUR: 950,00\"; matches amount due in EUR.\n- Ambiguity: PLN net (4 458,73) exists but pertains to converted total; choosing EUR net corresponding to amount due is consistent.\n- Confidence: High (~0.95)\n\nVat.Amount (0.00)\n- Evidence: VAT for EUR line shown as 0,00 and marked \"NP\" (reverse charge) with VAT amount zero; summary shows 0,00.\n- Ambiguity: None significant.\n- Confidence: Very high (~0.98)"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.21,
+      "input_tokens": 2389,
+      "cached_input_tokens": null,
+      "output_tokens": 1235,
+      "total_tokens": 3624,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.15,
+      "input_tokens": 3031,
+      "cached_input_tokens": null,
+      "output_tokens": 457,
+      "total_tokens": 3488,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.2,
+      "input_tokens": 3788,
+      "cached_input_tokens": null,
+      "output_tokens": 343,
+      "total_tokens": 4131,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198599\\198599.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "PL6372194989",
+        "PL6372194989"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        950.0,
+        "950,00"
+      ],
+      "Net.Amount": [
+        true,
+        950.0,
+        "950,00"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Vat.Rate": [
+        false,
+        "",
+        []
+      ],
+      "Invoice.Date": [
+        true,
+        "27-12-2022",
+        "27-12-2022"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 9208,
+    "cached_input_tokens": 0,
+    "output_tokens": 2035,
+    "eur_estimate": 0.001173
+  }
+}

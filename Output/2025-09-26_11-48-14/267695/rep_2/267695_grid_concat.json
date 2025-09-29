@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\267721\\267695_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 20753.73,
+    "Invoice.Date": "02.01.2024",
+    "Sender.VatId": "ATU39247604",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 18867.03,
+    "Vat.Amount": 1886.7
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains clear invoice indicators: title \"RECHNUNG\", \"Nr.: 37273802\", \"Datum: 02.01.2024\", line items, totals (\"Zwischensumme\", \"Endbetrag\"), \"Umsatzsteuer\". No exclusion terms like \"Mahnung\" or \"Zahlungserinnerung\". Classify as invoice.\n\nLocate candidate fields and alternatives:\n- Invoice.Date: Visible as \"Datum: 02.01.2024\" (page 1 and page 2). No conflicting dates for invoice issue. Select \"02.01.2024\".\n- Sender.VatId: Two UID numbers appear:\n  - \"Ihre UID Nr.: ATU22642807\" near customer block (this is customer's UID).\n  - Bottom company block: \"UID-Nr.: ATU39247604\" (sender Berglandmilch). Per schema, Sender.VatId = sender VAT = ATU39247604. Do not infer or swap.\n- GrandTotal.Amount: \"Endbetrag EUR 20.753,73\" on page 2. Use exact numeric value with same decimals: 20753.73.\n- Net.Amount: \"Summe Positionen 18.867,03\" and \"Zwischensumme Waren: EUR 18.867,03\" show net amount before VAT = 18867.03.\n  - Verify alternative: \"Summe Positionen\" repeated equals 18.867,03. No other net total conflicting. Use 18867.03.\n- Vat.Rate: Shown as \"Umsatzsteuer 10,000 %\". The invoice uses comma as decimal separator; this corresponds to 10.000%. Per rules, remove percent symbol and keep decimals as in input. Represent as numeric 10.000.\n- Vat.Amount: Shown adjacent as \"1.886,70\" for VAT value. Convert to numeric preserving decimals: 1886.70.\n- Verify arithmetic: Net 18,867.03 + VAT 1,886.70 = 20,753.73 which matches Endbetrag. Consistent.\n\nNo other applicable exchange rates. All required fields present. No need to guess or fill missing values.\n\nPlanned final mappings (values to output, converted to numeric/strings as appropriate):\n- Invoice.Date: \"02.01.2024\"\n- Sender.VatId: \"ATU39247604\"\n- GrandTotal.Amount: 20753.73\n- Net.Amount: 18867.03\n- Vat.Rate: 10.000\n- Vat.Amount: 1886.70",
+    "step2": "Invoice.Date — Confidence ~99%:\n- Evidence: Explicit label \"Datum: 02.01.2024\" appears on page 1 and page 2. No conflicting invoice-issue dates present. Very high certainty.\n\nSender.VatId — Confidence ~98%:\n- Evidence: Two UID numbers in document: \"Ihre UID Nr.: ATU22642807\" (customer) and \"UID-Nr.: ATU39247604\" in the sender/company block at bottom. Sender VAT clearly matches the company footer. Low chance of OCR error in prefix (ATU) or digits, but layout supports sender UID as ATU39247604.\n\nGrandTotal.Amount — Confidence ~99%:\n- Evidence: \"Endbetrag EUR 20.753,73\" clearly shown. Matches Net + VAT. OCR could misplace thousands separator, but numeric sum verifies value.\n\nNet.Amount — Confidence ~99%:\n- Evidence: \"Zwischensumme Waren: EUR 18.867,03\" and \"Summe Positionen 18.867,03\" both show the same net amount. Matches arithmetic with VAT and Grand Total.\n\nVat.Rate — Confidence ~95%:\n- Evidence: \"Umsatzsteuer 10,000 %\". Clear percentage. Possible minor OCR formatting (comma vs dot) but numeric rate 10.000 is directly indicated. Slight uncertainty only from localized decimal formatting.\n\nVat.Amount — Confidence ~99%:\n- Evidence: VAT amount shown as \"1.886,70\" adjacent to the VAT rate and consistent with Net and Grand Total (18867.03 + 1886.70 = 20753.73). Very consistent, low chance of error."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.82,
+      "input_tokens": 3122,
+      "cached_input_tokens": null,
+      "output_tokens": 1122,
+      "total_tokens": 4244,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.41,
+      "input_tokens": 3715,
+      "cached_input_tokens": null,
+      "output_tokens": 351,
+      "total_tokens": 4066,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.38,
+      "input_tokens": 4366,
+      "cached_input_tokens": null,
+      "output_tokens": 222,
+      "total_tokens": 4588,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\267721\\267695_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU39247604",
+        "ATU39247604"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        20753.73,
+        "20.753,73"
+      ],
+      "Net.Amount": [
+        true,
+        18867.03,
+        "18.867,03"
+      ],
+      "Vat.Amount": [
+        true,
+        1886.7,
+        "1.886,70"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,000"
+      ],
+      "Invoice.Date": [
+        true,
+        "02.01.2024",
+        "02.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 11203,
+    "cached_input_tokens": 0,
+    "output_tokens": 1695,
+    "eur_estimate": 0.005397
+  }
+}

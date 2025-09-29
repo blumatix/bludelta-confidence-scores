@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\183052\\183023_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1361.67,
+    "Invoice.Date": "11.04.2023",
+    "Sender.VatId": "ATU50118607",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 1237.88,
+    "Vat.Amount": 123.79
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.92,
+    "Vat.Rate": 0.93,
+    "Net.Amount": 0.93,
+    "Vat.Amount": 0.93
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will analyze the text to determine if it is an invoice and then extract the required fields, considering alternatives and avoiding inference.\n\n1) Document classification — invoice vs non-invoice\n- Evidence for invoice:\n  - Visible header \"Rechnung\" (German for invoice) at top right.\n  - Terms: \"Rechnungsnummer\", \"Rechnungsdatum\", \"Lieferdatum\", \"Fällig am\", \"Zahlbar bis\", \"Zu zahlender Betrag\", \"MwSt.-Satz\", line items with quantities, unit prices, VAT and totals.\n- No prominent exclusion terms like \"Zahlungserinnerung\", \"Mahnung\", \"Servicebericht\", or \"Bericht\".\nConclusion: document qualifies as an invoice. Proceed to extraction.\n\n2) Locate candidate values for each required field per schema\nFields required: GrandTotal.Amount, Invoice.Date, Sender.VatId, Vat.Rate, Net.Amount, Vat.Amount.\n\n- GrandTotal.Amount\n  - Candidates: \"Zu zahlender Betrag ... 1.361,67 EUR\" and at bottom of VAT table \"1.361,67 EUR\" under Brutto. Both match. So GrandTotal.Amount = 1.361,67 (number keeping decimals and decimal comma in source—must output numeric value; will convert comma to dot for number).\n\n- Invoice.Date\n  - Candidate: \"Rechnungsdatum 11.04.2023\" clearly present. So Invoice.Date = \"11.04.2023\".\n\n- Sender.VatId\n  - Look for sender VAT: header shows company J. Gschwandtner Import Ges.m.b.H. Two UID numbers appear:\n    - \"UID-Nummer ATU22642807\" near Kundenummer line (this seems under Kunde block? Need to determine sender vs customer).\n    - Later footer shows \"UID: ATU50118607\" after banking info; header near Lieferant shows \"UID Nummer: ATU50118607\" under Lieferant block. The supplier (Lieferant) is J. Gschwandtner Import Ges.m.b.H; its UID is ATU50118607. The other UID-Nummer ATU22642807 likely belongs to the Kunde (customer) block. The schema asks for Sender.VatId (tax ID of the sender). Sender is invoice issuer = Lieferant. Therefore choose \"ATU50118607\". Confirmed also footer \"UID: ATU50118607\".\n  - Sender.VatId = \"ATU50118607\".\n\n- Vat.Rate, Net.Amount, Vat.Amount\n  - The VAT table shows a single VAT rate row:\n    - \"MwSt.-Satz 10,00 %    Netto 1.237,88 EUR    MwSt 123,79 EUR    Brutto 1.361,67 EUR\"\n  - Thus there is one VAT group: Rate = 10,00% -> per rules extract rate without percent symbol so \"10,00\" or numeric 10.00? Schema type is number. Also rule 5: extract rates without the percentage symbol (e.g., \"19%\" as \"19\"). Keep decimals as in input: input shows \"10,00 %\". Preserve decimals: rate = 10,00 -> as number 10,00 which in JSON number must be 10.00. Net.Amount = 1.237,88 (keep decimals and thousands separator? Input uses dot as thousands? It's \"1.237,88\" typical European format: period thousands, comma decimals). Must convert to numeric with dot decimal: 1237.88. Vat.Amount = 123,79 -> 123.79.\n  - Confirm no other VAT groups present. There are discounts \"Aktionsrabatt\" lines but VAT summary only shows one group 10%. So extract single VAT item.\n\n3) Handle formatting and no-inference policy\n- Convert European formatting to numeric values: replace thousand separators and change decimal comma to dot.\n- Do not guess missing values: all required fields found.\n- Ensure numeric types for amounts and rates per schema.\n\n4) Final mapping (values to be used in final JSON)\n- GrandTotal.Amount -> 1361.67 (from \"1.361,67 EUR\")\n- Invoice.Date -> \"11.04.2023\"\n- Sender.VatId -> \"ATU50118607\"\n- Vat.Rate -> 10.00 (from \"10,00 %\", output as number 10.00)\n- Net.Amount -> 1237.88 (from \"1.237,88 EUR\")\n- Vat.Amount -> 123.79 (from \"123,79 EUR\")\n\nNo conflicting multiple occurrences requiring arrays beyond the single VAT group.",
+    "step2": "GrandTotal.Amount — High confidence (~95%)\n- Evidence: \"Zu zahlender Betrag ... 1.361,67 EUR\" clearly printed and matches \"Brutto 1.361,67 EUR\" in VAT summary. Consistent placement for invoice total. Low ambiguity.\n\nInvoice.Date — Very high confidence (~99%)\n- Evidence: Explicit label \"Rechnungsdatum 11.04.2023\". Unambiguous date format.\n\nSender.VatId — High confidence (~92%)\n- Evidence: Supplier (Lieferant) block lists \"UID Nummer: ATU50118607\" and footer repeats \"UID: ATU50118607\". There is another UID (ATU22642807) near customer section, but supplier UID is clearly ATU50118607. Small risk is misattributing which UID is considered \"sender\" if layout ambiguous, but supplier labels support selection.\n\nVat.Rate — High confidence (~93%)\n- Evidence: VAT summary row shows \"10,00 %\". Single VAT grouping present. Converted to numeric 10.00 per extraction rules. Low ambiguity.\n\nNet.Amount — High confidence (~93%)\n- Evidence: VAT summary shows \"Netto 1.237,88 EUR\". Matches components and totals. Conversion from European formatting to numeric introduces small parsing step but value is explicit.\n\nVat.Amount — High confidence (~93%)\n- Evidence: VAT summary shows \"MwSt 123,79 EUR\". Explicit value; conversion from comma to dot is straightforward.\n\nOverall: all fields are explicitly present in the invoice; main minor risks are misassignment of UID vs customer and numeric-format conversion."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 14.6,
+      "input_tokens": 2116,
+      "cached_input_tokens": null,
+      "output_tokens": 1104,
+      "total_tokens": 3220,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.03,
+      "input_tokens": 3139,
+      "cached_input_tokens": null,
+      "output_tokens": 332,
+      "total_tokens": 3471,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.94,
+      "input_tokens": 3771,
+      "cached_input_tokens": null,
+      "output_tokens": 221,
+      "total_tokens": 3992,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\183052\\183023_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU50118607",
+        "ATU50118607"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1361.67,
+        "1.361,67"
+      ],
+      "Net.Amount": [
+        true,
+        1237.88,
+        "1.237,88"
+      ],
+      "Vat.Amount": [
+        true,
+        123.79,
+        "123,79"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "11.04.2023",
+        "11.04.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 9026,
+    "cached_input_tokens": 0,
+    "output_tokens": 1657,
+    "eur_estimate": 0.004852
+  }
+}

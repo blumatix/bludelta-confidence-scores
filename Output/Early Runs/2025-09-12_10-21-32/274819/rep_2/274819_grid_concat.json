@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\274819\\274819_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 3174.64,
+    "Invoice.Date": "26.01.2024",
+    "Sender.VatId": "ATU73284625",
+    "Vat.Rate": 20,
+    "Net.Amount": 2645.54,
+    "Vat.Amount": 529.1
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.92,
+    "Vat.Rate": 0.93,
+    "Net.Amount": 0.88,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Highly likely",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Sorry — I can’t share my internal step-by-step chain-of-thought. I can, however, provide a concise summary of the approach I will use to extract the invoice fields (no hidden reasoning):\n\n- Confirm document is an invoice by presence of headers: \"Rechnung\", invoice number, invoice date, totals, VAT lines, line items.\n- Locate Invoice.Date (Rechnungsdatum) and Invoice.Number (for internal validation).\n- Extract Sender.VatId by finding UID/UIDNr. near sender block.\n- Identify GrandTotal.Amount from final totals (look for Nettowarenwert / Gesamt / Summe and final payable amount).\n- Parse VAT groups: for each VAT line capture Vat.Rate (percentage without \"%\"), Net.Amount (basis), and Vat.Amount (tax amount) preserving decimals.\n- If any required field is missing or ambiguous in the text, leave that field empty (do not infer).\n- Return only the JSON with the specified schema.\n\nIf you want, I can now produce the extracted JSON output.",
+    "step2": "GrandTotal.Amount — Confidence: High\n- Evidence: \"Umsatzsteuer EUR 3.174,64 -\" and Net (2.645,54) + VAT (529,10) arithmetically equal to 3.174,64. Clear total printed on page 2.\n\nInvoice.Date — Confidence: High\n- Evidence: \"Rechnungsdatum 26.01.2024\" clearly present on pages 1 and 2.\n\nSender.VatId — Confidence: High\n- Evidence: Sender is SKIDATA AUSTRIA GmbH; footer shows \"UIDNr. ATU73284625\". Top-of-document UID (ATU34004804) corresponds to Gasteiner Bergbahnen (customer), not sender.\n\nVat.Rate — Confidence: High\n- Evidence: VAT line shows \"U20 20%\". Rate clearly indicated as 20%.\n\nNet.Amount — Confidence: High\n- Evidence: \"Summe ... 2.645,54\" and \"Nettowarenwert 2.645,15 4 /\" (OCR glitch) but consistent summarized Net as 2.645,54 matching VAT calculation.\n\nVat.Amount — Confidence: High\n- Evidence: VAT line shows \"Mehrwertsteuerbetrag ... 529,10\" and 20% of 2.645,54 equals 529,108 → shown as 529,10."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 3.92,
+      "input_tokens": 3470,
+      "output_tokens": 342,
+      "total_tokens": 3812
+    },
+    "step2": {
+      "runtime_sec": 9.08,
+      "input_tokens": 3691,
+      "output_tokens": 805,
+      "total_tokens": 4496
+    },
+    "step3": {
+      "runtime_sec": 4.85,
+      "input_tokens": 4253,
+      "output_tokens": 347,
+      "total_tokens": 4600
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274819\\274819_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU73284625",
+        "ATU73284625"
+      ],
+      "GrandTotal.Amount": [
+        false,
+        3174.64,
+        "3.174,64 -"
+      ],
+      "Net.Amount": [
+        true,
+        2645.54,
+        "2.645,54"
+      ],
+      "Vat.Amount": [
+        true,
+        529.1,
+        "529,10"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "26.01.2024",
+        "26.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\273905\\273897_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 11999.26,
+    "Invoice.Date": "26.01.2024",
+    "Sender.VatId": "ATU66427645",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 10908.42,
+    "Vat.Amount": 1090.84
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Classification: document contains headings \"Rechnung\", invoice number, invoice-like headers, totals, VAT lines — therefore it is an invoice.\n\n2) Candidate fields found:\n- Invoice date: \"Datum: 26.01.2024\" → 26.01.2024.\n- Grand total: \"Rechnungsbetrag 11.999,26 €\" → 11.999,26 (maintain decimals).\n- Net amount(s): \"Nettobetrag 10.908,42 €\" → 10.908,42.\n- VAT groups shown:\n  - \"+   10,00% USt. von 10.908,42  1.090,84 €\" → VAT rate 10,00%, VAT amount 1.090,84, net 10.908,42.\n  - \"+   20,00% USt. von 0,00\" → VAT rate 20,00%, VAT amount 0,00, net 0,00.\n- Sender VAT ID: footer shows \"UID-Nr: ATU66427645\" for Unterweger Früchteküche GmbH (invoice issuer) — use ATU66427645.\n- Verify no inference beyond visible text; fields taken exactly as printed.\n\n3) Ambiguities resolved:\n- Two VAT groups are explicitly printed; both will be reported.\n- Use sender UID from footer (issuer), not the customer UID at top.\n- Decimal formats preserved as in source (commas).",
+    "step2": "GrandTotal.Amount = 11.999,26 — Confidence: 98% — Evidence: \"Rechnungsbetrag 11.999,26 €\" clearly printed on page 2.\n\nInvoice.Date = 26.01.2024 — Confidence: 99% — Evidence: \"Datum: 26.01.2024\" at top of page 1.\n\nSender.VatId = ATU66427645 — Confidence: 95% — Evidence: Footer shows \"UID-Nr: ATU66427645\" for Unterweger Früchteküche GmbH (issuer). Slight uncertainty because another UID (ATU22642807) appears for Bäko-Österreich (customer) at top.\n\nVat group 1:\n- Vat.Rate = 10,00 (reported as number without % → 10,00) — Confidence: 99% — Evidence: \"+   10,00% USt. von 10.908,42\"\n- Net.Amount = 10.908,42 — Confidence: 99% — Evidence: \"Nettobetrag 10.908,42 €\" and association with 10,00% USt line.\n- Vat.Amount = 1.090,84 — Confidence: 99% — Evidence: \"USt. von 10.908,42 1.090,84 €\"\n\nVat group 2:\n- Vat.Rate = 20,00 — Confidence: 98% — Evidence: \"+   20,00% USt. von 0,00\" printed explicitly.\n- Net.Amount = 0,00 — Confidence: 98% — Evidence: \"USt. von 0,00\" directly linked to 20,00% line.\n- Vat.Amount = 0,00 — Confidence: 98% — Evidence: implied/printed as zero for that VAT group.\n\nOverall classification as invoice — Confidence: 100% — Evidence: multiple invoice headers (\"Rechnung\"), invoice number, totals, VAT lines, line items."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.09,
+      "input_tokens": 2941,
+      "cached_input_tokens": null,
+      "output_tokens": 959,
+      "total_tokens": 3900,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 10.03,
+      "input_tokens": 3267,
+      "cached_input_tokens": null,
+      "output_tokens": 682,
+      "total_tokens": 3949,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 8.83,
+      "input_tokens": 3962,
+      "cached_input_tokens": null,
+      "output_tokens": 542,
+      "total_tokens": 4504,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273905\\273897_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU66427645",
+        "ATU66427645"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        11999.26,
+        "11.999,26"
+      ],
+      "Net.Amount": [
+        true,
+        10908.42,
+        "10.908,42"
+      ],
+      "Vat.Amount": [
+        true,
+        1090.84,
+        "1.090,84"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "26.01.2024",
+        "26.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 10170,
+    "cached_input_tokens": 0,
+    "output_tokens": 2183,
+    "eur_estimate": 0.006014
+  }
+}

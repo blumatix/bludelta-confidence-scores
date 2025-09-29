@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\241275\\241254_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 426.0,
+    "Invoice.Date": "23.10.2023",
+    "Sender.VatId": "ATU 52606504",
+    "Vat.Rate": 20,
+    "Net.Amount": 355.0,
+    "Vat.Amount": 71.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (1) verify this is an invoice by checking for invoice keywords and typical invoice sections, (2) locate explicit fields (invoice number, date, UID/VAT IDs, totals, VAT rate and amounts), (3) avoid any guessing and leave any missing fields empty, and (4) preserve numeric formatting/decimals exactly.\n\nFindings from the text (concise, evidence-based):\n- Invoice indicators present: the word \"Rechnung\" and sections with totals and VAT (\"Netto\", \"Mwst.\", \"Brutto\", \"Gesamtsumme\") — so classify as an invoice.\n- Invoice Date: \"Datum: 23.10.2023\"\n- Invoice Number: \"2023318\" (appears next to \"Rechnung\")\n- Sender VAT ID (Unsere UID-Nr.): \"ATU 52606504\" (will be returned as Sender.VatId)\n- Customer VAT ID (Ihre UID-Nr.) appears: \"ATU 31771008\" — but schema asks for Sender.VatId only; customer VAT ignored.\n- Totals section shows:\n  - Netto: 355,00\n  - Mwst. 20%: 71,00\n  - Brutto / Gesamtsumme: 426,00\n- VAT rate: \"20%\" (will be returned as numeric 20 per rules)\n- Decimal formatting uses comma as decimal separator in source; will convert to numeric form preserving decimals (e.g., 355,00 -> 355.00) per schema numeric types.\n\nNo exchange rates, no exclusion terms dominating, no ambiguous multiple occurrences for required fields. I will now produce the final JSON with those extracted values, leaving any absent fields empty and preserving numeric decimals.",
+    "step2": "GrandTotal.Amount (426.00): 95% — Clear \"Brutto\" / \"Gesamtsumme\" shown as 426,00 in totals section.\n\nInvoice.Date (\"23.10.2023\"): 99% — Explicit \"Datum: 23.10.2023\".\n\nSender.VatId (\"ATU 52606504\"): 98% — Explicit \"Unsere UID-Nr.: ATU 52606504\" (matches sender label).\n\nVat.Rate (20): 99% — Totals line shows \"Netto € 20% Mwst. €\", indicating 20% VAT.\n\nNet.Amount (355.00): 98% — \"Auftragssumme Netto:\" and totals show \"355,00\" as net amount.\n\nVat.Amount (71.00): 98% — Totals line shows VAT amount \"71,00\" corresponding to 20% of 355,00."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.46,
+      "input_tokens": 1758,
+      "cached_input_tokens": null,
+      "output_tokens": 618,
+      "total_tokens": 2376,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.4,
+      "input_tokens": 2167,
+      "cached_input_tokens": null,
+      "output_tokens": 388,
+      "total_tokens": 2555,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.5,
+      "input_tokens": 2663,
+      "cached_input_tokens": null,
+      "output_tokens": 218,
+      "total_tokens": 2881,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\241275\\241254_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU 52606504",
+        "ATU 52606504"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        426.0,
+        "426,00"
+      ],
+      "Net.Amount": [
+        true,
+        355.0,
+        "355,00"
+      ],
+      "Vat.Amount": [
+        true,
+        71.0,
+        "71,00"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "23.10.2023",
+        "23.10.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6588,
+    "cached_input_tokens": 0,
+    "output_tokens": 1224,
+    "eur_estimate": 0.003567
+  }
+}

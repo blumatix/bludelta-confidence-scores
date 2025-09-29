@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\274205\\274165_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 910.01,
+    "Invoice.Date": "26.01.2024",
+    "Sender.VatId": "ATU76204938",
+    "Vat.Rate": 10,
+    "Net.Amount": 827.28,
+    "Vat.Amount": 82.73
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Classify document as invoice:\n- Presence of keywords: \"Rechnung\", \"Rechnungsdatum\", \"Warenwert\", \"MWST\", \"Endbetrag\", invoice number (\"Belegnummer\") — strongly indicates an invoice.\n- No exclusion terms (\"Mahnung\", \"Zahlungserinnerung\", \"Servicebericht\") prominent. => Treat as invoice and proceed.\n\n2) Identify fields to extract per schema:\n- GrandTotal.Amount: look for total payable (\"Endbetrag (EUR)\").\n- Invoice.Date: look for \"Rechnungsdatum\".\n- Sender.VatId: sender VAT ID labeled \"Unsere USt-ID\".\n- Vat.Rate: VAT percentage(s) listed (MWST / Ausgangssteuer).\n- Net.Amount: net amount (Warenwert / Nettowert) corresponding to VAT group.\n- Vat.Amount: VAT amount for VAT group.\n\n3) Locate candidates in text and consider alternatives/ambiguities:\n- Invoice date: \"Rechnungsdatum                  26.01.2024\" — clear, use \"26.01.2024\".\n- Sender VAT ID: two USt-IDs present:\n  - \"Unsere USt-ID: ATU76204938\" (sender)\n  - \"Ihre USt-ID: ATU22642807\" (recipient)\n  Schema asks for Sender.VatId => choose \"ATU76204938\".\n- Grand total: \"Endbetrag              (EUR)                                                  910,01\" — clear candidate: 910,01 EUR.\n- Net amount: several \"Nettowert\" lines and summary \"Warenwert               Netto                                                 827,28\" — use 827,28.\n  Alternative: there are net values per line (459,60 and 367,68) that sum to 827,28; the summary 827,28 is appropriate for invoice-level Net.Amount.\n- VAT rate and VAT amount: block shows:\n  - \"Ausgangssteuer                  1   =    10%:                                   82,73\"\n  - Also header shows \"MWST %\", and line items show 10% per line.\n  => Single VAT group 10% with VAT amount 82,73.\n- Numeric formatting: input uses comma as decimal separator; schema requires numbers. Convert to dot decimals, preserving decimals as in input (two decimals).\n\n4) Check No Inference policy:\n- All chosen values are explicitly present; no guessing required.\n\n5) Final mapping (values to be placed in final JSON):\n- GrandTotal.Amount -> 910.01 (number)\n- Invoice.Date -> \"26.01.2024\" (string)\n- Sender.VatId -> \"ATU76204938\" (string)\n- Vat.Rate -> 10 (number; drop percent sign)\n- Net.Amount -> 827.28 (number)\n- Vat.Amount -> 82.73 (number)\n\n6) Verify consistency:\n- Net 827.28 + VAT 82.73 = 910.01 (matches GrandTotal) — consistent.\n\nProceed to produce final JSON with these extracted values.",
+    "step2": "GrandTotal.Amount (910.01)\n- Evidence: Explicit line \"Endbetrag              (EUR)                                                  910,01\".\n- Consistency: Net (827,28) + VAT (82,73) = 910,01 matches.\n- Confidence: Very high.\n\nInvoice.Date (\"26.01.2024\")\n- Evidence: Explicit label \"Rechnungsdatum                  26.01.2024\".\n- Ambiguity: None.\n- Confidence: Very high.\n\nSender.VatId (\"ATU76204938\")\n- Evidence: Two VAT IDs present; \"Unsere USt-ID: ATU76204938\" clearly marked as sender; \"Ihre USt-ID: ATU22642807\" is recipient.\n- Ambiguity: Potential OCR confusion but labels are explicit.\n- Confidence: Very high.\n\nVat.Rate (10)\n- Evidence: Shown as \"Ausgangssteuer                  1   =    10%:\" and line item MWST column shows 10%.\n- Ambiguity: No other VAT rates present.\n- Confidence: Very high.\n\nNet.Amount (827.28)\n- Evidence: \"Warenwert               Netto                                                 827,28\" and sum of line Nettowerte 459,60 + 367,68 = 827,28.\n- Ambiguity: Multiple per-line nettowerte exist but invoice-level summary matches.\n- Confidence: Very high.\n\nVat.Amount (82.73)\n- Evidence: \"Ausgangssteuer ... 10%:                                   82,73\" corresponds to VAT value.\n- Consistency: Net + VAT equals GrandTotal.\n- Ambiguity: None apparent.\n- Confidence: Very high."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.58,
+      "input_tokens": 2205,
+      "cached_input_tokens": null,
+      "output_tokens": 1026,
+      "total_tokens": 3231,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.15,
+      "input_tokens": 2894,
+      "cached_input_tokens": null,
+      "output_tokens": 416,
+      "total_tokens": 3310,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.99,
+      "input_tokens": 3546,
+      "cached_input_tokens": null,
+      "output_tokens": 217,
+      "total_tokens": 3763,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\274205\\274165_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU76204938",
+        "ATU76204938"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        910.01,
+        "910,01"
+      ],
+      "Net.Amount": [
+        true,
+        827.28,
+        "827,28"
+      ],
+      "Vat.Amount": [
+        true,
+        82.73,
+        "82,73"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "26.01.2024",
+        "26.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8645,
+    "cached_input_tokens": 0,
+    "output_tokens": 1659,
+    "eur_estimate": 0.004772
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198474\\198474_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 932.19,
+    "Invoice.Date": "23.03.2023",
+    "Sender.VatId": "DE   814    999   725",
+    "Vat.Rate": 19,
+    "Net.Amount": 783.35,
+    "Vat.Amount": 148.84
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Classify document as invoice:\n- Presence of keywords: \"Rechnung\", \"Rechnungsnummer\", \"Datum\", \"Gesamtbetrag\", \"Umsatzsteuer\", line items (Mautkosten, Frachtkosten), totals. No exclusion headers like \"Mahnung\" or \"Zahlungserinnerung\". Conclusion: document is an invoice.\n\n2) Locate invoice date:\n- Found \"Datum :23.03.2023\" near header. Extract Invoice.Date = \"23.03.2023\".\n\n3) Locate Grand Total:\n- Totals table shows Gesamtbetrag 932,19 EUR. Extract GrandTotal.Amount = 932.19 (preserve decimals).\n\n4) Locate VAT rate and VAT amount:\n- Table shows \"19% Umsatzsteuer 148,84 EUR\" associated with taxable amount 783,35 EUR. Extract Vat.Rate = 19 (no percent sign per rules). Extract Vat.Amount = 148.84.\n\n5) Locate Net amount:\n- Taxable/net base shown as 783,35 EUR (labeled under steuerpflichtig / Summe). Extract Net.Amount = 783.35.\n\n6) Locate Sender VAT ID:\n- Two VAT-like IDs appear:\n  a) \"Ihre USt.-ID :815512007\" — this is labeled \"Ihre\" (your/customer VAT ID).\n  b) Footer: \"UST-ID-Nr. DE   814    999   725\" — appears with company details (Hallog GmbH) and thus is sender VAT.\n- Per no-inference rule, take the sender VAT as shown with company: \"DE   814    999   725\". Normalize minimal spacing only if not inferring values is required; keep the value as presented: \"DE   814    999   725\".\n\n7) Consistency and no-guessing checks:\n- All extracted numeric values keep same decimal places as in source.\n- Vat.Rate extracted without \"%\" as required.\n- No fields are invented; if a field were missing it would be left empty.\n\nExtracted target fields to output next (final JSON): GrandTotal.Amount=932.19; Invoice.Date=\"23.03.2023\"; Sender.VatId=\"DE   814    999   725\"; Vat.Rate=19; Net.Amount=783.35; Vat.Amount=148.84.",
+    "step2": "GrandTotal.Amount (932.19)\n- Evidence: \"Gesamtbetrag 932,19 EUR\" explicitly shown in totals row. Matches sum of Net (783,35) + Vat (148,84). \n- Confidence: Very high.\n\nInvoice.Date (\"23.03.2023\")\n- Evidence: Header line \"Datum :23.03.2023\" clearly present near Rechnungsnummer.\n- Ambiguity: none.\n- Confidence: Very high.\n\nSender.VatId (\"DE   814    999   725\")\n- Evidence: Footer contains \"UST-ID-Nr. DE   814    999   725\" alongside company information for Hallog GmbH, indicating sender VAT.\n- Ambiguity: Another VAT-like number labeled \"Ihre USt.-ID :815512007\" appears (this is recipient/customer VAT). Chosen value matches sender label.\n- Confidence: High.\n\nVat.Rate (19)\n- Evidence: Table shows \"19% Umsatzsteuer\" associated with taxable amount.\n- Formatting: percent removed per rules.\n- Confidence: Very high.\n\nNet.Amount (783.35)\n- Evidence: Table shows \"steuerpflichtig 783,35 EUR\" and Summe taxable base 783,35 EUR; corresponds to line-item subtotal (692,91 + possibly others) displayed.\n- Confidence: Very high.\n\nVat.Amount (148.84)\n- Evidence: Table shows \"Steuerbetrag 148,84 EUR\" corresponding to 19% on 783,35 (calculates to 148.8365 → rounded/displayed 148,84).\n- Consistency: Net + Vat = GrandTotal (783,35 + 148,84 = 932,19).\n- Confidence: Very high."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.9,
+      "input_tokens": 1922,
+      "cached_input_tokens": null,
+      "output_tokens": 1006,
+      "total_tokens": 2928,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.94,
+      "input_tokens": 2463,
+      "cached_input_tokens": null,
+      "output_tokens": 428,
+      "total_tokens": 2891,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.41,
+      "input_tokens": 3127,
+      "cached_input_tokens": null,
+      "output_tokens": 350,
+      "total_tokens": 3477,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198474\\198474.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DE   814    999   725",
+        "DE 814 999 725"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        932.19,
+        "932,19"
+      ],
+      "Net.Amount": [
+        true,
+        783.35,
+        [
+          "783,35",
+          "783,35"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        148.84,
+        [
+          "148,84",
+          "148,84"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        19,
+        "19"
+      ],
+      "Invoice.Date": [
+        true,
+        "23.03.2023",
+        "23.03.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7512,
+    "cached_input_tokens": 0,
+    "output_tokens": 1784,
+    "eur_estimate": 0.001
+  }
+}

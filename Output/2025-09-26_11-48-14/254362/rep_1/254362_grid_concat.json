@@ -1,0 +1,121 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\254405\\254362_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 308.91,
+    "Invoice.Date": "08.11.2023",
+    "Sender.VatId": "ATU46992508",
+    "Vat.Rate": [
+      13,
+      20
+    ],
+    "Net.Amount": [
+      267.69,
+      5.35
+    ],
+    "Vat.Amount": [
+      34.8,
+      1.07
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.92,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.93,
+    "Net.Amount": 0.93,
+    "Vat.Amount": 0.93
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains clear invoice indicators: \"Rechnung\", \"Rechnungsdatum\", \"Rechnungsnr\", line items, \"Netto\", \"USt.\", \"Gesamt\", \"Zahlungsbetrag\". No exclusion indicators (\"Zahlungserinnerung\", \"Mahnung\", \"Servicebericht\") prominent. -> class = invoice.\n\nKey visible fields and ambiguities:\n- Invoice date: \"Rechnungsdatum: 08.11.2023\" — clear.\n- Sender VAT ID: footer shows \"UID-Nr. ATU46992508\" (sender Maschinenring Flachgau). Customer UID \"ATU34757803\" appears in header after \"Kunde:\" but label indicates customer; schema asks for Sender.VatId → use ATU46992508.\n- Grand total / total payable: Two totals present:\n  - \"Gesamt 302,49 EUR\" appears as invoice total before additional Leistungsentgelt/Zuschlag.\n  - \"Zahlungsbetrag 308,91 EUR\" is the payment amount due (includes Zuschlag Brutto 6,42 EUR). Schema defines \"Total payable amount on the invoice\" → interpret as Zahlungsbetrag = 308,91 EUR.\n- VAT groups: Document shows two VAT groupings:\n  1) Under line items: \"Netto 267,69 EUR\" / \"USt. 13 % 34,80 EUR\" → rate 13, net 267,69, vat 34,80.\n  2) Under \"Leistungsentgelt Maschinenring\": \"Netto 5  35 EUR\" (OCR spacing) and \"USt. 20 % 1,07 EUR\" and \"Zuschlag Brutto 6  42 EUR\" — interpret netto 5,35 EUR, vat 1,07 EUR, rate 20.\n- Ensure no inference beyond visible data: net 5,35 reconstructed from \"5  35\" with comma/space; but pattern aligns with later totals (302,49 + 6,42 = 308,91). This supports 5.35 and 1.07 being valid extracted numbers.\n- Decimal formatting: preserve two decimals as in source.\n\nFinal mapping to schema fields (candidates to return in final JSON):\n- Invoice.Date = \"08.11.2023\"\n- Sender.VatId = \"ATU46992508\"\n- GrandTotal.Amount = 308.91\n- Vat groups:\n  - Vat.Rate: 13, Net.Amount: 267.69, Vat.Amount: 34.80\n  - Vat.Rate: 20, Net.Amount: 5.35, Vat.Amount: 1.07\n\nNo other required fields available or needed.",
+    "step2": "Invoice.Date — 08.11.2023\n- Evidence: Explicit label \"Rechnungsdatum: 08.11.2023\".\n- Confidence: Very high. (≈99%)\n\nSender.VatId — ATU46992508\n- Evidence: Footer shows \"UID-Nr. ATU46992508\" associated with Maschinenring Flachgau (sender).\n- Ambiguity: Header contains \"Kunde: ... ATU34757803\" (customer VAT) but label context distinguishes sender UID in footer.\n- Confidence: High. (≈95%)\n\nGrandTotal.Amount — 308.91\n- Evidence: \"Zahlungsbetrag                                                                                                      308,91        EUR\" clearly indicates payment amount due.\n- Ambiguity: Another total \"Gesamt 302,49 EUR\" appears; interpretation chosen per schema definition \"Total payable amount on the invoice\" mapped to Zahlungsbetrag. This choice is well supported by wording.\n- Confidence: High. (≈92%)\n\nVat group 1 — Vat.Rate: 13 ; Net.Amount: 267.69 ; Vat.Amount: 34.80\n- Evidence: Section shows \"Netto 267,69 EUR\" and \"USt. 13 % 34,80 EUR\" under line items.\n- OCR numeric formatting preserved; values match and sum with displayed subtotal.\n- Confidence: Very high. (≈98%)\n\nVat group 2 — Vat.Rate: 20 ; Net.Amount: 5.35 ; Vat.Amount: 1.07\n- Evidence: Under \"Leistungsentgelt Maschinenring\" block shows \"Netto ... 5  35 EUR\" (spaces from OCR), \"USt. 20 % 1,07 EUR\", and \"Zuschlag Brutto 6  42 EUR\"; Zahlungsbetrag equals 302.49 + 6.42 = 308.91 which supports Netto 5.35 + USt 1.07 = 6.42.\n- Ambiguity: OCR spacing on \"5  35\" and \"6  42\"; reconstruction of decimals is an interpretation but consistent with sums shown.\n- Confidence: Moderate-high. (≈88%)"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.41,
+      "input_tokens": 2106,
+      "cached_input_tokens": null,
+      "output_tokens": 1023,
+      "total_tokens": 3129,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.79,
+      "input_tokens": 2728,
+      "cached_input_tokens": null,
+      "output_tokens": 457,
+      "total_tokens": 3185,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 10.01,
+      "input_tokens": 3485,
+      "cached_input_tokens": null,
+      "output_tokens": 629,
+      "total_tokens": 4114,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\254405\\254362_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU46992508",
+        "ATU46992508,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        308.91,
+        "308,91"
+      ],
+      "Net.Amount": [
+        false,
+        [
+          267.69,
+          5.35
+        ],
+        "267,69"
+      ],
+      "Vat.Amount": [
+        false,
+        [
+          34.8,
+          1.07
+        ],
+        "34,80"
+      ],
+      "Vat.Rate": [
+        false,
+        [
+          13,
+          20
+        ],
+        "13"
+      ],
+      "Invoice.Date": [
+        true,
+        "08.11.2023",
+        "08.11.2023"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 8319,
+    "cached_input_tokens": 0,
+    "output_tokens": 2109,
+    "eur_estimate": 0.005479
+  }
+}

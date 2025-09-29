@@ -1,0 +1,118 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\268636\\268626_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": -400.11,
+    "Invoice.Date": "04.01.2024",
+    "Sender.VatId": "ATU31771008",
+    "Vat.Rate": 20,
+    "Net.Amount": -333.43,
+    "Vat.Amount": -66.68
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Searched for invoice indicators: found \"Vertragsabrechnung\", \"Belegnummer\", \"Gesamtsaldo\", currency \"EUR\", line items with amounts and VAT — qualifies as invoice.\n- No exclusion terms (\"Zahlungserinnerung\"/\"Mahnung\"/\"Servicebericht\") in headers — not excluded.\n\nKey fields located (text evidence in document):\n- Invoice date: \"Ort, Datum 1 Salzburg, 04.01.2024\" → Invoice.Date = \"04.01.2024\"\n- Sender VAT ID: \"Ihre UID-Nummer: ATU31771008\" → Sender.VatId = \"ATU31771008\"\n- Grand total: \"Gesamtsaldo ... EUR 400,11\" presented as credit to customer and in final line \"Gesamtsaldo EUR - 400,11\" → GrandTotal.Amount = -400.11 (preserve sign/decimal)\n- VAT rate(s): \"20% USt\" appears for both groups → Vat.Rate entries = 20\n\nVAT grouping and amounts (from \"Positionen der Vertragsabrechnung\", page 3):\n- Group 1 (Operating Leasing / Gutschrift für Entgeltvorschreibung 12/2023):\n  - Net amount shown: \"EUR -247,62\" → Net.Amount = -247.62\n  - VAT amount shown: \"EUR -49,52\" → Vat.Amount = -49.52\n  - Group total shown: \"EUR -297,14\" (net + VAT) — consistent.\n- Group 2 (Wartung fix ohne Gewinnbeteiligung / Gutschrift 12/2023):\n  - Net amount: \"EUR -85,81\" → Net.Amount = -85.81\n  - VAT amount: \"EUR -17,16\" → Vat.Amount = -17.16\n  - Group total: \"EUR -102,97\" — consistent.\n\nConsistency checks:\n- Sum of nets: -247.62 + -85.81 = -333.43\n- Sum of VATs: -49.52 + -17.16 = -66.68\n- Sum net + VAT = -333.43 + -66.68 = -400.11 matches GrandTotal.Amount.\n\nNotes on rules:\n- No inference used beyond explicit text.\n- VAT rates reported without \"%\" per requirement.\n- Decimal places preserved as in source.",
+    "step2": "GrandTotal.Amount:\n- Confidence: 95%\n- Evidence: \"Gesamtsaldo ... EUR 400,11\" appears twice; page 3 shows \"Gesamtsaldo EUR - 400,11\". The negative sign is explicitly present in the final line and sums of line items equal -400,11, so value -400.11 is strongly supported.\n\nInvoice.Date:\n- Confidence: 90%\n- Evidence: \"Ort, Datum 1 Salzburg, 04.01.2024\" clearly shows date format DD.MM.YYYY as 04.01.2024. Minor OCR noise around the label but date digits are clear.\n\nSender.VatId:\n- Confidence: 95%\n- Evidence: \"Ihre UID-Nummer: ATU31771008\" is explicit and matches typical Austrian UID format; OCR legibility high.\n\nVat.Rate (both VAT groups = 20):\n- Confidence: 90%\n- Evidence: \"20% USt\" appears twice next to each group. The percent sign was removed per rules; 20 is explicit. Slight OCR artifacts but digits clear.\n\nNet.Amount (group 1: -247.62):\n- Confidence: 92%\n- Evidence: Page 3 shows \"EUR -247,62\" next to the first line item. Decimal/comma mapping consistent; matches group totals. OCR reliable for these digits.\n\nVat.Amount (group 1: -49.52):\n- Confidence: 92%\n- Evidence: \"EUR -49,52\" is printed alongside the 20% line for the first group. Consistent arithmetic (20% of -247.62 = -49.524 → rounds to -49.52 as shown).\n\nNet.Amount (group 2: -85.81):\n- Confidence: 92%\n- Evidence: Page 3 shows \"EUR -85,81\" for the second group. Clear digits and consistent with totals.\n\nVat.Amount (group 2: -17.16):\n- Confidence: 92%\n- Evidence: \"EUR -17,16\" appears next to 20% USt for the second group. 20% of -85.81 = -17.162 → shown as -17.16, consistent.\n\nCross-field consistency check:\n- Confidence in overall consistency: 98%\n- Evidence: Sum of net amounts (-247.62 + -85.81 = -333.43) plus sum of VAT amounts (-49.52 + -17.16 = -66.68) equals -400.11, matching GrandTotal.Amount. This arithmetic agreement strongly supports correctness."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.64,
+      "input_tokens": 2903,
+      "cached_input_tokens": null,
+      "output_tokens": 957,
+      "total_tokens": 3860,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.14,
+      "input_tokens": 3459,
+      "cached_input_tokens": null,
+      "output_tokens": 600,
+      "total_tokens": 4059,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 7.14,
+      "input_tokens": 4295,
+      "cached_input_tokens": null,
+      "output_tokens": 601,
+      "total_tokens": 4896,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\268636\\268626_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU31771008",
+        "ATU 338 33 607,"
+      ],
+      "GrandTotal.Amount": [
+        false,
+        -400.11,
+        "400,11"
+      ],
+      "Net.Amount": [
+        false,
+        -333.43,
+        [
+          "-247,62",
+          "-85,81",
+          "-247,62",
+          "-85,81"
+        ]
+      ],
+      "Vat.Amount": [
+        false,
+        -66.68,
+        [
+          "-49,52",
+          "-17,16",
+          "-49,52",
+          "-17,16"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        [
+          "20",
+          "20",
+          "20",
+          "20"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "04.01.2024",
+        "04.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 2,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 10657,
+    "cached_input_tokens": 0,
+    "output_tokens": 2158,
+    "eur_estimate": 0.006078
+  }
+}

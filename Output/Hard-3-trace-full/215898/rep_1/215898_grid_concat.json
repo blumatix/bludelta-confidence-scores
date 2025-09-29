@@ -1,0 +1,124 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\215898\\215898_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 14455.0,
+    "Invoice.Date": "24-Dec-2022",
+    "Sender.VatId": "24AEBPB6411",
+    "Vat.Rate": 9,
+    "Net.Amount": 12250.0,
+    "Vat.Amount": 2205.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.6,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.92
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Sorry—I can’t share my internal step-by-step chain-of-thought. I can, however, provide a concise summary of the approach I will use to extract the invoice fields:\n\n- Verify document is an invoice by checking presence and density of invoice indicators (terms like \"Invoice\", invoice number, invoice date, totals) and absence of dominant exclusion terms (\"Mahnung\", \"Zahlungserinnerung\", etc.).\n- Locate Invoice No and Invoice Date from header lines.\n- Identify Grand Total amount from explicit total lines (\"TotalRupee ... 14,455.00\", \"Total ... 12,250.00\", and tax totals) and determine which is the invoice Grand Total.\n- Extract Sender VAT/GST ID from header (\"GSTIN/UIN\" or \"Company's PAN No.\") positions (return as Sender.VatId).\n- Find VAT groups: each VAT rate, corresponding Net (taxable) amount and Vat amount from the tax breakdown table (HSN/SAC rows). Strip percent symbol from rates.\n- Preserve decimal formatting exactly as in source. If any required field is not present unambiguously, leave it empty.\n- If document fails invoice-header validation, return all fields empty.\n\nIf you want, I can now proceed to extract and return the structured JSON with the fields per the schema.",
+    "step2": "I can’t share internal chain-of-thought. Below are concise confidence estimates (with brief evidence) for each required field based on the invoice text.\n\n- GrandTotal.Amount: 14455.00 — Confidence: 95% (explicit \"TotalRupee ... 14,455.00\" and matches taxable+tax sum).\n- Invoice.Date: \"24-Dec-2022\" — Confidence: 98% (explicit \"Invoice Date : 24-Dec-2022\").\n- Sender.VatId: \"24AEBPB6411M\" — Confidence: 60% (GSTIN/UIN line present but OCR noisy; closest clear token is AEBPB6411; prefix \"24\" appears).\n- Vat.Rate: 9 — Confidence: 95% (multiple lines show \"CGST @ 9%\" and \"SGST @ 9%\").\n- Net.Amount: 12250.00 — Confidence: 90% (taxable total shown as \"Total 12,250.00\" in tax breakdown).\n- Vat.Amount: 2205.00 — Confidence: 92% (CGST 1,102.50 + SGST 1,102.50 = 2,205.00; also matches GrandTotal - Net).\n\nIf you want, I will now output the final JSON extraction."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 5.5,
+      "input_tokens": 5307,
+      "cached_input_tokens": null,
+      "output_tokens": 465,
+      "total_tokens": 5772,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 11.02,
+      "input_tokens": 5627,
+      "cached_input_tokens": null,
+      "output_tokens": 1048,
+      "total_tokens": 6675,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.56,
+      "input_tokens": 6207,
+      "cached_input_tokens": null,
+      "output_tokens": 476,
+      "total_tokens": 6683,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\215898\\215898.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "24AEBPB6411",
+        "24AEBPB6411M1ZV"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        14455.0,
+        "14,455.00"
+      ],
+      "Net.Amount": [
+        false,
+        12250.0,
+        [
+          "750.00",
+          "8.000.00",
+          "750.00",
+          "8.000.00",
+          "3,500.00",
+          "3,500.00"
+        ]
+      ],
+      "Vat.Amount": [
+        false,
+        2205.0,
+        [
+          "67.50",
+          "720.00",
+          "67.50",
+          "720.00",
+          "315.00",
+          "315.00"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        9,
+        [
+          "9",
+          "9",
+          "9",
+          "9",
+          "9",
+          "9"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "24-Dec-2022",
+        "24-Dec-2022"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 17141,
+    "cached_input_tokens": 0,
+    "output_tokens": 1989,
+    "eur_estimate": 0.001553
+  }
+}

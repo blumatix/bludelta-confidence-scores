@@ -1,0 +1,110 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\172675\\172675_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 467.5,
+    "Invoice.Date": "19.12.22",
+    "Sender.VatId": "CZ40763811",
+    "Vat.Rate": 0,
+    "Net.Amount": 467.5,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.7,
+    "Vat.Rate": 0.85,
+    "Net.Amount": 0.8,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Very good chance",
+    "Vat.Rate": "Highly likely",
+    "Net.Amount": "Highly likely",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "- Document classification: contains \"RECHNUNG\", \"VAT\", \"TOTAL\", invoice-like headers and line-items → treat as invoice.\n- Invoice date found: \"19.12.22\" (labelled near Praha and Expedieret am 19.12.22); use \"19.12.22\".\n- Sender VAT identifiers present: \"VAT:        CZ40763811\" and separately \"VAT                                       ATU62333479\". Prefer \"CZ40763811\" as primary sender VAT (explicit \"VAT: CZ40763811\"); note alternative present.\n- Grand total: \"TOTAL: ... EUR 467.50\" → GrandTotal.Amount = 467.50.\n- Tax grouping: \"Besteuerungsgrundlage 0% KC/ EUR 11341.55 467.50\" and \"Besteuerungsgrundlage 21% ... 0.00\" with \"MwSt. 21% ... 0.00\". This indicates VAT applied at 0% to the invoice amount.\n- Vat group to extract: rate = 0, Net.Amount = 467.50, Vat.Amount = 0.00. (Preserve decimals as in source.)\n- No inference beyond present values; fields not explicitly present would be left empty (not applicable here).",
+    "step2": "GrandTotal.Amount: 90% — \"TOTAL: ... EUR 467.50\" explicitly present and unambiguous.\nInvoice.Date: 90% — \"19.12.22\" appears as issue/expedition date.\nSender.VatId: 70% — two VAT entries present (\"VAT: CZ40763811\" and \"VAT ... ATU62333479\"); CZ40763811 was taken as primary because labeled \"VAT:\".\nVat.Rate: 85% — invoice shows \"Besteuerungsgrundlage 0%\" and VAT lines with 0%/21% where amounts for 21% are 0; supports 0% as applied rate.\nNet.Amount: 80% — line \"Besteuerungsgrundlage ... EUR 467.50\" indicates taxable base in EUR matching total; likely net amount 467.50.\nVat.Amount: 95% — VAT line shows \"0.00\" for VAT amount (MwSt. 21% line 0.00 and 0% group), so 0.00 is explicit."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.22,
+      "input_tokens": 1797,
+      "cached_input_tokens": null,
+      "output_tokens": 782,
+      "total_tokens": 2579,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.47,
+      "input_tokens": 2114,
+      "cached_input_tokens": null,
+      "output_tokens": 674,
+      "total_tokens": 2788,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.93,
+      "input_tokens": 2640,
+      "cached_input_tokens": null,
+      "output_tokens": 279,
+      "total_tokens": 2919,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\172675\\172675.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "CZ40763811",
+        "CZ40763811"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        467.5,
+        "467.50"
+      ],
+      "Net.Amount": [
+        false,
+        467.5,
+        [
+          "467.50",
+          "0.00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0.00"
+      ],
+      "Vat.Rate": [
+        false,
+        0,
+        [
+          "0",
+          "21",
+          "21"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "19.12.22",
+        "19.12.22"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 6551,
+    "cached_input_tokens": 0,
+    "output_tokens": 1735,
+    "eur_estimate": 0.000935
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\165872\\165872_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 300.0,
+    "Invoice.Date": "28.11.2022",
+    "Sender.VatId": "SI93319355",
+    "Vat.Rate": 0,
+    "Net.Amount": 300.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I'll extract invoice data by following the invoice-detection rules, checking for invoice indicators, exclusion terms, header validation, and then locating required fields.\n\n1) Document classification (invoice vs non-invoice)\n- Invoice indicators present: words \"Račun\" (invoice), \"Datum računa\", \"Za plačilo EUR\", numerical totals (300,00), VAT ID labels \"ID za DDV\", \"UID Nr.: SI93319355\", bank/IBAN details, invoice number \"Račun 22-300-004243\". These strongly indicate an invoice.\n- No prominent exclusion headers like \"Zahlungserinnerung\" or \"Mahnung\" in top/upper half. The second page is a consignment note (CMR) but the first page contains invoice-specific headers. Keyword density favors invoice indicators. Conclusion: document qualifies as an invoice.\n\n2) Locate required fields per schema\nRequired fields: GrandTotal.Amount, Invoice.Date, Sender.VatId, Vat.Rate, Net.Amount, Vat.Amount.\n\nScan for explicit candidates:\n- GrandTotal.Amount: Look for \"Za plačilo EUR 300,00\" near totals; also \"Skupaj 300,00\" and VAT 0,00. So GrandTotal.Amount = 300,00 (currency EUR implied, schema numeric).\n- Invoice.Date: Look for \"Datum računa: 28.11.2022\" present. So Invoice.Date = \"28.11.2022\".\n- Sender.VatId: Sender appears at top: \"ŽLEBNIK TRANSPORT d.o.o.\" with \"ID za DDV: SI93319355\" and later \"UID Nr.: SI93319355\". So Sender.VatId = \"SI93319355\".\n- Vat.Rate / Net.Amount / Vat.Amount: There is a VAT group indicating services not subject to VAT: lines show item with 300,00 value and DDV 0,00 and text \"PO ČLENU 25/1 ZDDV-1 DDV NI OBRAČUNAN.\" Also a table \"DAVČNE STOPNJE\" shows base 300,00 and DDV 0,00. Thus there is a VAT group with rate 0 (or not charged). The VAT rate appears as 0,00 in the line (DDV 0,00). The schema expects numeric Vat.Rate (percentage) and amounts numeric. We must represent the VAT group: Vat.Rate = 0 (without percent symbol per rules). Net.Amount = 300,00. Vat.Amount = 0,00.\n\nVerification / alternatives:\n- Could VAT rate be omitted instead of 0? The document explicitly shows \"DDV 0,00\" and statement that VAT is not charged per law, implying a 0% treatment. Best-supported value: 0.\n- Numeric formatting: keep decimals as in input (two decimals). Schema types allow number or \"\" . Provide numbers preserving decimals (300.00 etc). Input uses comma decimal; convert to dot for numeric JSON. Maintain two decimals: 300.00 and 0.00.\n- GrandTotal.Amount is same as net since VAT 0.00, so 300.00 consistent.\n- Invoice.Date exactly as text \"28.11.2022\" (string).\n\n3) No inference beyond visible data:\n- Do not infer currency into fields; schema expects number. Use numbers only.\n- Do not invent other VAT groups. Only one group present.\n\nConclusion: fields to output (later) are:\n- GrandTotal.Amount: 300.00\n- Invoice.Date: \"28.11.2022\"\n- Sender.VatId: \"SI93319355\"\n- Vat.Rate: 0\n- Net.Amount: 300.00\n- Vat.Amount: 0.00",
+    "step2": "GrandTotal.Amount (300.00)\n- Evidence: \"Za plačilo EUR 300,00\", \"Skupaj 300,00\" near totals; matches line-item sum 300,00 and DDV 0,00.\n- Potential ambiguity: none apparent (single total shown).\n- Confidence: Very high.\n\nInvoice.Date (\"28.11.2022\")\n- Evidence: Explicit label \"Datum računa: 28.11.2022\".\n- Potential ambiguity: other dates present (datum opr. dob. 24.11.2022, valute 03.01.2023) but label matches invoice date.\n- Confidence: Very high.\n\nSender.VatId (\"SI93319355\")\n- Evidence: \"ID za DDV: SI93319355\" near sender header and \"UID Nr.: SI93319355\" at bottom.\n- Potential ambiguity: buyer also has \"ID za DDV: ATU47239901\" but sender is clearly the top block.\n- Confidence: Very high.\n\nVat.Rate (0)\n- Evidence: VAT amount shown as 0,00 and statement \"DDV NI OBRAČUNAN\" (VAT not charged) under legal citation; VAT column shows 0,00 for the item/group.\n- Potential ambiguity: document does not explicitly show \"0%\" but shows zero VAT amount and exemption note; interpreting as 0% treatment aligns with rules (return numeric rate without %). Minor ambiguity whether rate should be empty, but evidence supports 0.\n- Confidence: High.\n\nNet.Amount (300.00)\n- Evidence: Line item value \"300,00\" under \"Vrednost brez DDV\" and tax base in \"DAVČNE STOPNJE\" table shows Osnova 300,00.\n- Potential ambiguity: none (single base shown).\n- Confidence: Very high.\n\nVat.Amount (0.00)\n- Evidence: Multiple locations showing DDV 0,00 (line item, totals, table).\n- Potential ambiguity: none.\n- Confidence: Very high."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 14.73,
+      "input_tokens": 3294,
+      "cached_input_tokens": null,
+      "output_tokens": 982,
+      "total_tokens": 4276,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.83,
+      "input_tokens": 4131,
+      "cached_input_tokens": null,
+      "output_tokens": 425,
+      "total_tokens": 4556,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.55,
+      "input_tokens": 4856,
+      "cached_input_tokens": null,
+      "output_tokens": 216,
+      "total_tokens": 5072,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\165872\\165872.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "SI93319355",
+        [
+          "SI93319355",
+          "SI93319355"
+        ]
+      ],
+      "GrandTotal.Amount": [
+        true,
+        300.0,
+        "300,00"
+      ],
+      "Net.Amount": [
+        true,
+        300.0,
+        "300,00"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Vat.Rate": [
+        false,
+        0,
+        []
+      ],
+      "Invoice.Date": [
+        true,
+        "28.11.2022",
+        "28.11.2022"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 12281,
+    "cached_input_tokens": 0,
+    "output_tokens": 1623,
+    "eur_estimate": 0.001182
+  }
+}

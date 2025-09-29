@@ -1,0 +1,109 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198674\\198674_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 46.4,
+    "Invoice.Date": "3 de MARZO de 2023",
+    "Sender.VatId": "ESA86868189",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 42.18,
+    "Vat.Amount": 4.22
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.8,
+    "Sender.VatId": 0.7,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Highly likely",
+    "Sender.VatId": "Very good chance",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (1) verify this is an invoice by checking headers/keywords, (2) locate invoice-identifying fields, (3) extract numeric totals preserving decimal places, (4) extract VAT group entries (rate without % and corresponding base and VAT amounts), and (5) avoid guessing any missing fields.\n\nFindings from the text:\n- Invoice indicators present: \"FACTURA NÚMERO: VJ00000012381461\", invoice layout, line with \"Total Factura\".\n- Invoice date: header shows \"MADRID,                3   de     MARZO               de     2023\" (issue date). There is also \"Vencimiento 03-03-2023\" (due date) — do not confuse; use the explicit issue date line.\n- Sender VAT: appears as \"NIVA:       ESA86868189\" — extract \"ESA86868189\".\n- Grand total: \"Total            Factura                                                                                                          46,40\" → 46,40 (retain two decimals).\n- Net amount (base): appears as \"42,18\" in the IVA group and in line item → 42,18.\n- VAT amount: appears as \"4,22\" corresponding to 10% → 4,22.\n- VAT rate: \"IVA REPERCUTIDO_10% ... 10,00\" → extract rate as 10 (without %), keeping decimal format from source is allowed but rule requests rate without percentage symbol; will use numeric 10.\n- No other VAT groups or exchange rates for entire invoice detected.\n\nNo fields are inferred beyond these explicit occurrences.",
+    "step2": "GrandTotal.Amount — High confidence.\nEvidence: \"Total Factura 46,40\" appears clearly as the invoice total.\n\nInvoice.Date — Medium-high confidence.\nEvidence: \"MADRID, 3 de MARZO de 2023\" is a clear issue-date line; potential ambiguity with \"Vencimiento 03-03-2023\" (due date).\n\nSender.VatId — Medium confidence.\nEvidence: \"NIVA: ESA86868189\" present near header; formatting (\"NIVA\") is slightly atypical for VAT label.\n\nVat.Rate — High confidence.\nEvidence: VAT group labeled \"IVA REPERCUTIDO_10%\" and \"10,00\" shown; rate 10 (without %) follows directly.\n\nNet.Amount — High confidence.\nEvidence: VAT base shown as \"42,18\" associated with the 10% VAT group and matches descriptive line.\n\nVat.Amount — High confidence.\nEvidence: VAT quota shown as \"4,22\" corresponding to 10% of 42,18 and listed in the VAT group."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.82,
+      "input_tokens": 1573,
+      "cached_input_tokens": null,
+      "output_tokens": 913,
+      "total_tokens": 2486,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.01,
+      "input_tokens": 1957,
+      "cached_input_tokens": null,
+      "output_tokens": 410,
+      "total_tokens": 2367,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.71,
+      "input_tokens": 2475,
+      "cached_input_tokens": null,
+      "output_tokens": 412,
+      "total_tokens": 2887,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198674\\198674.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ESA86868189",
+        "ESA86868189"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        46.4,
+        "46,40"
+      ],
+      "Net.Amount": [
+        true,
+        42.18,
+        [
+          "42,18",
+          "42,18"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        4.22,
+        [
+          "4,22",
+          "4,22"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        false,
+        "3 de MARZO de 2023",
+        "03-03-2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 6005,
+    "cached_input_tokens": 0,
+    "output_tokens": 1735,
+    "eur_estimate": 0.000907
+  }
+}

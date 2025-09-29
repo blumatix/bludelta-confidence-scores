@@ -1,0 +1,103 @@
+{
+  "input_path": "C:\\Users\\jonas\\Desktop\\LLM-Confidence\\Documents\\274231\\274231_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2822.67,
+    "Invoice.Date": "26.01.2024",
+    "Sender.VatId": "ATU26011605",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 2566.06,
+    "Vat.Amount": 256.61
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.97,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will extract invoice fields by checking invoice indicators, locating headers, and reading numeric totals. I’ll consider alternatives and avoid guessing.\n\n1) Invoice classification:\n- Document contains \"RECHNUNG\" and invoice-looking headers (Ausstellungsdatum, Rechnungsdatum, Kunden-Nr., Ust-Nr., line items, Mehrwertsteuer, Endbetrag). No exclusion terms like \"Mahnung\" or \"Zahlungserinnerung\" dominate. Conclusion: treat as an invoice.\n\n2) Invoice date(s):\n- Two date labels present:\n  - \"Ausstellungsdatum 26.01.2024\"\n  - \"Rechnungsdatum 29.01.2024\"\n- Schema asks for \"Invoice.Date\" (issue date of the invoice). Which to choose? \"Ausstellungsdatum\" is explicit issue date — take 26.01.2024. Do not infer beyond text.\n\n3) Grand total:\n- \"Endbetrag: 2.822,67 EUR\" and elsewhere \"Zahlungsbetrag 2.822,67\" and totals in cents. Use numeric value without currency: 2822.67 (keeping decimals as shown with comma -> convert to dot for number). No ambiguity.\n\n4) VAT / Tax groups:\n- Shows \"Mehrwertsteuer: A 10,00% MwSt. auf 2.566,06 EUR 256,61 EUR\"\n- That indicates a VAT group \"A\" at 10.00% applied to net amount 2.566,06 EUR producing VAT 256,61 EUR.\n- Schema requires Vat.Rate (number without %), Net.Amount, Vat.Amount.\n- Extract rate as 10.00 -> per rule remove % but keep decimals: 10.00 or 10? Schema number should preserve decimals as in input. Use 10.00.\n- Net amount: 2.566,06 -> numeric 2566.06 (preserve two decimals).\n- VAT amount: 256,61 -> numeric 256.61.\n\n5) Sender VAT ID:\n- Document shows \"UID ATU26011605\" near footer and also earlier \"Ihre Ust-Nr. ATU22642807\" labeled as \"Ihre\" (your VAT number) under customer block. The sender is Kärntnermilch; sender VAT is in footer as \"UID ATU26011605\". The \"Ihre Ust-Nr. ATU22642807\" refers to recipient's VAT. Schema field is Sender.VatId — take ATU26011605. Do not include the recipient VAT.\n\n6) Net.Amount vs group sums check:\n- Net amount per VAT group is 2.566,06 EUR and VAT 256,61 EUR; sum = 2.822,67 EUR which matches Endbetrag. Consistent.\n\n7) Formatting and no inference:\n- Preserve decimals as in document (two decimals). Remove percentage symbol for Vat.Rate and return numbers. If any field missing, would be empty; here all fields present.\n\nConclusion: fields to extract:\n- GrandTotal.Amount: 2822.67\n- Invoice.Date: \"26.01.2024\"\n- Sender.VatId: \"ATU26011605\"\n- Vat.Rate: 10.00\n- Net.Amount: 2566.06\n- Vat.Amount: 256.61",
+    "step2": "GrandTotal.Amount — 95%: Endbetrag and Zahlungsbetrag both state 2.822,67 EUR matching sum of net+VAT; clear numeric match.\n\nInvoice.Date — 90%: \"Ausstellungsdatum 26.01.2024\" explicitly present; minor ambiguity because a separate \"Rechnungsdatum 29.01.2024\" exists but Ausstellungsdatum is a valid issue date.\n\nSender.VatId — 95%: Footer shows \"UID ATU26011605\" clearly associated with Kärntnermilch (sender); another VAT (ATU22642807) labeled \"Ihre Ust-Nr.\" matches recipient, so sender VAT choice is unambiguous.\n\nVat.Rate — 98%: \"Mehrwertsteuer: A 10,00% MwSt.\" explicitly shows 10,00% for the VAT group used on the invoice.\n\nNet.Amount — 97%: VAT group line shows \"auf 2.566,06 EUR\" as the tax base; this matches net subtotal consistent with totals.\n\nVat.Amount — 97%: VAT value shown as \"256,61 EUR\" directly in the VAT summary and sums to the grand total when added to the net amount."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.5,
+      "input_tokens": 2239,
+      "cached_input_tokens": null,
+      "output_tokens": 890,
+      "total_tokens": 3129,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.34,
+      "input_tokens": 2984,
+      "cached_input_tokens": null,
+      "output_tokens": 451,
+      "total_tokens": 3435,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.81,
+      "input_tokens": 3543,
+      "cached_input_tokens": null,
+      "output_tokens": 221,
+      "total_tokens": 3764,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "C:\\Users\\jonas\\Desktop\\LLM-Confidence\\Documents\\274231\\274231_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU26011605",
+        "ATU26011605,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        2822.67,
+        "2.822,67"
+      ],
+      "Net.Amount": [
+        true,
+        2566.06,
+        "2.566,06"
+      ],
+      "Vat.Amount": [
+        true,
+        256.61,
+        "256,61"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        false,
+        "26.01.2024",
+        "29.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 8766,
+    "cached_input_tokens": 0,
+    "output_tokens": 1562,
+    "eur_estimate": 0.004631
+  }
+}

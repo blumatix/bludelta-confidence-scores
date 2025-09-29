@@ -1,0 +1,98 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\215922\\215922_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 3060.0,
+    "Invoice.Date": "30-Dec-2022",
+    "Sender.VatId": "27AAGCA1465Q1Z8",
+    "Vat.Rate": "",
+    "Net.Amount": 3060.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.1,
+    "Net.Amount": 0.92,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Highly unlikely",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification: invoice (contains \"TAX INVOICE\", invoice headers, invoice number/date, totals).\n\nExtraction decisions and evidence (concise):\n- Invoice.Date: \"30-Dec-2022\" (labeled Invoice Date).\n- Sender.VatId: \"27AAGCA1465Q1Z8\" (GSTIN shown under sender).\n- GrandTotal.Amount / Net Payable: \"INR                 3,060.00\" (Net Payable / Total Invoice Value shown as 3,060.00).\n- Net.Amount: \"Total Amount Before Tax INR 3,060.00\" → 3060.00.\n- Vat.Amount: \"Add : GST INR 0.00\" and \"Tax Payable on Reverse Charges INR 0.00\" → 0.00.\n- Vat.Rate: no explicit VAT percentage present; GST amount is 0.00 but no percent shown → leave empty per no-inference rule.\n\nNo other VAT rates or exchange rates applicable to entire invoice found.",
+    "step2": "GrandTotal.Amount — Confidence: High (≈95%)\n- Evidence: \"Net Payable INR                 3,060.00\" and \"Total Invoice Value INR 3,060.00\" appear clearly; consistent across lines.\n- Risk: OCR spacing could misplace commas/decimals, but amount repeated identically.\n\nInvoice.Date — Confidence: High (≈95%)\n- Evidence: \"Invoice Date : 30-Dec-2022\" explicitly labeled.\n- Risk: low OCR misread of date string.\n\nSender.VatId — Confidence: High (≈95%)\n- Evidence: \"GSTIN : 27AAGCA1465Q1Z8\" under sender block; matches GSTIN format.\n- Risk: minimal (OCR could misread a character, but string appears intact).\n\nNet.Amount — Confidence: High (≈90-95%)\n- Evidence: \"Total Amount Before Tax INR 3,060.00\" and \"Net Payable INR 3,060.00\" match; Net amount interpreted as pre-tax total.\n- Risk: semantic: invoice uses \"Total Amount Before Tax\" vs. net — extraction treated as Net.Amount per schema.\n\nVat.Amount — Confidence: High (≈90%)\n- Evidence: \"Add : GST INR 0.00\" and \"Tax Payable on Reverse Charges INR 0.00\" both show zero GST/tax.\n- Risk: possible alternate tax lines elsewhere, but invoice shows GST 0.00.\n\nVat.Rate — Confidence: Low (≈10%)\n- Evidence: No explicit VAT/GST percentage appears on the invoice text; only GST amount shown as 0.00.\n- Decision: Per no-inference rule, left empty; low confidence only in that absence being correct (i.e., rate truly not present)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 6.8,
+      "input_tokens": 2992,
+      "cached_input_tokens": null,
+      "output_tokens": 600,
+      "total_tokens": 3592,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.57,
+      "input_tokens": 3255,
+      "cached_input_tokens": null,
+      "output_tokens": 370,
+      "total_tokens": 3625,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.99,
+      "input_tokens": 3925,
+      "cached_input_tokens": null,
+      "output_tokens": 349,
+      "total_tokens": 4274,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\215922\\215922.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "27AAGCA1465Q1Z8",
+        "27AAGCA1465Q1Z8"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        3060.0,
+        "3,060.00"
+      ],
+      "Net.Amount": [
+        true,
+        3060.0,
+        "3,060.00"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0.00"
+      ],
+      "Invoice.Date": [
+        true,
+        "30-Dec-2022",
+        "30-Dec-2022"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 5,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 10172,
+    "cached_input_tokens": 0,
+    "output_tokens": 1319,
+    "eur_estimate": 0.00097
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\274757\\274757_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 254.53,
+    "Invoice.Date": "25.01.2024",
+    "Sender.VatId": "ATU 64424288",
+    "Vat.Rate": 10,
+    "Net.Amount": 231.39,
+    "Vat.Amount": 23.14
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Below is a concise, non-sensitive summary of the extraction plan and the concrete evidence items from the document that I will use to fill the schema.\n\n1) Document classification\n- Invoice indicators found: header \"Rechnung\", label \"Nummer\", \"Datum\", \"Nettobetrag\", \"Mwst.\", \"Gesamtbetrag\", line items with quantities/prices. No prominent exclusion terms (\"Mahnung\", \"Zahlungserinnerung\", \"Servicebericht\") — classify as invoice.\n\n2) Fields to extract and source lines (explicit text used)\n- Invoice.Date: \"Datum: 25.01.2024\" (page header).\n- GrandTotal.Amount: \"Gesamtbetrag EUR 254,53\" (bottom, labeled Gesamtbetrag).\n- Net.Amount: \"Nettobetrag EUR 231,39\" (line above VAT).\n- Vat.Rate: \"10% Mwst.\" (line \"10% Mwst. von 231,39 EUR 23,14\") — rate is 10 (no % sign per rules).\n- Vat.Amount: \"23,14\" (VAT amount shown in same line).\n- Sender.VatId: \"Unsere UID-Nr.: ATU 64424288\" (top-right block).\n\n3) Validation rules applied\n- No inference: use only explicitly present values; if any field absent, return empty string (not applicable here—each required field has explicit text).\n- Numeric formats: preserve decimals as shown (e.g., 254,53 -> must be converted to number format; keep decimals).\n- Vat.Rate returned as number without % (10).\n- Currency symbols ignored per schema; decimals preserved.\n\n4) Ambiguities checked\n- Date appears twice (Abrechnungszeitraum 25.01.2024 and Datum 25.01.2024); will use the explicit \"Datum:\" value.\n- VAT group: only one VAT group (10%) applies to whole invoice (line \"10% Mwst. von 231,39 EUR 23,14\") — acceptable for Vat.Item.\n\nI will now prepare the final JSON extraction based on these explicit values.",
+    "step2": "GrandTotal.Amount — 254.53 — Confidence: 95% — Explicit \"Gesamtbetrag EUR 254,53\" labeled clearly.\n\nInvoice.Date — \"25.01.2024\" — Confidence: 99% — Explicit \"Datum: 25.01.2024\" header matches Abrechnungszeitraum.\n\nSender.VatId — \"ATU64424288\" — Confidence: 95% — Explicit \"Unsere UID-Nr.: ATU 64424288\"; formatting preserved (no inference).\n\nVat.Rate — 10 — Confidence: 98% — Explicit \"10% Mwst.\" shown for the VAT line; returned without percent sign per rules.\n\nNet.Amount — 231.39 — Confidence: 98% — Explicit \"Nettobetrag EUR 231,39\".\n\nVat.Amount — 23.14 — Confidence: 98% — Explicit \"10% Mwst. von 231,39 EUR 23,14\"."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.65,
+      "input_tokens": 1778,
+      "cached_input_tokens": null,
+      "output_tokens": 713,
+      "total_tokens": 2491,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.6,
+      "input_tokens": 2282,
+      "cached_input_tokens": null,
+      "output_tokens": 525,
+      "total_tokens": 2807,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.24,
+      "input_tokens": 2787,
+      "cached_input_tokens": null,
+      "output_tokens": 346,
+      "total_tokens": 3133,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\274757\\274757_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU 64424288",
+        "ATU 64424288"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        254.53,
+        "254,53"
+      ],
+      "Net.Amount": [
+        true,
+        231.39,
+        "231,39"
+      ],
+      "Vat.Amount": [
+        true,
+        23.14,
+        "23,14"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "25.01.2024",
+        "25.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6847,
+    "cached_input_tokens": 0,
+    "output_tokens": 1584,
+    "eur_estimate": 0.004247
+  }
+}

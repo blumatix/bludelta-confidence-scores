@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\226104\\226075_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 99.5,
+    "Invoice.Date": "23.08.2023",
+    "Sender.VatId": "ATU55640701",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 90.73,
+    "Vat.Amount": 8.77
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.8,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Highly likely",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Step 1 — Classification\n- Document contains obvious invoice indicators: \"Rechnung\", \"UID\", \"Zahlbar\", itemized lines, totals (\"Summe\", \"Brutto\", \"Netto\", \"MwSt\", \"Offen\"). No exclusion terms like \"Mahnung\" or \"Zahlungserinnerung\".\n- Conclusion: treat as an invoice.\n\nStep 2 — Locate candidate fields\n- Invoice date: found near header/right: \"Mils bei Imst, 23.08.2023 17:50:52\" — likely invoice issue date = 23.08.2023.\n- Grand total: several occurrences; \"Summe 99,50 €\", \"Offen 99,50 €\", and line-level totals show final total 99,50 € → GrandTotal = 99.50.\n- Sender VAT ID: two UIDs present:\n  - Near top under \"Firma ABF ... UID: ATU 34774508\" (likely guest/company listed).\n  - Bottom sender block for Trofana Erlebnisdorf shows \"UID: ATU55640701\" — this bottom block is the invoice issuer. Per header-based validation, sender VAT = ATU55640701.\n- VAT groups and amounts:\n  - Table rows show:\n    - A taxed group labeled \"10,00   2    87,73   8,77   96,50\" — interpret as VAT rate 10.00, net 87.73, VAT amount 8.77, gross 96.50.\n    - A second line for the tourist tax: \"0,001   3,00   0,00   3,00\" — net 3.00, VAT 0.00, gross 3.00 (rate effectively 0 or negligible). The formatting suggests the invoice consolidates to:\n      - Total net 90.73, total VAT 8.77, total gross 99.50.\n- Choice among paths:\n  - Path A: Use per-rate group for VAT.Rate = 10.00 with Net.Amount = 87.73 and Vat.Amount = 8.77. But schema asks for Net.Amount and Vat.Amount for the invoice (and note guidance allows aggregated totals).\n  - Path B: Use aggregated invoice net and VAT (Net.Amount = 90.73, Vat.Amount = 8.77) reflecting entire invoice totals (including 3.00 tax-exempt item).\n- Evidence favors Path B because rules state Net.Amount = \"Net amount (excluding VAT)\" for the invoice and ExchangeRate rule excludes per-line conversions. The invoice shows overall net 90.73 and total VAT 8.77 corresponding to GrandTotal 99.50.\n\nStep 3 — Final field mapping (candidate values)\n- GrandTotal.Amount = 99.50\n- Invoice.Date = \"23.08.2023\"\n- Sender.VatId = \"ATU55640701\"\n- Vat.Rate = 10.00 (primary VAT rate applied to taxable items; percentage without %)\n- Net.Amount = 90.73 (invoice-wide net)\n- Vat.Amount = 8.77 (invoice-wide VAT total)\n\nStep 4 — No-inference and decimals\n- All values taken exactly from printed numbers; decimals preserved.\n- No guessing beyond visible IDs/dates/numbers.",
+    "step2": "GrandTotal.Amount — Confidence: High (95%)\n- Evidence: Multiple explicit occurrences \"Summe 99,50 €\" and \"Offen 99,50 €\" and line totals summing to 99,50 €; consistent across document.\n\nInvoice.Date — Confidence: High (90%)\n- Evidence: Clear date next to location/time \"Mils bei Imst, 23.08.2023 17:50:52\"; standard invoice issue placement. Small ambiguity whether date refers to stay vs. invoice, but placement at top-right supports invoice date.\n\nSender.VatId — Confidence: High (90%)\n- Evidence: Two UID values present: ATU 34774508 (under \"Firma ABF\" guest/company) and \"UID: ATU55640701\" in bottom sender block for Trofana Erlebnisdorf (invoice issuer). Strong header context indicates ATU55640701 is sender VAT.\n\nVat.Rate — Confidence: Medium-High (80%)\n- Evidence: VAT group row shows \"10,00 2 87,73 8,77 96,50\" indicating a 10.00% rate applied to main charge. Slight formatting ambiguity about the leading \"2\" but 10,00 clearly present as a VAT rate.\n\nNet.Amount — Confidence: High (90%)\n- Evidence: Invoice shows aggregated net \"90,73\" (sum of 87,73 taxable net + 3,00 exempt/zero-rated item). Matches gross minus VAT (99,50 - 8,77 = 90,73).\n\nVat.Amount — Confidence: High (90%)\n- Evidence: VAT total shown as 8,77 in VAT summary row and matches difference between gross and net."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 19.17,
+      "input_tokens": 1689,
+      "cached_input_tokens": null,
+      "output_tokens": 1534,
+      "total_tokens": 3223,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.6,
+      "input_tokens": 2438,
+      "cached_input_tokens": null,
+      "output_tokens": 549,
+      "total_tokens": 2987,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.23,
+      "input_tokens": 3095,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3378,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\226104\\226075_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU55640701",
+        "ATU55640701"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        99.5,
+        "99,50"
+      ],
+      "Net.Amount": [
+        false,
+        90.73,
+        "87,73"
+      ],
+      "Vat.Amount": [
+        true,
+        8.77,
+        "8,77"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "23.08.2023",
+        "23.08.2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7222,
+    "cached_input_tokens": 0,
+    "output_tokens": 2366,
+    "eur_estimate": 0.005682
+  }
+}

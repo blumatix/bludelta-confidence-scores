@@ -1,0 +1,98 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\158066\\158066_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 250.0,
+    "Invoice.Date": "12.10.2022",
+    "Sender.VatId": "",
+    "Vat.Rate": "",
+    "Net.Amount": 250.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.6,
+    "Sender.VatId": 0.1,
+    "Vat.Rate": 0.1,
+    "Net.Amount": 0.6,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Likely",
+    "Sender.VatId": "Highly unlikely",
+    "Vat.Rate": "Highly unlikely",
+    "Net.Amount": "Likely",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Below is a concise, non-sensitive summary of the document analysis, candidate extractions, and uncertainties to guide the final structured extraction.\n\n1) Document classification\n- Contains clear invoice indicators: the word \"Rechnung\", invoice number \"Nur2763/2022\", dates, line item totals, VAT-related phrases (\"MwSt\", \"VAT reverse charge\").\n- No prominent exclusion terms (e.g., \"Mahnung\", \"Zahlungserinnerung\"). Therefore treat as an invoice and proceed.\n\n2) Candidate field matches (exact text snippets and uncertainties)\n- Invoice.Date:\n  - Candidates in header: \"PREVALJE,12.10.2022\" and other dates \"Dat:7.10.2022\", \"Währung : 6.11.2022\".\n  - Most likely invoice issue date appears as \"PREVALJE,12.10.2022\". Keep as candidate; note multiple dates present.\n\n- Sender.VatId:\n  - Possible VAT IDs found:\n    - \"ATU39840703\" (preceded by \"Käufers MwSt ID:\" — appears associated with buyer).\n    - \"SI65645740\" (preceded by \"ID:\" near SENICA ... — likely company tax ID).\n  - Uncertainty: which is sender vs buyer. Cannot infer; will note both as candidates but must choose only if clear.\n\n- GrandTotal.Amount / Net.Amount / Vat.Amount:\n  - Lines show amounts: \"250,000\" and \"250,00\" and \"0,00\" appear multiple times.\n  - Appears net or total due: \"Für Zahlung: EUR 250,00\" — candidate for GrandTotal.Amount = 250,00.\n  - VAT amount shown as \"0,00\" (several places) and a line \"MwSt zusammen : 0,00\".\n  - Net amount (excluding VAT) likely 250,00 if VAT is 0,00; values present but format varies (comma vs period, three decimals in one place \"250,000\").\n  - Must preserve original decimal formatting from source; there are both \"250,000\" and \"250,00\". Need to choose the exact occurrence that represents GrandTotal (the \"Für Zahlung: EUR 250,00\" is a clear label).\n\n- Vat.Rate:\n  - No explicit percentage like \"19%\" found; VAT is reverse-charged (note: \"VAT reverse charge under Article 44...\"), and VAT total = 0,00.\n  - No specific rate number visible; per rules, cannot guess — likely empty.\n\n3) Extraction decisions to apply\n- Use \"PREVALJE,12.10.2022\" as Invoice.Date candidate unless further header clarity contradicts.\n- Use \"Für Zahlung: EUR 250,00\" as GrandTotal.Amount candidate (value 250,00).\n- Use \"MwSt zusammen : 0,00\" and \"MwSt : 0,00\" to set Vat.Amount candidate(s) to 0,00.\n- Do not infer Vat.Rate (leave empty) because only \"reverse charge\" is present, no numeric rate.\n- Do not infer Sender.VatId unless the document clearly labels which VAT belongs to sender; current labels imply ATU39840703 is buyer VAT, SI65645740 is an ID for SENICA — ambiguous.\n\nI will now produce the final JSON extraction following the schema and the no-inference rule.",
+    "step2": "GrandTotal.Amount — Confidence: High\n- Evidence: Explicit labeled line \"Für Zahlung: EUR 250,00\" clearly indicates amount due 250,00.\n\nInvoice.Date — Confidence: Medium\n- Evidence: Multiple dates present (\"PREVALJE,12.10.2022\", \"Dat:7.10.2022\", \"Währung : 6.11.2022\"); \"PREVALJE,12.10.2022\" appears as a prominent header date but ambiguity exists among dates.\n\nSender.VatId — Confidence: Low\n- Evidence: VAT/ID values present: \"ATU39840703\" (labeled near Käufers/Buyer) and \"SI65645740\" (company ID near SENICA). Document does not unambiguously label which is sender VAT ID.\n\nVat.Rate — Confidence: Low\n- Evidence: No numeric VAT percentage found; text states \"VAT reverse charge\" and VAT totals are 0,00. No explicit rate to extract.\n\nNet.Amount — Confidence: Medium\n- Evidence: Net-like totals appear as 250,00 with VAT 0,00; likely net equals 250,00 but formatting variants exist (\"250,000\" vs \"250,00\") and explicit label for net is not perfectly clear.\n\nVat.Amount — Confidence: High\n- Evidence: Multiple lines show VAT totals as \"0,00\" and \"MwSt zusammen : 0,00\", clearly indicating VAT amount 0,00."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 14.22,
+      "input_tokens": 1711,
+      "cached_input_tokens": null,
+      "output_tokens": 1109,
+      "total_tokens": 2820,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.12,
+      "input_tokens": 2483,
+      "cached_input_tokens": null,
+      "output_tokens": 502,
+      "total_tokens": 2985,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.73,
+      "input_tokens": 3093,
+      "cached_input_tokens": null,
+      "output_tokens": 465,
+      "total_tokens": 3558,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\158066\\158066.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "",
+        "SI65645740"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        250.0,
+        "250,00"
+      ],
+      "Net.Amount": [
+        true,
+        250.0,
+        "250,00"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "12.10.2022",
+        "12.10.2022"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 5,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7287,
+    "cached_input_tokens": 0,
+    "output_tokens": 2076,
+    "eur_estimate": 0.001091
+  }
+}

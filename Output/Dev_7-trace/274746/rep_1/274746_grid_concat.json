@@ -1,0 +1,127 @@
+{
+  "input_path": "..\\Documents\\274746\\274746_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": -540.0,
+    "Invoice.Date": "22.01.2024",
+    "Sender.VatId": "ATU21956408",
+    "Vat.Rate": [
+      10,
+      13,
+      20
+    ],
+    "Net.Amount": [
+      0.0,
+      0.0,
+      -450.0
+    ],
+    "Vat.Amount": [
+      0.0,
+      0.0,
+      -90.0
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Sorry — I can’t share my step-by-step internal chain-of-thought. I can, however, provide a concise summary of the extraction approach I will use:\n\n- Determine if the document is an invoice/credit note by checking for invoice keywords and absence of exclusion terms.\n- Locate invoice date (look for date near header or right-aligned); extract exact string.\n- Find sender VAT ID (UID) in header/footer; extract exact string.\n- Identify grand total (total payable) labeled as \"Gutschriftsbetrag in EUR\" or similar; extract numeric value preserving sign and decimals.\n- Extract VAT groups: for each VAT rate line (e.g., \"20 % MWSt von ...\"), capture rate (without %), corresponding net amount and VAT amount exactly as printed.\n- If any required field is missing or ambiguous, return it as an empty string.\n- Do not infer values or modify decimal precision; preserve formatting and signs.",
+    "step2": "GrandTotal.Amount\n- Extracted evidence: \"Gutschriftsbetrag in EUR:                                         -540,00\"\n- Likelihood: High — clearly labeled total with currency and value.\n\nInvoice.Date\n- Extracted evidence: \"Ebensee, am 22.01.2024\"\n- Likelihood: High — explicit date string in header area.\n\nSender.VatId\n- Extracted evidence: Footer shows \"UID: ATU21956408\" (also header shows \"UID Empfänger: ATU22642807\" which is recipient VAT).\n- Likelihood: High for sender VAT = ATU21956408 (footer labeled company data); ensure not to confuse with recipient VAT.\n\nVat.Rate\n- Extracted evidence: Lines showing \"+10% MWSt\", \"+   13    %     MWSt\", \"+   20    %     MWSt\".\n- Likelihood: High that applicable VAT rates on the document are 10, 13, and 20 (presence clear).\n\nNet.Amount (per VAT rate)\n- Evidence:\n  - 10%: \"von 0,00\" (net 0,00)\n  - 13%: \"von 0,00\" (net 0,00)\n  - 20%: \"von -450,00\" (net -450,00); also \"Gutschriftsbetrag excl. MWSt: -450,00\"\n- Likelihood: High for each mapping (10→0,00; 13→0,00; 20→-450,00).\n\nVat.Amount (per VAT rate)\n- Evidence:\n  - 10%: \"0,00\"\n  - 13%: \"0,00\"\n  - 20%: \"-90,00\"\n- Likelihood: High for each (10→0,00; 13→0,00; 20→-90,00)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 4.98,
+      "input_tokens": 1709,
+      "cached_input_tokens": null,
+      "output_tokens": 324,
+      "total_tokens": 2033,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 10.22,
+      "input_tokens": 1912,
+      "cached_input_tokens": null,
+      "output_tokens": 911,
+      "total_tokens": 2823,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 9.15,
+      "input_tokens": 2580,
+      "cached_input_tokens": null,
+      "output_tokens": 645,
+      "total_tokens": 3225,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274746\\274746_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU21956408",
+        "ATU21956408"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        -540.0,
+        "-540,00"
+      ],
+      "Net.Amount": [
+        false,
+        [
+          0.0,
+          0.0,
+          -450.0
+        ],
+        "-450,00"
+      ],
+      "Vat.Amount": [
+        false,
+        [
+          0.0,
+          0.0,
+          -90.0
+        ],
+        "-90,00"
+      ],
+      "Vat.Rate": [
+        false,
+        [
+          10,
+          13,
+          20
+        ],
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "22.01.2024",
+        "22.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 6201,
+    "cached_input_tokens": 0,
+    "output_tokens": 1880,
+    "eur_estimate": 0.004617
+  }
+}

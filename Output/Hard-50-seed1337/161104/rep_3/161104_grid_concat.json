@@ -1,0 +1,98 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\161104\\161104_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 750.0,
+    "Invoice.Date": "2022.01.31.",
+    "Sender.VatId": "HÜ26339942",
+    "Vat.Rate": "",
+    "Net.Amount": 750.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.6,
+    "Vat.Rate": 0.2,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Likely",
+    "Vat.Rate": "Chances are slight",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Instead, a concise, non-sensitive extraction plan and observed high-confidence facts from the text:\n\n- Document classification: Contains \"SZÁMLA\" and invoice-like headers, so treat as invoice.\n- Candidate fields and locations:\n  - Invoice.Date: \"2022.01.31.\" (appears under \"Számla kelte\")\n  - Grand total: \"750,00\" EUR shown as \"Fizetendõ végösszeg: 750,00 EUR\" and in totals table.\n  - Net amount(s): \"750,00\" shown as nettó érték / Összesen nettó: 750,00.\n  - VAT amount(s): \"0,00\" shown in VAT columns and totals.\n  - VAT rate: Not explicitly as a percent; VAT amount is 0.00 (possible 0% or exempt—ambiguous).\n  - Sender VAT ID candidates:\n    - \"Adószám:„263399.42-2-03\" (domestic tax number)\n    - \"EU adószám: HÜ26339942\" (appears malformed; likely intended \"HU26339942\")\n  - Currency: EUR (explicit).\n- Ambiguities to resolve when extracting final values:\n  - Which sender VAT string to return (domestic Adószám vs. EU adószám); EU adószám contains a nonstandard character (\"HÜ...\").\n  - VAT rate not shown as a percentage—must not be inferred; may need to be left empty if not explicitly present.\n\nI will use these observations to produce the final JSON fields, leaving any ambiguous/missing values empty per the rules.",
+    "step2": "GrandTotal.Amount — 90%: \"Fizetendõ végösszeg: 750,00 EUR\" and totals table consistently show 750,00.\n\nInvoice.Date — 95%: \"2022.01.31.\" is explicitly labeled under \"Számla kelte\" (invoice issue date).\n\nSender.VatId — 60%: Two tax numbers present: \"Adószám:„263399.42-2-03\" (domestic) and \"EU adószám: HÜ26339942\" (malformed; likely HU26339942). Presence is clear but which one is the intended VAT ID is ambiguous and one contains OCR errors.\n\nVat.Rate — 20%: No explicit percentage shown. VAT amount is 0,00, which could imply 0% or exemption; rate is not directly stated, so low confidence and should be left empty per rules.\n\nNet.Amount — 90%: Nettó érték / Összesen shows 750,00 matching the invoice totals.\n\nVat.Amount — 95%: VAT column and totals show 0,00 clearly."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.34,
+      "input_tokens": 1906,
+      "cached_input_tokens": null,
+      "output_tokens": 681,
+      "total_tokens": 2587,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.88,
+      "input_tokens": 2314,
+      "cached_input_tokens": null,
+      "output_tokens": 367,
+      "total_tokens": 2681,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.7,
+      "input_tokens": 2853,
+      "cached_input_tokens": null,
+      "output_tokens": 471,
+      "total_tokens": 3324,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\161104\\161104.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "HÜ26339942",
+        "HU26339942"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        750.0,
+        "750,00"
+      ],
+      "Net.Amount": [
+        true,
+        750.0,
+        "750,00"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "2022.01.31.",
+        "2022.01.31"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 5,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7073,
+    "cached_input_tokens": 0,
+    "output_tokens": 1519,
+    "eur_estimate": 0.000885
+  }
+}

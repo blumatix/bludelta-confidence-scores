@@ -1,0 +1,109 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198543\\198543_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2200.0,
+    "Invoice.Date": "24-03-2023",
+    "Sender.VatId": "NL003342293B01",
+    "Vat.Rate": 0,
+    "Net.Amount": 24939.25,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.6,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Likely",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: document is an invoice (contains \"INVOICE\", \"Invoice Number\", \"Invoice Date\", totals, VAT info).\n\nExtraction plan (high-level, no internal chain-of-thought):\n- Validate presence of invoice-like headers and absence of exclusion terms — passes.\n- Locate invoice-level fields:\n  - Invoice Date found as \"24-03-2023\".\n  - Invoice Number found as \"0095023004481\" (used for validation, not in final schema).\n- Locate totals:\n  - Invoice Total/Grand Total appears as \"2.200,00\" EUR (European format → 2200.00).\n- VAT group details:\n  - VAT code 905 with VAT % = 0 and Base amount = \"24939,25 SEK\" and VAT amount = \"0,00 SEK\".\n  - VAT total shown as \"0,00\" and Invoice Total again \"2.200,00 EUR\".\n- Sender VAT/Tax ID:\n  - \"Your VAT Reg. No:\" / ETW-nr: appears as NL003342293B01 (sender VAT).\n- Ambiguities/decisions to apply in final extraction:\n  - Currency mixing: base amount for VAT group is in SEK (24939,25 SEK) while invoice totals are in EUR (2.200,00). Per rules, only exchange rates apply if invoice-wide (none explicitly provided) — no ExchangeRate entries.\n  - Net.Amount should reflect the VAT group base amount (24939,25) or the invoice net in EUR? The document shows VAT base in SEK; final mapping will preserve the exact numeric value and decimal formatting, converting comma to dot for numeric fields as required.\n  - Vat.Rate is 0 (extract as number without \"%\"). Vat.Amount is 0,00 (extract numeric).\n- Missing/uncertain fields:\n  - If any required field cannot be unambiguously extracted, it will be left empty per \"No Inference\" rule.\n\nI will now prepare the final JSON extraction following the schema and rules.",
+    "step2": "I can’t share internal step-by-step chain-of-thought. Below is a concise, non-sensitive confidence assessment for each required field based on visible evidence.\n\n{\n  \"GrandTotal.Amount\": {\n    \"value_confidence\": \"High\",\n    \"confidence_estimate\": \"90%\",\n    \"evidence_summary\": \"Invoice Total shown as '2.200,00 EUR' in header and totals section; consistent placement.\"\n  },\n  \"Invoice.Date\": {\n    \"value_confidence\": \"High\",\n    \"confidence_estimate\": \"95%\",\n    \"evidence_summary\": \"Explicit label 'Invoice Date' with '24-03-2023'.\"\n  },\n  \"Sender.VatId\": {\n    \"value_confidence\": \"High\",\n    \"confidence_estimate\": \"95%\",\n    \"evidence_summary\": \"Label 'Your VAT Reg. No:' and 'ETW-nr' show 'NL003342293B01' clearly.\"\n  },\n  \"Vat.Rate\": {\n    \"value_confidence\": \"High\",\n    \"confidence_estimate\": \"90%\",\n    \"evidence_summary\": \"VAT % column shows '0' for VAT code 905 and VAT total lines indicate zero VAT.\"\n  },\n  \"Net.Amount\": {\n    \"value_confidence\": \"Medium\",\n    \"confidence_estimate\": \"60%\",\n    \"evidence_summary\": \"Base amount shown as '24939,25 SEK' under VAT group, while invoice totals are in EUR; ambiguity whether Net.Amount should be SEK base or EUR subtotal.\"\n  },\n  \"Vat.Amount\": {\n    \"value_confidence\": \"High\",\n    \"confidence_estimate\": \"90%\",\n    \"evidence_summary\": \"VAT amount displayed as '0,00 SEK' and VAT Total '0,00', consistent with 0% rate.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.15,
+      "input_tokens": 2566,
+      "cached_input_tokens": null,
+      "output_tokens": 742,
+      "total_tokens": 3308,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.32,
+      "input_tokens": 3035,
+      "cached_input_tokens": null,
+      "output_tokens": 575,
+      "total_tokens": 3610,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.25,
+      "input_tokens": 3718,
+      "cached_input_tokens": null,
+      "output_tokens": 348,
+      "total_tokens": 4066,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198543\\198543.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "NL003342293B01",
+        "SE556026184301"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        2200.0,
+        "2.200,00"
+      ],
+      "Net.Amount": [
+        false,
+        24939.25,
+        [
+          "24939,25",
+          "2.200,00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        [
+          "0,00",
+          "0,00"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        0,
+        "0"
+      ],
+      "Invoice.Date": [
+        true,
+        "24-03-2023",
+        "24-03-2023"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 9319,
+    "cached_input_tokens": 0,
+    "output_tokens": 1665,
+    "eur_estimate": 0.001049
+  }
+}

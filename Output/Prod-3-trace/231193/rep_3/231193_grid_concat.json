@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231199\\231193_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 33.39,
+    "Invoice.Date": "2023-09-25",
+    "Sender.VatId": "ATU31800708",
+    "Vat.Rate": 10,
+    "Net.Amount": 30.35,
+    "Vat.Amount": 3.04
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (1) verify this is an invoice by checking for invoice indicators (invoice number, dates, totals, VAT lines) and absence of exclusion terms; (2) locate invoice date, grand total, sender VAT ID, VAT rate(s), net amount(s), and VAT amount(s) from explicit labeled lines without guessing; (3) preserve numeric formatting and percentage values (remove % sign for Vat.Rate); (4) if any required field is missing or document contradicts invoice criteria, return all fields empty. \n\nDetected invoice indicators: \"Rechnung\", an invoice number, invoice date (\"vom: 2023-09-25\"), totals (\"Endbetrag EUR 33,39\"), VAT line (\"MWSt 10,00\" with base 30,35 and VAT 3,04), sender UID (\"Darbo-UID-Nr.: ATU31800708\"). No prominent exclusion terms. \n\nPlanned extractions to fill schema:\n- GrandTotal.Amount from Endbetrag (33,39 → numeric).\n- Invoice.Date from \"vom: 2023-09-25\".\n- Sender.VatId from \"Darbo-UID-Nr.: ATU31800708\".\n- Vat.Rate as 10 (from \"MWSt 10,00\").\n- Net.Amount as 30,35.\n- Vat.Amount as 3,04.\n\nI will now produce the final JSON with those values (or empty strings if any are missing).",
+    "step2": "GrandTotal.Amount (33,39)\n- Evidence: \"Endbetrag EUR 33,39\" is explicit.\n- Consistency: Sum of Auftragssumme 30,35 + MWSt 3,04 = 33,39 matches.\n- Confidence: High.\n\nInvoice.Date (\"2023-09-25\")\n- Evidence: Line \"vom: 2023-09-25\" associated with \"Ihr Auftrag\" and delivery note; also header shows \"Stans, 2023-09-25\".\n- Ambiguity: Could be invoice issue date or delivery date, but \"Stans, 2023-09-25\" and \"vom:\" strongly indicate invoice/date of document.\n- Confidence: High.\n\nSender.VatId (\"ATU31800708\")\n- Evidence: Clearly labeled \"Darbo-UID-Nr.: ATU31800708\" and also \"UID-Nr.: ATU31800708\" in bank block.\n- Confidence: High.\n\nVat.Rate (10)\n- Evidence: \"MWSt              10,00\" appears next to MWSt-Basis line.\n- Interpretation: Percentage indicated as 10,00 (rule requires removing % if present).\n- Confidence: High.\n\nNet.Amount (30,35)\n- Evidence: \"MWSt-Basis 1 30,35\" and \"Auftragssumme 30,35\" indicate net amount before VAT.\n- Consistency: Net + VAT = Grand Total.\n- Confidence: High.\n\nVat.Amount (3,04)\n- Evidence: Line shows \"MWSt 10,00\" with value \"3,04\" aligned as VAT amount.\n- Consistency: 10% of 30,35 = 3,035 → rounded/displayed as 3,04 matches printed VAT.\n- Confidence: High."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.31,
+      "input_tokens": 1909,
+      "cached_input_tokens": null,
+      "output_tokens": 495,
+      "total_tokens": 2404,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.4,
+      "input_tokens": 2259,
+      "cached_input_tokens": null,
+      "output_tokens": 442,
+      "total_tokens": 2701,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.07,
+      "input_tokens": 2937,
+      "cached_input_tokens": null,
+      "output_tokens": 345,
+      "total_tokens": 3282,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231199\\231193_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU31800708",
+        "ATU31800708"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        33.39,
+        "33,39"
+      ],
+      "Net.Amount": [
+        true,
+        30.35,
+        "30,35"
+      ],
+      "Vat.Amount": [
+        true,
+        3.04,
+        "3,04"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "2023-09-25",
+        "2023-09-25"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7105,
+    "cached_input_tokens": 0,
+    "output_tokens": 1282,
+    "eur_estimate": 0.003781
+  }
+}

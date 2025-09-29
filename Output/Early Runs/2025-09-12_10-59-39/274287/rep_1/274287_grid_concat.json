@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\274292\\274287_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1425.11,
+    "Invoice.Date": "26.01.2024",
+    "Sender.VatId": "DE131453639",
+    "Vat.Rate": 19,
+    "Net.Amount": 1197.57,
+    "Vat.Amount": 227.5383
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.96
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification\n- Contains header \"Rechnung Nr. RE240043\" and invoice-like sections (Netto, MwSt, Brutto, Rechnungsbetrag). No prominent exclusion terms (\"Mahnung\", \"Zahlungserinnerung\", \"Servicebericht\"). => classify as invoice.\n\n2) Locate candidate fields\n- Invoice date: \"Datum: 26.01.2024\" (top-right area).\n- Grand total / Rechnungsbetrag: \"Rechnungsbetrag 1.425,11\" (near totals).\n- Net amount: \"Netto (€) 1.197,57\".\n- VAT rate: \"MwSt in % 19%\".\n- VAT amount: shown in totals as \"227,5383\" (under MwSt. column).\n- Sender VAT ID: two USt-IdNr present:\n  - \"Ihre USt-IdNr: DE250202095\" (labelled \"Ihre\" = your/customer VAT ID).\n  - Bottom footer \"USt-IdNr.: DE131453639\" (company footer) — take sender as HOELLER ELECTRONIC GmbH, so VAT = DE131453639.\n\n3) Handle formats and rules\n- Preserve decimal places as in input:\n  - Net = 1.197,57 -> 1197.57 (two decimals).\n  - VAT amount = 227,5383 -> 227.5383 (four decimals).\n  - Grand total = 1.425,11 -> 1425.11 (two decimals).\n- VAT rate: extract numeric without \"%\" -> 19.\n- Invoice date: keep as string \"26.01.2024\".\n- No inference beyond visible values.\n\n4) Potential ambiguities considered\n- Two USt-IdNr values: resolved by context labels; choose footer USt-IdNr as sender VAT.\n- VAT amount formatting uses comma and four decimals; will convert comma to dot and keep four decimals.\n- Totals: ensure use \"Rechnungsbetrag\" 1.425,11 as GrandTotal.\n\nConclusion: invoice — extracted values identified for final JSON output.",
+    "step2": "GrandTotal.Amount — Confidence: 98%\n- Evidence: Line \"Rechnungsbetrag 1.425,11\" clearly present in totals section.\n- Consistency: Matches Brutto total shown (1.425,1083 rounded to 1.425,11 displayed as Rechnungsbetrag).\n- Remaining uncertainty: minor OCR/rounding interpretation between 1.425,1083 and printed 1.425,11 (but Rechnungsbetrag explicitly 1.425,11).\n\nInvoice.Date — Confidence: 99%\n- Evidence: \"Datum: 26.01.2024\" in header area.\n- Consistency: Standard invoice date label; unambiguous.\n\nSender.VatId — Confidence: 90%\n- Evidence: Two USt-IdNr. found: \"Ihre USt-IdNr: DE250202095\" and footer \"USt-IdNr.: DE131453639\".\n- Reasoning: Footer USt-IdNr. aligns with sender/company footer (HOELLER ELECTRONIC GmbH); \"Ihre USt-IdNr\" reads as recipient's VAT ID. Chosen DE131453639 for sender.\n- Remaining uncertainty: label/association relies on positional/context inference (highly likely but not 100% explicit).\n\nVat.Rate — Confidence: 99%\n- Evidence: Totals table lists \"MwSt in % 19%\".\n- Consistency: Standard VAT percent; unambiguous.\n- Extraction rule applied: percent sign to be removed => \"19\".\n\nNet.Amount — Confidence: 99%\n- Evidence: Totals table shows \"Netto (€) 1.197,57\".\n- Consistency: Matches item line (209 Stk × 5,73 = 1.197,57).\n- Formatting: Decimal preserved as in source.\n\nVat.Amount — Confidence: 96%\n- Evidence: Totals table shows VAT column value \"227,5383\" under MwSt.\n- Consistency: 1.197,57 × 19% = 227,5383 consistent with displayed figure; matches the detailed multi-decimal VAT cell.\n- Remaining uncertainty: unusual four-decimal VAT display but extracted exactly as shown."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.57,
+      "input_tokens": 2102,
+      "output_tokens": 1211,
+      "total_tokens": 3313
+    },
+    "step2": {
+      "runtime_sec": 6.44,
+      "input_tokens": 2552,
+      "output_tokens": 520,
+      "total_tokens": 3072
+    },
+    "step3": {
+      "runtime_sec": 4.85,
+      "input_tokens": 3277,
+      "output_tokens": 347,
+      "total_tokens": 3624
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274292\\274287_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DE131453639",
+        "DE131453639"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1425.11,
+        "1.425,11"
+      ],
+      "Net.Amount": [
+        true,
+        1197.57,
+        "1.197,57"
+      ],
+      "Vat.Amount": [
+        true,
+        227.5383,
+        "227,5383"
+      ],
+      "Vat.Rate": [
+        true,
+        19,
+        "19"
+      ],
+      "Invoice.Date": [
+        true,
+        "26.01.2024",
+        "26.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  }
+}

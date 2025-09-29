@@ -1,0 +1,118 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\268636\\268628_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": -834.04,
+    "Invoice.Date": "04.01.2024",
+    "Sender.VatId": "ATU33833607",
+    "Vat.Rate": 20,
+    "Net.Amount": -695.04,
+    "Vat.Amount": -139.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.7,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Very good chance",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Below is a concise, non-sensitive summary of the stepwise extraction plan, observations, and ambiguities to resolve before producing the final JSON.\n\n1. Classification check\n- Confirmed invoice-like indicators present: headers \"Vertragsabrechnung\", \"Belegnummer\", \"Ort, Datum\", line items with amounts, \"Gesamtsaldo\". No exclusion keywords (e.g., \"Mahnung\") dominate. Therefore treat as an invoice.\n\n2. Key fields to locate in document\n- Invoice.Date: found near header \"Ort, Datum\" as \"Salzburg, 04.01.2024\".\n- GrandTotal.Amount: \"Gesamtsaldo\" shown as \"EUR 834,04\" (with negative sign formatting in positions page as \"-  834,04\" and earlier text \"in Höhe von EUR 834,04\" and text \"zu Ihren Gunsten\" — overall amount direction is credit; numerical value is 834,04).\n- Sender.VatId: footer lists Porsche Bank UID entries \"UID Nr. ATU 338 33 607\" and Porsche Versicherungs AG \"UID Nr. ATU 338 33 206\". Also document shows \"Ihre UID-Nummer: ATU31771008\" (this appears to be the recipient/customer UID). Per schema, Sender.VatId should be the sender tax ID (Porsche Bank AG): candidate \"ATU33833607\" (without spaces) but note formatting/spaces in OCR.\n- Vat groups: Two VAT lines appear in line items:\n  - For the first group: \"20% USt\" with amount \"EUR -94,20\" (linked to -471,00 → total -565,20).\n  - For the second group: \"20% USt\" with amount \"EUR -44,80\" (linked to -224,04 → total -268,84).\n  Thus Vat.Rate = 20 for both groups; Net.Amounts = -471,00 and -224,04; Vat.Amounts = -94,20 and -44,80.\n- Net.Amount and Vat.Amount must be numeric without currency symbols, preserving decimals and sign. Vat.Rate must be numeric without percent sign (20).\n\n3. Ambiguities / decisions to enforce rules\n- Which UID to use for Sender.VatId: footer shows two sender entities; Porsche Bank AG appears first with UID \"ATU 338 33 607\" — will select that as Sender.VatId unless schema expects otherwise.\n- GrandTotal sign: OCR shows negative formatting and phrase \"zu Ihren Gunsten\" implying credit; schema requires a number. Will supply magnitude with sign as in document (document shows negative overall saldo at positions page as \"-  834,04\"). Must keep decimals as in source (two decimals).\n- No inference: if any field is ambiguous beyond reasonable evidence, leave empty. But items above have explicit textual numeric values.\n\n4. Final extraction plan (to be used for JSON)\n- GrandTotal.Amount: numeric value from \"Gesamtsaldo\" preserving sign and two decimals.\n- Invoice.Date: \"04.01.2024\" as string.\n- Sender.VatId: Porsche Bank AG UID from footer cleaned of spaces (\"ATU33833607\") unless invalid; note original OCR spacing.\n- Vat.Item groups (treated per schema as multiple Vat.Rate / Net.Amount / Vat.Amount entries):\n  - Entry 1: Vat.Rate = 20, Net.Amount = -471,00, Vat.Amount = -94,20\n  - Entry 2: Vat.Rate = 20, Net.Amount = -224,04, Vat.Amount = -44,80\n\nI will now produce the final JSON output following these decisions.",
+    "step2": "{\n  \"GrandTotal.Amount\": \"0.95 - Appears explicitly as 'Gesamtsaldo' EUR -834,04 on page 3 and referenced on page 1; OCR negative formatting consistent.\",\n  \"Invoice.Date\": \"0.99 - Explicit 'Ort, Datum Salzburg, 04.01.2024' visible in header.\",\n  \"Sender.VatId\": \"0.70 - Footer lists multiple UIDs; Porsche Bank AG UID 'ATU 338 33 607' likely sender but OCR spacing and multiple UIDs introduce uncertainty.\",\n  \"Vat.Rate\": \"0.95 - Two '20% USt' lines clearly shown for both VAT groups.\",\n  \"Net.Amount\": \"0.95 - Net values '-471,00' and '-224,04' explicitly printed next to line items.\",\n  \"Vat.Amount\": \"0.95 - VAT amounts '-94,20' and '-44,80' explicitly printed adjacent to VAT lines.\"\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.92,
+      "input_tokens": 2920,
+      "cached_input_tokens": null,
+      "output_tokens": 1232,
+      "total_tokens": 4152,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.33,
+      "input_tokens": 3751,
+      "cached_input_tokens": null,
+      "output_tokens": 657,
+      "total_tokens": 4408,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 8.02,
+      "input_tokens": 4260,
+      "cached_input_tokens": null,
+      "output_tokens": 537,
+      "total_tokens": 4797,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\268636\\268628_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU33833607",
+        "ATU 338 33 607,"
+      ],
+      "GrandTotal.Amount": [
+        false,
+        -834.04,
+        "834,04"
+      ],
+      "Net.Amount": [
+        false,
+        -695.04,
+        [
+          "-471,00",
+          "-224,04",
+          "-471,00",
+          "-224,04"
+        ]
+      ],
+      "Vat.Amount": [
+        false,
+        -139.0,
+        [
+          "-94,20",
+          "-44,80",
+          "-94,20",
+          "-44,80"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        [
+          "20",
+          "20",
+          "20",
+          "20"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "04.01.2024",
+        "04.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 10931,
+    "cached_input_tokens": 0,
+    "output_tokens": 2426,
+    "eur_estimate": 0.006602
+  }
+}

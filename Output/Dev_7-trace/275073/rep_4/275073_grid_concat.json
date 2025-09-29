@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\275096\\275073_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 627.41,
+    "Invoice.Date": "31.01.24",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 522.84,
+    "Vat.Amount": 104.57
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Brief, non-sensitive extraction reasoning and verification steps:\n\n- Classified document as an invoice: contains headings like \"RECHNUNG\", invoice-like totals (NETTOBETRAG, MEHRWERTSTEUER, GESAMTBETRAG), invoice/order IDs and dates.\n- Located candidate invoice date: \"RE-DATUM 31.01.24\" (also AUFTR.-DAT: 19.01.24) — chose RE-DATUM as Invoice.Date.\n- Located Grand Total: \"GESAMTBETRAG EUR 627,41\".\n- Located Net amount: \"NETTOBETRAG EUR 522,84\".\n- Located VAT rate and VAT amount: \"MEHRWERTSTEUER 20,00% 104,57\" — rate 20.00, VAT amount 104,57.\n- Located sender VAT ID: \"UST-ID-NR.: ATU22642807\" (header). Noted another UID in footer (ATU66643000) but header UST-ID-NR. is primary sender VAT.\n- Preserved decimal formatting and percent formatting (rate to be returned as number without % per rules).\n- No inference used beyond selecting explicit fields present.",
+    "step2": "GrandTotal.Amount (627,41)\n- Evidence: \"GESAMTBETRAG EUR 627,41\" clearly printed near totals.\n- Consistency: Matches NETTOBETRAG 522,84 + MEHRWERTSTEUER 104,57 = 627,41.\n- Ambiguity: None.\n- Confidence: Very high.\n\nInvoice.Date (\"31.01.24\")\n- Evidence: \"RE-DATUM 31.01.24\" appears near header; also \"AUFTR.-DAT: 19.01.24\" and other dates present.\n- Reasoning: \"RE-DATUM\" (invoice date) is the most explicit invoice-date label.\n- Ambiguity: Multiple dates exist (acceptance/order dates); possible alternative is 19.01.24 (Auftr.-Dat) but labeled differently.\n- Confidence: High.\n\nSender.VatId (\"ATU22642807\")\n- Evidence: \"UST-ID-NR.: ATU22642807\" appears in upper section near sender address.\n- Consistency: Footer contains another UID (ATU66643000) but that appears in bank/footnote context (possibly different entity); the upper UST-ID-NR. is adjacent to sender info.\n- Ambiguity: Two different UIDs in document; choice based on proximity to sender header.\n- Confidence: High–moderate.\n\nVat.Rate (20,00)\n- Evidence: \"MEHRWERTSTEUER 20,00% 104,57\" printed in totals line.\n- Consistency: 20.00% applied to NETTOBETRAG 522,84 yields 104,568 → rounded to 104,57 shown.\n- Ambiguity: None substantive.\n- Confidence: Very high.\n\nNet.Amount (522,84)\n- Evidence: \"NETTOBETRAG EUR 522,84\" shown in totals area.\n- Consistency: Sum with VAT matches Grand Total.\n- Ambiguity: None.\n- Confidence: Very high.\n\nVat.Amount (104,57)\n- Evidence: \"MEHRWERTSTEUER ... 104,57\" shown in totals line.\n- Consistency: Corresponds to 20% of net (rounded) and sums to Grand Total.\n- Ambiguity: None.\n- Confidence: Very high."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.6,
+      "input_tokens": 2232,
+      "cached_input_tokens": null,
+      "output_tokens": 589,
+      "total_tokens": 2821,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.56,
+      "input_tokens": 2508,
+      "cached_input_tokens": null,
+      "output_tokens": 554,
+      "total_tokens": 3062,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.36,
+      "input_tokens": 3266,
+      "cached_input_tokens": null,
+      "output_tokens": 346,
+      "total_tokens": 3612,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\275096\\275073_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU66643000,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        627.41,
+        "627,41 *"
+      ],
+      "Net.Amount": [
+        true,
+        522.84,
+        "522,84"
+      ],
+      "Vat.Amount": [
+        true,
+        104.57,
+        "104,57"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "31.01.24",
+        "31.01.24"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 8006,
+    "cached_input_tokens": 0,
+    "output_tokens": 1489,
+    "eur_estimate": 0.004337
+  }
+}

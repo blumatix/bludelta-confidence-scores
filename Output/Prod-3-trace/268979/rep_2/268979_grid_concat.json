@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\268979\\268979_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 215.28,
+    "Invoice.Date": "09.01.2024",
+    "Sender.VatId": "ATU58198337",
+    "Vat.Rate": 20,
+    "Net.Amount": 179.4,
+    "Vat.Amount": 35.88
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will treat this as an invoice (contains \"Rechnung\", invoice date, totals, VAT lines). Relevant extracted candidates:\n- Invoice.Date: \"09.01.2024\" (Fakturadatum).\n- Net.Amount: 179,40 (Zwischensumme o. Mwst) → 179.40.\n- Vat.Rate: 20,00% → 20.\n- Vat.Amount: 35,88 → 35.88.\n- GrandTotal.Amount: 215,28 (sum shown at end) → 215.28.\n- Sender.VatId: \"Unsere USt.-ID-Nr. ATU58198337\" (sender = AGRANA Stärke GmbH).\n\nNo other conflicting occurrences for these fields. I will produce the final JSON with these values (amounts as numeric, date as string) in the next step.",
+    "step2": "Invoice.Date — Confidence: Very high (≈99%)\n- Evidence: \"Fakturadatum                                        09.01.2024\" clearly labeled; matches typical invoice date field.\n\nNet.Amount — Confidence: High (≈95%)\n- Evidence: \"Zwischensumme                     o.    Mwst                                                  60,000          KG                                                                                         179,40\"\n- Interpretation: \"Zwischensumme o. Mwst\" (subtotal without VAT) equals 179,40. Formatting consistent with other amounts.\n- Uncertainty: OCR comma as decimal separator; converted to numeric 179.40 is straightforward.\n\nVat.Rate — Confidence: Very high (≈99%)\n- Evidence: \"Umsatzsteuer            20,00      %   von     179,40      EUR\" explicitly shows 20,00%.\n- Rule: return without percent symbol → 20.\n\nVat.Amount — Confidence: High (≈95%)\n- Evidence: Same VAT line shows amount \"35,88\" corresponding to 20% of 179,40.\n- Calculation consistency: 179.40 * 0.20 = 35.88 matches displayed value.\n- Uncertainty: OCR decimal separator handling.\n\nGrandTotal.Amount — Confidence: High (≈95%)\n- Evidence: Sum displayed at end \"215,28\" under totals area; 179,40 + 35,88 = 215,28 matches.\n- Interpretation: This is the invoice total (Grand Total).\n- Uncertainty: OCR comma as decimal separator; numeric 215.28 conversion.\n\nSender.VatId — Confidence: High (≈90%)\n- Evidence: Field \"Unsere          USt.-ID-Nr.                         ATU58198337\" appears under sender block (AGRANA Stärke GmbH header).\n- Interpretation: \"Unsere USt.-ID-Nr.\" indicates sender VAT ID.\n- Uncertainty: OCR could misplace \"Unsere\" vs \"Ihre\", but context shows both \"Ihre USt.-ID-Nr. ATU22642807\" and \"Unsere USt.-ID-Nr. ATU58198337\"; sender is AGRANA, so ATU58198337 is appropriate."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 6.62,
+      "input_tokens": 2015,
+      "cached_input_tokens": null,
+      "output_tokens": 504,
+      "total_tokens": 2519,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.49,
+      "input_tokens": 2246,
+      "cached_input_tokens": null,
+      "output_tokens": 513,
+      "total_tokens": 2759,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.71,
+      "input_tokens": 2995,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3276,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\268979\\268979_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU58198337",
+        "ATU58198337"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        215.28,
+        "215,28"
+      ],
+      "Net.Amount": [
+        true,
+        179.4,
+        "179,40"
+      ],
+      "Vat.Amount": [
+        true,
+        35.88,
+        "35,88"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "09.01.2024",
+        "09.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7256,
+    "cached_input_tokens": 0,
+    "output_tokens": 1298,
+    "eur_estimate": 0.003842
+  }
+}

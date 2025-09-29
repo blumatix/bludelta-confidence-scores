@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\223091\\223091_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 844.8,
+    "Invoice.Date": "11.08.2023",
+    "Sender.VatId": "ATU35980300",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 768.0,
+    "Vat.Amount": 76.8
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Planned extraction steps (concise, non-sensitive reasoning):\n\n1. Confirm document is an invoice: presence of \"RECHNUNG\", \"Fakturabetrag\", invoice number and dates — classify as invoice.\n\n2. Locate Invoice.Date: find date near \"RECHNUNG\" header — candidate \"11.08.2023\".\n\n3. Locate Sender.VatId: search header for UID/UID-Nr near sender name Mondelez Österreich GmbH — candidate \"ATU 35980300\" (normalize to \"ATU35980300\" or keep as in text for final output).\n\n4. Locate totals section: identify labels \"Bruttowert\", \"Nettowert\", \"UST\", \"inkl.UST\", \"Fakturabetrag\".\n   - Net.Amount candidate: \"768,00\" (under Nettowert).\n   - Vat.Amount candidate: \"76,80\" (under UST).\n   - GrandTotal.Amount / Fakturabetrag candidate: \"844,80\" (currency EUR).\n\n5. Locate Vat.Rate: find percent near UST column — candidate \"10,00\" (percent). Per rules, return numeric without percent sign (i.e., 10 or 10,00 preserving decimals as input).\n\n6. Verify decimal formats preserved (commas used in text). The schema expects numbers — convert decimals to numeric with same decimal places (retain two decimals).\n\n7. Apply No Inference policy: if any field uncertain or absent, leave empty. Multiple occurrences: none conflicting for these fields.\n\n8. Prepare final JSON per schema, mapping:\n   - Invoice.Date: \"11.08.2023\"\n   - Sender.VatId: \"ATU35980300\" (or exact as OCR \"ATU    35980300\")\n   - Net.Amount: 768,00 -> numeric 768.00 (preserve two decimals)\n   - Vat.Amount: 76,80 -> numeric 76.80\n   - Vat.Rate: 10,00 -> numeric 10.00\n   - GrandTotal.Amount: 844,80 -> numeric 844.80\n\nNext: produce final JSON object following schema.",
+    "step2": "Invoice classification confidence:\n- High. Strong indicators: header \"RECHNUNG\", invoice number, dates, totals.\n\nField-by-field confidence:\n\n1. Invoice.Date = \"11.08.2023\"\n- Evidence: Date appears aligned with \"RECHNUNG\" header: \"RECHNUNG 4391263454 11.08.2023\".\n- Confidence: Very high.\n\n2. Sender.VatId = \"ATU35980300\"\n- Evidence: Header shows \"UID-Nr   ATU    35980300\" under Mondelez Österreich GmbH. OCR spacing irregular but value clearly present.\n- Potential issues: OCR spacing and extra characters; country prefix ATU present.\n- Confidence: High.\n\n3. Net.Amount = 768.00\n- Evidence: Under totals row, label \"Nettowert\" with value \"768,00\".\n- Potential issues: Layout could include per-line subtotals, but the position under the summary totals row matches \"Nettowert\".\n- Confidence: High.\n\n4. Vat.Amount = 76.80\n- Evidence: Under totals row, label \"UST\" with value \"76,80\".\n- Potential issues: There is also \"inkl.UST 844,80\" and \"Fakturabetrag\" repeated; but \"UST 76,80\" aligns as VAT amount.\n- Confidence: High.\n\n5. Vat.Rate = 10.00\n- Evidence: In totals row, a column shows \"UST % 10,00\" (or similar). The value \"10,00\" is adjacent to VAT labels.\n- Potential issues: OCR spacing and mislabeled columns could confuse percent vs. other numeric. But 10% is plausible given net 768 → VAT 76.8.\n- Cross-check: 768.00 * 0.10 = 76.80 matches Vat.Amount exactly.\n- Confidence: Very high.\n\n6. GrandTotal.Amount = 844.80\n- Evidence: \"Fakturabetrag\" and displayed final amount \"844,80\" and also \"inkl.UST 844,80\".\n- Cross-check: Net 768.00 + VAT 76.80 = 844.80 matches.\n- Confidence: Very high.\n\nOverall consistency: numeric fields are internally consistent (Net + VAT = GrandTotal) and placement in the totals row corresponds to labels. Minimal OCR ambiguity remains only for spacing; numeric values are clear."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 15.47,
+      "input_tokens": 1699,
+      "cached_input_tokens": null,
+      "output_tokens": 775,
+      "total_tokens": 2474,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.94,
+      "input_tokens": 2201,
+      "cached_input_tokens": null,
+      "output_tokens": 509,
+      "total_tokens": 2710,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.96,
+      "input_tokens": 3010,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3293,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\223091\\223091_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU35980300",
+        "ATU 35980300"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        844.8,
+        "844,80"
+      ],
+      "Net.Amount": [
+        true,
+        768.0,
+        "768,00"
+      ],
+      "Vat.Amount": [
+        true,
+        76.8,
+        "76,80"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "11.08.2023",
+        "11.08.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6910,
+    "cached_input_tokens": 0,
+    "output_tokens": 1567,
+    "eur_estimate": 0.004231
+  }
+}

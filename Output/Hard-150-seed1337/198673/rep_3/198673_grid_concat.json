@@ -1,0 +1,112 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198673\\198673_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 480.0,
+    "Invoice.Date": "31/12/2022",
+    "Sender.VatId": "FR09434891545",
+    "Vat.Rate": 20,
+    "Net.Amount": 400.0,
+    "Vat.Amount": 80.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.8,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.92,
+    "Vat.Amount": 0.92
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Observations and plan:\n- Confirm this is an invoice: document title \"FACTURE\", presence of \"N° Facture 30465\", invoice totals, invoice date and billing info. No exclusion terms like \"Mahnung\" dominate — classify as invoice.\n- Fields to extract per schema: GrandTotal.Amount, Invoice.Date, Sender.VatId, Vat.Rate, Net.Amount, Vat.Amount.\n- Locate candidate values in text:\n  - Invoice date: appears as \"31/12/22\" on page 1 and as \"31/12/2022\" on page 2. Prefer full-year form \"31/12/2022\".\n  - Grand total / Net à payer / Total TTC: shown as \"480,00\" (several places). Use 480.00 as numeric value preserving two decimals.\n  - Net amount (Base H.T. / Totaux H.T.): shown as \"400,00\" — map to Net.Amount → 400.00.\n  - VAT amount shown as \"80,00\" — map to Vat.Amount → 80.00.\n  - VAT rate indicated in the tax table as \"20,00\" (Taux) — map to Vat.Rate → 20 (rule: omit % symbol).\n  - Sender VAT ID / Intracom: appears as \"N° Intracom FR 09434891545\" and also \"N° TVA FR 09 434 891 545\" / SIRET present. The intracom VAT number FR09434891545 is the supplier VAT identifier — choose \"FR09434891545\".\n- Verify no inference beyond visible text; no conflicting multiple VAT rates/groups present (only one 20% group).\n- Decide final representations:\n  - Use numeric values with dot decimals: 480.00, 400.00, 80.00, Vat.Rate as number 20.\n  - Invoice.Date as \"31/12/2022\".\n  - Sender.VatId as \"FR09434891545\".\n- No other exchange rates or additional VAT groups to include.",
+    "step2": "GrandTotal.Amount — Confidence: High (≈95%)\n- Evidence: Multiple occurrences \"NET A PAYER 480,00\", \"Total : 480,00\", and invoice summary showing 480,00. Clear numeric total in invoice footer. Minimal ambiguity.\n\nInvoice.Date — Confidence: High (≈90%)\n- Evidence: Appears as \"31/12/22\" on page 1 and as \"31/12/2022\" on page 2 (header \"Date 31/12/2022\"). Full four-digit year present. Minor potential OCR ambiguity between 31/12/22 and 31/12/2022 but full form exists.\n\nSender.VatId — Confidence: Medium-High (≈80%)\n- Evidence: Text shows \"N° Intracom FR 09434891545\" and elsewhere \"N° TVA FR 09 434 891 545\". These match and indicate supplier VAT number. OCR spacing could produce variants, but the intracom FR number is explicit. Possible ambiguity whether other FR number (FR47546650334) belongs to recipient (Dachser) — selection of FR09434891545 as sender is supported by sender block.\n\nVat.Rate — Confidence: High (≈90%)\n- Evidence: Tax table shows \"Taux 20,00\" corresponding to VAT group. Clear single VAT rate applied. OCR unlikely to misread 20,00 here.\n\nNet.Amount — Confidence: High (≈92%)\n- Evidence: Totals show \"Base H.T.\" / Totaux H.T. 400,00 consistent with VAT 20% yielding VAT 80 and total 480. Clear mapping.\n\nVat.Amount — Confidence: High (≈92%)\n- Evidence: Tax table lists \"Montant TVA 80,00\" and totals present 80,00. Consistent arithmetically with net 400 and total 480.\n\nOverall consistency: Net + VAT = Grand Total (400,00 + 80,00 = 480,00) and VAT rate 20% consistent with VAT amount (20% of 400 = 80), supporting high confidence in numeric fields."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.93,
+      "input_tokens": 5180,
+      "cached_input_tokens": null,
+      "output_tokens": 753,
+      "total_tokens": 5933,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.94,
+      "input_tokens": 5660,
+      "cached_input_tokens": null,
+      "output_tokens": 444,
+      "total_tokens": 6104,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.41,
+      "input_tokens": 6404,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 6685,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198673\\198673.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "FR09434891545",
+        [
+          "FR 09434891545",
+          "FR 09434891545"
+        ]
+      ],
+      "GrandTotal.Amount": [
+        true,
+        480.0,
+        "480,00"
+      ],
+      "Net.Amount": [
+        true,
+        400.0,
+        [
+          "400,00",
+          "400,00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        80.0,
+        [
+          "80,00",
+          "80,00"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "31/12/2022",
+        "31/12/2022"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 17244,
+    "cached_input_tokens": 0,
+    "output_tokens": 1478,
+    "eur_estimate": 0.00138
+  }
+}

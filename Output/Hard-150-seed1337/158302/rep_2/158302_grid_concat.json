@@ -1,0 +1,98 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\158302\\158302_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1605.35,
+    "Invoice.Date": "2022-11-30",
+    "Sender.VatId": "13-2793095",
+    "Vat.Rate": 0,
+    "Net.Amount": 1605.35,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.85,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Highly likely",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: document is an invoice (contains \"INVOICE\", invoice number, dates, totals, line-item charges).\n\nExtraction plan and findings (concise, non-sensitive summary):\n- Invoice Date: located at top right of Page 1 row \"Date\" → 2022-11-30.\n- Grand Total: located on Page 2 \"Total Amount\" → 1,605.35 USD (preserve decimals).\n- Sender VAT ID: \"Our VAT REG no.\" on header → 13-2793095.\n- VAT groups: Page 2 tax table shows two tax/code groups:\n  - Group A: Net USD = 1,030.00, % VAT = 0.000 → VAT rate = 0, VAT amount = 0.00.\n  - Group B: Net USD = 575.35, labeled \"DUTIES\", no VAT percent shown → treated as non-taxable/duties; VAT rate left blank (no percent present) and VAT amount 0.00 (gross equals net).\n- Net.Amount: two net amounts correspond to groups A and B as above (1,030.00 and 575.35).\n- Vat.Amount: both groups show VAT amount 0.00 (no VAT charged).\n- No inference used beyond values explicitly present; ambiguous/missing VAT percent for group B left blank.\n\nI will now produce the structured JSON with these extracted values.",
+    "step2": "Confidence assessment (field — confidence — justification):\n\n- Invoice.Date — 0.95 — \"Date\" header adjacent to invoice number shows \"2022-11-30\" clearly on Page 1.\n- GrandTotal.Amount — 0.95 — \"Total Amount 1,605.35\" appears on Page 2 matching subtotal on Page 1 (1,605.35), consistent.\n- Sender.VatId — 0.90 — \"Our VAT REG no.\" header shows \"13-2793095\" clearly; formatting matches tax ID.\n- Vat.Rate (group A = 0) — 0.85 — Tax table shows \"% VAT 0.000\" for code A; interpreted as 0 (rule: remove %). Clear numeric value.\n- Net.Amount (group A = 1,030.00) — 0.95 — Net USD column lists 1,030.00 for tax code A explicitly.\n- Vat.Amount (group A = 0.00) — 0.90 — Tax USD column shows 0.00 for code A; consistent with 0% VAT.\n- Vat.Rate (group B = \"\") — 0.80 — No percent shown for code B; only labeled \"DUTIES\". Per No Inference rule, left blank; confidence that percentage is absent is high.\n- Net.Amount (group B = 575.35) — 0.95 — Net USD column lists 575.35 for tax code B explicitly.\n- Vat.Amount (group B = 0.00) — 0.80 — Tax USD column for B is not explicitly a percentage but gross equals net (575.35) and subtotal lists duties separately; tax column displays DUTIES label; VAT amount explicit numeric 0.00 appears in table row for A only—conservative assignment of 0.00 has moderate confidence due to table layout ambiguity.\n\nOverall consistency: high — net sums (1,030.00 + 575.35 = 1,605.35) match grand total."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 29.66,
+      "input_tokens": 2863,
+      "cached_input_tokens": null,
+      "output_tokens": 1128,
+      "total_tokens": 3991,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.11,
+      "input_tokens": 3206,
+      "cached_input_tokens": null,
+      "output_tokens": 557,
+      "total_tokens": 3763,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 8.39,
+      "input_tokens": 3935,
+      "cached_input_tokens": null,
+      "output_tokens": 731,
+      "total_tokens": 4666,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\158302\\158302.json",
+    "per_field": {
+      "GrandTotal.Amount": [
+        true,
+        1605.35,
+        "1,605.35"
+      ],
+      "Net.Amount": [
+        false,
+        1605.35,
+        "1,030.00"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0.00"
+      ],
+      "Vat.Rate": [
+        true,
+        0,
+        "0.000"
+      ],
+      "Invoice.Date": [
+        true,
+        "2022-11-30",
+        "2022-11-30"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 5,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 10004,
+    "cached_input_tokens": 0,
+    "output_tokens": 2416,
+    "eur_estimate": 0.001346
+  }
+}

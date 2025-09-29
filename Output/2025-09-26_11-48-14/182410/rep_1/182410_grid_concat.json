@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\182418\\182410_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 5919.4,
+    "Invoice.Date": "31.03.2023",
+    "Sender.VatId": "ATU63294722",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 4932.83,
+    "Vat.Amount": 986.57
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Invoice indicators present: words \"Rechnung\", \"Rechnungsnummer 2303111089\", invoice date \"31.03.2023\", totals (\"Gesamtbetrag\", line VAT and total lines).\n- No exclusion indicators (\"Mahnung\", \"Zahlungserinnerung\") prominent.\n- Conclusion: document is an invoice.\n\nField extraction (verify alternatives and choices):\n1. Invoice.Date\n- Evidence: multiple occurrences: \"Rechnung ... vom 31.03.2023\" and page headers \"Datum: 31.03.2023\".\n- Choice: use \"31.03.2023\".\n\n2. Sender.VatId\n- Possible VATs found:\n  - Top-right near Debitoren: \"Ihre USt.-IdNr. ATU22810000\" — likely the customer's VAT ID (label \"Ihre\" = your).\n  - Footer: \"UID: ATU63294722\" associated with REDER TRANSPORTE KG (sender).\n- Rule: Sender.VatId = tax ID of the sender. Choice: \"ATU63294722\".\n\n3. GrandTotal.Amount\n- At final summary: \"Gesamtbetrag 5   919,40 EUR\" and repetition \"5   919,40      EUR\".\n- Convert comma decimal to dot for numeric field: 5919.40.\n- Choice: 5919.40.\n\n4. Net.Amount and Vat.Amount\n- Summary shows \"steuerpflichtig 4 932,83 EUR\" and \"Steuerbetrag 986,57 EUR\".\n- Net.Amount = 4932.83, Vat.Amount = 986.57.\n\n5. Vat.Rate\n- Summary shows \"20,0 % Umsatzsteuer\" and line items consistently show \"20% Umsatzsteuer\".\n- Preserve decimals as in input: \"20,0 %\" -> numeric 20.0 (per rule, rates without %). Choice: 20.0.\n\nNo other viable values for these fields; no guessing needed.",
+    "step2": "{\n  \"GrandTotal.Amount\": 5919.40,\n  \"Invoice.Date\": \"31.03.2023\",\n  \"Sender.VatId\": \"ATU63294722\",\n  \"Vat.Rate\": 20.0,\n  \"Net.Amount\": 4932.83,\n  \"Vat.Amount\": 986.57\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.96,
+      "input_tokens": 6519,
+      "cached_input_tokens": null,
+      "output_tokens": 803,
+      "total_tokens": 7322,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.74,
+      "input_tokens": 6985,
+      "cached_input_tokens": null,
+      "output_tokens": 335,
+      "total_tokens": 7320,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.59,
+      "input_tokens": 7364,
+      "cached_input_tokens": null,
+      "output_tokens": 221,
+      "total_tokens": 7585,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\182418\\182410_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU63294722",
+        "ATU63294722"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        5919.4,
+        "5 919,40"
+      ],
+      "Net.Amount": [
+        true,
+        4932.83,
+        "4 932,83"
+      ],
+      "Vat.Amount": [
+        true,
+        986.57,
+        "986,57"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,0"
+      ],
+      "Invoice.Date": [
+        true,
+        "31.03.2023",
+        "31.03.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 20868,
+    "cached_input_tokens": 0,
+    "output_tokens": 1359,
+    "eur_estimate": 0.006942
+  }
+}

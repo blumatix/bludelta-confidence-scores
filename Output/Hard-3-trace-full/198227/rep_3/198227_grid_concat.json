@@ -1,0 +1,112 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198227\\198227_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 10.2,
+    "Invoice.Date": "03.03.2023",
+    "Sender.VatId": "NL003342293B01",
+    "Vat.Rate": 0,
+    "Net.Amount": 10.2,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "- Document classification: contains clear invoice indicators (\"INVOICE\", \"INVOICE DETAILS\", \"Total Invoice EUR\", invoice number, payment terms) and no exclusion terms. Classify as an invoice.\n\n- Key fields to locate and candidate extractions:\n  - Invoice.Date: appears near header as \"TRANSACTION DATE: 28.02.2023\" and \"DATE ISSUE INVOICE: 03.03.2023\". Prefer the explicit \"DATE ISSUE INVOICE\" (03.03.2023) as the invoice issue date.\n  - GrandTotal.Amount: \"Total Invoice EUR 10,20\" and totals lines show \"10,20\" as the final amount.\n  - Sender.VatId: header shows \"VAT CODE: NL003342293B01\" — candidate VAT ID.\n  - Vat.Rate / Net.Amount / Vat.Amount: tax table lists a line with Tax Code \"BI\" showing Net Amount \"10,20\", %VAT \"0%\" and VAT Amount \"0,00\". Thus VAT rate = 0, Net = 10,20, VAT amount = 0,00.\n  \n- Validation and rules considerations:\n  - No exclusion terms dominate; structured headers present — proceed with extraction.\n  - Do not infer missing values; use exactly the values shown.\n  - For VAT rate, remove the percent symbol when returning (e.g., \"0%\"=> \"0\").\n  - Preserve decimal places as in source (e.g., \"10,20\", \"0,00\"); note output format will need numeric types with same decimal precision.\n  \n- Ambiguity notes:\n  - Two date-like fields present (transaction date 28.02.2023 and issue date 03.03.2023); I will use \"03.03.2023\" as Invoice.Date since labeled \"DATE ISSUE INVOICE\".\n  - Currency is EUR but schema fields expect numeric values without currency symbols.",
+    "step2": "- GrandTotal.Amount (10,20): High confidence. The invoice explicitly shows \"Total Invoice EUR 10,20\" and the totals lines repeat \"10,20\". Consistent across document.\n\n- Invoice.Date (03.03.2023): High confidence. Two dates present; \"DATE ISSUE INVOICE: 03.03.2023\" explicitly labels the issue date. Using that is consistent with schema's Invoice.Date.\n\n- Sender.VatId (NL003342293B01): High confidence. The header clearly shows \"VAT CODE: NL003342293B01\" associated with DACHSER NETHERLANDS B.V.\n\n- Vat.Rate (0): High confidence. The tax table lists \"%VAT 0%\". Per rules, percentage symbol removed yields \"0\".\n\n- Net.Amount (10,20): High confidence. Tax table shows \"Net Amount 10,20\" for the BI line, matching the grand totals (since VAT is 0%).\n\n- Vat.Amount (0,00): High confidence. Tax table shows \"VAT Amount 0,00\" corresponding to 0% VAT on net 10,20.\n\nOverall confidence: high for all extracted fields due to explicit, repeated values in the document."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.8,
+      "input_tokens": 1908,
+      "cached_input_tokens": null,
+      "output_tokens": 720,
+      "total_tokens": 2628,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.59,
+      "input_tokens": 2355,
+      "cached_input_tokens": null,
+      "output_tokens": 258,
+      "total_tokens": 2613,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.61,
+      "input_tokens": 2913,
+      "cached_input_tokens": null,
+      "output_tokens": 282,
+      "total_tokens": 3195,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198227\\198227.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "NL003342293B01",
+        "ESA20006607"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        10.2,
+        [
+          "10,20",
+          "10,20"
+        ]
+      ],
+      "Net.Amount": [
+        true,
+        10.2,
+        [
+          "10,20",
+          "10,20"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Vat.Rate": [
+        true,
+        0,
+        [
+          "0",
+          "0"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "03.03.2023",
+        "03.03.2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7176,
+    "cached_input_tokens": 0,
+    "output_tokens": 1260,
+    "eur_estimate": 0.0008
+  }
+}

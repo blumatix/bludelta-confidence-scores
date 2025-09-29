@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\272603\\272521_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 174.44,
+    "Invoice.Date": "18.01.2024",
+    "Sender.VatId": "ATU17999502",
+    "Vat.Rate": 20,
+    "Net.Amount": 145.37,
+    "Vat.Amount": 29.07
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification: contains clear invoice indicators (\"RECHNUNG\", \"Rechnungsdatum\", \"Zwischensumme\", \"MwSt.\", \"ENDBETRAG\") → treat as invoice.\n\nExtraction evidence and decisions:\n- Invoice.Date: \"Rechnungsdatum 18.01.2024\" → 18.01.2024.\n- GrandTotal.Amount: \"ENDBETRAG - EUR 174,44\" and payment lines showing 174,44 → 174,44 (preserve comma as decimal separator in source but schema expects number; will convert to numeric 174.44 when populating).\n- Net.Amount: \"Zwischensumme 145,37\" and table \"Warenwert Netto 145,37\" → 145,37 (i.e., 145.37 numeric).\n- Vat.Amount: \"MwSt. 29,07\" and table showing 29,07 → 29,07 (i.e., 29.07 numeric).\n- Vat.Rate: table shows \"20,00%\" and line items list \"20,00%\" → 20 (per rule, drop %; preserve decimals? rule says extract rates without %; schema expects number — use 20 or 20.00; choose 20).\n- Sender.VatId: two UID occurrences: \"UID-Nr. Auftraggeber ATU37102103\" (appears tied to Auftraggeber/recipient) and bottom \"UID-Nr. ATU17999502\" in Firmensitz block for RS Components. Sender is RS Components → select ATU17999502.\nNotes on ambiguities: chose firmensitz UID as sender VAT; numeric values will be provided as numbers with original decimal precision.",
+    "step2": "{\n  \"GrandTotal.Amount\": 174.44,\n  \"Invoice.Date\": \"18.01.2024\",\n  \"Sender.VatId\": \"ATU17999502\",\n  \"Vat.Rate\": 20,\n  \"Net.Amount\": 145.37,\n  \"Vat.Amount\": 29.07\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.37,
+      "input_tokens": 2103,
+      "cached_input_tokens": null,
+      "output_tokens": 682,
+      "total_tokens": 2785,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.56,
+      "input_tokens": 2512,
+      "cached_input_tokens": null,
+      "output_tokens": 395,
+      "total_tokens": 2907,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.97,
+      "input_tokens": 2887,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3168,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\272603\\272521_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU17999502",
+        "ATU17999502;"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        174.44,
+        "174,44"
+      ],
+      "Net.Amount": [
+        true,
+        145.37,
+        "145,37"
+      ],
+      "Vat.Amount": [
+        true,
+        29.07,
+        "29,07"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "18.01.2024",
+        "18.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7502,
+    "cached_input_tokens": 0,
+    "output_tokens": 1358,
+    "eur_estimate": 0.004
+  }
+}

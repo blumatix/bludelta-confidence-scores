@@ -1,0 +1,100 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\168791\\168791_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 6040.16,
+    "Invoice.Date": "04.01.2022",
+    "Sender.VatId": "DE118590848",
+    "Vat.Rate": [
+      19,
+      19,
+      19
+    ],
+    "Net.Amount": [
+      1624.55,
+      23120.69,
+      7045.1
+    ],
+    "Vat.Amount": [
+      308.66,
+      4392.93,
+      1338.57
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Invoice indicators present: \"Rechnung\", \"Belegdatum: 04.01.2022\", clear monetary totals, VAT IDs, line-item EUSt and Abgabenbeträge. No exclusion indicators like \"Mahnung\" or \"Zahlungserinnerung\" dominate. -> Treat as invoice.\n\nFields to extract and evidence:\n- Invoice.Date: explicit \"Belegdatum: 04.01.2022\" on page 1.\n- Sender.VatId: Porath Customs Agents GmbH shows \"USt. ID Nr. DE118590848\" (page 1). Another \"USt. Identnr.: ATU62333479\" appears near invoice header but that seems to reference the customer (Dachser Austria) or invoice header secondary ID; schema requires sender VAT -> use DE118590848.\n- GrandTotal.Amount: explicit total for Einfuhrumsatzsteuer shown as \"6.040,16 EUR\" on page 1 and repeated as Gesamtabgabensumme 6.040,16 EUR (page 2). Preserve decimals and convert to number: 6040.16.\n- VAT groups: Page 3 shows three positions each with EUSt base (EUSt-Wert), VAT rate 19.00000 Prozent, and Abgabenbetrag (VAT amount):\n  - Position 1: EUSt-Wert 1.624,55 EUR; Abgabenbetrag 308,66 EUR; Abgabensatz 19,00000Prozent.\n  - Position 2: EUSt-Wert 23.120,69 EUR; Abgabenbetrag 4.392,93 EUR; Abgabensatz 19,00000Prozent.\n  - Position 3: EUSt-Wert 7.045,10 EUR; Abgabenbetrag 1.338,57 EUR; Abgabensatz 19,00000Prozent.\n- Map these into Vat.Rate (as numbers without %), Net.Amount (net/base amounts as numbers, decimals preserved), Vat.Amount (VAT amounts as numbers).\n\nNo inference beyond these explicit values. Missing/ambiguous fields will be left empty in final JSON.",
+    "step2": "Invoice.Date — Confidence: Very high (≥95%)\n- Evidence: Explicit label \"Belegdatum: 04.01.2022\" on page 1. Clear, unambiguous.\n\nSender.VatId — Confidence: High (≈90%)\n- Evidence: \"Porath Customs Agents GmbH\" block includes \"USt. ID Nr. DE118590848\" on page 1.  \n- Ambiguity: Another VAT-like identifier \"USt. Identnr.: ATU62333479\" appears in the invoice header (likely for the customer/Dachser Austria). Chose DE118590848 as sender VAT based on proximity to Porath company block.\n\nGrandTotal.Amount — Confidence: Very high (≥95%)\n- Evidence: \"Einfuhrumsatzsteuer (EUSt) 6.040,16 EUR\" on page 1 and \"Gesamtabgabensumme in EUR 6.040,16\" on page 2. Value is explicit and consistent.\n\nVat.Rate / Net.Amount / Vat.Amount entries — Confidence: High to Very High (per line)\n- Position 1:\n  - Net.Amount (EUSt-Wert): 1.624,55 EUR — Confidence: Very high (≥95%). Explicit on page 3.\n  - Vat.Rate: 19.00000 → extracted as 19 — Confidence: Very high (≥95%). Explicit.\n  - Vat.Amount (Abgabenbetrag): 308,66 EUR — Confidence: Very high (≥95%). Explicit.\n- Position 2:\n  - Net.Amount: 23.120,69 EUR — Confidence: Very high (≥95%). Explicit on page 3.\n  - Vat.Rate: 19.00000 → 19 — Confidence: Very high (≥95%).\n  - Vat.Amount: 4.392,93 EUR — Confidence: Very high (≥95%). Explicit.\n- Position 3:\n  - Net.Amount: 7.045,10 EUR — Confidence: Very high (≥95%).\n  - Vat.Rate: 19.00000 → 19 — Confidence: Very high (≥95%).\n  - Vat.Amount: 1.338,57 EUR — Confidence: Very high (≥95%).\n\nConsistency check:\n- Sum of the three Vat.Amounts: 308,66 + 4.392,93 + 1.338,57 = 6.040,16 EUR — matches GrandTotal.Amount. This strengthens confidence (Very high)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.78,
+      "input_tokens": 9474,
+      "cached_input_tokens": null,
+      "output_tokens": 1025,
+      "total_tokens": 10499,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.85,
+      "input_tokens": 9970,
+      "cached_input_tokens": null,
+      "output_tokens": 522,
+      "total_tokens": 10492,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 9.8,
+      "input_tokens": 10792,
+      "cached_input_tokens": null,
+      "output_tokens": 650,
+      "total_tokens": 11442,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\168791\\168791.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DE118590848",
+        "DE118590848"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        6040.16,
+        "6.040,16"
+      ],
+      "Invoice.Date": [
+        true,
+        "04.01.2022",
+        "04.01.2022"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 3,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 30236,
+    "cached_input_tokens": 0,
+    "output_tokens": 2197,
+    "eur_estimate": 0.002281
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\269205\\269069_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 64.37,
+    "Invoice.Date": "8.01.2024",
+    "Sender.VatId": "ATU42267907",
+    "Vat.Rate": 20,
+    "Net.Amount": 53.64,
+    "Vat.Amount": 10.73
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will analyze the document step by step to decide if it is an invoice and then identify the required fields.\n\n1. Document classification: Look for invoice indicators.\n- The document contains the word \"RECHNUNG\" (German for invoice) prominently. It includes \"Nummer/Datum\", \"Kundennummer\", \"UID\", line item table with Menge, Preis, Brutto/Netto, \"Umsatzsteuer 20 %\", \"Gesamtsumme\", payment terms, IBAN/BIC. These are clear invoice elements. No exclusion headers like \"Mahnung\" or \"Zahlungserinnerung\" are present. Conclusion: classify as an invoice and proceed.\n\n2. Identify fields required by schema:\n- GrandTotal.Amount: search for total payable amount. The document shows:\n  - \"Gesamtsumme 64,37\" — likely total including VAT (Gross). Also later \"Fälligkeit: 7.02.2024 Zahlbetrag: 64,37\" and earlier \"Zahlbetrag: 64,37\" and a \"Zahlbetrag: 62,44\" tied to skonto. The canonical Grand Total is usually the Gesamtsumme = 64,37. Currency EUR indicated elsewhere. So GrandTotal.Amount = 64,37 (numeric with same decimals).\n- Invoice.Date: look for invoice date near \"Nummer/Datum\" line: shows \"104/4300237/    8.01.2024\" — date is 8.01.2024. So Invoice.Date = \"8.01.2024\".\n- Sender.VatId: sender is REXEL Austria GmbH; UID-Nr. ATU42267907 appears near top. That is sender VAT. So Sender.VatId = \"ATU42267907\".\n- Vat.Rate, Net.Amount, Vat.Amount: There is a VAT group line: \"Umsatzsteuer 20 % 10,73\" and above a line showing Brutto/Netto values around line item: line-item shows Brutto 4,47 and Netto 53,64? Need to parse carefully:\n\n  Inspecting amounts:\n  - Under line items, there's a column showing \"Brutto\" and \"Netto Wert\" unclear. But later standalone numbers:\n    - A line with \"53,64\" aligned under something and currency EUR nearby.\n    - Then a summary area shows \"Umsatzsteuer 20 % 10,73\" and \"Gesamtsumme 64,37\".\n  - Likely Net total = 53,64, VAT amount = 10,73, VAT rate = 20. These numbers sum: 53,64 + 10,73 = 64,37 matches Gesamtsumme. So Vat.Rate = 20, Net.Amount = 53,64, Vat.Amount = 10,73.\n\n3. Verify no inference beyond visible text:\n- All chosen values appear explicitly: date 8.01.2024, UID ATU42267907, Net 53,64, VAT 10,73, VAT rate 20, Grand total 64,37. No guessing needed.\n\n4. Number formats:\n- Schema requires numbers for amounts and rate. Maintain decimals as in source (two decimals). VAT rate must be number without percent sign -> 20.\n\n5. Any ambiguities:\n- There is a \"Zahlbetrag: 62,44\" and skonto info, but that is discounted payment. Schema asks for GrandTotal.Amount (total payable on invoice) — use Gesamtsumme 64,37. So keep 64,37.\n- Currency not included in schema; amounts should be numeric. Convert German format comma decimals to decimal point? The schema expects JSON numbers. In JSON numbers use dot decimal separator. Must convert \"64,37\" -> 64.37, \"53,64\" -> 53.64, \"10,73\" -> 10.73. VAT rate as number 20.\n\n6. Final mapping:\n- GrandTotal.Amount: 64.37\n- Invoice.Date: \"8.01.2024\"\n- Sender.VatId: \"ATU42267907\"\n- Vat.Rate: 20\n- Net.Amount: 53.64\n- Vat.Amount: 10.73\n\nI will now produce the final JSON in the next step.",
+    "step2": "I can’t share my step-by-step internal chain-of-thought. I can, however, provide concise confidence assessments for each extracted field with brief, non-sensitive justifications.\n\n- GrandTotal.Amount (64.37): 95% — \"Gesamtsumme 64,37\" appears explicitly and matches sum of net + VAT.\n- Invoice.Date (\"8.01.2024\"): 98% — Date shown next to \"Nummer/Datum\" as 8.01.2024.\n- Sender.VatId (\"ATU42267907\"): 99% — Shown as \"UID-Nr.ATU42267907\" at sender header.\n- Vat.Rate (20): 98% — Shown explicitly as \"Umsatzsteuer 20 %\".\n- Net.Amount (53.64): 95% — \"53,64\" appears as the net subtotal and sums with VAT to the grand total.\n- Vat.Amount (10.73): 98% — Shown explicitly as \"10,73\" next to the 20% VAT line."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.45,
+      "input_tokens": 1935,
+      "cached_input_tokens": null,
+      "output_tokens": 1038,
+      "total_tokens": 2973,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.03,
+      "input_tokens": 2892,
+      "cached_input_tokens": null,
+      "output_tokens": 547,
+      "total_tokens": 3439,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.31,
+      "input_tokens": 3419,
+      "cached_input_tokens": null,
+      "output_tokens": 217,
+      "total_tokens": 3636,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\269205\\269069_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU42267907",
+        "ATU42267907"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        64.37,
+        "64,37"
+      ],
+      "Net.Amount": [
+        true,
+        53.64,
+        "53,64"
+      ],
+      "Vat.Amount": [
+        true,
+        10.73,
+        "10,73"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "8.01.2024",
+        "8.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8246,
+    "cached_input_tokens": 0,
+    "output_tokens": 1802,
+    "eur_estimate": 0.004932
+  }
+}

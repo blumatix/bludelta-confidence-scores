@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\273986\\273986_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1916.55,
+    "Invoice.Date": "26.01.2024",
+    "Sender.VatId": "ATU34003805",
+    "Vat.Rate": 10,
+    "Net.Amount": 1742.32,
+    "Vat.Amount": 174.23
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Plan to extract fields:\n\n1. Confirm document is an invoice: presence of \"RECHNUNG\", invoice number, invoice totals, VAT, line items — proceed.\n\n2. Locate Invoice.Date: search for date near header — \"Anif, 26.01.2024\" appears twice; pick 26.01.2024 as invoice date.\n\n3. Identify Sender.VatId: two UID/UID-Nummer values found:\n   - Top-right block near company HOGAST: \"UID-Nr.: ATU34003805\"\n   - Under RECHNUNG header: \"UID-Nummer: ATU34011805\"\n   Consider HOGAST as the issuer (header with company details) so ATU34003805 is the sender VAT. Note ambiguity and rationale.\n\n4. Find GrandTotal.Amount: search for bruttobetrag/total payable. Values present:\n   - Bruttobetrag 1.916,55\n   - Another final totals line shows 1.916,55 and one line 1.916,53 (rounding). Prefer the clearly labeled \"Bruttobetrag 1.916,55\" and \"Betrag EUR 1.916,55 (fällig)\" — select 1916.55.\n\n5. Find VAT rate(s) and VAT amounts:\n   - Summary header: \"Zusammenfassung aller ER 10 % USt\" → VAT rate 10.\n   - VAT total shown as 174,23 in multiple places (e.g., \"+Mehrwertsteuer 174,23\", summary Ust 174,23). Use 174.23.\n\n6. Find Net.Amount:\n   - Nettobetrag listed as 1.742,32 and Zwischensumme 1.742,32; use 1742.32.\n\n7. Ensure numeric formats: convert comma decimals to dots, preserve two decimals as in source.\n\n8. Apply \"No Inference\" rule: only use explicit values; note ambiguity of two UID numbers but choose sender VAT based on company header.\n\nNext step: produce final JSON with these extracted values.",
+    "step2": "{\n  \"GrandTotal.Amount\": 1916.55,\n  \"Invoice.Date\": \"26.01.2024\",\n  \"Sender.VatId\": \"ATU34003805\",\n  \"Vat.Rate\": 10,\n  \"Net.Amount\": 1742.32,\n  \"Vat.Amount\": 174.23\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.73,
+      "input_tokens": 2933,
+      "cached_input_tokens": null,
+      "output_tokens": 829,
+      "total_tokens": 3762,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.86,
+      "input_tokens": 3425,
+      "cached_input_tokens": null,
+      "output_tokens": 717,
+      "total_tokens": 4142,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.47,
+      "input_tokens": 3802,
+      "cached_input_tokens": null,
+      "output_tokens": 219,
+      "total_tokens": 4021,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\273986\\273986_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU34003805",
+        "ATU34003805"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1916.55,
+        "1.916,55"
+      ],
+      "Net.Amount": [
+        true,
+        1742.32,
+        "1.742,32"
+      ],
+      "Vat.Amount": [
+        true,
+        174.23,
+        "174,23"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "26.01.2024",
+        "26.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 10160,
+    "cached_input_tokens": 0,
+    "output_tokens": 1765,
+    "eur_estimate": 0.005289
+  }
+}

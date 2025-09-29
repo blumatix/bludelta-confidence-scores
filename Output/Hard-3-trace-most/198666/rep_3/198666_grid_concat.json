@@ -1,0 +1,111 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198666\\198666_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1000.0,
+    "Invoice.Date": "2022-12-23",
+    "Sender.VatId": "797 205 86 92",
+    "Vat.Rate": 0,
+    "Net.Amount": 1000.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.6,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: document is an invoice (contains \"Faktura\", invoice number, totals, \"Do zapłaty\").\n\nExtraction plan (high level):\n- Locate invoice ID and invoice date fields in header.\n- Locate \"Do zapłaty\" / grand total and currency.\n- Locate VAT grouping lines (rate, net, VAT amount) in line-item summary.\n- Locate sender VAT (NIP) in seller block.\n- Apply no-inference rule: if OCR ambiguity exists, mark uncertain for verification but do not guess in final extraction.\n\nObserved candidate values (for later verification; not final JSON):\n- Invoice number: \"63T/12/2022\"\n- Invoice date: \"2022-12-23\" (labelled \"Data wystawienia\")\n- Grand total / Due: \"1 000,00 EUR\"\n- VAT group: VAT% = 0, Net = \"1 000,00\", VAT amount = \"0,00\"\n- Sender VAT (NIP): appears as \"797 205 86 92\" (also appears as \"797205869\" in another line — OCR inconsistency)\n\nUncertainties to resolve before final extraction:\n- Sender VAT formatting/accuracy due to multiple OCR variants.\n- Ensure numeric values are output as numbers with same decimals and without currency symbols.\n- VAT rate should be returned as numeric without \"%\" (i.e., \"0\").\n\nI will now wait for confirmation to produce the final JSON extraction (with empty strings for any field if value cannot be confidently determined).",
+    "step2": "GrandTotal.Amount: 95% — Visible \"Do zapłaty 1 000,00 EUR\" and matching totals in summary lines.\n\nInvoice.Date: 95% — \"Data wystawlenla: ... 2022-12-23\" (clear date format near header).\n\nSender.VatId: 60% — Seller NIP appears as \"797    205   86   92\" and also a garbled \"797205869\"; OCR spacing/inconsistency reduces confidence.\n\nVat.Rate: 98% — Multiple lines show VAT% = 0; summary shows VAT value 0, strongly consistent.\n\nNet.Amount: 95% — Net total shown as \"1 000,00\" in line and summary (consistent with grand total and VAT 0).\n\nVat.Amount: 98% — VAT amount shown as \"0,00\" in summary and line items."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.21,
+      "input_tokens": 1808,
+      "cached_input_tokens": null,
+      "output_tokens": 637,
+      "total_tokens": 2445,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.69,
+      "input_tokens": 2172,
+      "cached_input_tokens": null,
+      "output_tokens": 318,
+      "total_tokens": 2490,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 7.22,
+      "input_tokens": 2662,
+      "cached_input_tokens": null,
+      "output_tokens": 413,
+      "total_tokens": 3075,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198666\\198666.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "797 205 86 92",
+        "797 205 86 92"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1000.0,
+        "1 000,00"
+      ],
+      "Net.Amount": [
+        true,
+        1000.0,
+        [
+          "1 000,00",
+          "1000,00",
+          "1 000,00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        [
+          "0,00",
+          "0,00",
+          "0,00"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        0,
+        "0"
+      ],
+      "Invoice.Date": [
+        false,
+        "2022-12-23",
+        "2022-12-12"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 6642,
+    "cached_input_tokens": 0,
+    "output_tokens": 1368,
+    "eur_estimate": 0.000811
+  }
+}

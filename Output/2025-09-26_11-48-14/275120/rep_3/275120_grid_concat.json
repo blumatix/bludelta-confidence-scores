@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\275120\\275120_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 774.84,
+    "Invoice.Date": "31.01.2024",
+    "Sender.VatId": "",
+    "Vat.Rate": 10,
+    "Net.Amount": 704.4,
+    "Vat.Amount": 70.44
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.3,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Unlikely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Below is a concise, non-sensitive summary of the extraction plan and evidence checks I will use:\n\n- Document classification:\n  - Presence of header \"Rechnung\" and invoice-like sections (invoice number, Rechnungsdatum, line items, totals) → classify as invoice.\n  - No exclusion keywords (\"Zahlungserinnerung\", \"Mahnung\", \"Servicebericht\") prominent → proceed.\n\n- Fields to extract and where they appear:\n  - Invoice.Date: \"Rechnungsdatum.: 31.01.2024\" → candidate value 31.01.2024.\n  - Sender.VatId: \"Ihre USt-IdNr :ATU22642807\" and later \"UID: ATU22195005\" — two VAT-like IDs present. Primary sender VAT is likely the supplier; supplier UID at bottom \"UID: ATU22195005\" appears as company UID. The header \"Ihre USt-IdNr\" likely refers to recipient; need to avoid guessing. Will follow rule: do not infer—report only exact occurrences if unambiguous (decide in final extraction).\n  - Vat groups: Table shows \"10%\" with Nettobetrag 704,40 and Mehrwertsteuer 70,44 → Vat.Rate = 10, Net.Amount = 704,40, Vat.Amount = 70,44.\n  - GrandTotal.Amount: Sum line shows 774,84 EUR → candidate GrandTotal = 774,84.\n  - Net.Amount (overall): 704,40 as Nettobetrag.\n  - Vat.Amount (overall): 70,44 as Mehrwertsteuer.\n\n- Verification steps:\n  - Confirm numeric formats preserved (commas as decimal separators in text must be converted to numeric with same decimals).\n  - Do not infer or choose between ambiguous VAT IDs — if ambiguity remains, return empty string per No Inference Policy.\n  - Ensure Vat.Rate returned without percent symbol (10).\n\nI will now produce the final JSON extraction following the schema and rules.",
+    "step2": "I can’t share internal chain-of-thought. Below is a brief confidence assessment (concise evidence-based statements) for each field:\n\n- GrandTotal.Amount: 774.84 — Confidence: 95% (explicit \"Summe ... 774,84 EUR\" total present).\n- Invoice.Date: \"31.01.2024\" — Confidence: 99% (explicit \"Rechnungsdatum.: 31.01.2024\").\n- Sender.VatId: ambiguous — Confidence: 30% (two VAT/UID values present: \"Ihre USt-IdNr : ATU22642807\" and bottom \"UID: ATU22195005\"; unclear which is sender VAT).\n- Vat.Rate: 10 — Confidence: 99% (VAT group shown as \"10%\").\n- Net.Amount: 704.40 — Confidence: 98% (Nettobetrag/Nettowarenwert shown as 704,40).\n- Vat.Amount: 70.44 — Confidence: 98% (Mehrwertsteuer shown as 70,44)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.43,
+      "input_tokens": 2134,
+      "cached_input_tokens": null,
+      "output_tokens": 749,
+      "total_tokens": 2883,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.23,
+      "input_tokens": 2610,
+      "cached_input_tokens": null,
+      "output_tokens": 484,
+      "total_tokens": 3094,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.96,
+      "input_tokens": 3138,
+      "cached_input_tokens": null,
+      "output_tokens": 339,
+      "total_tokens": 3477,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\275120\\275120_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "",
+        "ATU22195005,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        774.84,
+        "774,84"
+      ],
+      "Net.Amount": [
+        true,
+        704.4,
+        "704,40"
+      ],
+      "Vat.Amount": [
+        true,
+        70.44,
+        "70,44"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "31.01.2024",
+        "31.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7882,
+    "cached_input_tokens": 0,
+    "output_tokens": 1572,
+    "eur_estimate": 0.004454
+  }
+}

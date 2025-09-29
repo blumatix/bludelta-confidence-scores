@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\271392\\271387_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1080.0,
+    "Invoice.Date": "23.08.2023",
+    "Sender.VatId": "ATU62011156",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 900.0,
+    "Vat.Amount": 180.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.96,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification\n- Visible header \"Korrekturrechnung\" and terms \"Gutschrift\" indicate a correction/credit invoice but still an invoice (not a payment reminder or service report). Invoice-related keywords (\"Rechnung\", \"Gutschrift\", \"Umsatzsteuer-Id-Nr.\", \"Gesamtsumme\", \"MwSt.\") are dominant. Therefore treat as invoice (proceed to extraction).\n\n2) Identify candidate fields and locations in text\n- Invoice/credit number: \"Nr: 2301200039\" and repeated \"Gutschrift 2301200039\" — confirms document ID (not required by schema but validates context).\n- Invoice/issue date: \"Ausstellungsdatum: 23.08.2023\" and \"Datum 23.08.2023\" on page 2 — candidate for Invoice.Date.\n- Sender VAT ID: two VAT numbers present: left block \"Umsatzsteuer-Id-Nr.: ATU64131246\" (appears under Kunde) and right block \"Umsatzsteuer-Id-Nr.: ATU62011156\" (under Lieferant / Kingspan GmbH). Schema requests Sender.VatId — sender is the supplier (the issuer). The issuer/supplier is Kingspan GmbH (right side). Therefore Sender.VatId = \"ATU62011156\".\n- Grand total: Several total lines:\n  - Page 2 shows \"Gesamtsumme: 1.080,00 EUR\" and \"Gesamt zu zahlen: 1.080,00 EUR\". That is the payable total. Use numeric form with decimal point preserved as in input? Rule: keep decimal places the same as input. Input uses comma as decimal separator; schema expects number type. We must convert to number preserving decimals. The value is 1080,00 -> numeric 1080.00 with two decimals.\n- Net amount and VAT amount:\n  - Page 2 shows \"Nettobetrag: 900,00 EUR\" and \"MwSt.: 180,00 EUR\". Also table shows \"MwSt %: 20,0 %   Netto 900,00   MwSt. 180,00\" and \"Total 900,00 180,00\". So Net.Amount = 900.00 and Vat.Amount = 180.00.\n- VAT rate:\n  - Shown as \"20,0 %\" and also \"MwSt %: 20,0 %\". Rule: extract rate without percent symbol and as number with same decimals as input. Input shows \"20,0\" (one decimal). So Vat.Rate = 20.0 (or numeric 20.0). Keep one decimal.\n\n3) Verification and No-inference policy\n- All required values explicitly present: Invoice.Date (23.08.2023), Sender.VatId (ATU62011156), GrandTotal.Amount (1.080,00 EUR), Net.Amount (900,00 EUR), Vat.Amount (180,00 EUR), Vat.Rate (20,0 %). No need to infer.\n- Currency not requested in schema; remove currency.\n- Decimal formatting: input uses comma; JSON numbers must be numeric with dot. Preserve decimal places: two decimals for amounts (900,00 -> 900.00; 180,00 -> 180.00; 1.080,00 -> 1080.00). Vat.Rate keep one decimal: 20.0.\n\n4) Edge cases\n- There is another VAT ID (customer ATU64131246); ensure Sender.VatId uses supplier's VAT (ATU62011156) since supplier is Kingspan GmbH and issuer.\n- Document is a correction/credit note but still qualifies as invoice per classification rules.\n\n5) Final mapping to schema fields (values determined, no guessing)\n- \"GrandTotal.Amount\": 1080.00\n- \"Invoice.Date\": \"23.08.2023\"\n- \"Sender.VatId\": \"ATU62011156\"\n- \"Vat.Rate\": 20.0\n- \"Net.Amount\": 900.00\n- \"Vat.Amount\": 180.00\n\nProceed to output JSON in requested schema.",
+    "step2": "GrandTotal.Amount — 95%\n- Evidence: \"Gesamtsumme: 1.080,00 EUR\" and \"Gesamt zu zahlen: 1.080,00 EUR\" clearly present and consistent.\n\nInvoice.Date — 98%\n- Evidence: \"Ausstellungsdatum: 23.08.2023\" and \"Datum 23.08.2023\" both present.\n\nSender.VatId — 95%\n- Evidence: Supplier/issuer is Kingspan GmbH; its VAT shown as \"Umsatzsteuer-Id-Nr.: ATU62011156\" in multiple places.\n\nVat.Rate — 96%\n- Evidence: \"MwSt %: 20,0 %\" and line item shows \"20,0 %\"; clear and consistent. Rate normalized without percent sign.\n\nNet.Amount — 98%\n- Evidence: \"Nettobetrag: 900,00 EUR\" and breakdown table showing Netto 900,00.\n\nVat.Amount — 98%\n- Evidence: \"MwSt.: 180,00 EUR\" and breakdown table showing MwSt. 180,00.\n\nOverall consistency: high — net + VAT equals grand total (900,00 + 180,00 = 1.080,00), supporting correctness."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.17,
+      "input_tokens": 2431,
+      "cached_input_tokens": null,
+      "output_tokens": 1132,
+      "total_tokens": 3563,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.46,
+      "input_tokens": 3354,
+      "cached_input_tokens": null,
+      "output_tokens": 457,
+      "total_tokens": 3811,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.16,
+      "input_tokens": 3919,
+      "cached_input_tokens": null,
+      "output_tokens": 284,
+      "total_tokens": 4203,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\271392\\271387_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU62011156",
+        "ATU62011156"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1080.0,
+        "1.080,00"
+      ],
+      "Net.Amount": [
+        true,
+        900.0,
+        "900,00"
+      ],
+      "Vat.Amount": [
+        true,
+        180.0,
+        "180,00"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,0"
+      ],
+      "Invoice.Date": [
+        true,
+        "23.08.2023",
+        "23.08.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 9704,
+    "cached_input_tokens": 0,
+    "output_tokens": 1873,
+    "eur_estimate": 0.005375
+  }
+}

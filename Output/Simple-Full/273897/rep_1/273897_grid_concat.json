@@ -1,0 +1,103 @@
+{
+  "input_path": "C:\\Users\\jonas\\Desktop\\LLM-Confidence\\Documents\\273905\\273897_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 11999.26,
+    "Invoice.Date": "26.01.2024",
+    "Sender.VatId": "ATU66427645",
+    "Vat.Rate": 10,
+    "Net.Amount": 10908.42,
+    "Vat.Amount": 1090.84
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will identify invoice indicators, validate it's an invoice, locate required fields, consider alternatives, and note any uncertainties.\n\n1) Document classification\n- Invoice indicators present: header \"Rechnung\", \"Datum\", \"UID\", itemized lines, \"Nettobetrag\", VAT lines, \"Rechnungsbetrag\". No prominent exclusion terms (no \"Mahnung\" etc.). Conclusion: document is an invoice — proceed.\n\n2) Locate candidate fields\n- Invoice.Date: top right shows \"Datum: 26.01.2024\". Strong match.\n- Sender.VatId: there are two UID/UID-Nr occurrences.\n  - Top area (page 1) shows \"UID: ATU22642807\" near Bäko-Österreich (likely buyer).  \n  - Footer shows \"UID-Nr: ATU66427645\" associated with \"Unterweger Früchteküche GmbH\" (seller). The document header and seller blocks: invoice issuer appears to be Unterweger Früchteküche GmbH (name at footer), so sender VAT should be ATU66427645. Must not infer; both values present; pick the one clearly labeled with seller. Footer explicitly lists UID-Nr alongside seller—use ATU66427645.\n- GrandTotal.Amount / Rechnungsbetrag: page 2 shows \"Rechnungsbetrag 11.999,26 €\". Candidate GrandTotal = 11.999,26. Keep decimals and no currency symbol per rules — numeric type expected.\n- Vat groups: page 2 shows:\n  - \"+ 10,00% USt. von 10.908,42    1.090,84 €\"\n  - \"+ 20,00% USt. von 0,00\" (amount zero)\n  Therefore VAT rates present: 10.00% (applies to net 10.908,42 with VAT 1.090,84) and 20.00% with net 0.00 and VAT 0.00. Per rules, rates should be numbers without % (e.g., 10). Maintain decimals as in input? Schema expects number; rule 5: extract rates without percent symbol—so use 10 and 20 (integers). Net.Amount and Vat.Amount should match the shown values without currency symbols. Keep decimal places as in input: \"10.908,42\" uses comma decimals; must convert to number format with dot? Schema expects number type. Other examples: earlier fields show comma as decimal separator. We must supply numeric values. Convert European format to standard decimal: 10.908,42 -> 10908.42; 1.090,84 -> 1090.84; Grand total 11.999,26 -> 11999.26. Net.Amount overall also appears as \"Nettobetrag 10.908,42 €\" which matches VAT group net for 10%. There is also earlier running total \"Übertrag 10.469,94 €\" but final net is 10.908,42 — use final Nettobetrag.\n- Net.Amount field in schema: it's singular but note instruction: \"Vat.Item is an array, so you are allowed to have multiple entries for Vat.Rate, Net.Amount and Vat.Amount Treat them as entries in the Vat.Item Array\" — but schema provided has single keys; however developer note says multiple entries allowed. So include both VAT group entries: for 10%: Net=10908.42, Vat=1090.84; for 20%: Net=0.00, Vat=0.00.\n- Ensure No Inference: do not invent currency or other values.\n\n3) Verify consistency and alternatives\n- Alternative sender VAT: top \"UID: ATU22642807\" likely buyer (Bäko-Österreich). Rule: Sender.VatId means tax ID of the sender (VAT). The seller is Unterweger Früchteküche GmbH; footer lists UID-Nr ATU66427645 — that aligns with sender being the invoice issuer. So choose ATU66427645. Do not include ATU22642807.\n- VAT rate formatting: input shows \"10,00%\" and \"20,00%\". Per rule remove percent symbol and provide numeric values 10 and 20. Maintain numeric types.\n- Decimal places: keep two decimals as in source.\n\n4) Fields that might be missing\n- If any required field cannot be found, return empty string — but all required fields found.\n\n5) Final mapping (values to output types)\n- GrandTotal.Amount -> 11999.26 (number)\n- Invoice.Date -> \"26.01.2024\" (string, keep original format)\n- Sender.VatId -> \"ATU66427645\" (string)\n- Vat.Rate -> array entries: 10 and 20 (numbers) — schema expects single Vat.Rate but developer notes allow multiple; will prepare entries accordingly.\n- Net.Amount -> corresponding array entries: 10908.42 and 0.00\n- Vat.Amount -> corresponding entries: 1090.84 and 0.00\n\nNo other ambiguities remain.",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"value\": 11999.26,\n    \"confidence\": \"high\",\n    \"justification\": \"Explicit 'Rechnungsbetrag 11.999,26 €' on page 2; clear numeric match.\"\n  },\n  \"Invoice.Date\": {\n    \"value\": \"26.01.2024\",\n    \"confidence\": \"high\",\n    \"justification\": \"Explicit 'Datum: 26.01.2024' in header.\"\n  },\n  \"Sender.VatId\": {\n    \"value\": \"ATU66427645\",\n    \"confidence\": \"high\",\n    \"justification\": \"Footer lists 'UID-Nr: ATU66427645' alongside seller company name (invoice issuer).\"\n  },\n  \"Vat.Rate\": {\n    \"value\": [\n      10,\n      20\n    ],\n    \"confidence\": \"high\",\n    \"justification\": \"VAT lines show '10,00% USt.' and '20,00% USt.' on page 2; rates extracted without percent symbol.\"\n  },\n  \"Net.Amount\": {\n    \"value\": [\n      10908.42,\n      0.00\n    ],\n    \"confidence\": \"high\",\n    \"justification\": \"Page 2 shows 'Nettobetrag 10.908,42 €' and VAT line for 20% shows net 0,00; converted to numeric format.\"\n  },\n  \"Vat.Amount\": {\n    \"value\": [\n      1090.84,\n      0.00\n    ],\n    \"confidence\": \"high\",\n    \"justification\": \"Page 2 VAT lines show '1.090,84 €' for 10% and zero for 20%; converted to numeric format.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 17.14,
+      "input_tokens": 2941,
+      "cached_input_tokens": null,
+      "output_tokens": 1200,
+      "total_tokens": 4141,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.77,
+      "input_tokens": 4060,
+      "cached_input_tokens": null,
+      "output_tokens": 511,
+      "total_tokens": 4571,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 7.86,
+      "input_tokens": 4743,
+      "cached_input_tokens": null,
+      "output_tokens": 540,
+      "total_tokens": 5283,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "C:\\Users\\jonas\\Desktop\\LLM-Confidence\\Documents\\273905\\273897_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU66427645",
+        "ATU66427645"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        11999.26,
+        "11.999,26"
+      ],
+      "Net.Amount": [
+        true,
+        10908.42,
+        "10.908,42"
+      ],
+      "Vat.Amount": [
+        true,
+        1090.84,
+        "1.090,84"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "26.01.2024",
+        "26.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 11744,
+    "cached_input_tokens": 0,
+    "output_tokens": 2251,
+    "eur_estimate": 0.006478
+  }
+}

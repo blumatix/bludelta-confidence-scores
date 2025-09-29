@@ -1,0 +1,107 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198677\\198677_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 4822.9,
+    "Invoice.Date": "2022-10-22",
+    "Sender.VatId": "7581003066",
+    "Vat.Rate": 0,
+    "Net.Amount": 1000.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Classify document:\n- Contains clear invoice indicators: \"Faktura nr\", \"Data wystawienia\", \"Kwota Netto\", \"Razem do zapłaty\", line item table with netto/VAT/brutto → treat as invoice.\n- No exclusion keywords (e.g., \"Zahlungserinnerung\", \"Mahnung\") dominating → proceed.\n\n2) Locate candidate fields in text:\n- Invoice date: line shows \"Data     wystawienia:         2022-10-22\".\n- Seller VAT ID: seller block shows \"NIP:    7581003066\" (Polish NIP).\n- VAT rate: table and summary show \"VAT           OO\" and later \"Stawka VAT ... OO\" — appears to indicate 0% VAT (represented as \"OO\").\n- Net amount and VAT amount: line-item and summaries show Netto = 1 000.00 (EUR), Kwota VAT = 0.00.\n- Grand total ambiguity: invoice shows \"Razem do zapłaty: 1   000.00 EUR / 4   822.90 PLN\" — two representations (invoice currency EUR and converted PLN). Need to choose which to output as GrandTotal.Amount per schema.\n\n3) Verify numeric formats and decimals:\n- Net shown as \"1 000.00\" (two decimals).\n- VAT amount \"0.00\".\n- Exchange conversion yields \"4 822.90\" (two decimals).\n- VAT rate represented as \"OO\" — interpret as 0% (will map to numeric 0 without percent symbol per rules).\n\n4) Ambiguities and resolution plan:\n- GrandTotal.Amount: two plausible values (1000.00 or 4822.90). The invoice's primary payable amount is given first as 1 000.00 EUR (with currency). The schema expects a numeric amount only. Decision for final extraction will be to choose the invoice's total in the invoice currency converted to numeric; note ambiguity and prefer the PLN converted total if the invoice presents \"Razem do zapłaty\" with both—will favor the numeric amount representing the invoice grand total in the invoice's local/corresponding currency. (Final choice to be applied in output.)\n\n5) No-inference and completeness:\n- Only extract values explicitly present. Do not infer missing fields.\n- Preserve decimal places as in source.\n\n6) Fields identified for final extraction:\n- Invoice.Date -> \"2022-10-22\"\n- Sender.VatId -> \"7581003066\"\n- Vat.Rate -> 0\n- Net.Amount -> 1000.00\n- Vat.Amount -> 0.00\n- GrandTotal.Amount -> ambiguous between 1000.00 (EUR) and 4822.90 (PLN); will select one in the final output following the resolution plan.",
+    "step2": "Invoice.Date — Evidence: \"Data     wystawienia:         2022-10-22\" clearly present. Confidence: 99% (explicit, unambiguous).\n\nSender.VatId — Evidence: In seller block \"NIP:    7581003066\". NIP is seller tax ID. Confidence: 98% (explicit; minor chance of OCR spacing error).\n\nVat.Rate — Evidence: VAT shown as \"OO\" and \"Stawka VAT ... OO\" and VAT amounts are 0.00. Interpreting \"OO\" as 0% is consistent. Confidence: 90% (highly likely 0%, but representation \"OO\" could be a code rather than literal percent).\n\nNet.Amount — Evidence: Line item and summaries show \"Kwota Netto: 1 000.00 EUR\" and totals list \"1 000.00\". Decimal format preserved. Confidence: 98% (explicit amount; currency present but schema expects number only).\n\nVat.Amount — Evidence: \"Kwota VAT: 0.00 PLN\" and VAT column shows 0.00. Confidence: 98% (explicit).\n\nGrandTotal.Amount — Evidence: Two explicit totals: \"Razem do zapłaty: 1 000.00 EUR\" and converted \"4 822.90 PLN\". Ambiguity: schema expects a single numeric GrandTotal.Amount without currency. Confidence depends on which representation chosen:\n- If choose 1000.00 (invoice currency): Confidence ~95% (explicit primary payable).\n- If choose 4822.90 (converted PLN): Confidence ~95% (explicit converted total).\nOverall note: both values are explicitly present; selection between them is semantic, not OCR-uncertain."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.97,
+      "input_tokens": 2037,
+      "cached_input_tokens": null,
+      "output_tokens": 1039,
+      "total_tokens": 3076,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.14,
+      "input_tokens": 2675,
+      "cached_input_tokens": null,
+      "output_tokens": 426,
+      "total_tokens": 3101,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.62,
+      "input_tokens": 3337,
+      "cached_input_tokens": null,
+      "output_tokens": 410,
+      "total_tokens": 3747,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198677\\198677.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "7581003066",
+        "7581003066"
+      ],
+      "GrandTotal.Amount": [
+        false,
+        4822.9,
+        [
+          "1 000.00",
+          "1 000.00"
+        ]
+      ],
+      "Net.Amount": [
+        true,
+        1000.0,
+        [
+          "1 000.00",
+          "1 000.00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        [
+          "0.00",
+          "0.00"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "2022-10-22",
+        "2022-10-22"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 5,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 8049,
+    "cached_input_tokens": 0,
+    "output_tokens": 1875,
+    "eur_estimate": 0.001059
+  }
+}

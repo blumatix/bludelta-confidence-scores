@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\229572\\272376_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": -724.86,
+    "Invoice.Date": "01.08.2022",
+    "Sender.VatId": "ATU64131246",
+    "Vat.Rate": 20.0,
+    "Net.Amount": -604.05,
+    "Vat.Amount": -120.81
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Instead, here is a concise, non-sensitive summary of the extraction plan and key observations I will use to produce the structured invoice data:\n\n- Document classification: The text contains invoice-related headers (Rechnungsdatum, Kundennummer, UID-Nr., Nettobetrag, USt., Gutschriftsbetrag). It is a Gutschrift (credit note) tied to an invoice number; therefore it is considered invoice-like and extraction proceeds.\n- Fields to locate:\n  - GrandTotal.Amount: use the final payable amount labeled \"Gutschriftsbetrag\" (value includes currency and sign).\n  - Invoice.Date: value after \"Rechnungsdatum:\".\n  - Sender.VatId: sender UID labeled \"Ihre UID-Nr.\" near header; also company UID in footer.\n  - Vat.Rate: percentage listed next to USt. (e.g., \"20,00%\") — will be returned as number without % (e.g., 20,00 -> 20.00 or preserved decimals).\n  - Net.Amount and Vat.Amount: amounts labeled \"Nettobetrag\" and the USt. line respectively.\n- Numeric parsing rules:\n  - Preserve decimal places and signs exactly as in source; remove currency symbols and thousands separators only as needed for numeric JSON values.\n  - Convert comma decimals to dot as required for numeric types, while keeping the same number of decimal places.\n  - VAT rate returned as numeric without the percent symbol.\n- Ambiguities / duplicates:\n  - Use header \"Ihre UID-Nr.: ATU64131246\" as Sender.VatId; if multiple VAT IDs exist, prefer the header \"Ihre UID-Nr.\".\n  - Grand total is \"Gutschriftsbetrag -724,86 EUR\" — will be used as GrandTotal.Amount (numeric, negative preserved).\n- If any required field is missing or ambiguous in the visible text, it will be returned as an empty string per rules.\n\nI will now extract the fields accordingly.",
+    "step2": "GrandTotal.Amount: 95% — \"Gutschriftsbetrag -724,86 EUR\" clearly present.\nInvoice.Date: 99% — \"Rechnungsdatum: 01.08.2022\" clearly present.\nSender.VatId: 98% — \"Ihre UID-Nr.: ATU64131246\" clearly present (also another UID in footer but header UID is preferred).\nVat.Rate: 99% — \"20,00% USt.\" clearly present (will be returned as 20,00 without the %).\nNet.Amount: 98% — \"Nettobetrag -604,05 EUR\" clearly present.\nVat.Amount: 98% — \"+ 20,00% USt. von -604,05  -120,81 EUR\" shows VAT amount as -120,81 EUR."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.14,
+      "input_tokens": 1848,
+      "cached_input_tokens": null,
+      "output_tokens": 616,
+      "total_tokens": 2464,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.23,
+      "input_tokens": 2319,
+      "cached_input_tokens": null,
+      "output_tokens": 435,
+      "total_tokens": 2754,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.02,
+      "input_tokens": 2798,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3081,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\229572\\272376_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU64131246",
+        "ATU 62 81 44 22"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        -724.86,
+        "-724,86"
+      ],
+      "Net.Amount": [
+        true,
+        -604.05,
+        "-604,05"
+      ],
+      "Vat.Amount": [
+        true,
+        -120.81,
+        "-120,81"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "01.08.2022",
+        "01.08.2022"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 6965,
+    "cached_input_tokens": 0,
+    "output_tokens": 1334,
+    "eur_estimate": 0.00384
+  }
+}

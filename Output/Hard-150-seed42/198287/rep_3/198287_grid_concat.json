@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198287\\198287_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 850.0,
+    "Invoice.Date": "2023-03-07",
+    "Sender.VatId": "PL8861001703",
+    "Vat.Rate": 0,
+    "Net.Amount": 850.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains header \"Rechnung\" and invoice-like sections (Position, Nettopreis, Mehrwertsteuersatz, Gesamtsumme) → treat as invoice.\n- No exclusion keywords in prominent header area.\n\nKey fields found and candidate values:\n- Invoice identifiers/dates:\n  - \"Verkaufsdatum: 2023-03-07\" — interpreted as invoice/sale date.\n  - Also \"Datum der Fertigstellung der Lieferung 2023-03-01\" (delivery completion date) — not chosen as invoice date because \"Verkaufsdatum\" more likely corresponds to invoice issue date.\n- Sender VAT ID:\n  - \"Ust. Id. Nr: PL 8861001703\" — clear sender VAT identifier. Keep country prefix with number as in source.\n- Totals and VAT:\n  - Line shows Nettowert in EUR: \"850,00\"\n  - Mehrwertsteuerwert (VAT amount) in EUR: \"0,00\"\n  - Mehrwertsteuersatz shown as \"UE 0%\" (VAT 0% / Podatek VAT UE 0%) — VAT rate is 0.\n  - Gesamtsumme in EUR: \"850,00\" — Grand total payable in invoice currency EUR.\n- Currency/exchange:\n  - Document states currency EUR and an exchange rate to PLN, but exchange rates are not requested in schema.\n\nDecision rules / handling:\n- No inference: use only explicitly present values.\n- Preserve decimal places as in text (two decimals).\n- VAT rate returned as number without percent sign per rules (0).\n- Sender VAT ID returned as string including country prefix.\n- Invoice.Date chosen as \"2023-03-07\" (from Verkaufsdatum).\n- GrandTotal.Amount, Net.Amount, Vat.Amount returned as numeric values with same decimal precision.\n\nPotential ambiguities considered:\n- Two dates present (2023-03-01 and 2023-03-07); selected Verkaufsdatum (2023-03-07) as Invoice.Date.\n- Currency shows PLN equivalents — but schema expects amounts without currency symbol; amounts taken from EUR values explicitly labeled in EUR.\n- Multiple VAT/display lines exist for PLN and EUR; selected the EUR values since invoice currency is EUR.\n\nFields to output (final extraction will use these exact values):\n- Invoice.Date = \"2023-03-07\"\n- Sender.VatId = \"PL8861001703\"\n- GrandTotal.Amount = 850.00\n- Net.Amount = 850.00\n- Vat.Amount = 0.00\n- Vat.Rate = 0",
+    "step2": "{\n  \"Invoice.Date\": {\n    \"value\": \"2023-03-07\",\n    \"confidence\": \"0.90\",\n    \"reason\": \"Explicit label 'Verkaufsdatum: 2023-03-07' appears; close alternative delivery date present but labeled differently.\"\n  },\n  \"Sender.VatId\": {\n    \"value\": \"PL8861001703\",\n    \"confidence\": \"0.95\",\n    \"reason\": \"Explicit 'Ust. Id. Nr: PL 8861001703' shown near seller block.\"\n  },\n  \"GrandTotal.Amount\": {\n    \"value\": 850.00,\n    \"confidence\": \"0.95\",\n    \"reason\": \"Multiple 'Gesamtsumme' lines show 850,00 EUR as total; clear and unambiguous.\"\n  },\n  \"Net.Amount\": {\n    \"value\": 850.00,\n    \"confidence\": \"0.90\",\n    \"reason\": \"Nettowert in EUR listed as 850,00 matching totals; consistent with VAT 0%.\"\n  },\n  \"Vat.Amount\": {\n    \"value\": 0.00,\n    \"confidence\": \"0.95\",\n    \"reason\": \"Mehrwertsteuerwert (VAT amount) in EUR shown as 0,00 and VAT rate indicated as 0% (UE).\"\n  },\n  \"Vat.Rate\": {\n    \"value\": 0,\n    \"confidence\": \"0.95\",\n    \"reason\": \"Document explicitly indicates 'Podatek VAT UE 0%' / 0% VAT rate.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.03,
+      "input_tokens": 3030,
+      "cached_input_tokens": null,
+      "output_tokens": 857,
+      "total_tokens": 3887,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.47,
+      "input_tokens": 3614,
+      "cached_input_tokens": null,
+      "output_tokens": 532,
+      "total_tokens": 4146,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.83,
+      "input_tokens": 4254,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 4535,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198287\\198287.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "PL8861001703",
+        "PL 8861001703"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        850.0,
+        "850,00"
+      ],
+      "Net.Amount": [
+        true,
+        850.0,
+        "850,00"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Vat.Rate": [
+        true,
+        0,
+        "0"
+      ],
+      "Invoice.Date": [
+        false,
+        "2023-03-07",
+        "2023-03-01"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 10898,
+    "cached_input_tokens": 0,
+    "output_tokens": 1670,
+    "eur_estimate": 0.001129
+  }
+}

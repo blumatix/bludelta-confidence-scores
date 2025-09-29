@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\272958\\272875_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1431.4,
+    "Invoice.Date": "29.12.2023",
+    "Sender.VatId": "ATU 40885903",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 1192.83,
+    "Vat.Amount": 238.57
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.93,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will determine whether this document is an invoice and then identify required fields per the schema.\n\n1) Document classification\n- Invoice indicators present: the word \"Rechnung\" appears at top; terms like \"Rechnungsnummer\", \"Datum\", \"Endbetrag\", \"MwSt.\", \"Auftragssumme\", line items with quantities, unit prices and amounts. No prominent exclusion terms (\"Zahlungserinnerung\", \"Mahnung\", \"Servicebericht\") appear. Keyword density strongly favors invoice terms. Conclusion: document is an invoice → proceed to extraction.\n\n2) Locate fields per schema\nFields required: GrandTotal.Amount, Invoice.Date, Sender.VatId, Vat.Rate (one or more), Net.Amount (corresponding), Vat.Amount (corresponding).\n\n3) Extract Invoice.Date\n- \"Datum 29.12.2023\" appears on both pages. Therefore Invoice.Date = \"29.12.2023\".\n\n4) Extract GrandTotal.Amount\n- \"Endbetrag EUR 1.431,40\" on page 2. German format uses comma as decimal separator. Schema expects a number type; must preserve decimals as in input. Convert to numeric using dot as decimal point for JSON number: 1431.40. Grand total = 1431.40.\n\n5) Extract Sender.VatId\n- Identify sender VAT: header shows \"Herz Austria GmbH\" contact block. I see \"UID-Nr: ATU 40885903\" and elsewhere \"UID-Nr: ATU 40885903\". Also another VAT-like \"Ihre USt-IdNr. ATU64131246\" is the customer's VAT ID; but schema field is Sender.VatId (tax ID of the sender). Sender is Herz Austria GmbH; their UID/UID-Nr appears as \"ATU 40885903\" (with space). Normalize as \"ATU40885903\" or keep formatting? Schema expects string; do not infer; use exact extracted. The document shows \"UID-Nr: ATU 40885903\" and later \"UID-Nr: ATU 40885903\" — use \"ATU 40885903\". Do not remove spaces unless specified. I'll use \"ATU 40885903\".\n\n6) Extract VAT group(s): Vat.Rate, Net.Amount, Vat.Amount\n- On page 2 there is:\n  \"MwSt. 20,00 % EUR 238,57\"\n  \"Auftragssumme EUR 1.192,83\"\n  \"Endbetrag EUR 1.431,40\"\nInterpretation options:\n  A) Treat \"Auftragssumme\" as net amount (1.192,83) and \"MwSt. 20,00 %\" with VAT amount 238,57. This aligns: 1.192,83 + 238,57 = 1.431,40.\n  B) Any other net lines? No. So Vat.Rate = 20,00 % → per rule remove percent symbol and preserve decimals as in input. That gives number 20,00; but schema expects number type — decimal comma used. Must convert to numeric with dot: 20.00? Rule 5: extract rates without percentage symbol (e.g., \"19%\" as \"19\"). For consistency, use numeric 20.00 (preserve decimals same as input: input \"20,00\" has two decimals). Net.Amount should be numeric 1192.83 (from \"1.192,83\"). Vat.Amount numeric 238.57 (from \"238,57\"). Preserve decimals.\n\n7) Number formatting conversions\n- Convert German-format numbers to JSON numeric form (dot decimal separator):\n  GrandTotal.Amount 1.431,40 → 1431.40\n  Net.Amount 1.192,83 → 1192.83\n  Vat.Amount 238,57 → 238.57\n  Vat.Rate 20,00 → 20.00\n\n8) Verify no other VAT groups\n- Only one VAT group shown (MwSt. 20%). No other VAT rates present. So single VAT item.\n\n9) Check No Inference Policy\n- All extracted values are explicitly present; no guessing.\n\n10) Final decision for output fields\n- GrandTotal.Amount: 1431.40 (number)\n- Invoice.Date: \"29.12.2023\" (string)\n- Sender.VatId: \"ATU 40885903\" (string as in document)\n- Vat.Rate: 20.00 (number)\n- Net.Amount: 1192.83 (number)\n- Vat.Amount: 238.57 (number)",
+    "step2": "GrandTotal.Amount — Confidence: High\n- Evidence: \"Endbetrag EUR 1.431,40\" explicitly on page 2.\n- Internal consistency: Sum of Auftragssumme (1.192,83) + MwSt. (238,57) equals 1.431,40, matching Endbetrag.\n- Risk factors: OCR misread of digits unlikely given matching arithmetic.\n\nInvoice.Date — Confidence: Very High\n- Evidence: \"Datum 29.12.2023\" appears on both pages.\n- Internal consistency: Date formatting consistent and repeated.\n- Risk factors: Minimal.\n\nSender.VatId — Confidence: High\n- Evidence: Sender block includes \"UID-Nr: ATU 40885903\".\n- Internal consistency: UID appears twice in header/footer area.\n- Risk factors: There is also \"Ihre USt-IdNr. ATU64131246\" (customer VAT) which could be confused; but sender UID is labelled \"UID-Nr\" near sender address.\n\nVat.Rate — Confidence: High\n- Evidence: \"MwSt. 20,00 %\" is explicitly shown.\n- Internal consistency: VAT amount corresponds to 20% of Auftragssumme.\n- Risk factors: None significant.\n\nNet.Amount — Confidence: High\n- Evidence: \"Auftragssumme EUR 1.192,83\" appears as the invoice sum before VAT.\n- Internal consistency: 20% of 1.192,83 = 238,566 → rounded/displayed VAT 238,57; 1.192,83 + 238,57 = 1.431,40 matching Endbetrag.\n- Risk factors: Rounding matches displayed VAT, so reliable.\n\nVat.Amount — Confidence: High\n- Evidence: \"MwSt. 20,00 % ... EUR 238,57\" explicitly present.\n- Internal consistency: Matches 20% VAT calculation and grand total arithmetic.\n- Risk factors: OCR decimal/comma handling minimal; consistency across totals reduces risk."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 14.29,
+      "input_tokens": 3548,
+      "cached_input_tokens": null,
+      "output_tokens": 1032,
+      "total_tokens": 4580,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.22,
+      "input_tokens": 4563,
+      "cached_input_tokens": null,
+      "output_tokens": 413,
+      "total_tokens": 4976,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.78,
+      "input_tokens": 5276,
+      "cached_input_tokens": null,
+      "output_tokens": 222,
+      "total_tokens": 5498,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\272958\\272875_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU 40885903",
+        "ATU 40885903"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1431.4,
+        "1.431,40"
+      ],
+      "Net.Amount": [
+        true,
+        1192.83,
+        "1.192,83"
+      ],
+      "Vat.Amount": [
+        true,
+        238.57,
+        "238,57"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "29.12.2023",
+        "29.12.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 13387,
+    "cached_input_tokens": 0,
+    "output_tokens": 1667,
+    "eur_estimate": 0.005829
+  }
+}

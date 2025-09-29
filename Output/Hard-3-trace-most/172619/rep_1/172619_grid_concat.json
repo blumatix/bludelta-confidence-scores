@@ -1,0 +1,128 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\172619\\172619_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 578.5,
+    "Invoice.Date": "19.12.22",
+    "Sender.VatId": "CZ40763811",
+    "Vat.Rate": [
+      0,
+      21
+    ],
+    "Net.Amount": [
+      14034.41,
+      0.0
+    ],
+    "Vat.Amount": [
+      0.0,
+      0.0
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.85,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.8,
+    "Net.Amount": 0.55,
+    "Vat.Amount": 0.75
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Highly likely",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Highly likely",
+    "Net.Amount": "Better than even",
+    "Vat.Amount": "Very good chance"
+  },
+  "reasoning": {
+    "step1": "1) Classify document:\n- Header contains \"RECHNUNG\" and invoice-like fields (Nummer, VAT, Währung, TOTAL). No exclusion terms like \"Mahnung\" prominent. Conclusion: document is an invoice.\n\n2) Locate invoice date:\n- Found \"Praha : 19.12.22\" and \"Expedieret am : 19.12.22\". Use \"19.12.22\" as Invoice.Date.\n\n3) Identify sender VAT:\n- Sender block lists \"VAT: CZ40763811\" adjacent to METRANS. Also an \"VAT ... ATU62333479\" appears but context indicates CZ40763811 is the METRANS VAT. Select \"CZ40763811\" as Sender.VatId.\n\n4) Determine grand total:\n- TOTAL line shows columns \"KC/ EUR\" with values \"14034.41 578.50\". Währung is EUR, so Grand total in EUR is 578.50. Use 578.50 (preserve decimals).\n\n5) Extract VAT groups (rates, net amounts, VAT amounts):\n- There is a group \"Besteuerungsgrundlage 0% KC/ EUR 14034.41 578.50\" → Net = 14034.41, Vat.Rate = 0, Vat.Amount = 0.00? However VAT amount lines show \"MwSt. 21 % ... 0.00\" and previously \"Besteuerungsgrundlage 21 % KC/ EUR 0.00 0.00\". So the document shows:\n  - 0% group: Net.Amount = 14034.41, Vat.Rate = 0, Vat.Amount = 0.00 (in EUR column 578.50 corresponds to net in EUR)\n  - 21% group: Net.Amount = 0.00, Vat.Rate = 21, Vat.Amount = 0.00\n\n- Preserve decimal formatting as present (e.g., 14034.41, 578.50, 0.00).\n\n6) Verify currency alignment and no guessing:\n- Währung is EUR; use EUR-column numeric values. Do not infer any missing amounts. All extracted numbers taken directly from the EUR column.\n\nConclusion of extraction candidates (to be returned in final structured output): \n- Invoice.Date = \"19.12.22\"\n- Sender.VatId = \"CZ40763811\"\n- GrandTotal.Amount = 578.50\n- VAT groups:\n  - Rate = 0, Net.Amount = 14034.41, Vat.Amount = 0.00\n  - Rate = 21, Net.Amount = 0.00, Vat.Amount = 0.00",
+    "step2": "- Invoice.Date (\"19.12.22\"): High confidence (~0.95). Date appears twice (\"Praha : 19.12.22\", \"Expedieret am : 19.12.22\") and clearly labeled.\n\n- Sender.VatId (\"CZ40763811\"): High confidence (~0.90). \"VAT: CZ40763811\" is adjacent to sender block; alternative VAT (ATU62333479) also present but likely belongs to a different entity—context favors CZ40763811.\n\n- GrandTotal.Amount (578.50): Moderate-high confidence (~0.85). \"TOTAL: KC/ EUR 14034.41 578.50\" lists two columns (KC and EUR); 578.50 under EUR is consistent with Währung: EUR. Slight ambiguity if 578.50 is net vs. total, but layout indicates TOTAL in EUR is 578.50.\n\n- VAT group — Rate = 0:\n  - Vat.Rate = 0: Moderate confidence (~0.80). Text shows \"Besteuerungsgrundlage 0%\".\n  - Net.Amount = 14034.41: Low confidence (~0.30). The line shows \"KC/ EUR 14034.41 578.50\" — 14034.41 likely the KC value, not the EUR net; mapping to Net.Amount in EUR is ambiguous.\n  - Vat.Amount = 0.00: Moderate confidence (~0.70). Document shows VAT amounts of 0.00 for 0% group, but alignment with columns is somewhat ambiguous.\n\n- VAT group — Rate = 21:\n  - Vat.Rate = 21: High confidence (~0.90). \"21 %\" appears clearly.\n  - Net.Amount = 0.00: Moderate confidence (~0.80). Text shows \"Besteuerungsgrundlage 21 % ... 0.00\".\n  - Vat.Amount = 0.00: Moderate confidence (~0.80). \"MwSt. 21 % ... 0.00\" is present.\n\nOverall notes: currency-column alignment (KC vs EUR) introduces the main uncertainty, especially for which numeric value corresponds to Net.Amount vs GrandTotal.Amount."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.61,
+      "input_tokens": 1888,
+      "cached_input_tokens": null,
+      "output_tokens": 1330,
+      "total_tokens": 3218,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 11.81,
+      "input_tokens": 2497,
+      "cached_input_tokens": null,
+      "output_tokens": 970,
+      "total_tokens": 3467,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 8.67,
+      "input_tokens": 3255,
+      "cached_input_tokens": null,
+      "output_tokens": 628,
+      "total_tokens": 3883,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\172619\\172619.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "CZ40763811",
+        "CZ40763811"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        578.5,
+        "578.50"
+      ],
+      "Net.Amount": [
+        false,
+        [
+          14034.41,
+          0.0
+        ],
+        [
+          "578.50",
+          "0.00"
+        ]
+      ],
+      "Vat.Amount": [
+        false,
+        [
+          0.0,
+          0.0
+        ],
+        "0.00"
+      ],
+      "Vat.Rate": [
+        true,
+        [
+          0,
+          21
+        ],
+        [
+          "0",
+          "21",
+          "21"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "19.12.22",
+        "19.12.22"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7640,
+    "cached_input_tokens": 0,
+    "output_tokens": 2928,
+    "eur_estimate": 0.001407
+  }
+}

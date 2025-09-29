@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\187053\\187053_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 362.96,
+    "Invoice.Date": "27.04.2023",
+    "Sender.VatId": "ATU34912609",
+    "Vat.Rate": 20,
+    "Net.Amount": 302.47,
+    "Vat.Amount": 60.49
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Below is a concise, non-sensitive reasoning summary and evidence-based extraction plan.\n\n1) Document classification\n- Presence of header \"Rechnung 1217139\", invoice-style fields (Rechnungsdatum, Kundennummer, Nettobetrag, MwSt, Gesamtbetrag) → classify as invoice.\n\n2) Candidate field identifications (with textual evidence)\n- Invoice.Date: \"Rechnungsdatum: 27.04.2023\" → candidate \"27.04.2023\".\n- Sender.VatId: \"UID-NR.: ATU34912609\" under KAISER+KRAFT → candidate \"ATU34912609\".\n  Note: There is also \"Ust. - ID: ATU62055224\" near customer block — treat as buyer VAT, not sender.\n- GrandTotal.Amount: \"Gesamtbetrag inkl. MwSt: 362,96 EUR\" → candidate numeric 362,96.\n- Net.Amount: \"Nettobetrag: 302,47 EUR\" → candidate numeric 302,47.\n- Vat.Rate: Line item shows \"20,00%\" and summary shows \"MwSt 20,00%:\" → candidate numeric 20.00 (will return as 20).\n- Vat.Amount: Summary shows \"60,49 EUR\" next to MwSt 20,00% → candidate numeric 60,49.\n\n3) Conformance with rules\n- No guessing: all candidates come from explicit invoice text.\n- Decimal places preserved as in source (e.g., 302,47; 60,49; 362,96).\n- VAT rate will be returned without percent symbol (as number 20).\n- Document passes header-based validation.\n\n4) Plan for final output\n- Populate JSON fields with the exact extracted values (numbers kept with same decimal formatting as in input). If any field were missing, it would be returned as an empty string.",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"value\": \"362,96\",\n    \"confidence\": \"95%\",\n    \"evidence\": \"Explicit line 'Gesamtbetrag inkl. MwSt: 362,96 EUR' on page 2.\"\n  },\n  \"Invoice.Date\": {\n    \"value\": \"27.04.2023\",\n    \"confidence\": \"99%\",\n    \"evidence\": \"Labeled 'Rechnungsdatum: 27.04.2023' on page 1.\"\n  },\n  \"Sender.VatId\": {\n    \"value\": \"ATU34912609\",\n    \"confidence\": \"95%\",\n    \"evidence\": \"UID-NR.: ATU34912609 shown under KAISER+KRAFT header (sender).\"\n  },\n  \"Vat.Rate\": {\n    \"value\": 20,\n    \"confidence\": \"99%\",\n    \"evidence\": \"Multiple occurrences: line item shows '20,00%' and summary shows 'MwSt 20,00%'.\"\n  },\n  \"Net.Amount\": {\n    \"value\": \"302,47\",\n    \"confidence\": \"99%\",\n    \"evidence\": \"Explicit 'Nettobetrag: 302,47 EUR' on page 2 and matches line-item total '302,47'.\"\n  },\n  \"Vat.Amount\": {\n    \"value\": \"60,49\",\n    \"confidence\": \"99%\",\n    \"evidence\": \"Summary shows 'MwSt 20,00%: ... 60,49 EUR' corresponding to VAT amount.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.28,
+      "input_tokens": 2282,
+      "cached_input_tokens": null,
+      "output_tokens": 730,
+      "total_tokens": 3012,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.55,
+      "input_tokens": 2739,
+      "cached_input_tokens": null,
+      "output_tokens": 400,
+      "total_tokens": 3139,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.42,
+      "input_tokens": 3375,
+      "cached_input_tokens": null,
+      "output_tokens": 217,
+      "total_tokens": 3592,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\187053\\187053_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU34912609",
+        "ATU34912609"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        362.96,
+        "362,96"
+      ],
+      "Net.Amount": [
+        true,
+        302.47,
+        "302,47"
+      ],
+      "Vat.Amount": [
+        true,
+        60.49,
+        "60,49"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "27.04.2023",
+        "27.04.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8396,
+    "cached_input_tokens": 0,
+    "output_tokens": 1347,
+    "eur_estimate": 0.004177
+  }
+}

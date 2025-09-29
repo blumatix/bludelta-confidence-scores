@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\249627\\249629_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 90.22,
+    "Invoice.Date": "02.11.2023",
+    "Sender.VatId": "ATU69710958",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 75.18,
+    "Vat.Amount": 15.04
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.97,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Classify document:\n- Contains header \"Rechnung\", invoice number, invoice date, line items, totals -> qualifies as invoice (no exclusion terms like \"Mahnung\" dominate).\n\n2) Locate Invoice.Date:\n- Found \"Datum 02.11.2023\" at top. Candidate: \"02.11.2023\".\n\n3) Determine Sender.VatId:\n- Two Ust-Id-Nr. present:\n  - Near top (recipient/customer): \"Ihre Ust-Id-Nr. ATU64131246\" — likely buyer.\n  - Footer (company details): \"Ust.-ID-Nr. ATU69710958\" — matches CREATON GmbH sender.\n- Per sender identification, choose \"ATU69710958\".\n\n4) Find totals:\n- Net total: \"Gesamtbetrag Netto 75,18 EUR\" -> Net.Amount = 75.18 (preserve two decimals).\n- VAT group and VAT amount: \"R2 - 20.00% USt auf 75,18 ... 15,04 EUR\" -> Vat.Rate = 20.00, Vat.Amount = 15.04.\n- Grand total: \"Gesamtbetrag Brutto 90,22 EUR\" -> GrandTotal.Amount = 90.22.\n\n5) Verify consistency:\n- Net 75.18 + Vat 15.04 = 90.22 matches GrandTotal.\n- No other VAT groups visible; single VAT group present.\n\n6) Apply rules:\n- Do not infer missing values (all required fields found).\n- Convert comma decimals to dot, keep same decimal places.\n- Remove percent sign from rate and represent as number with same decimals.\n\nConclusion: fields to extract: Invoice.Date \"02.11.2023\"; Sender.VatId \"ATU69710958\"; Net.Amount 75.18; Vat.Rate 20.00; Vat.Amount 15.04; GrandTotal.Amount 90.22.",
+    "step2": "{\n  \"Invoice.Date\": {\n    \"value\": \"02.11.2023\",\n    \"confidence\": 0.99,\n    \"note\": \"Date labeled 'Datum' at top of invoice; clear and unambiguous.\"\n  },\n  \"Sender.VatId\": {\n    \"value\": \"ATU69710958\",\n    \"confidence\": 0.95,\n    \"note\": \"Footer shows 'Ust.-ID-Nr. ATU69710958' for CREATON GmbH; another USt-Id (ATU64131246) appears as 'Ihre Ust-Id-Nr.' (buyer), so selected sender VAT.\"\n  },\n  \"Net.Amount\": {\n    \"value\": 75.18,\n    \"confidence\": 0.98,\n    \"note\": \"'Gesamtbetrag Netto 75,18 EUR' clearly printed; arithmetic matches totals.\"\n  },\n  \"Vat.Rate\": {\n    \"value\": 20.00,\n    \"confidence\": 0.97,\n    \"note\": \"VAT group shown as '20.00%' for R2; single VAT rate present for invoice.\"\n  },\n  \"Vat.Amount\": {\n    \"value\": 15.04,\n    \"confidence\": 0.98,\n    \"note\": \"VAT amount printed as '15,04 EUR' corresponding to 20% on net total; consistent with grand total.\"\n  },\n  \"GrandTotal.Amount\": {\n    \"value\": 90.22,\n    \"confidence\": 0.99,\n    \"note\": \"'Gesamtbetrag Brutto 90,22 EUR' printed and consistent with net + VAT.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.93,
+      "input_tokens": 2984,
+      "cached_input_tokens": null,
+      "output_tokens": 922,
+      "total_tokens": 3906,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.32,
+      "input_tokens": 3441,
+      "cached_input_tokens": null,
+      "output_tokens": 481,
+      "total_tokens": 3922,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.56,
+      "input_tokens": 4094,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 4377,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\249627\\249629_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU69710958",
+        "ATU69710958,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        90.22,
+        "90,22"
+      ],
+      "Net.Amount": [
+        true,
+        75.18,
+        "75,18"
+      ],
+      "Vat.Amount": [
+        true,
+        15.04,
+        "15,04"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20.00"
+      ],
+      "Invoice.Date": [
+        true,
+        "02.11.2023",
+        "02.11.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 10519,
+    "cached_input_tokens": 0,
+    "output_tokens": 1686,
+    "eur_estimate": 0.005231
+  }
+}

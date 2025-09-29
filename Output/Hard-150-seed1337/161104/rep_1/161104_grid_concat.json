@@ -1,0 +1,98 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\161104\\161104_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 750.0,
+    "Invoice.Date": "2022.01.31.",
+    "Sender.VatId": "263399.42-2-03",
+    "Vat.Rate": "",
+    "Net.Amount": 750.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.7,
+    "Vat.Rate": 1.0,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Very good chance",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not produce the final JSON yet. Reasoning and extraction decisions:\n\n- Classify document: title \"SZÁMLA\" (invoice in Hungarian) present; invoice-like headers, totals, line items => it's an invoice.\n- Locate Grand Total: \"Fizetendõ végösszeg: 750,00 EUR\" and overall \"Összesen: 750,00\" — use 750,00 as GrandTotal.Amount.\n- Invoice date: \"Számla kelte 2022.01.31.\" — extract \"2022.01.31.\" as Invoice.Date (exact string).\n- Sender VAT/Tax ID: two tax fields appear:\n  - \"Adószám:„263399.42-2-03\" (labeled Adószám) and\n  - \"EU adószám: HÜ26339942\"\n  Per \"No Inference\" rule, select the explicit \"Adószám\" value for Sender.VatId: 263399.42-2-03 (preserving characters present, removing stray quote).\n- VAT rate: no explicit percentage (e.g., \"19%\") appears; only VAT amounts shown as 0,00. Per rule not to guess, leave Vat.Rate empty.\n- Net.Amount: Nettó érték shows 750,00 — extract as number preserving two decimals -> 750.00.\n- Vat.Amount: ÁFA érték / ÁFA tartalom shown as 0,00 — extract as number preserving two decimals -> 0.00.\n- Decimal formatting: input uses two decimals with comma; JSON numeric values will use dot but preserve two decimal places.\n- No other exchange-rate entries that apply to entire invoice besides the parenthetical \"1 EUR=361,1200 HUF\" (exchange rate shown). Rule 6: exchange rates are only returned if applicable; user schema does not include exchange rate field, so ignore.\n\nFields absent or ambiguous were left empty per the No Inference policy (notably Vat.Rate).",
+    "step2": "GrandTotal.Amount — Confidence: 95%\n- Evidence: \"Fizetendõ végösszeg: 750,00 EUR\" and \"Összesen: 750,00\" appear clearly. Very consistent.\n\nInvoice.Date — Confidence: 95%\n- Evidence: \"Számla kelte 2022.01.31.\" is explicit and unambiguous.\n\nSender.VatId — Confidence: 70%\n- Evidence: Two tax identifiers present: \"Adószám:„263399.42-2-03\" and \"EU adószám: HÜ26339942\".\n- Reasoning: Chose the plain \"Adószám\" as Sender.VatId. Slight uncertainty due to OCR artifacts (quotes, unusual characters) and presence of an EU VAT ID; actual required field could be EU adószám instead.\n\nVat.Rate — Confidence: 100% (as empty)\n- Evidence: No explicit VAT percentage shown. VAT amounts given as 0,00. Per no-inference rule, leaving empty is correct.\n\nNet.Amount — Confidence: 95%\n- Evidence: Nettó érték lines show 750,00 matching totals. Clear and consistent.\n\nVat.Amount — Confidence: 95%\n- Evidence: ÁFA érték / ÁFA tartalom shown as 0,00 in multiple places. Clear.\n\nNotes on formatting and uncertainties:\n- Numeric values converted from comma decimals to numerical form; decimals preserved. OCR artifacts (extra characters) may affect Sender.VatId accuracy."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.91,
+      "input_tokens": 1906,
+      "cached_input_tokens": null,
+      "output_tokens": 1131,
+      "total_tokens": 3037,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.26,
+      "input_tokens": 2380,
+      "cached_input_tokens": null,
+      "output_tokens": 320,
+      "total_tokens": 2700,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.13,
+      "input_tokens": 3000,
+      "cached_input_tokens": null,
+      "output_tokens": 282,
+      "total_tokens": 3282,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\161104\\161104.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "263399.42-2-03",
+        "HU26339942"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        750.0,
+        "750,00"
+      ],
+      "Net.Amount": [
+        true,
+        750.0,
+        "750,00"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "2022.01.31.",
+        "2022.01.31"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 5,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7286,
+    "cached_input_tokens": 0,
+    "output_tokens": 1733,
+    "eur_estimate": 0.000971
+  }
+}

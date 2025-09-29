@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\185558\\185500_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 6888.0,
+    "Invoice.Date": "21.04.2023",
+    "Sender.VatId": "ATU71975703",
+    "Vat.Rate": 20,
+    "Net.Amount": 5740.0,
+    "Vat.Amount": 1148.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains clear invoice indicators: header \"RECHNUNG\", invoice number \"202203984\", invoice-like sections (positions, Nettobetrag, USt., Rechnungsbetrag) — classify as invoice.\n\nLocate fields:\n- Invoice date: found \"vom 21.04.2023\" → Invoice.Date = \"21.04.2023\".\n- Grand total: \"Rechnungsbetrag 6888,00 EUR\" → GrandTotal.Amount = 6888,00.\n- Net amount: \"Nettobetrag 5740,00 EUR\" → Net.Amount = 5740,00.\n- VAT rate and amount: \"+ 20,00% USt. von 5740,00 1 148,00 EUR\" → Vat.Rate = 20, Vat.Amount = 1148,00.\n- Sender VAT ID: bottom shows \"UID ATU 71975703\" (company BT3) → Sender.VatId = \"ATU71975703\".\n\nVerify no inference:\n- All values are explicitly present in text; no guessed or inferred values used.\n\nDecimal/format notes for final extraction:\n- Preserve decimals as shown (e.g., 5740,00; 1148,00; 6888,00).\n- VAT rate extracted without percent sign as \"20\".",
+    "step2": "GrandTotal.Amount:\n- Evidence: Line \"Rechnungsbetrag                                                                  6888,00            EUR\" is explicit.\n- Ambiguities: None significant; value formatting uses comma as decimal separator.\n- Confidence: Very high.\n\nInvoice.Date:\n- Evidence: Line \"vom          21.04.2023\" directly labels the invoice date.\n- Ambiguities: None.\n- Confidence: Very high.\n\nSender.VatId:\n- Evidence: Footer shows \"UID   ATU   71975703\" associated with BT3 Betontechnik GmbH.\n- Ambiguities: OCR noise elsewhere shows \"Kunden-UID-Nr.: ATU43345705\" (customer VAT) — must ensure sender vs. customer; footer UID aligns with sender company header, so interpretation as sender VAT is supported but requires distinguishing sender vs. recipient UIDs.\n- Confidence: High (minor risk of misassignment if footer UID were misread, but text context indicates sender).\n\nVat.Rate:\n- Evidence: Line \"+   20,00%         USt.      von      5740,00\" explicitly states 20% VAT.\n- Ambiguities: None.\n- Confidence: Very high.\n\nNet.Amount:\n- Evidence: Line \"Nettobetrag                                                                      5740,00            EUR\" explicit.\n- Ambiguities: None.\n- Confidence: Very high.\n\nVat.Amount:\n- Evidence: Same VAT line shows \"1   148,00         EUR\" as the VAT amount corresponding to 20% of 5740,00.\n- Ambiguities: OCR spacing introduced extra spaces and a stray \"1\" before amount, but numeric value 1148,00 is clear.\n- Confidence: High."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.22,
+      "input_tokens": 2140,
+      "cached_input_tokens": null,
+      "output_tokens": 602,
+      "total_tokens": 2742,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.78,
+      "input_tokens": 2469,
+      "cached_input_tokens": null,
+      "output_tokens": 424,
+      "total_tokens": 2893,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.92,
+      "input_tokens": 3129,
+      "cached_input_tokens": null,
+      "output_tokens": 348,
+      "total_tokens": 3477,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\185558\\185500_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU71975703",
+        "ATU 71975703"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        6888.0,
+        "6888,00"
+      ],
+      "Net.Amount": [
+        true,
+        5740.0,
+        "5740,00"
+      ],
+      "Vat.Amount": [
+        true,
+        1148.0,
+        "1148,00"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "21.04.2023",
+        "21.04.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7738,
+    "cached_input_tokens": 0,
+    "output_tokens": 1374,
+    "eur_estimate": 0.004079
+  }
+}

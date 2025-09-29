@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\274827\\274810_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 266.35,
+    "Invoice.Date": "16.01.2024",
+    "Sender.VatId": "ATU 37450806",
+    "Vat.Rate": 0.0,
+    "Net.Amount": 266.35,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.96,
+    "Net.Amount": 0.96,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will extract fields only if the document is an invoice.\n\n1) Classify document:\n- Presence of invoice indicators: \"Rechnungsnummer\", \"Datum\", \"Vorschreibungsbetrag\", \"Betrag\", \"IBAN\", \"UID\" — strongly invoice-like.\n- No exclusion headers like \"Zahlungserinnerung\" or \"Mahnung\".\n=> Document qualifies as an invoice.\n\n2) Locate sender VAT ID:\n- Found \"UID:ATU  37450806\" near top. Use exact identifier text normalized to single space: \"ATU 37450806\".\n\n3) Locate invoice date:\n- Found \"Datum:                             16.01.2024\" => Invoice.Date = \"16.01.2024\".\n\n4) Locate totals and net/VAT breakdown:\n- Found \"netto        266,35\" and \"Vorschreibungsbetrag                                              266,35   EUR\" and \"Betrag: EUR     266,35\" — Grand total = 266,35.\n- Found VAT group line showing \"0,00 %    netto        266,35   Ust-Betr.         0,00\" => VAT rate = 0,00%; Net.Amount = 266,35; Vat.Amount = 0,00.\n- Decimal format in text uses comma; convert to numeric with two decimals using period: 266.35 and 0.00; VAT rate as numeric 0.00 (per rule: omit %).\n\n5) Verify no other VAT groups or exchange rates:\n- No other VAT percentage lines visible. No invoice-level exchange rate present.\n\n6) Apply No-Inference rule:\n- All fields present in text; none require guessing.\n\n7) Final mapping to schema types:\n- GrandTotal.Amount: 266.35 (number)\n- Invoice.Date: \"16.01.2024\" (string)\n- Sender.VatId: \"ATU 37450806\" (string)\n- Vat.Rate: 0.00 (number)\n- Net.Amount: 266.35 (number)\n- Vat.Amount: 0.00 (number)",
+    "step2": "GrandTotal.Amount (266,35 -> 266.35)\n- Evidence: \"Vorschreibungsbetrag 266,35 EUR\"; \"Betrag: EUR 266,35\".\n- Consistency: same value appears multiple times.\n- Confidence: 95%\n\nInvoice.Date (\"16.01.2024\")\n- Evidence: \"Datum:                             16.01.2024\".\n- Consistency: clear labeled date near header.\n- Confidence: 98%\n\nSender.VatId (\"ATU 37450806\")\n- Evidence: \"UID:ATU  37450806\" at top of document.\n- Consistency: clearly labeled UID (VAT).\n- Confidence: 98%\n\nVat.Rate (0,00 -> 0.00)\n- Evidence: VAT line shows \"0,00 %    netto        266,35   Ust-Betr.         0,00\".\n- Consistency: explicit VAT percentage for the invoice.\n- Confidence: 96%\n\nNet.Amount (266,35 -> 266.35)\n- Evidence: \"netto        266,35\" associated with 0,00% VAT line; matches total.\n- Consistency: matches Vorschreibungsbetrag and Grand Total for 0% VAT.\n- Confidence: 96%\n\nVat.Amount (0,00 -> 0.00)\n- Evidence: \"Ust-Betr.         0,00\" on VAT line.\n- Consistency: aligns with 0.00% VAT on net 266,35.\n- Confidence: 98%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.34,
+      "input_tokens": 1774,
+      "output_tokens": 958,
+      "total_tokens": 2732
+    },
+    "step2": {
+      "runtime_sec": 4.06,
+      "input_tokens": 2227,
+      "output_tokens": 390,
+      "total_tokens": 2617
+    },
+    "step3": {
+      "runtime_sec": 4.77,
+      "input_tokens": 2822,
+      "output_tokens": 348,
+      "total_tokens": 3170
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274827\\274810_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU 37450806",
+        "ATU 37450806"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        266.35,
+        "266,35"
+      ],
+      "Net.Amount": [
+        true,
+        266.35,
+        "266,35"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Vat.Rate": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "16.01.2024",
+        "16.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  }
+}

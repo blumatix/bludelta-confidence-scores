@@ -1,0 +1,130 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\255178\\255178_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 72079.17,
+    "Invoice.Date": "23.11.2023",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": [
+      10,
+      20
+    ],
+    "Net.Amount": [
+      61498.95,
+      3691.93
+    ],
+    "Vat.Amount": [
+      6149.9,
+      738.39
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Step 1 — Plan and extraction checks\n\n1. Confirm document is an invoice:\n   - Contains \"RECHNUNG\" and invoice-like sections (positions, Mengen, Preis, Warenwert).\n   - No prominent exclusion terms like \"Mahnung\" — classify as invoice.\n\n2. Locate invoice-level fields:\n   - Invoice date: found \"Datum: 23.11.2023\".\n   - Sender VAT: two VAT-like IDs present: \"USt-Id: ATU22642807\" (near top) and \"USt-IdNr. ATU14391601\" (footer). Select the top \"USt-Id: ATU22642807\" as sender VAT (explicitly labeled).\n   - Grand total: \"Bruttobetrag 72.079,17\".\n   - Net totals and VAT groups: bottom shows:\n     - \"Nettowert gesamt 65.190,88\"\n     - \"10% MWSt von 61.498,95   6.149,90\"\n     - \"20% MWSt von 3.691,93    738,39\"\n   - Verify sums: 61.498,95 + 3.691,93 = 65.190,88 (matches Nettowert); 65.190,88 + 6.149,90 + 738,39 = 72.079,17 (matches Bruttobetrag).\n\n3. Apply rules:\n   - No inference: use exact strings/numbers as printed.\n   - Preserve decimals as in input (e.g., 72.079,17 -> keep two decimals and comma decimal format noted; final schema expects numbers—will convert to numeric format with decimal point).\n   - VAT rates must be extracted without percent symbol: \"10\" and \"20\".\n   - There are multiple VAT groups; record both groups' Net.Amount and Vat.Amount corresponding to rates 10 and 20.\n\n4. Field mapping to schema:\n   - Invoice.Date -> \"23.11.2023\"\n   - Sender.VatId -> \"ATU22642807\"\n   - GrandTotal.Amount -> 72,079.17 (preserve decimals; convert to numeric with dot)\n   - Vat groups:\n     - Vat.Rate entries: 10 and 20\n     - Net.Amount entries: 61,498.95 and 3,691.93\n     - Vat.Amount entries: 6,149.90 and 738.39\n\n5. Handle formatting:\n   - Convert OCR comma decimals to numeric dots for JSON numbers.\n   - Do not fill any missing fields by inference.\n\nProceed to produce final JSON per schema with these extracted values.",
+    "step2": "Invoice.Date — Confidence: 99%\n- Evidence: \"Datum: 23.11.2023\" appears clearly on multiple pages. Very explicit and unambiguous.\n\nSender.VatId — Confidence: 90%\n- Evidence: Two VAT-like IDs present: \"USt-Id: ATU22642807\" (top) and \"USt-IdNr. ATU14391601\" (footer). Chosen \"USt-Id: ATU22642807\" because it is explicitly labeled \"USt-Id\" near header. Minor ambiguity due to second VAT in footer.\n\nGrandTotal.Amount — Confidence: 98%\n- Evidence: \"Bruttobetrag 72.079,17\" at bottom; matches Nettowert + VAT sums shown. Clear numeric total. Low residual risk only from OCR formatting.\n\nVat.Rate entries — Confidence: 99%\n- Evidence: Two VAT groups explicitly labeled \"10% MWSt\" and \"20% MWSt\" in the summary. Rates extracted as \"10\" and \"20\" (per rule to drop %). Very explicit.\n\nNet.Amount entries (per VAT group) — Confidence: 98%\n- Evidence: Summary shows \"Nettowert gesamt 65.190,88\" and breakdown lines: \"10% MWSt von 61.498,95\" and \"20% MWSt von 3.691,93\". These two numbers sum to Nettowert. Low risk from OCR comma/decimal interpretation.\n\nVat.Amount entries (per VAT group) — Confidence: 98%\n- Evidence: Summary shows VAT amounts \"6.149,90\" (for 10%) and \"738,39\" (for 20%). These VAT amounts plus Nettowert equal Bruttobetrag. Low risk from OCR formatting.\n\nOverall consistency check — Confidence: 99%\n- Nettowert breakdown (61.498,95 + 3.691,93 = 65.190,88) and Nettowert + VATs (65.190,88 + 6.149,90 + 738,39 = 72.079,17) all match printed totals, supporting correctness."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.48,
+      "input_tokens": 6119,
+      "cached_input_tokens": null,
+      "output_tokens": 1137,
+      "total_tokens": 7256,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.67,
+      "input_tokens": 6727,
+      "cached_input_tokens": null,
+      "output_tokens": 519,
+      "total_tokens": 7246,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 10.13,
+      "input_tokens": 7482,
+      "cached_input_tokens": null,
+      "output_tokens": 569,
+      "total_tokens": 8051,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\255178\\255178_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU14391601,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        72079.17,
+        "72.079,17"
+      ],
+      "Net.Amount": [
+        true,
+        [
+          61498.95,
+          3691.93
+        ],
+        [
+          "3.691,93",
+          "61.498,95"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        [
+          6149.9,
+          738.39
+        ],
+        [
+          "738,39",
+          "6.149,90"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        [
+          10,
+          20
+        ],
+        [
+          "20",
+          "10"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "23.11.2023",
+        "23.11.2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 20328,
+    "cached_input_tokens": 0,
+    "output_tokens": 2225,
+    "eur_estimate": 0.008321
+  }
+}

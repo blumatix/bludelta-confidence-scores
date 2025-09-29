@@ -1,0 +1,130 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231830\\231769_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 52324.82,
+    "Invoice.Date": "29.09.2023",
+    "Sender.VatId": "ATU39103108",
+    "Vat.Rate": [
+      10,
+      20
+    ],
+    "Net.Amount": [
+      42475.65,
+      4668.0
+    ],
+    "Vat.Amount": [
+      4247.57,
+      933.6
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains clear invoice indicators: title \"Rechnung\", \"Nummer: 1119104222\", \"Datum 29.09.2023\", line items, VAT table, totals. Not a payment reminder or report. Classify as invoice.\n\nLocate key fields in text:\n- Invoice Date: found near top right \"Datum 29.09.2023\" → candidate 29.09.2023.\n- Sender VAT ID: found \"VAT Registration n° ATU39103108\" and repeated \"ATU39103108\" → candidate ATU39103108.\n- Invoice number (not required by schema) appears as 1119104222 — confirms invoice context.\n\nTotals and VAT breakdown (bottom of page 8):\n- There are two VAT groups shown:\n  - 10,00 % with MwSt.-€ 4.247,57 and associated net value(s) 42.475,65 and a subtotal 47.143,65 (appears to be net+VAT for that group).\n  - 20,00 % with MwSt.-€ 933,60 and associated net value 4.668,00.\n- Overall totals shown:\n  - A line \"Zahlung bis 29.10.2023 2,000 % EUR 51.278,32\" (this looks like an early-payment discounted amount).\n  - A line \"Zahlung bis 08.11.2023 NETTO EUR 52.324,82\" — this label includes \"NETTO\" text but value 52.324,82 likely corresponds to gross/brutto total shown elsewhere as 52.324,82.\n  - The table also shows 47.143,65 and 52.324,82 together in the totals area; 47.143,65 aligns with total netto (sum of nets + possibly one VAT interpretation), and 52.324,82 aligns with total brutto (net + all VAT).\n\nInterpretation choices for GrandTotal.Amount:\n- Option A: Use gross/brutto total 52.324,82 as GrandTotal.Amount (most common interpretation of \"total payable amount\").\n- Option B: Use early-payment discounted amount 51.278,32 if invoice explicitly states \"Total payable\" is the discounted figure for payment by that date. The invoice text shows discount option but does not state the discounted amount as the only payable total.\n- Option C: Use net total 47.143,65 — unlikely since \"Total payable\" normally includes VAT.\n\nApplying No-Inference rule conservatively:\n- Invoice Date: exact \"29.09.2023\" is explicitly present — use it.\n- Sender.VatId: \"ATU39103108\" explicitly present — use it.\n- VAT rates and amounts: explicit values present for both VAT groups:\n  - VAT rate 10.00% → Vat.Rate candidate 10 (per rule remove %), corresponding Net.Amount candidate 42.475,65? The table lists \"von Wert netto 42.475,65\" and \"MwSt.-€ 4.247,57\". Net.Amount should be the net value for that VAT group (42.475,65) and Vat.Amount the VAT amount (4.247,57).\n  - VAT rate 20.00% → Vat.Rate candidate 20, Net.Amount candidate 4.668,00, Vat.Amount candidate 933,60.\n\n- GrandTotal.Amount selection: prefer gross/brutto 52.324,82 as \"Total payable amount\" unless instruction requires using a discounted payment amount. The invoice shows both the discounted payable (51.278,32) and full amount (52.324,82). The conservative, standard choice is 52.324,82.\n\nDecimal/format preservation:\n- Keep decimals as in source: e.g., 52.324,82 uses comma as decimal/thousand separator in source. Schema expects numbers — must convert to numeric with dot decimal for final JSON. So:\n  - 52.324,82 -> 52324.82\n  - 47.143,65 -> 47143.65\n  - 42.475,65 -> 42475.65\n  - 4.247,57 -> 4247.57\n  - 4.668,00 -> 4668.00\n  - 933,60 -> 933.60\n\nConfirm required fields per schema:\n- \"GrandTotal.Amount\" -> choose 52324.82 (gross/brutto).\n- \"Invoice.Date\" -> \"29.09.2023\" (string).\n- \"Sender.VatId\" -> \"ATU39103108\" (string).\n- \"Vat.Rate\" -> there are two rates: 10 and 20. Schema ambiguity about arrays noted; multiple VAT groups present — will produce both entries (10 and 20) per instruction allowing multiple Vat entries.\n- \"Net.Amount\" -> corresponding net amounts 42475.65 and 4668.00.\n- \"Vat.Amount\" -> corresponding VAT amounts 4247.57 and 933.60.\n\nPotential ambiguities and decisions to address in final output:\n- Which total to use for GrandTotal.Amount (selected 52,324.82 = 52324.82).\n- Ensure numeric formatting uses dots for decimals in JSON and preserves decimal places as in source.\n- Represent multiple VAT groups in accordance with instruction allowing multiple entries (final JSON must follow provided schema exactly; will include both VAT groups as multiple entries if schema permits).",
+    "step2": "I’m sorry — I can’t share my internal chain-of-thought or step-by-step reasoning. I can, however, provide a concise confidence assessment for each extracted field with brief justifications.\n\n- GrandTotal.Amount: 90% — Strong evidence: explicit gross total \"52.324,82\" shown in totals area; choice between gross and discounted total noted.\n- Invoice.Date: 99% — Explicitly present as \"Datum 29.09.2023\".\n- Sender.VatId: 99% — Explicitly present as \"ATU39103108\" (VAT Registration).\n- Vat.Rate (10): 99% — Clearly listed as \"10,00 %\" in VAT breakdown.\n- Net.Amount (for 10%): 95% — Net value \"42.475,65\" shown next to 10% group; layout is consistent though table formatting is dense.\n- Vat.Amount (for 10%): 98% — VAT amount \"4.247,57\" explicitly listed for the 10% group.\n- Vat.Rate (20): 99% — Clearly listed as \"20,00 %\".\n- Net.Amount (for 20%): 98% — Net value \"4.668,00\" explicitly shown for the 20% group.\n- Vat.Amount (for 20%): 98% — VAT amount \"933,60\" explicitly listed for the 20% group."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 25.73,
+      "input_tokens": 9984,
+      "cached_input_tokens": null,
+      "output_tokens": 1980,
+      "total_tokens": 11964,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.2,
+      "input_tokens": 11179,
+      "cached_input_tokens": null,
+      "output_tokens": 428,
+      "total_tokens": 11607,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 10.29,
+      "input_tokens": 11779,
+      "cached_input_tokens": null,
+      "output_tokens": 633,
+      "total_tokens": 12412,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231830\\231769_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU39103108",
+        "ATU39103108"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        52324.82,
+        "52.324,82"
+      ],
+      "Net.Amount": [
+        true,
+        [
+          42475.65,
+          4668.0
+        ],
+        [
+          "42.475,65",
+          "4.668,00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        [
+          4247.57,
+          933.6
+        ],
+        [
+          "4.247,57",
+          "933,60"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        [
+          10,
+          20
+        ],
+        [
+          "10,00",
+          "20,00"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "29.09.2023",
+        "29.09.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 32942,
+    "cached_input_tokens": 0,
+    "output_tokens": 3041,
+    "eur_estimate": 0.012508
+  }
+}

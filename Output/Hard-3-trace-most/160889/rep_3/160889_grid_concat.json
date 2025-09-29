@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\160889\\160889_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": "",
+    "Invoice.Date": "28.10.2022",
+    "Sender.VatId": "HR03578561495",
+    "Vat.Rate": "",
+    "Net.Amount": 4895.32,
+    "Vat.Amount": 650.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.25,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.6,
+    "Vat.Rate": 0.05,
+    "Net.Amount": 0.6,
+    "Vat.Amount": 0.4
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Chances are slight",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Likely",
+    "Vat.Rate": "Almost no chance",
+    "Net.Amount": "Likely",
+    "Vat.Amount": "Less than even"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Below is a concise, high-level summary of the extraction approach and key evidence from the text that determines which fields to extract:\n\n- Document classification: The document contains clear invoice indicators (\"RAČUN\", \"Rechnung Nr.\", \"Datum računa\", \"Vrijeme računa\", \"Valuta\") so it is treated as an invoice (no exclusion terms like \"Mahnung\" dominate).\n- Locate invoice date: Look for \"Datum računa:\" and the adjacent date string.\n- Locate totals and line amounts: Identify numeric amounts in the line-item area and the \"UKUPNO\" line; preserve decimal formatting and original separators.\n- VAT/VAT ID: Search for VAT identifiers labeled \"VAT ID\" or similar; also check for \"Reverse Charge\" language indicating VAT treatment. If a numeric VAT rate or VAT amount is not explicitly present, leave those fields empty per no-inference rule.\n- Grand total vs net vs VAT: If a single grand total is present, map it to GrandTotal.Amount. If net and VAT amounts are present as separate numbers, extract them preserving decimals; otherwise leave empty.\n- Sender VAT ID: Extract the explicit \"VAT ID\" value shown near the sender block.\n- Rate formatting: If VAT rate is found, return numeric value without a percent sign and preserve decimals as in text.\n- Respect rules: Do not guess missing values; return empty strings for unavailable fields.\n\nKey evidence in text for extraction: \"RAČUN br. 22-624/1/1\", \"Datum računa: 28.10.2022\", \"TRANSPORT ... 4.895,32 650,00\", \"UKUPNO 4.895,32 650,00\", \"VAT ID: HR03578561495\", and \"REWERSE CHARGE\" (Reverse Charge).",
+    "step2": "I can’t share internal chain-of-thought. Below are concise confidence assessments for each schema field with brief evidence-based justifications.\n\n- GrandTotal.Amount — Low confidence. Evidence: No explicit single \"Total payable\" value; only \"UKUPNO\" line shows two numeric values (4.895,32 and 650,00) without a clear summed grand total.\n- Invoice.Date — High confidence. Evidence: \"Datum računa: 28.10.2022\" explicitly present.\n- Sender.VatId — Medium confidence. Evidence: A numeric identifier (03578561495 / variants with OCR noise) appears near the sender block labeled VAT/OIB; OCR variability reduces certainty.\n- Vat.Rate — Very low confidence. Evidence: No explicit VAT percentage found; document mentions \"REVERSE CHARGE\" suggesting VAT rate not stated.\n- Net.Amount — Medium confidence. Evidence: A numeric 4.895,32 appears alongside \"TRANSPORT\" and \"UKUPNO\" consistent with a net amount, but labeling ambiguity and OCR formatting lower certainty.\n- Vat.Amount — Medium-low confidence. Evidence: A numeric 650,00 appears next to line/net totals consistent with a VAT amount, but \"REVERSE CHARGE\" and ambiguous placement reduce certainty."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.87,
+      "input_tokens": 1723,
+      "cached_input_tokens": null,
+      "output_tokens": 578,
+      "total_tokens": 2301,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 11.91,
+      "input_tokens": 2156,
+      "cached_input_tokens": null,
+      "output_tokens": 902,
+      "total_tokens": 3058,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.76,
+      "input_tokens": 2718,
+      "cached_input_tokens": null,
+      "output_tokens": 532,
+      "total_tokens": 3250,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\160889\\160889.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "HR03578561495",
+        "HR03578561495"
+      ],
+      "GrandTotal.Amount": [
+        false,
+        "",
+        "650,00"
+      ],
+      "Net.Amount": [
+        false,
+        4895.32,
+        []
+      ],
+      "Vat.Amount": [
+        false,
+        650.0,
+        []
+      ],
+      "Vat.Rate": [
+        false,
+        "",
+        []
+      ],
+      "Invoice.Date": [
+        true,
+        "28.10.2022",
+        "28.10.2022"
+      ]
+    },
+    "summary": {
+      "matched": 2,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 6597,
+    "cached_input_tokens": 0,
+    "output_tokens": 2012,
+    "eur_estimate": 0.001034
+  }
+}

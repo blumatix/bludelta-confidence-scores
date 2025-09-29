@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\267713\\267701_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 630.3,
+    "Invoice.Date": "31.12.2023",
+    "Sender.VatId": "ATU14391601",
+    "Vat.Rate": 10,
+    "Net.Amount": 573.0,
+    "Vat.Amount": 57.3
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.96,
+    "Vat.Amount": 0.96
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will extract invoice fields by verifying invoice indicators, locating explicit values, and avoiding inference.\n\n1) Document classification\n- Contains header \"RECHNUNG\" and invoice-like sections (Nr, Datum, Position, Preise, Zahlungsfristen). No exclusion terms (\"Zahlungserinnerung\", \"Mahnung\") dominate. Classify as invoice.\n\n2) Identify Invoice.Date\n- Found \"Datum: 31.12.2023\" near top. Extract \"31.12.2023\".\n\n3) Identify Sender.VatId\n- Two VAT IDs present:\n  - \"USt-Id: ATU22642807\" appears near Kunden-Nummer (likely customer).\n  - Bottom footer: \"USt-IdNr. ATU14391601\" associated with STAMAG company details (invoice issuer).\n- Sender (invoice issuer) is STAMAG; therefore select \"ATU14391601\".\n\n4) Identify VAT group(s) and amounts\n- Lines show \"10% MWSt von 573,00 57,30\" and Bruttobetrag 630,30.\n- Net amount for the VAT group = 573,00 (present as \"Nettowert gesamt 573,00\").\n- VAT amount = 57,30.\n- VAT rate = 10 (remove percent sign per rules).\n\n5) Identify GrandTotal.Amount\n- \"Bruttobetrag 630,30\" and also final payable \"630,30\". Extract 630.30 preserving decimals.\n\n6) Verify no inference or ambiguous fills\n- All extracted values are explicitly present. No additional fields inferred.\n\nFinal extracted candidates:\n- Invoice.Date: \"31.12.2023\"\n- Sender.VatId: \"ATU14391601\"\n- Vat.Rate: 10\n- Net.Amount: 573.00\n- Vat.Amount: 57.30\n- GrandTotal.Amount: 630.30",
+    "step2": "GrandTotal.Amount — 95% — \"Bruttobetrag 630,30\" explicitly shown.\n\nInvoice.Date — 99% — \"Datum: 31.12.2023\" clearly present.\n\nSender.VatId — 90% — Footer lists \"USt-IdNr. ATU14391601\" tied to STAMAG (issuer); another VAT appears near top but is likely the customer.\n\nVat.Rate — 98% — \"10% MWSt\" is explicitly stated (extracted as \"10\" per rules).\n\nNet.Amount — 96% — \"Nettowert gesamt 573,00\" or equivalent net line shown.\n\nVat.Amount — 96% — \"10% MWSt ... 57,30\" explicitly shown."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.51,
+      "input_tokens": 1931,
+      "cached_input_tokens": null,
+      "output_tokens": 917,
+      "total_tokens": 2848,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.79,
+      "input_tokens": 2383,
+      "cached_input_tokens": null,
+      "output_tokens": 549,
+      "total_tokens": 2932,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.85,
+      "input_tokens": 2848,
+      "cached_input_tokens": null,
+      "output_tokens": 217,
+      "total_tokens": 3065,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\267713\\267701_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU14391601",
+        "ATU14391601,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        630.3,
+        "630,30"
+      ],
+      "Net.Amount": [
+        true,
+        573.0,
+        "573,00"
+      ],
+      "Vat.Amount": [
+        true,
+        57.3,
+        "57,30"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "31.12.2023",
+        "31.12.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7162,
+    "cached_input_tokens": 0,
+    "output_tokens": 1683,
+    "eur_estimate": 0.004487
+  }
+}

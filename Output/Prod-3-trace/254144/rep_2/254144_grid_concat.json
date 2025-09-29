@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\254173\\254144_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1091.71,
+    "Invoice.Date": "20.11.2023",
+    "Sender.VatId": "ATU66213527",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 909.76,
+    "Vat.Amount": 181.95
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.8,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Classify document as invoice:\n- Presence of header \"Rechnung\" and \"Rechnungsendbetrag\", invoice number \"R1018068\", UID-Nr, line items, totals → qualifies as invoice (no exclusion terms like \"Mahnung\" dominating).\n\n2) Identify fields to extract per schema:\n- GrandTotal.Amount (total payable)\n- Invoice.Date (issue date)\n- Sender.VatId (sender VAT)\n- Vat.Rate (VAT percentage) — may be multiple entries but here appears one 20,0%\n- Net.Amount (net amount for VAT group)\n- Vat.Amount (VAT amount for that group)\n\n3) Locate values in text:\n- Invoice number present but not required by schema.\n- \"Druckdatum 20.11.2023\" likely the invoice/issue date — use \"20.11.2023\".\n- Sender VAT: Header shows \"UID-Nr ATU22642807\" at top right under Rechnungsanschrift — this is sender VAT.\n- Totals block:\n  - \"Zwischensumme 909,76 €\" — net amount before VAT.\n  - \"+  20,0    %   Ust.   von   909,76      €                                    181,95     €\" — VAT rate 20,0% and VAT amount 181,95 €.\n  - \"Rechnungsendbetrag 1.091,71      €\" — grand total.\n\n4) Verify number formatting and no inference:\n- Keep decimals as in text: 909,76 ; 181,95 ; 1.091,71.\n- Vat.Rate must be numeric without percent sign: \"20,0\" => numeric 20,0 (preserve decimal comma? Schema expects number — convert to numeric with decimal point: 20.0). Preserve decimals count as in input rule — input shows one decimal place \"20,0\"; represent as number 20.0.\n- Amounts must be numbers without currency symbol; preserve decimals as shown. Convert commas to dots for numeric JSON.\n\n5) Multiple occurrences:\n- Only one VAT group present; populate single set of Vat.Rate, Net.Amount, Vat.Amount accordingly.\n\n6) Edge cases:\n- There is another \"UID-Nummer: ATU66213527\" near bottom — but that appears to be company identifiers for hollu? Need confirm sender VAT: top right under \"Rechnungsanschrift UID-Nr ATU22642807\" appears tied to recipient? Header layout: \"Rechnungsanschrift\" section shows BÄKO ... and UID-Nr ATU22642807 aligned with that block — that's likely recipient VAT (customer). Sender (hollu Systemhygiene GmbH) VAT appears at bottom \"UID-Nummer: ATU66213527\". Schema requests \"Sender.VatId\" (Tax ID of the sender). Determine sender = hollu Systemhygiene GmbH (top-left). Their UID at bottom is ATU66213527. Therefore choose ATU66213527 as Sender.VatId.\n\n7) Final mapping to schema (values to be placed in final JSON):\n- GrandTotal.Amount = 1091.71 (from 1.091,71 €)\n- Invoice.Date = \"20.11.2023\"\n- Sender.VatId = \"ATU66213527\"\n- Vat.Rate = 20.0\n- Net.Amount = 909.76\n- Vat.Amount = 181.95\n\nNo further fields available; all required schema keys have values determined above.",
+    "step2": "GrandTotal.Amount — Confidence: High (≈95%)\n- Evidence: \"Rechnungsendbetrag 1.091,71      €\" clearly labeled as invoice final amount.\n- Consistency: Sum of Zwischensumme 909,76 € plus VAT 181,95 € equals 1.091,71 €.\n- Risk: OCR misread of punctuation unlikely; very consistent.\n\nInvoice.Date — Confidence: High (≈90%)\n- Evidence: \"Druckdatum 20.11.2023\" present; common to use print date as invoice date when no explicit \"Rechnungsdatum\" shown.\n- Consistency: Date format unambiguous.\n- Risk: Possible distinction between Druckdatum and invoice issue date, but no other date labeled as invoice date present.\n\nSender.VatId — Confidence: Medium-High (≈80%)\n- Evidence: Two UID numbers in document: \"UID-Nr ATU22642807\" near Rechnungsanschrift (recipient block) and \"UID-Nummer: ATU66213527\" in company info at bottom. The sender company (hollu Systemhygiene GmbH) appears at top; bottom block lists company identifiers consistent with sender.\n- Consistency: ATU66213527 matches placement in company info; likely sender VAT.\n- Risk: Layout ambiguity could cause selecting the wrong UID; moderate chance of misassignment.\n\nVat.Rate — Confidence: High (≈95%)\n- Evidence: \"+  20,0    %   Ust.   von   909,76      €\" explicitly shows VAT rate 20,0%.\n- Consistency: VAT amount and net match 20% calculation.\n- Risk: Minimal; only formatting conversion (comma to dot) needed.\n\nNet.Amount — Confidence: High (≈95%)\n- Evidence: \"Zwischensumme 909,76 €\" directly matches net before VAT and matches VAT calculation.\n- Consistency: 909.76 * 0.20 = 181.952 → rounded to 181.95 shown; totals add up.\n- Risk: Minimal; rounding conventions accounted for.\n\nVat.Amount — Confidence: High (≈95%)\n- Evidence: \"181,95     €\" shown next to VAT line.\n- Consistency: Matches 20% of 909,76 within typical rounding.\n- Risk: Minimal; OCR reading seems clear."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.68,
+      "input_tokens": 2218,
+      "cached_input_tokens": null,
+      "output_tokens": 870,
+      "total_tokens": 3088,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.97,
+      "input_tokens": 3007,
+      "cached_input_tokens": null,
+      "output_tokens": 492,
+      "total_tokens": 3499,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.17,
+      "input_tokens": 3799,
+      "cached_input_tokens": null,
+      "output_tokens": 284,
+      "total_tokens": 4083,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\254173\\254144_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU66213527",
+        "ATU66213527,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1091.71,
+        "1.091,71"
+      ],
+      "Net.Amount": [
+        true,
+        909.76,
+        "909,76"
+      ],
+      "Vat.Amount": [
+        true,
+        181.95,
+        "181,95"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,0"
+      ],
+      "Invoice.Date": [
+        true,
+        "20.11.2023",
+        "20.11.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 9024,
+    "cached_input_tokens": 0,
+    "output_tokens": 1646,
+    "eur_estimate": 0.004833
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\244244\\244194_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 3021.1,
+    "Invoice.Date": "2023-10-31",
+    "Sender.VatId": "ATU31800708",
+    "Vat.Rate": 10,
+    "Net.Amount": 2746.45,
+    "Vat.Amount": 274.65
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.85,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.93,
+    "Vat.Amount": 0.93
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Highly likely",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Invoice indicators present: \"Rechnung\", \"Endbetrag\", \"MWSt\", invoice number \"2320102\", line items, totals.\n- No exclusion indicators (\"Mahnung\", \"Zahlungserinnerung\", \"Servicebericht\") prominent.\n- Conclusion: document is an invoice -> proceed with extraction.\n\nField-by-field extraction reasoning and verification:\n1. GrandTotal.Amount\n   - Found \"Endbetrag EUR 3.021,10\" on page 1.\n   - Interpret Austrian format \"3.021,10\" as 3021.10 (preserve two decimals).\n   - Candidate: 3021.10.\n\n2. Invoice.Date\n   - Places with dates: \"vom: 2023-10-16\" (reference to order), \"Lieferschein-Nr. 578725 vom 2023-10-31\", and header shows \"Stans, 2023-10-31\".\n   - The typical invoice issue date is the date next to place (Stans, 2023-10-31) and aligns with delivery note date; choose 2023-10-31.\n   - Candidate: \"2023-10-31\".\n\n3. Sender.VatId\n   - Found \"UID-Nr.: ATU31800708\" in bank/footer block.\n   - Candidate: \"ATU31800708\".\n\n4. Vat.Rate\n   - Found \"MWSt 10,00\" in VAT summary.\n   - Per rules, return number without percent/symbol; interpret \"10,00\" as 10 (or 10.00). Preserve decimals as in input? Schema expects number; examples treat VAT rate as integer. Use 10.\n   - Candidate: 10.\n\n5. Net.Amount\n   - Found \"MWSt-Basis 1 2.746,45\" which is the taxable base / net amount: 2.746,45 -> 2746.45.\n   - Candidate: 2746.45.\n\n6. Vat.Amount\n   - Found \"MWSt 10,00 274,65\" indicating VAT amount 274,65 -> 274.65.\n   - Candidate: 274.65.\n\nNo conflicting multiple occurrences requiring arrays; values are clear. No inference beyond these explicit items.",
+    "step2": "GrandTotal.Amount — Confidence: High (≈95%)\n- Evidence: \"Endbetrag EUR 3.021,10\" explicitly shown on page 1.\n- Consistency: Sum( Net 2.746,45 + VAT 274,65 ) = 3.021,10 matches. Low ambiguity (only one Endbetrag).\n\nInvoice.Date — Confidence: Medium-High (≈85%)\n- Evidence: Multiple dates present: \"vom: 2023-10-16\" (order), \"Lieferschein-Nr. 578725 vom 2023-10-31\", and \"Stans, 2023-10-31\" near header.\n- Rationale: \"Stans, 2023-10-31\" is typical invoice issue location/date; aligns with delivery note date. Slight ambiguity because \"vom\" could refer to order date, but chosen date matches invoice placement.\n\nSender.VatId — Confidence: High (≈95%)\n- Evidence: Footer shows \"UID-Nr.: ATU31800708\" which is the Austrian VAT ID format and clearly labeled.\n- Low ambiguity.\n\nVat.Rate — Confidence: High (≈90%)\n- Evidence: VAT summary shows \"MWSt 10,00\" associated with the MWSt-Basis line.\n- Rationale: Format uses comma; interpreted as 10. Minor ambiguity about whether additional VAT groups exist (only one MWSt-Basis shown).\n\nNet.Amount — Confidence: High (≈93%)\n- Evidence: \"MWSt-Basis 1 2.746,45\" explicitly indicates the taxable base/net amount.\n- Consistency: Net + VAT equals Endbetrag. Low ambiguity.\n\nVat.Amount — Confidence: High (≈93%)\n- Evidence: VAT amount shown as \"274,65\" next to \"MWSt 10,00\".\n- Consistency: Matches 10% of 2.746,45 (274,645 → rounded/displayed 274,65). Low ambiguity."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.72,
+      "input_tokens": 2522,
+      "cached_input_tokens": null,
+      "output_tokens": 801,
+      "total_tokens": 3323,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.07,
+      "input_tokens": 3050,
+      "cached_input_tokens": null,
+      "output_tokens": 410,
+      "total_tokens": 3460,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.77,
+      "input_tokens": 3760,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 4043,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\244244\\244194_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU31800708",
+        "ATU31800708,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        3021.1,
+        "3.021,10"
+      ],
+      "Net.Amount": [
+        true,
+        2746.45,
+        "2.746,45"
+      ],
+      "Vat.Amount": [
+        true,
+        274.65,
+        "274,65"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "2023-10-31",
+        "2023-10-31"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 9332,
+    "cached_input_tokens": 0,
+    "output_tokens": 1494,
+    "eur_estimate": 0.004638
+  }
+}

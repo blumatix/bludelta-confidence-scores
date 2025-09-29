@@ -1,0 +1,98 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\205780\\205780_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1073.01,
+    "Invoice.Date": "20-6-2023",
+    "Sender.VatId": "DE812581602",
+    "Vat.Rate": 19,
+    "Net.Amount": 1073.01,
+    "Vat.Amount": 0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.92,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.92,
+    "Vat.Amount": 0.88
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Highly likely"
+  },
+  "reasoning": {
+    "step1": "1) Document classification\n- Found header \"RECHNUNG\" and invoice-like sections (Rechnungs-Nr., Rechnungs-Datum, Zwischensumme, Gesamtsumme). No exclusion terms prominent. Classify as invoice.\n\n2) Locate fields\n- Invoice.Date: found \"Rechnungs-Datum: 20-6-2023\".\n- Sender.VatId: found near header \"UST-ID NR: DE 812581602\" → normalize to \"DE812581602\".\n- GrandTotal.Amount: \"Gesamt EUR 1.073,01\" and \"Gesamtsumme Netto 1.073,01\" — total payable is 1.073,01 EUR → 1073.01.\n- Vat.Rate: \"zzgl. 19% MwSt\" → 19 (per rule, no % sign).\n- Vat.Amount: \"zzgl. 19% MwSt 0,00\" → 0,00 → 0.00.\n- Net.Amount: \"Gesamtsumme Netto 1.073,01\" → 1.073,01 → 1073.01.\n\n3) Ambiguities and decisions\n- VAT rate present but VAT amount is 0,00; include both as extracted (Vat.Rate = 19, Vat.Amount = 0.00).\n- Currency not requested in schema; numeric values converted to decimal with same two decimal places.\n- No inference applied for missing fields.\n\n4) Ready to output JSON with:\n- GrandTotal.Amount = 1073.01\n- Invoice.Date = \"20-6-2023\"\n- Sender.VatId = \"DE812581602\"\n- Vat.Rate = 19\n- Net.Amount = 1073.01\n- Vat.Amount = 0.00",
+    "step2": "Invoice.Date — 95% — Strong match: explicit label \"Rechnungs-Datum: 20-6-2023\" exactly present.\n\nSender.VatId — 90% — Clear header shows \"UST-ID NR: DE 812581602\"; normalization to \"DE812581602\" is straightforward; low risk of OCR spacing artifact.\n\nGrandTotal.Amount — 92% — \"Gesamt EUR 1.073,01\" and \"Gesamtsumme Netto 1.073,01\" both show 1.073,01 as invoice total; consistent across document.\n\nVat.Rate — 90% — Explicit \"zzgl. 19% MwSt\" appears; extracting numeric 19 follows rule.\n\nVat.Amount — 88% — Document shows \"zzgl. 19% MwSt 0,00\"; reading VAT amount as 0,00 is clear, though layout could associate differently; confidence still high.\n\nNet.Amount — 92% — \"Gesamtsumme Netto 1.073,01\" explicitly given and matches GrandTotal in this document; high confidence."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.09,
+      "input_tokens": 1812,
+      "cached_input_tokens": null,
+      "output_tokens": 827,
+      "total_tokens": 2639,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.15,
+      "input_tokens": 2238,
+      "cached_input_tokens": null,
+      "output_tokens": 423,
+      "total_tokens": 2661,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.74,
+      "input_tokens": 2769,
+      "cached_input_tokens": null,
+      "output_tokens": 280,
+      "total_tokens": 3049,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\205780\\205780.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DE812581602",
+        "DE 812581602"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1073.01,
+        "1.073,01"
+      ],
+      "Vat.Amount": [
+        true,
+        0,
+        "0,00"
+      ],
+      "Vat.Rate": [
+        true,
+        19,
+        "19"
+      ],
+      "Invoice.Date": [
+        true,
+        "20-6-2023",
+        "20-6-2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 5,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6819,
+    "cached_input_tokens": 0,
+    "output_tokens": 1530,
+    "eur_estimate": 0.000876
+  }
+}

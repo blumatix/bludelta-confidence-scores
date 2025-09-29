@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\274819\\274819_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": "",
+    "Invoice.Date": "26.01.2024",
+    "Sender.VatId": "ATU34004804",
+    "Vat.Rate": 20,
+    "Net.Amount": 2645.54,
+    "Vat.Amount": 529.1
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.25,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.88,
+    "Vat.Amount": 0.88
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Chances are slight",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Highly likely",
+    "Vat.Amount": "Highly likely"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Below is a concise, non-sensitive summary of the observable evidence and the extraction plan.\n\n- Document classification: contains clear invoice indicators: title \"Rechnung\", \"Rechnungsnummer RE4454670\", \"Rechnungsdatum 26.01.2024\", totals and VAT section. Classified as an invoice (no prominent exclusion terms).\n- Fields to extract and where found:\n  - Invoice.Date: \"26.01.2024\" (Rechnungsdatum).\n  - Sender.VatId: appears as \"UIDNr. ATU34004804\" near top (also SKIDATA UID ATU73284625 appears as company's UID in footer—top one is likely sender's VAT shown under header alongside Debitorenkonto; include the exact OCR string found).\n  - GrandTotal.Amount: total payable — document shows multiple totals; visible values: \"Summe ... 2.645,54\", VAT table shows \"Mehrwertsteuerbetrag 529,10\" and a line showing \"Umsatzsteuer EUR 3.174,64 -\". The final payable amount is ambiguous from OCR; candidate grand total is 3.174,64 (appears as negative formatting) while nettowarenwert 2.645,154 (OCR glitch). Will mark ambiguity for final extraction step.\n  - Vat entries: VAT block shows rate \"20%\" (label \"U20 20%\"), basis \"2.645,54\" and VAT amount \"529,10\". These correspond to one VAT group: Vat.Rate=20, Net.Amount=2.645,54, Vat.Amount=529,10.\n- No inference policy: will not guess missing or ambiguous values; will keep exact numeric formatting/decimals as in OCR and leave empty if unclear.\n- Next step: produce the final JSON with the schema fields, using the unambiguous extracted values and leaving any unclear fields empty per rules.",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"confidence\": \"Low (25%)\",\n    \"rationale\": \"Multiple totals present and OCR artifacts (e.g., 'Umsatzsteuer EUR 3.174,64 -' and 'Nettowarenwert 2.645,154 /'). No clearly labeled single 'Grand Total' amount unambiguously matching invoice total.\"\n  },\n  \"Invoice.Date\": {\n    \"confidence\": \"High (95%)\",\n    \"rationale\": \"Clear label 'Rechnungsdatum 26.01.2024' appears near the top of pages.\"\n  },\n  \"Sender.VatId\": {\n    \"confidence\": \"Medium-High (85%)\",\n    \"rationale\": \"UIDNr. 'ATU34004804' appears near invoice header; another UID (ATU73284625) appears in footer, but header UID strongly associates with invoicing party.\"\n  },\n  \"Vat.Rate\": {\n    \"confidence\": \"High (90%)\",\n    \"rationale\": \"VAT table shows 'U20 20%' explicitly.\"\n  },\n  \"Net.Amount\": {\n    \"confidence\": \"High (88%)\",\n    \"rationale\": \"VAT table and line show basis '2.645,54' as taxable base (Net amount) clearly.\"\n  },\n  \"Vat.Amount\": {\n    \"confidence\": \"High (88%)\",\n    \"rationale\": \"VAT table lists 'Mehrwertsteuerbetrag 529,10' corresponding to 20% of the shown net base.\"\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.7,
+      "input_tokens": 3470,
+      "cached_input_tokens": null,
+      "output_tokens": 599,
+      "total_tokens": 4069,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.71,
+      "input_tokens": 3884,
+      "cached_input_tokens": null,
+      "output_tokens": 520,
+      "total_tokens": 4404,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 7.99,
+      "input_tokens": 4481,
+      "cached_input_tokens": null,
+      "output_tokens": 470,
+      "total_tokens": 4951,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274819\\274819_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU34004804",
+        "ATU73284625"
+      ],
+      "GrandTotal.Amount": [
+        false,
+        "",
+        "3.174,64 -"
+      ],
+      "Net.Amount": [
+        true,
+        2645.54,
+        "2.645,54"
+      ],
+      "Vat.Amount": [
+        true,
+        529.1,
+        "529,10"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "26.01.2024",
+        "26.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 11835,
+    "cached_input_tokens": 0,
+    "output_tokens": 1589,
+    "eur_estimate": 0.005353
+  }
+}

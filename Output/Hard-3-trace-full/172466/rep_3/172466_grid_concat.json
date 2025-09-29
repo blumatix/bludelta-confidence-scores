@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\172466\\172466_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1071.02,
+    "Invoice.Date": "07.10.2022",
+    "Sender.VatId": "R021240120",
+    "Vat.Rate": 0,
+    "Net.Amount": 1071.02,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.8,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Summary of extraction approach and findings (concise, no internal chain-of-thought):\n\n1. Document classification\n- Contains header \"Rechnung\" and typical invoice elements (Belegnummer RE-6114, Datum, totals) → classify as invoice.\n\n2. Fields to extract per schema and candidate values found\n- Invoice.Date: \"07.10.2022\" (found next to \"Datum\")\n- GrandTotal.Amount: \"1.071,02 EUR\" (shown as \"Summe gesamt 1.071,02 EUR\")\n- Net.Amount: \"1.071,02 EUR\" (shown as \"Summe (netto) 1.071,02 EUR\")\n- Vat.Amount: \"0,00 EUR\" (shown as \"enth. MwSt 0,00 EUR\")\n- Vat.Rate: \"0%\" (line item shows \"UST-Satz 0%\")\n- Sender.VatId: ambiguity — two VAT IDs present:\n  - \"Ihre USt-ID ATU47239901\" (appears in right column near DACHSER address — likely recipient/customer VAT)\n  - \"USt-ID: R021240120\" (appears near bottom with Kontoinhaber \"SC SP Transporte SRL\" — likely the sender)\nDecision: treat \"USt-ID: R021240120\" as Sender.VatId (sender = SP TRANSPORTE SRL).\n\n3. Formatting rules reminders to apply in final output\n- Numeric amounts must keep decimals as in source (e.g., 1.071,02 → 1071.02).\n- Vat.Rate must be number without \"%\" (0% → 0).\n- If any field missing, return empty string (no inference).",
+    "step2": "{\n  \"Invoice.Date\": {\n    \"value\": \"07.10.2022\",\n    \"confidence\": \"95\",\n    \"rationale\": \"Clearly labeled 'Datum' with date format DD.MM.YYYY adjacent.\"\n  },\n  \"GrandTotal.Amount\": {\n    \"value\": \"1.071,02\",\n    \"confidence\": \"95\",\n    \"rationale\": \"Shown as 'Summe gesamt 1.071,02 EUR' and matches netto/brutto sums.\"\n  },\n  \"Net.Amount\": {\n    \"value\": \"1.071,02\",\n    \"confidence\": \"95\",\n    \"rationale\": \"Explicitly shown as 'Summe (netto) 1.071,02 EUR'.\"\n  },\n  \"Vat.Amount\": {\n    \"value\": \"0,00\",\n    \"confidence\": \"98\",\n    \"rationale\": \"Explicitly shown as 'enth. MwSt 0,00 EUR'.\"\n  },\n  \"Vat.Rate\": {\n    \"value\": 0,\n    \"confidence\": \"90\",\n    \"rationale\": \"Line item UST-Satz shows '0%'.\"\n  },\n  \"Sender.VatId\": {\n    \"value\": \"R021240120\",\n    \"confidence\": \"80\",\n    \"rationale\": \"Two VAT IDs present; 'USt-ID: R021240120' appears near sender/company info at bottom, but another VAT 'ATU47239901' appears near recipient—choice based on positional context with some ambiguity.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.48,
+      "input_tokens": 1622,
+      "cached_input_tokens": null,
+      "output_tokens": 745,
+      "total_tokens": 2367,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.1,
+      "input_tokens": 2030,
+      "cached_input_tokens": null,
+      "output_tokens": 456,
+      "total_tokens": 2486,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.9,
+      "input_tokens": 2658,
+      "cached_input_tokens": null,
+      "output_tokens": 282,
+      "total_tokens": 2940,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\172466\\172466.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "R021240120",
+        "RO21240120"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1071.02,
+        "1.071,02"
+      ],
+      "Net.Amount": [
+        true,
+        1071.02,
+        "1.071,02"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Vat.Rate": [
+        false,
+        0,
+        []
+      ],
+      "Invoice.Date": [
+        true,
+        "07.10.2022",
+        "07.10.2022"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 6310,
+    "cached_input_tokens": 0,
+    "output_tokens": 1483,
+    "eur_estimate": 0.000835
+  }
+}

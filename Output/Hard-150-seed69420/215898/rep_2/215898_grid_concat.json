@@ -1,0 +1,124 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\215898\\215898_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 14455.0,
+    "Invoice.Date": "24-Dec-2022",
+    "Sender.VatId": "AEBPB6411",
+    "Vat.Rate": 18,
+    "Net.Amount": 12250.0,
+    "Vat.Amount": 2205.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.75,
+    "Vat.Rate": 0.85,
+    "Net.Amount": 0.75,
+    "Vat.Amount": 0.7
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Very good chance",
+    "Vat.Rate": "Highly likely",
+    "Net.Amount": "Very good chance",
+    "Vat.Amount": "Very good chance"
+  },
+  "reasoning": {
+    "step1": "Classification: document is an invoice (contains \"TAX INVOICE\", \"Invoice No.\", \"Invoice Date\", GSTIN/PAN, line-item totals, taxable/value/tax rows).\n\nPlanned extractions and evidence:\n- Invoice.Date: \"24-Dec-2022\" (header: \"Invoice Date. : 24-Dec-2022\").\n- GrandTotal.Amount: \"14,455.00\" (appears as numeric total and \"TotalRupee Fourteen Thousand Four Hundred Fifty Five only. 14,455.00\").\n- Sender.VatId: candidate values found:\n  - \"GSTIN/UIN:me 24AEBPB6411 Code M :12ZV\" (OCR noisy)\n  - \"Company's PAN No. : AEBPB6411 M\"\n  The clear tax identifier suitable as sender VAT/GST appears as \"AEBPB6411\" (observed twice). I will extract \"AEBPB6411\" as Sender.VatId.\n- Vat.Rate: VAT lines show CGST @ 9% and SGST @ 9% (two 9% entries). Will record rate 9 (percentage symbol removed per rules). There are two identical rates (CGST and SGST), so two 9 entries if multiple occurrences allowed.\n- Net.Amount and Vat.Amount groups (from taxable/tax table):\n  - Group 1 taxable: 8.000.00 (interpreted as 8,000.00) with central tax 720.00 and state tax 720.00 → net 8000.00, VAT (for one tax component) 720.00.\n  - Group 2 taxable: 3,500.00 with central tax 315.00 and state tax 315.00 → net 3500.00, VAT (for one tax component) 315.00.\n  - The printed \"Total 12,250.00\" taxable matches sum 8,000.00 + 3,500.00 = 11,500.00 — OCR shows 12,250.00 elsewhere; primary taxable sum evidence in table rows is 8,000.00 and 3,500.00 (I will use the explicit taxable row values: 8000.00 and 3500.00).\n  - The document also displays aggregate tax totals: CGST total 1,102.50 and SGST total 1,102.50 (aggregate tax 2,205.00), but these totals conflict with per-row sums (720+315 = 1,035). Because of OCR inconsistencies, I will rely on explicit per-row VAT amounts shown next to each taxable row: 720.00 and 315.00 (per tax component).\nNotes on ambiguities and rules:\n- No inference beyond explicit text: I will not guess corrections for OCR inconsistencies (e.g., 8.000.00 interpreted as 8000.00 based on typical formatting; decimals preserved).\n- VAT rates: will be returned without \"%\" (as \"9\").\n- If schema requires multiple Vat entries, there will be two items corresponding to CGST and SGST components per taxable group; otherwise the per-group net and vat values will be provided as discovered.\nNext step: produce the final JSON with fields filled per schema, leaving any uncertain/missing values empty.",
+    "step2": "Invoice.Date — Confidence: High (0.95)\n- Evidence: Explicit header \"Invoice Date. : 24-Dec-2022\". Clear formatting and typical location.\n\nGrandTotal.Amount — Confidence: High (0.90)\n- Evidence: Numeric \"14,455.00\" shown near \"TotalRupee Fourteen ThousandFourHundredFifty Five only.\" and in summary lines. OCR spacing minor but numeric clear.\n- Uncertainty: Some nearby totals and taxable sums show inconsistencies (e.g., \"Total 12,250.00\" elsewhere), but the spelled-out total and 14,455.00 numeric match.\n\nSender.VatId — Confidence: Medium-High (0.75)\n- Evidence: \"GSTIN/UIN:me 24AEBPB6411\" (noisy) and \"Company's PAN No. : AEBPB6411 M\" — AEBPB6411 appears twice.\n- Uncertainty: OCR noise around \"24AEBPB6411\" and formatting; unclear whether GSTIN or PAN should be used for Sender.VatId. AEBPB6411 appears stable; nonetheless document has mixed labels.\n\nVat.Rate — Confidence: High (0.90)\n- Evidence: Explicit tax lines \"CGST @ 9%\" and \"SGST @ 9%\". Two occurrences of 9% clearly indicated.\n- Returned value will be 9 per rule (no %).\n\nNet.Amount (per Vat group) — Confidence per group:\n- Group 1 Net.Amount = 8000.00 — Confidence: Medium-High (0.80)\n  - Evidence: Table shows \"8.000.00\" (interpretable as 8,000.00) and associated tax entries 720.00 each. Formatting has decimal/thousand OCR oddity but value consistent.\n  - Uncertainty: OCR dot placement unusual; but context supports 8,000.00.\n- Group 2 Net.Amount = 3500.00 — Confidence: High (0.88)\n  - Evidence: Table shows \"3,500.00\" clearly with associated taxes 315.00 each.\n\nVat.Amount (per Vat group) — Confidence per group:\n- Group 1 Vat.Amount = 720.00 — Confidence: Medium-High (0.80)\n  - Evidence: Central tax 720.00 and state tax 720.00 shown next to 8,000.00; per-group single VAT entry taken as one tax component amount (rule implies Vat.Amount is VAT amount for that group).\n  - Uncertainty: Document also shows aggregate CGST/SGST totals that differ from sum of per-row values; possible OCR misalignment.\n- Group 2 Vat.Amount = 315.00 — Confidence: High (0.88)\n  - Evidence: Clear \"315.00\" shown for each tax component next to 3,500.00.\n\nOverall consistency notes:\n- Aggregate tax totals elsewhere (CGST 1,102.50 and SGST 1,102.50) sum to 2,205.00 which differs from sum of per-row component amounts (720+315 = 1,035 per component). This indicates OCR/table alignment issues or omitted taxable rows; thus some aggregate figures are inconsistent. I prioritized explicit per-row taxable and tax amounts appearing next to HSN/SAC rows for Net.Amount and Vat.Amount.\n- No inference beyond explicit text except normalizing \"8.000.00\" to 8000.00 given context; this introduces moderate uncertainty."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 15.86,
+      "input_tokens": 5307,
+      "cached_input_tokens": null,
+      "output_tokens": 1464,
+      "total_tokens": 6771,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 9.57,
+      "input_tokens": 6050,
+      "cached_input_tokens": null,
+      "output_tokens": 795,
+      "total_tokens": 6845,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 10.04,
+      "input_tokens": 7081,
+      "cached_input_tokens": null,
+      "output_tokens": 731,
+      "total_tokens": 7812,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\215898\\215898.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "AEBPB6411",
+        "24AEBPB6411M1ZV"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        14455.0,
+        "14,455.00"
+      ],
+      "Net.Amount": [
+        false,
+        12250.0,
+        [
+          "750.00",
+          "8.000.00",
+          "750.00",
+          "8.000.00",
+          "3,500.00",
+          "3,500.00"
+        ]
+      ],
+      "Vat.Amount": [
+        false,
+        2205.0,
+        [
+          "67.50",
+          "720.00",
+          "67.50",
+          "720.00",
+          "315.00",
+          "315.00"
+        ]
+      ],
+      "Vat.Rate": [
+        false,
+        18,
+        [
+          "9",
+          "9",
+          "9",
+          "9",
+          "9",
+          "9"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "24-Dec-2022",
+        "24-Dec-2022"
+      ]
+    },
+    "summary": {
+      "matched": 2,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 18438,
+    "cached_input_tokens": 0,
+    "output_tokens": 2990,
+    "eur_estimate": 0.001968
+  }
+}

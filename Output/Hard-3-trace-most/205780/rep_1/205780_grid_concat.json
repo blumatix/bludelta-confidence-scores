@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\205780\\205780_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1073.01,
+    "Invoice.Date": "20-6-2023",
+    "Sender.VatId": "DE812581602",
+    "Vat.Rate": 19,
+    "Net.Amount": 1073.01,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.96
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "- Document classification: contains clear invoice indicators (\"RECHNUNG\", \"Rechnungs-Nr.\", \"Rechnungs-Datum\", totals), no exclusion terms — classify as invoice.\n- Key locations found:\n  - Invoice Number: \"Rechnungs-Nr.: 202332109\" (used to confirm invoice, not required in schema).\n  - Invoice Date: \"Rechnungs-Datum: 20-6-2023\".\n  - Sender VAT ID: \"UST-ID NR: DE   812581602\" → normalized to \"DE812581602\".\n  - Totals block: shows \"Gesamtsumme Netto 1.073,01\", \"zzgl. 19% MwSt 0,00\", \"Gesamt EUR 1.073,01\".\n- Interpretations and numeric conversions:\n  - German formatting: dot as thousands separator, comma as decimal separator. Convert to standard numeric form: \"1.073,01\" → 1073.01; \"0,00\" → 0.00.\n  - VAT rate displayed as \"19%\" → extract numeric 19 (without %).\n- Fields mapped to schema:\n  - GrandTotal.Amount → 1073.01 (from \"Gesamt EUR 1.073,01\").\n  - Invoice.Date → \"20-6-2023\" (exact string as printed).\n  - Sender.VatId → \"DE812581602\".\n  - Vat.Rate → 19.\n  - Net.Amount → 1073.01 (from \"Gesamtsumme Netto 1.073,01\").\n  - Vat.Amount → 0.00 (from \"zzgl. 19% MwSt 0,00\").\n- No inference beyond visible text; all values derived directly from printed fields.",
+    "step2": "GrandTotal.Amount (1073.01)\n- Evidence: \"Gesamt EUR 1.073,01\" appears explicitly in totals block.\n- Consistency: Matches \"Gesamtsumme Netto 1.073,01\" and VAT amount 0.00 → total equals net.\n- Risks: Possible ambiguity whether \"Gesamt\" includes shipping/packaging, but printed as final total.\n- Confidence: 95%\n\nInvoice.Date (\"20-6-2023\")\n- Evidence: Explicit line \"Rechnungs-Datum: 20-6-2023\".\n- Consistency: Matches Versand-Datum 20-6-2023 and Auftrags-Dat. 19-6-2023 (reasonable).\n- Risks: None significant.\n- Confidence: 99%\n\nSender.VatId (\"DE812581602\")\n- Evidence: Line shows \"UST-ID NR: DE   812581602\".\n- Consistency: Country code + number present; spacing normalized to single string.\n- Risks: OCR spacing could have omitted/duplicated characters, but characters seem clear.\n- Confidence: 95%\n\nVat.Rate (19)\n- Evidence: Totals block shows \"zzgl. 19% MwSt\".\n- Consistency: Standard German VAT; matches shown percentage.\n- Risks: None significant.\n- Confidence: 99%\n\nNet.Amount (1073.01)\n- Evidence: \"Gesamtsumme Netto 1.073,01\" explicitly printed.\n- Consistency: Equals GrandTotal because VAT amount is 0.00; aligns with listed subtotals plus freight/packaging.\n- Risks: Possible interpretation differences of which line is \"Netto\", but explicit label supports it.\n- Confidence: 98%\n\nVat.Amount (0.00)\n- Evidence: \"zzgl. 19% MwSt 0,00\" printed.\n- Consistency: Explains why grand total equals net.\n- Risks: Unusual that VAT rate present but amount zero—could indicate VAT-exempt or reverse charge; nonetheless text shows 0,00.\n- Confidence: 96%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 17.93,
+      "input_tokens": 1812,
+      "cached_input_tokens": null,
+      "output_tokens": 888,
+      "total_tokens": 2700,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.49,
+      "input_tokens": 2235,
+      "cached_input_tokens": null,
+      "output_tokens": 499,
+      "total_tokens": 2734,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.07,
+      "input_tokens": 2970,
+      "cached_input_tokens": null,
+      "output_tokens": 282,
+      "total_tokens": 3252,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\205780\\205780.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DE812581602",
+        "DE 812581602"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1073.01,
+        "1.073,01"
+      ],
+      "Net.Amount": [
+        false,
+        1073.01,
+        []
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Vat.Rate": [
+        true,
+        19,
+        "19"
+      ],
+      "Invoice.Date": [
+        true,
+        "20-6-2023",
+        "20-6-2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7017,
+    "cached_input_tokens": 0,
+    "output_tokens": 1669,
+    "eur_estimate": 0.000935
+  }
+}

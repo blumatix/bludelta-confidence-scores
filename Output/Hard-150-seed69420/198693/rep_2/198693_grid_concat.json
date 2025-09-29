@@ -1,0 +1,130 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198693\\198693_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1042.95,
+    "Invoice.Date": "31.12.2022",
+    "Sender.VatId": "ESA08496457",
+    "Vat.Rate": [
+      21,
+      21
+    ],
+    "Net.Amount": [
+      138.93,
+      723.01
+    ],
+    "Vat.Amount": [
+      29.18,
+      151.83
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Below is a concise, non-sensitive plan and the observations I will use to extract the requested fields:\n\nPlanned extraction steps\n1. Confirm document is an invoice by presence of invoice indicators (NºFACTURA, FACTURA, Total Factura, FECHA OPERACIÓN). Result: confirmed.\n2. Locate Grand total: search for “Total Factura EUR” and numeric total. Observation: 1.042,95 shown as Total Factura EUR.\n3. Locate Invoice date: search for date labels (“FECHA OPERACIÓN”, “FECHA:”, “FECHA EXPEDICIÓN FACTURA”). Observations: FECHA OPERACIÓN: 31.12.2022 and FECHA EXPEDICIÓN FACTURA: 11.01.2023; primary invoice issue date appears as 31.12.2022 (and FECHA: 31.12.2022 on page 2).\n4. Locate Sender VAT ID (NIF): find “NIF:” field. Observation: NIF: ESA08496457.\n5. Locate VAT groups: find VAT indicators, net amounts and VAT amounts per rate in the VAT table. Observations:\n   - Line with R9: Importe neto EUR 138,93; %IVA 21% ; Importe IVA 29,18 ; Total 168,11\n   - Line with X9: Importe neto EUR 723,01; %IVA 21% ; Importe IVA 151,83 ; Total 874,84\n6. Verify Net.Amount and Vat.Amount totals: ensure decimals preserved and values correspond to invoice text.\n7. Apply rules:\n   - Do not infer missing data.\n   - VAT rate return as number without % (e.g., 21).\n   - Preserve decimals and comma/decimal format converted to numeric with dot decimal for JSON numbers.\n\nPlanned mapping to schema fields\n- GrandTotal.Amount: use 1042.95 (from 1.042,95 EUR)\n- Invoice.Date: use \"31.12.2022\"\n- Sender.VatId: use \"ESA08496457\"\n- Vat.Rate: array entries: 21 and 21 (two groups)\n- Net.Amount: array entries: 138.93 and 723.01\n- Vat.Amount: array entries: 29.18 and 151.83\n\nI will now produce the final JSON output following the schema and rules.",
+    "step2": "GrandTotal.Amount:\n- Evidence: \"Total Factura EUR 1.042,95\" appears clearly in VAT summary.\n- Confidence: High (strong, unambiguous label and value).\n\nInvoice.Date:\n- Evidence: \"FECHA OPERACIÓN: 31.12.2022\" and \"FECHA: 31.12.2022\" both present.\n- Ambiguity: there is also \"FECHA EXPEDICIÓN FACTURA: 11.01.2023\" which could be interpreted as invoice issue date, but primary labeled invoice date appears as 31.12.2022.\n- Confidence: High for \"31.12.2022\" as the invoice date shown; moderate if alternative interpretation is required.\n\nSender.VatId:\n- Evidence: \"NIF: ESA08496457\" clearly printed near header.\n- Confidence: High (explicit VAT/Tax ID field).\n\nVat.Rate (entries):\n- Evidence: VAT table shows two lines with \"%IVA/IGIC 21%\" for both R9 and X9 rows.\n- Confidence: High (both rows explicitly state 21%).\n\nNet.Amount (entries):\n- Evidence: VAT table lists \"Importe neto EUR\" as 138,93 (R9) and 723,01 (X9).\n- Confidence: High (clear values associated with VAT rows).\n\nVat.Amount (entries):\n- Evidence: VAT table lists \"Importe IVA/IGIC\" as 29,18 (R9) and 151,83 (X9).\n- Confidence: High (clear values in table).\n\nAdditional consistency checks:\n- Sum of net amounts 138,93 + 723,01 = 861,94 which matches \"SUBTOTAL(2/2): 861,94 €\" on page 2 — supports correctness.\n- Sum of VAT amounts 29,18 + 151,83 = 181,01; adding nets gives 1.042,95 equals GrandTotal — consistent.\n- Number formats use comma as decimal in source; mapping to numeric with preserved decimals is straightforward.\n\nOverall confidence: High for all extracted fields given direct, consistent invoice table entries and matching subtotals."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.5,
+      "input_tokens": 2672,
+      "cached_input_tokens": null,
+      "output_tokens": 707,
+      "total_tokens": 3379,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.0,
+      "input_tokens": 3234,
+      "cached_input_tokens": null,
+      "output_tokens": 516,
+      "total_tokens": 3750,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.37,
+      "input_tokens": 3986,
+      "cached_input_tokens": null,
+      "output_tokens": 501,
+      "total_tokens": 4487,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198693\\198693.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ESA08496457",
+        "ESA20006607"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1042.95,
+        "1.042,95"
+      ],
+      "Net.Amount": [
+        true,
+        [
+          138.93,
+          723.01
+        ],
+        [
+          "138,93",
+          "723,01"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        [
+          29.18,
+          151.83
+        ],
+        [
+          "29,18",
+          "151,83"
+        ]
+      ],
+      "Vat.Rate": [
+        false,
+        [
+          21,
+          21
+        ],
+        [
+          "21",
+          "21"
+        ]
+      ],
+      "Invoice.Date": [
+        false,
+        "31.12.2022",
+        "11.01.2023"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 9892,
+    "cached_input_tokens": 0,
+    "output_tokens": 1724,
+    "eur_estimate": 0.001098
+  }
+}

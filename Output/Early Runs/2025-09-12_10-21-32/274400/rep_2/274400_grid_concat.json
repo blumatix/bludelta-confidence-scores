@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\274400\\274400_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1279.52,
+    "Invoice.Date": "23.1.2024",
+    "Sender.VatId": "ATU36768002",
+    "Vat.Rate": 10,
+    "Net.Amount": 1187.65,
+    "Vat.Amount": 91.87
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.92,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "- Document classification: contains invoice indicators (Rechnungs-Nr., Datum, Netto/ Ust./ Brutto, Endsaldo, Zahlungsanweisung). Not a payment reminder or report. Classified as invoice.\n\n- Key extracted candidates seen in text:\n  - Invoice Date: \"Datum: 23.1.2024\"\n  - Grand total / Endsaldo: \"EUR 1.279,52\" → 1279.52\n  - Sender VAT ID: \"UID: ATU36768002\"\n  - VAT rate header: \"10% Ust.\" → 10\n  - Line-level net amounts and VAT amounts:\n    - Grundsteuer: net 268,90 (no VAT shown)\n    - Abfallwirtschaftsgebühr: net 860,13 ; VAT 86,01 ; brutto 946,14\n    - Kanalbenützungsgebühr: net 58,62 ; VAT 5,86 ; brutto 64,48\n  - Aggregate net and VAT totals implied:\n    - Net total = 268,90 + 860,13 + 58,62 = 1.187,65 → 1187.65\n    - VAT total = 86,01 + 5,86 = 91,87 → 91.87\n    - Net + VAT = 1187.65 + 91.87 = 1279.52 matches Endsaldo.\n\n- No conflicting invoice/exclusion keywords dominating header; header-based validation passes.\n\n- No missing inference required for the fields needed: invoice date, grand total, sender VAT ID, VAT rate, net total, VAT total are all present explicitly or summable from displayed amounts.",
+    "step2": "GrandTotal.Amount — Confidence: 98%\nEvidence: \"Endsaldo EUR 1.279,52\" and multiple occurrences of 1.279,52 in payment section; sums of line amounts equal this total.\n\nInvoice.Date — Confidence: 99%\nEvidence: Explicit \"Datum: 23.1.2024\" appears twice.\n\nSender.VatId — Confidence: 95%\nEvidence: \"UID: ATU36768002\" clearly present; formatting matches VAT ID.\n\nVat.Rate — Confidence: 92%\nEvidence: Column header shows \"10% Ust.\" indicating 10% VAT applied to applicable line items.\n\nNet.Amount — Confidence: 90%\nEvidence: Summed line net amounts (268,90 + 860,13 + 58,62 = 1.187,65) match displayed components; net total not explicitly labeled but consistent with line sums.\n\nVat.Amount — Confidence: 90%\nEvidence: VAT amounts on lines (86,01 + 5,86 = 91,87) sum to 91,87 and Net+VAT equals Endsaldo; VAT total not explicitly labeled but derivable and consistent."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.41,
+      "input_tokens": 2182,
+      "output_tokens": 1059,
+      "total_tokens": 3241
+    },
+    "step2": {
+      "runtime_sec": 5.31,
+      "input_tokens": 2544,
+      "output_tokens": 433,
+      "total_tokens": 2977
+    },
+    "step3": {
+      "runtime_sec": 4.98,
+      "input_tokens": 3054,
+      "output_tokens": 347,
+      "total_tokens": 3401
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274400\\274400_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU36768002",
+        "ATU36768002,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1279.52,
+        "1 .279,52"
+      ],
+      "Net.Amount": [
+        false,
+        1187.65,
+        "860,13"
+      ],
+      "Vat.Amount": [
+        false,
+        91.87,
+        "86,01"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "23.1.2024",
+        "23.1.2024"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  }
+}

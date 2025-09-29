@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198561\\198561_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1400.0,
+    "Invoice.Date": "23.08.2022",
+    "Sender.VatId": "FR47546650334",
+    "Vat.Rate": 0,
+    "Net.Amount": 1400.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.75,
+    "Invoice.Date": 0.85,
+    "Sender.VatId": 0.8,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.8,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Very good chance",
+    "Invoice.Date": "Highly likely",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Highly likely",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "High-level extraction plan and findings (concise):\n\n- Classification: Document contains \"INVOICE - TAX DOCUMENT No.220100247\" and invoice-like headers (Invoice number, dates, totals) → treat as invoice.\n\n- Key fields searched: Grand total, invoice date, sender VAT ID, VAT rate(s), net amount(s), VAT amount(s).\n\n- Candidates found:\n  - Invoice number: 220100247 (header) — supports invoice classification.\n  - Dates: multiple dates present: \"date 09.08.2022\" (near Ordero.), \"Invoice te: 23.08.2022\" and \"Duedate: 23.08.2022\". Use presence but need to choose Invoice.Date field; \"Invoicete: 23.08.2022\" appears as invoice issue date.\n  - Sender VAT ID: \"Customerdentif.er: FR47546650334\" appears as customer identifier formatted like a VAT ID (FR47546650334). Also line \"Identif.ber:580168\" unclear. Best candidate for Sender.VatId is FR47546650334 if treating issuer as sender.\n  - Totals and amounts:\n    - Line showing a charge: quantity 1, price 1,400.00, VAT 0%, VAT amount 0.00, total 1,400.0 (formats noisy).\n    - \"Totalount 1,400.00 ncyUR 0.00 1,1,480.0\" — noisy; primary clear numeric total is 1,400.00.\n    - Recapitulation block shows amounts in CZK with VAT columns but OCR noise; VAT amounts appear as 0,00 for 0% and 15% rows unclear.\n  - VAT rate(s): explicit \"0%\" appears on the line item. Other VAT rates in recapitulation show \"10%\" and \"15%\" but amounts are noisy; however the line item clearly indicates \"0%\".\n\n- Extraction decisions (no guessing beyond visible text):\n  - Invoice.Date -> use \"23.08.2022\" (labeled \"Invoicete:\" / invoice date).\n  - GrandTotal.Amount -> visible clear total 1400.00 (currency omitted per schema). Do not use noisy \"1,1,480.0\".\n  - Sender.VatId -> use \"FR47546650334\" as found under \"Customerdentif.er\".\n  - Vat.Rate -> include 0 (from \"0%\") as numeric without %.\n  - Net.Amount -> net amount for the VAT group corresponding to 0% is 1400.00 (price before VAT).\n  - Vat.Amount -> 0.00 for that group.\n\n- Uncertainties / exclusions:\n  - Ignore ambiguous recapitulation lines and foreign-currency noise. Do not infer additional VAT groups unless clearly paired net/VAT/total numbers appear.\n  - If schema requires multiple VAT items, only include the clearly supported 0% group.\n\nNext step: produce final JSON with fields filled per above decisions; leave any fields empty if not unambiguously present.",
+    "step2": "GrandTotal.Amount (1400.00): 75% — visible clear line item and total \"1,400.00\"; overall document totals are noisy but 1,400.00 is consistently shown.\n\nInvoice.Date (\"23.08.2022\"): 85% — labeled \"Invoicete: 23.08.2022\" which strongly indicates the invoice issue date.\n\nSender.VatId (\"FR47546650334\"): 80% — appears as \"Customerdentif.er: FR47546650334\" (formatted like a VAT ID); some label ambiguity but string matches VAT format.\n\nVat.Rate (0): 90% — line item shows \"0%\" explicitly.\n\nNet.Amount (1400.00): 80% — net/unit price 1,400.00 shown for the single charge corresponding to the 0% VAT line.\n\nVat.Amount (0.00): 90% — VAT amount shown as 0.00 for the 0% VAT line."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.64,
+      "input_tokens": 2628,
+      "cached_input_tokens": null,
+      "output_tokens": 844,
+      "total_tokens": 3472,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.93,
+      "input_tokens": 3327,
+      "cached_input_tokens": null,
+      "output_tokens": 467,
+      "total_tokens": 3794,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.59,
+      "input_tokens": 3838,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 4185,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198561\\198561.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "FR47546650334",
+        "CZ28580168"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1400.0,
+        "1,400.00"
+      ],
+      "Net.Amount": [
+        true,
+        1400.0,
+        "1,400.00"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0.00"
+      ],
+      "Vat.Rate": [
+        false,
+        0,
+        []
+      ],
+      "Invoice.Date": [
+        false,
+        "23.08.2022",
+        "09.08.2022"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 9793,
+    "cached_input_tokens": 0,
+    "output_tokens": 1658,
+    "eur_estimate": 0.00107
+  }
+}

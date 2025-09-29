@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\274726\\274726_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 35.22,
+    "Invoice.Date": "29.01.2024",
+    "Sender.VatId": "ATU22684307",
+    "Vat.Rate": 20,
+    "Net.Amount": 29.35,
+    "Vat.Amount": 5.87
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.97,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Classify document as invoice:\n- Presence of header \"Rechnung\", invoice number \"24006346\", \"Rechnung ... vom 29.01.2024\", totals (\"Rechnungsbetrag 35,22 EUR\"), VAT lines, line items and net/Brutto sums → qualifies as invoice.\n- No exclusion terms (e.g., \"Mahnung\", \"Zahlungserinnerung\") prominent.\n\n2) Identify Invoice.Date:\n- \"Rechnung 24006346 vom 29.01.2024\" → Invoice.Date = \"29.01.2024\".\n\n3) Identify GrandTotal.Amount:\n- \"Rechnungsbetrag 35,22 EUR\" and repeated \"35,22 EUR\" as total payable → GrandTotal.Amount = 35.22 (currency stripped, numeric with same decimals).\n\n4) Identify Sender.VatId:\n- Look for UID/UID-Nummer near sender: two UID numbers shown:\n  - \"UID-Nummer: ATU22642807\" appears near recipient block? Need to determine which belongs to sender.\n  - Bottom shows \"UID-Nr.: ATU 22684307\" near bank info (likely sender company registration). Sender is KAINDL Gesellschaft m.b.H. at top; UID near top-right line \"UID-Nummer: ATU22642807\" likely recipient BAEKO? Inspect context:\n    - Invoice header shows BAEKO-OESTERREICH block with UID-Nummer: ATU22642807 directly under recipient address — that is recipient UID.\n    - Bottom footer lists company bank and \"UID-Nr.: ATU 22684307\" (sender KAINDL) → Sender.VatId = \"ATU22684307\".\n    - If ambiguity, follow strict text positions: take \"UID-Nr.: ATU 22684307\" as sender.\n\n5) Identify VAT groups (Vat.Rate, Net.Amount, Vat.Amount):\n- Find VAT summary lines:\n  - \"Lieferschein-Nettosumme 29,35\"\n  - \"Endsumme ... 29,35 20 %\"\n  - \"+ MwSt 5,87 20 %\"\n  - Rechnungsbetrag 35,22 = 29,35 + 5,87\n- Therefore single VAT group with Rate = 20, Net.Amount = 29.35, Vat.Amount = 5.87.\n- Apply rule: rates without percent → \"20\"; decimals preserved.\n\n6) Ensure no inference beyond printed values:\n- All extracted values present explicitly; do not guess currency in numeric fields.\n\n7) Prepare for final JSON with required fields:\n- GrandTotal.Amount: 35.22 (number)\n- Invoice.Date: \"29.01.2024\"\n- Sender.VatId: \"ATU22684307\"\n- Vat.Rate: 20 (number) — as a Vat.Item entry per schema note (but final schema requires Vat.Rate top-level; ensure format)\n- Net.Amount: 29.35\n- Vat.Amount: 5.87",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"value\": \"35.22\",\n    \"confidence\": \"0.95\",\n    \"evidence\": \"Labelled as 'Rechnungsbetrag 35,22 EUR' and appears twice as total payable; sums (29,35 + 5,87) match 35,22.\"\n  },\n  \"Invoice.Date\": {\n    \"value\": \"29.01.2024\",\n    \"confidence\": \"0.99\",\n    \"evidence\": \"Explicitly shown as 'Rechnung 24006346 vom 29.01.2024'.\"\n  },\n  \"Sender.VatId\": {\n    \"value\": \"ATU22684307\",\n    \"confidence\": \"0.85\",\n    \"evidence\": \"Footer shows 'UID-Nr.: ATU 22684307' near company/bank details; another UID (ATU22642807) appears near recipient block, supporting this assignment.\"\n  },\n  \"Vat.Rate\": {\n    \"value\": \"20\",\n    \"confidence\": \"0.98\",\n    \"evidence\": \"VAT lines show '20 %' associated with net and VAT amounts.\"\n  },\n  \"Net.Amount\": {\n    \"value\": \"29.35\",\n    \"confidence\": \"0.97\",\n    \"evidence\": \"Shown as 'Lieferschein-Nettosumme 29,35' and 'Endsumme ... 29,35 20 %'; matches total decomposition.\"\n  },\n  \"Vat.Amount\": {\n    \"value\": \"5.87\",\n    \"confidence\": \"0.97\",\n    \"evidence\": \"Shown as '+ MwSt 5,87 20 %' and sums with net to equal grand total.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.36,
+      "input_tokens": 2241,
+      "output_tokens": 766,
+      "total_tokens": 3007
+    },
+    "step2": {
+      "runtime_sec": 5.61,
+      "input_tokens": 2887,
+      "output_tokens": 565,
+      "total_tokens": 3452
+    },
+    "step3": {
+      "runtime_sec": 5.18,
+      "input_tokens": 3529,
+      "output_tokens": 345,
+      "total_tokens": 3874
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274726\\274726_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU22684307",
+        "ATU 22684307"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        35.22,
+        "35,22"
+      ],
+      "Net.Amount": [
+        true,
+        29.35,
+        "29,35"
+      ],
+      "Vat.Amount": [
+        true,
+        5.87,
+        "5,87"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "29.01.2024",
+        "29.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  }
+}

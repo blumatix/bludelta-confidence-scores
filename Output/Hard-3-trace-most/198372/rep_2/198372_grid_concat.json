@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198372\\198372_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 650.0,
+    "Invoice.Date": "27.03.2023",
+    "Sender.VatId": "DE815512007",
+    "Vat.Rate": "",
+    "Net.Amount": 650.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.6,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Likely",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification:\n- Document contains clear invoice indicators: \"SUMMENRECHNUNG\", \"Rechnungs-Nr.\", \"Datum:\", \"Netto\", \"Brutto\", line items and totals. No prominent exclusion terms (\"Mahnung\", \"Zahlungserinnerung\", \"Servicebericht\") found. Proceed as invoice.\n\nFields located (sources & interpretation):\n- Invoice.Date: \"Datum: 27.03.2023\" (page 1 header and page 2 INr. vom 27.03.2023).\n- GrandTotal.Amount: visible total \"650,00\" (Brutto/Netto lines show 650,00 EUR as invoice amount).\n- Net.Amount: \"Netto 650,00\" (page 2 LA gesamt / Netto 650,00).\n- Vat.Amount: shown as \"0,00\" next to Steuerbetrag (page 1: \"Nicht steuerbar\" and Steuerbetrag 0,00).\n- Vat.Rate: invoice indicates \"Nicht steuerbar\" (no percent rate provided) — per no-inference rule, leave rate empty.\n- Sender.VatId: \"USt-IdNr.: DE815512007\" (appears multiple times in header/footer).\n\nAmbiguities and decisions:\n- Currency is EUR but schema expects numeric amounts without currency; will preserve decimals as in source (comma decimal delimiter in source will be converted to period for numeric JSON as needed).\n- VAT is explicitly non-taxable; VAT amount is 0.00 and no percentage rate given, so Vat.Rate must be empty.\n- No other VAT groups detected.\n\nWill produce final JSON next with the above values, leaving any missing fields empty per rules.",
+    "step2": "Confidence assessment (field — confidence percentage — justification):\n\n- GrandTotal.Amount — 95% — Evidence: multiple mentions of total amounts \"650,00\" as Netto and Brutto on page 1 and page 2; consistent across line item and summary. Low uncertainty from formatting (comma vs period).\n\n- Invoice.Date — 99% — Evidence: Explicit \"Datum: 27.03.2023\" on page 1 and \"INr. 4140546442 vom 27.03.2023\" on page 2. Very clear.\n\n- Sender.VatId — 99% — Evidence: \"USt-IdNr.: DE815512007\" appears several times in header/footer. Clear.\n\n- Net.Amount — 95% — Evidence: \"Netto 650,00\" shown on page 2 and matches line/item totals. High confidence; formatting conversion only source of minor uncertainty.\n\n- Vat.Amount — 98% — Evidence: \"Steuerbetrag 0,00\" and textual \"Nicht steuerbar\" on page 1. Clear that VAT monetary amount is zero.\n\n- Vat.Rate — 60% — Evidence: Invoice states \"Nicht steuerbar\" (not taxable) and shows no percent. Per rules, must not infer a rate; leaving it empty is consistent. Confidence moderate because some systems might represent non-taxable as 0, but instruction forbids inference."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.45,
+      "input_tokens": 2617,
+      "cached_input_tokens": null,
+      "output_tokens": 674,
+      "total_tokens": 3291,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.59,
+      "input_tokens": 3018,
+      "cached_input_tokens": null,
+      "output_tokens": 294,
+      "total_tokens": 3312,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.6,
+      "input_tokens": 3612,
+      "cached_input_tokens": null,
+      "output_tokens": 278,
+      "total_tokens": 3890,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198372\\198372.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DE815512007",
+        "DE815512007"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        650.0,
+        "650,00"
+      ],
+      "Net.Amount": [
+        true,
+        650.0,
+        "650,00"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Vat.Rate": [
+        false,
+        "",
+        []
+      ],
+      "Invoice.Date": [
+        true,
+        "27.03.2023",
+        "27.03.2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 9247,
+    "cached_input_tokens": 0,
+    "output_tokens": 1246,
+    "eur_estimate": 0.000898
+  }
+}

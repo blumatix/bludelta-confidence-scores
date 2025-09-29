@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\273638\\273628_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2458.5,
+    "Invoice.Date": "25.01.2024",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": 10,
+    "Net.Amount": 2235.0,
+    "Vat.Amount": 223.5
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.75,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Very good chance",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: Document is an invoice (title \"RECHNUNG\", invoice date, USt‑Id, net/ VAT/ total amounts present).\n\nExtraction plan and choices:\n- Invoice.Date: take \"Datum: 25.01.2024\".\n- Sender.VatId: primary USt‑Id shown near top \"USt-Id: ATU22642807\". Note: another USt‑Id \"ATU14391601\" appears at bottom (ambiguous), so prefer the top one as sender VAT.\n- GrandTotal.Amount: use \"Bruttobetrag 2.458,50\" → interpret as 2458.50 (preserve decimals).\n- Net.Amount: use \"Nettowert gesamt 2.235,00\" → 2235.00.\n- Vat.Rate and Vat.Amount: invoice shows \"10% MWSt von 2.235,00 223,50\" and also a \"00% MWSt von 0,00 0,00\" group. Primary VAT group is 10 → Vat.Rate = 10, Vat.Amount = 223.50. (Do not include the 0% group as meaningful VAT amount; if schema allowed arrays this could be multiple entries, but primary extracted values are 10 / 223.50.)\n- No inference beyond visible fields; number formats preserved with two decimals.\n\nPotential ambiguities noted: two different USt‑Ids present; VAT groups include a 0% group.",
+    "step2": "GrandTotal.Amount — 95% confident.\n- Evidence: \"Bruttobetrag 2.458,50\" clearly printed; matches Net + VAT (2.235,00 + 223,50 = 2.458,50).\n\nInvoice.Date — 99% confident.\n- Evidence: \"Datum: 25.01.2024\" appears near top under RECHNUNG; unambiguous.\n\nSender.VatId — 75% confident.\n- Evidence: \"USt-Id: ATU22642807\" appears near top (likely sender). Ambiguity: another USt-Id \"ATU14391601\" appears at bottom labeled \"USt-IdNr.\" for company details — could indicate alternate/company registry VAT. Top one likely relevant, but dual IDs reduce confidence.\n\nVat.Rate — 95% confident.\n- Evidence: VAT line shows \"10% MWSt von 2.235,00 223,50\"; 10% is explicit. There is also a \"00% MWSt\" group with zeros but primary applicable rate is 10%.\n\nNet.Amount — 98% confident.\n- Evidence: \"Nettowert gesamt 2.235,00\" clearly printed and used in VAT calculation.\n\nVat.Amount — 98% confident.\n- Evidence: VAT line shows \"223,50\" corresponding to 10% of 2.235,00; consistent with totals."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.66,
+      "input_tokens": 1948,
+      "output_tokens": 761,
+      "total_tokens": 2709
+    },
+    "step2": {
+      "runtime_sec": 5.14,
+      "input_tokens": 2268,
+      "output_tokens": 365,
+      "total_tokens": 2633
+    },
+    "step3": {
+      "runtime_sec": 4.01,
+      "input_tokens": 2838,
+      "output_tokens": 283,
+      "total_tokens": 3121
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273638\\273628_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU14391601,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        2458.5,
+        "2.458,50"
+      ],
+      "Net.Amount": [
+        true,
+        2235.0,
+        "2.235,00"
+      ],
+      "Vat.Amount": [
+        true,
+        223.5,
+        "223,50"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "25.01.2024",
+        "25.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  }
+}

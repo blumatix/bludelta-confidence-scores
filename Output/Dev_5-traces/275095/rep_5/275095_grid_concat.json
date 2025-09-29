@@ -1,0 +1,112 @@
+{
+  "input_path": "..\\Documents\\275138\\275095_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1651.71,
+    "Invoice.Date": "31.01.2024",
+    "Sender.VatId": "ATU 22642807",
+    "Vat.Rate": 10,
+    "Net.Amount": 1359.63,
+    "Vat.Amount": 135.96
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.6,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.85,
+    "Net.Amount": 0.8,
+    "Vat.Amount": 0.8
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Likely",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Highly likely",
+    "Net.Amount": "Highly likely",
+    "Vat.Amount": "Highly likely"
+  },
+  "reasoning": {
+    "step1": "I can’t provide my step-by-step internal chain-of-thought. I can, however, give a concise, non-sensitive summary of the extraction approach and the evidence found in the document:\n\n- Document classification: Contains invoice indicators (titles \"Rechnung\", \"Rechnungs-Nr.\", \"Rechnungsdatum\", totals, VAT labels) and no prominent exclusion keywords — thus treated as an invoice.\n- Key located fields and their source lines:\n  - Invoice number: \"Rechnungs-Nr.: 374638\" (page 1 header).\n  - Invoice date: \"Rechnungsdatum: 31.01.2024\" (page 1 header).\n  - Sender VAT ID: appears as \"USTID: ATU 22642807\" (page 1 header).\n  - Grand total(s): Two amounts appear as \"Rechnungsbetrag EUR 1.602,16\" and \"Rechnungsbetrag EUR 1.651,71\" — ambiguous which is final; both are present.\n  - VAT groups and values: VAT percentages shown as 20,00 % and 10,00 % with associated VAT amounts \"MwSt (20,00 %) 26,02\" and \"MwSt (10,00 %) 135,96\". Net/worth lines for those groups are present (e.g., Warenwert (20,00 %) 130,10 and Warenwert (10,00 %) 1.359,63).\n- Extraction considerations:\n  - Do not guess when ambiguous; preserve exact values and decimals as printed (commas used as decimal separators in source).\n  - Multiple VAT groups exist (20% and 10%); will map each group separately per schema.\n  - For GrandTotal, need to resolve which printed \"Rechnungsbetrag\" is the invoice total — both will be noted as ambiguity for final extraction step.\n\nIf you want, I will now produce the final JSON extraction (with values placed exactly as found, resolving ambiguous totals according to a stated choice). Which Rechnungsbetrag should I treat as the GrandTotal.Amount: 1.602,16 or 1.651,71?",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"values_found\": [\"1.602,16\", \"1.651,71\"],\n    \"confidence\": \"Low\",\n    \"reasoning\": \"Two distinct 'Rechnungsbetrag EUR' values appear on page 1 (1.602,16 and 1.651,71). Document does not clearly label which is the final payable total; ambiguous evidence prevents a confident single selection.\"\n  },\n  \"Invoice.Date\": {\n    \"values_found\": [\"31.01.2024\"],\n    \"confidence\": \"High\",\n    \"reasoning\": \"'Rechnungsdatum: 31.01.2024' is explicitly printed in the header.\"\n  },\n  \"Sender.VatId\": {\n    \"values_found\": [\"ATU 22642807\"],\n    \"confidence\": \"High\",\n    \"reasoning\": \"Header shows 'USTID: ATU 22642807' clearly associated with sender details.\"\n  },\n  \"Vat.Rate\": {\n    \"values_found\": [\"20,00\", \"10,00\"],\n    \"confidence\": \"High\",\n    \"reasoning\": \"VAT groups are shown as '20,00 %' and '10,00 %' next to VAT/Warenwert/MwSt lines.\"\n  },\n  \"Net.Amount\": {\n    \"values_found\": [\n      { \"rate\": \"20,00\", \"net\": \"130,10\" },\n      { \"rate\": \"10,00\", \"net\": \"1.359,63\" }\n    ],\n    \"confidence\": \"Medium-High\",\n    \"reasoning\": \"Warenwert lines indicate 'Warenwert (20,00 %) 130,10' and 'Warenwert (10,00 %) 1.359,63' though layout is dense; values are present and consistent with VAT group labels.\"\n  },\n  \"Vat.Amount\": {\n    \"values_found\": [\n      { \"rate\": \"20,00\", \"vat\": \"26,02\" },\n      { \"rate\": \"10,00\", \"vat\": \"135,96\" }\n    ],\n    \"confidence\": \"Medium-High\",\n    \"reasoning\": \"'MwSt (20,00 %) 26,02' and 'MwSt (10,00 %) 135,96' are printed; placement aligns with respective VAT groups, but overall invoice layout is cluttered which slightly reduces confidence.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.94,
+      "input_tokens": 2527,
+      "cached_input_tokens": null,
+      "output_tokens": 639,
+      "total_tokens": 3166,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 11.51,
+      "input_tokens": 2981,
+      "cached_input_tokens": null,
+      "output_tokens": 896,
+      "total_tokens": 3877,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 8.82,
+      "input_tokens": 3762,
+      "cached_input_tokens": null,
+      "output_tokens": 604,
+      "total_tokens": 4366,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\275138\\275095_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU 22642807",
+        "ATU38510009"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1651.71,
+        "1.651,71"
+      ],
+      "Net.Amount": [
+        false,
+        1359.63,
+        [
+          "130,10",
+          "1.359,63"
+        ]
+      ],
+      "Vat.Amount": [
+        false,
+        135.96,
+        [
+          "26,02",
+          "135,96"
+        ]
+      ],
+      "Vat.Rate": [
+        false,
+        10,
+        [
+          "20,00",
+          "10,00"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "31.01.2024",
+        "31.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 2,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 9270,
+    "cached_input_tokens": 0,
+    "output_tokens": 2139,
+    "eur_estimate": 0.00574
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\254405\\254362_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 308.91,
+    "Invoice.Date": "08.11.2023",
+    "Sender.VatId": "ATU46992508",
+    "Vat.Rate": [
+      13,
+      20
+    ],
+    "Net.Amount": [
+      267.69,
+      5.35
+    ],
+    "Vat.Amount": [
+      34.8,
+      1.07
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: document is an invoice (contains \"Rechnung\", Rechnungsnr, Rechnungsdatum, totals, line items).\n\nKey candidate values found and verification:\n- Invoice date: \"Rechnungsdatum: 08.11.2023\" → Invoice.Date = 08.11.2023.\n- Sender VAT ID: \"UID-Nr. ATU46992508\" → Sender.VatId = ATU46992508.\n- Totals ambiguity: \"Gesamt 302,49 EUR\" appears, but \"Zahlungsbetrag 308,91 EUR\" is final payable including Zuschlag/Leistungsentgelt. Per rule \"Total payable amount\" choose Zahlungsbetrag → GrandTotal.Amount = 308.91.\n- VAT groups (two rates present):\n  - 13% group: Netto 267,69 and USt. 34,80 (labelled \"USt. 13 % 34,80 EUR\") → Vat.Rate = 13, Net.Amount = 267.69, Vat.Amount = 34.80.\n  - 20% group: Leistungsentgelt Netto 5,35 and USt. 1,07 (labels near Leistungsentgelt) → Vat.Rate = 20, Net.Amount = 5.35, Vat.Amount = 1.07.\n- No other VAT groups for the entire invoice; line-item-level conversions absent.\n\nNotes on choices and rules:\n- No guessing: all values taken verbatim from invoice text; decimals preserved.\n- Multiple VAT groups recorded (two distinct rate/net/vat sets).\n- Grand total chosen as Zahlungsbetrag (308,91 EUR) because it is final payment amount including Zuschlag; Gesamt 302,49 EUR is subtotal before Zuschlag.",
+    "step2": "Invoice.Date:\n- Evidence: explicit label \"Rechnungsdatum: 08.11.2023\".\n- Confidence: Very high.\n\nSender.VatId:\n- Evidence: \"UID-Nr. ATU46992508\" in footer; matches typical VAT ID format.\n- Confidence: Very high.\n\nGrandTotal.Amount:\n- Evidence: Two totals present: \"Gesamt 302,49 EUR\" and \"Zahlungsbetrag 308,91 EUR\". \"Zahlungsbetrag\" is labeled as the payment amount; document also shows bank/payment reference and final payment instruction.\n- Ambiguity: One could interpret \"Gesamt\" as grand total, but Zahlungsbetrag includes additional Zuschlag/Leistungsentgelt and is the final payable. Extraction chose Zahlungsbetrag.\n- Confidence: High (minor ambiguity between \"Gesamt\" and \"Zahlungsbetrag\", but labeling supports Zahlungsbetrag as final).\n\nVAT group 1 (Vat.Rate=13, Net.Amount=267.69, Vat.Amount=34.80):\n- Evidence: Line showing \"Netto 267,69 EUR\" immediately above \"USt. 13 % 34,80 EUR\" and the line items list 13% USt.\n- Confidence: Very high.\n\nVAT group 2 (Vat.Rate=20, Net.Amount=5.35, Vat.Amount=1.07):\n- Evidence: Section for \"Leistungsentgelt Maschinenring\" shows Netto \"5  35 EUR\" (interpreted as 5,35) and \"USt. 20 % 1,07 EUR\" nearby; these correspond to the Zuschlag/Leistungsentgelt block.\n- Ambiguity: OCR spacing makes numbers less tidy (spaces in \"5  35\"), but context and adjacent USt 20% support values.\n- Confidence: High."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 15.48,
+      "input_tokens": 2106,
+      "cached_input_tokens": null,
+      "output_tokens": 1133,
+      "total_tokens": 3239,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.65,
+      "input_tokens": 2518,
+      "cached_input_tokens": null,
+      "output_tokens": 447,
+      "total_tokens": 2965,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.96,
+      "input_tokens": 3201,
+      "cached_input_tokens": null,
+      "output_tokens": 501,
+      "total_tokens": 3702,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\254405\\254362_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU46992508",
+        "ATU46992508,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        308.91,
+        "308,91"
+      ],
+      "Net.Amount": [
+        false,
+        [
+          267.69,
+          5.35
+        ],
+        "267,69"
+      ],
+      "Vat.Amount": [
+        false,
+        [
+          34.8,
+          1.07
+        ],
+        "34,80"
+      ],
+      "Vat.Rate": [
+        false,
+        [
+          13,
+          20
+        ],
+        "13"
+      ],
+      "Invoice.Date": [
+        true,
+        "08.11.2023",
+        "08.11.2023"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7825,
+    "cached_input_tokens": 0,
+    "output_tokens": 2081,
+    "eur_estimate": 0.005322
+  }
+}

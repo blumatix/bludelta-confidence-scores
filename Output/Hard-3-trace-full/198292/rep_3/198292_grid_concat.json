@@ -1,0 +1,109 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198292\\198292_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 5509.7,
+    "Invoice.Date": "6 Feb. 2023",
+    "Sender.VatId": "DE210157578",
+    "Vat.Rate": 19.0,
+    "Net.Amount": 4630.0,
+    "Vat.Amount": 879.7
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Invoice indicators present: titles \"RECHNUNG\", \"Rechnung Nr. 10023230021723\", invoice date (\"vom 6 Feb. 2023\"), totals (\"Endbetrag 5.509,70 EUR\"), VAT lines (\"19,00% von 4.630,00 EUR\", \"Umsatzsteuer 879,70 EUR\"). No exclusion terms like \"Mahnung\" or \"Zahlungserinnerung\". Classified as invoice.\n\nExtraction plan and field mapping:\n- Invoice.Date: take the explicit \"vom 6 Feb. 2023\" as \"6 Feb. 2023\".\n- GrandTotal.Amount: use \"Endbetrag 5.509,70 EUR\" → numeric value preserving decimals and comma formatting as in source.\n- Sender.VatId: sender VAT appears as \"Ust-IdNr: DE210157578\" (also other VAT-like entries for recipient, but sender VAT is this).\n- Vat groups: identify one VAT group with rate, net, and VAT amount:\n  - Vat.Rate: \"19,00%\" → extract as number without percent symbol and preserving decimals? Rule 5: extract rates without \"%\" — will record as 19 or 19,00? Schema allows number; keep same decimals as input: \"19,00\" (but as number type).\n  - Net.Amount: \"Nettowert 4.630,00 EUR\" → preserve decimals.\n  - Vat.Amount: \"Umsatzsteuer 879,70 EUR\" and repeated line \"19,00% von 4.630,00 EUR 879,70 EUR\" → VAT amount 879,70.\n\nAmbiguities and decisions:\n- Number formatting: input uses comma as decimal separator. Per rules, preserve decimal places exactly as in input. Final numeric fields must be numeric types; will keep numeric values but preserve decimals (e.g., 4630,00). If JSON numeric requires dot, conversion will be considered in final output — but values will match input precision.\n- Sender vs recipient VAT IDs: sender VAT taken from \"Ust-IdNr: DE210157578\" near SAP heading; other VAT-like entries under \"Ihre Steuernummern VAT: DE815512007\" relate to customer/recipient — per schema Sender.VatId should be the sender's VAT ID, so use DE210157578.\n- Multiple VAT groups: only one VAT rate/group evident (19% on 4.630,00 → 879,70). Will provide a single Vat group.\n\nFields with no explicit value: none of the required fields are missing; all six required fields are present in the document.\n\nProceed to produce JSON in next step.",
+    "step2": "I can’t share internal chain-of-thought, but here is a concise confidence assessment for each field based on visible evidence:\n\n- GrandTotal.Amount: 99% — clearly labeled \"Endbetrag 5.509,70 EUR\".\n- Invoice.Date: 95% — explicitly \"vom 6 Feb. 2023\".\n- Sender.VatId: 90% — \"Ust-IdNr: DE210157578\" located with the sender (SAP) header.\n- Vat.Rate: 99% — shown as \"19,00%\" in the VAT breakdown.\n- Net.Amount: 99% — shown as \"Nettowert 4.630,00 EUR\".\n- Vat.Amount: 99% — shown as \"Umsatzsteuer 879,70 EUR\" (and matches 19% of net)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.84,
+      "input_tokens": 2495,
+      "cached_input_tokens": null,
+      "output_tokens": 755,
+      "total_tokens": 3250,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.81,
+      "input_tokens": 3105,
+      "cached_input_tokens": null,
+      "output_tokens": 497,
+      "total_tokens": 3602,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.5,
+      "input_tokens": 3582,
+      "cached_input_tokens": null,
+      "output_tokens": 348,
+      "total_tokens": 3930,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198292\\198292.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DE210157578",
+        "DE210157578"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        5509.7,
+        "5.509,7"
+      ],
+      "Net.Amount": [
+        true,
+        4630.0,
+        [
+          "4.630,00",
+          "4.630,00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        879.7,
+        [
+          "879,70",
+          "879,70"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        19.0,
+        "19,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "6 Feb. 2023",
+        "6 Feb. 2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 9182,
+    "cached_input_tokens": 0,
+    "output_tokens": 1600,
+    "eur_estimate": 0.001019
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\162681\\162681_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 800.0,
+    "Invoice.Date": "05.10.2022",
+    "Sender.VatId": "",
+    "Vat.Rate": 0,
+    "Net.Amount": 800.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.1,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly unlikely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification\n- Presence of keywords: \"Invoice\", \"Invoice 22-3601-001032\", \"Total\", \"VAT\", \"Value excl. VAT\", \"Amount due\" — strong invoice indicators.\n- No exclusion headers like \"Mahnung\" or \"Zahlungserinnerung\". Conclusion: treat as invoice.\n\n2) Locate candidate dates\n- \"Delivered on 05.10.2022\"\n- \"Dated, place 05.10.2022 Aleksandrovo\"\n- \"Value date 19.11.2022\"\n- Ambiguity: invoice issue date most commonly is \"Dated\" / document date. Choose \"05.10.2022\" as Invoice.Date (most explicit \"Dated, place 05.10.2022\").\n\n3) Grand total / amounts\n- \"Total 800,00\" and \"Amount due EUR 800,00\" and \"In words eight hundred EUR\" → GrandTotal.Amount = 800,00\n- \"Value excl. VAT\" line for the item: \"800,00\" → Net.Amount = 800,00\n- \"VAT 0,00\" and tax breakdown shows VAT = 0,00 → Vat.Amount = 0,00\n\n4) VAT rate\n- Table shows VAT % for line as \"0,00\" and note states \"PDV se ne obračunava...\" (VAT not charged) → Vat.Rate = 0 (per rule: extract without % symbol)\n\n5) Sender VAT ID\n- Sender is \"DOO VUKMIROVIC ALEKSANDROVO\". Found \"Matičnir.:08690251\" (company registration number), but no explicit VAT ID labeled (e.g., \"PIB\" or \"VAT ID\" for sender). Therefore per No Inference policy, leave Sender.VatId empty.\n\n6) Verify decimals and formats\n- Preserve two decimal places as in document: use 800,00 and 0,00 (will map to numeric values with same decimals).\n\n7) Decision on ambiguous fields\n- If multiple date-like fields had equal claim, would leave Invoice.Date empty per No Inference; here \"Dated, place 05.10.2022\" is explicit enough to select.\n- No other VAT rates or exchange rates for entire invoice present.\n\nAll extracted field decisions to be used for final JSON output.",
+    "step2": "GrandTotal.Amount: 95% — multiple explicit matches (\"Total 800,00\", \"Amount due EUR 800,00\", spelled-out amount).\n\nInvoice.Date: 90% — explicit \"Dated, place 05.10.2022\" present; alternative dates exist but this is the document date.\n\nSender.VatId: 10% — no explicit VAT/PIB labeled for sender; only company registration number present, so value would be inferred (not available).\n\nVat.Rate: 90% — VAT percentage shown as 0,00 and document note states VAT not charged.\n\nNet.Amount: 95% — item \"Value excl. VAT\" shows 800,00 matching totals.\n\nVat.Amount: 95% — VAT shown as 0,00 in totals and tax breakdown."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.97,
+      "input_tokens": 1885,
+      "cached_input_tokens": null,
+      "output_tokens": 1013,
+      "total_tokens": 2898,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.24,
+      "input_tokens": 2433,
+      "cached_input_tokens": null,
+      "output_tokens": 554,
+      "total_tokens": 2987,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.55,
+      "input_tokens": 2903,
+      "cached_input_tokens": null,
+      "output_tokens": 275,
+      "total_tokens": 3178,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\162681\\162681.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "",
+        "101595356"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        800.0,
+        "800,00"
+      ],
+      "Net.Amount": [
+        true,
+        800.0,
+        "800,00"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "05.10.2022",
+        "05.10.2022"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 5,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7221,
+    "cached_input_tokens": 0,
+    "output_tokens": 1842,
+    "eur_estimate": 0.001006
+  }
+}

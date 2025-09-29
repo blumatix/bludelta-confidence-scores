@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\273986\\273981_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 297.49,
+    "Invoice.Date": "26.01.2024",
+    "Sender.VatId": "ATU34003805",
+    "Vat.Rate": 20,
+    "Net.Amount": 247.91,
+    "Vat.Amount": 49.58
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.75
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Very good chance"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Below is a concise, non-sensitive summary of the extraction steps and verification I performed:\n\n- Classified document as an invoice: presence of header \"RECHNUNG\", invoice number \"NR. 15561491\", invoice date, line items, VAT and total amounts.\n- Identified sender company header (HOGAST ...) and located its VAT/UID in the header: \"UID-Nr.: ATU34003805\".\n- Located invoice date: \"Anif, 26.01.2024\".\n- Located totals section: Nettobetrag 247,91; Mehrwertsteuer 49,58; Bruttobetrag 297,49 — interpreted as Net.Amount, Vat.Amount, GrandTotal.Amount respectively.\n- Located VAT rate: multiple mentions of \"20\" / \"20% USt\" associated with line items and summary; extracted as 20 (without %).\n- Ensured values preserved original decimal precision and did not infer any missing values.\n- Decided to include the extracted values in the final structured JSON output in the next step.",
+    "step2": "GrandTotal.Amount\n- Evidence: \"Bruttobetrag 297,49\" in Zusammenfassung; also \"Betrag EUR 297,49\" and \"Dieser Betrag ist am 12.02.2024 fällig.\"\n- Consistency: Matches sum of Nettobetrag 247,91 + Mehrwertsteuer 49,58 = 297,49.\n- Confidence: High (≈95%)\n\nInvoice.Date\n- Evidence: \"Anif, 26.01.2024\" appears at top of page and on page 2 with the same date next to invoice header and NR. 15561491.\n- Consistency: Date placement consistent with invoice issue date.\n- Confidence: High (≈95%)\n\nSender.VatId\n- Evidence: Header shows \"BIC: RVSAAT2S, UID-Nr.: ATU34003805\" near company HOGAST; also document top includes company details.\n- Ambiguity: There is another \"UID-Nummer: ATU34011805\" beneath invoice header (likely buyer/supplier UID), but the header UID next to BIC aligns with sender HOGAST.\n- Confidence: Medium-High (≈85%)\n\nVat.Rate\n- Evidence: Multiple mentions of \"20\" and \"20 % USt\" for line items and summary (\"Zusammenfassung aller ER 20 % USt\").\n- Consistency: VAT amount (49,58) equals 20% of Nettobetrag 247,91 (247.91 * 0.20 = 49.582 → 49,58 rounding matches).\n- Confidence: High (≈95%)\n\nNet.Amount\n- Evidence: \"Nettobetrag 247,91\" in Zusammenfassung.\n- Consistency: Net + VAT equals Grand Total as above.\n- Confidence: High (≈95%)\n\nVat.Amount\n- Evidence: \"Mehrwertsteuer 49,58\" in Zusammenfassung; per-line VAT values also sum to 49,12? (line VATs shown: 28,86 and 22,26 → sum 51,12) — but summary shows 49,58.\n- Ambiguity: Per-line VAT depicted on page 2: for first line WRG Ust 28,86 (amount 173,16 includes VAT), for second line Ust 22,26 (amount 133,54 includes VAT). Those per-line VAT values sum to 51,12, not 49,58. However summary section explicitly states Mehrwertsteuer 49,58 and Nettobetrag 247,91 → 247,91*0.20=49,582 → 49,58 matches summary arithmetic. OCR/per-line totals (173,16 and 133,54) correspond to line gross amounts; potential OCR or rounding discrepancies exist.\n- Decision basis: Favor the summary totals (Nettobetrag + Mehrwertsteuer = Bruttobetrag) for invoice-level VAT.\n- Confidence: Medium (≈75%) due to inconsistency between per-line VAT sum and summary VAT, but summary arithmetic supports 49,58."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 6.66,
+      "input_tokens": 2380,
+      "cached_input_tokens": null,
+      "output_tokens": 680,
+      "total_tokens": 3060,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 9.51,
+      "input_tokens": 2619,
+      "cached_input_tokens": null,
+      "output_tokens": 713,
+      "total_tokens": 3332,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.27,
+      "input_tokens": 3537,
+      "cached_input_tokens": null,
+      "output_tokens": 345,
+      "total_tokens": 3882,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273986\\273981_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU34003805",
+        "ATU34003805"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        297.49,
+        "297,49"
+      ],
+      "Net.Amount": [
+        true,
+        247.91,
+        "247,91"
+      ],
+      "Vat.Amount": [
+        true,
+        49.58,
+        "49,58"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "26.01.2024",
+        "26.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8536,
+    "cached_input_tokens": 0,
+    "output_tokens": 1738,
+    "eur_estimate": 0.004885
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\249830\\249747_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2307.62,
+    "Invoice.Date": "07.11.2023",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 1923.02,
+    "Vat.Amount": 384.6
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (1) verify this is an invoice by checking for invoice indicators vs exclusion terms, (2) locate invoice-like headers and the required fields in the schema, (3) extract exact text/numeric values without inference, preserving decimals and formats, and (4) leave any missing fields empty.\n\nFindings from reading the document:\n- Document contains clear invoice indicators (terms like \"Rechnung\", \"Rechnungsendbetrag\", \"UID-Nr\", invoice number, invoice-related totals and VAT lines) and no prominent exclusion terms, so it qualifies as an invoice.\n- Relevant field locations to extract:\n  - Invoice.Date: near \"Druckdatum\" / printing date block.\n  - GrandTotal.Amount: on the \"Rechnungsendbetrag\" line (numeric with currency).\n  - Sender.VatId: the sender UID/UID-Nr entries at the top and bottom (multiple UID-like numbers present).\n  - Vat.Rate, Net.Amount, Vat.Amount: the VAT summary line \"+  20,0 % Ust. von 1.923,02 € 384,60 €\" provides VAT rate, taxable net amount and VAT amount; the \"Zwischensumme\" line holds net subtotal.\n- Will not infer or convert values (e.g., will remove percent sign for Vat.Rate and preserve decimal precision exactly as printed).\n- If multiple UID/VAT IDs appear, I will list occurrences per the schema rules; if any required schema field is absent, I will return it as empty string.\n\nI will now proceed to extract the exact values (final JSON will follow).",
+    "step2": "{\n  \"GrandTotal.Amount\": 2307.62,\n  \"Invoice.Date\": \"07.11.2023\",\n  \"Sender.VatId\": \"ATU22642807\",\n  \"Vat.Rate\": 20.0,\n  \"Net.Amount\": 1923.02,\n  \"Vat.Amount\": 384.60\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.19,
+      "input_tokens": 2177,
+      "cached_input_tokens": null,
+      "output_tokens": 588,
+      "total_tokens": 2765,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.07,
+      "input_tokens": 2556,
+      "cached_input_tokens": null,
+      "output_tokens": 527,
+      "total_tokens": 3083,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.93,
+      "input_tokens": 2935,
+      "cached_input_tokens": null,
+      "output_tokens": 413,
+      "total_tokens": 3348,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\249830\\249747_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU66213527,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        2307.62,
+        "2.307,62"
+      ],
+      "Net.Amount": [
+        true,
+        1923.02,
+        "1.923,02"
+      ],
+      "Vat.Amount": [
+        true,
+        384.6,
+        "384,60"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,0"
+      ],
+      "Invoice.Date": [
+        true,
+        "07.11.2023",
+        "07.11.2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7668,
+    "cached_input_tokens": 0,
+    "output_tokens": 1528,
+    "eur_estimate": 0.00433
+  }
+}

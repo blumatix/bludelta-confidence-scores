@@ -1,0 +1,130 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\206129\\206098_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 60795.08,
+    "Invoice.Date": "21.07.2023",
+    "Sender.VatId": "ATU39103108",
+    "Vat.Rate": [
+      10,
+      20
+    ],
+    "Net.Amount": [
+      51672.62,
+      3296.0
+    ],
+    "Vat.Amount": [
+      5167.26,
+      659.2
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Confirm document is an invoice:\n- Presence of header \"Rechnung\", invoice number \"Nummer: 1119103148\", \"Datum 21.07.2023\", invoice line items, VAT lines and totals → classify as invoice.\n\n2) Locate Invoice.Date:\n- Found \"Datum                                        21.07.2023\" → Invoice.Date = \"21.07.2023\".\n\n3) Locate Sender.VatId:\n- Found \"VAT     Registration         n°   ATU39103108\" (also repeats \"ATU39103108\" elsewhere) → Sender.VatId = \"ATU39103108\".\n\n4) Identify totals and VAT groups:\n- Bottom of page 8 shows VAT summary table:\n  - For 10,00 %: \"MwSt.-€ 5.167,26 von Wert netto 51.672,62\"\n  - For 20,00 %: \"MwSt.-€ 659,20 von Wert netto 3.296,00\"\n  - Combined net 51.672,62 + 3.296,00 = 54.968,62\n  - Combined VAT 5.167,26 + 659,20 = 5.826,46\n  - Gross total shown: \"60.795,08\"\n  - Also shows payment alternatives: \"Zahlung bis 20.08.2023 2,000 % EUR 59.579,18\" and \"Zahlung bis 30.08.2023 NETTO EUR 60.795,08\"\n\n5) Determine GrandTotal.Amount:\n- \"Gesamtsumme brutto (EUR)\" / gross total = 60.795,08 → GrandTotal.Amount = 60.795,08 (number with same decimals).\n\n6) Extract VAT rates and amounts (multiple VAT groups):\n- VAT group 1:\n  - Vat.Rate = 10 (remove % per rules)\n  - Net.Amount = 51672.62\n  - Vat.Amount = 5167.26\n- VAT group 2:\n  - Vat.Rate = 20\n  - Net.Amount = 3296.00\n  - Vat.Amount = 659.20\n(Keep decimals as in source.)\n\n7) Verify Net.Amount field overall:\n- The schema expects Net.Amount; based on VAT groups, the net amounts are the per-rate nets above. The invoice also shows combined net 54.968,62 which equals sum of the two group nets; extraction will use the group nets per rule allowing multiple entries.\n\n8) No inference beyond visible values:\n- All fields taken verbatim from displayed lines; no guessed values.\n\nPrepared values to output in final JSON: Invoice.Date \"21.07.2023\"; Sender.VatId \"ATU39103108\"; GrandTotal.Amount 60.795,08; Vat groups: [ {Vat.Rate 10, Net.Amount 51672.62, Vat.Amount 5167.26}, {Vat.Rate 20, Net.Amount 3296.00, Vat.Amount 659.20} ].",
+    "step2": "Invoice.Date — confidence: high (95%)\n- Evidence: Clear labeled \"Datum                                        21.07.2023\" near header. Low ambiguity.\n\nSender.VatId — confidence: high (95%)\n- Evidence: \"VAT     Registration         n°   ATU39103108\" appears in header and repeats elsewhere. Format matches Austrian VAT (ATU...).\n\nGrandTotal.Amount — confidence: high (90%)\n- Evidence: Bottom shows \"Gesamtsumme brutto\" as \"60.795,08\" and \"NETTO EUR 60.795,08\" in payment section. Possible OCR punctuation ambiguity between dot/comma, but numeric value and placement are clear.\n\nVat group 1 (Vat.Rate = 10; Net.Amount = 51672.62; Vat.Amount = 5167.26) — confidence: high (90%)\n- Evidence: VAT summary table shows \"10,00 %\", \"MwSt.-€ 5.167,26\", \"von Wert netto 51.672,62\". OCR preserved commas as decimals; mapping to numbers is direct. Slight risk from OCR spacing/decimal separators.\n\nVat group 2 (Vat.Rate = 20; Net.Amount = 3296.00; Vat.Amount = 659.20) — confidence: high (88%)\n- Evidence: VAT table shows \"20,00 %\", \"MwSt.-€ 659,20\", \"von Wert netto 3.296,00\". Clear values; small risk from OCR of grouping separators.\n\nOverall consistency check — confidence: high (90%)\n- Sum of Net.Amounts (51,672.62 + 3,296.00 = 54,968.62) matches \"Gesamtsumme netto 54.968,62\" in document.\n- Sum of Vat.Amounts (5,167.26 + 659.20 = 5,826.46) matches VAT total line.\n- Net + VAT = Gross (54,968.62 + 5,826.46 = 60,795.08), consistent with GrandTotal."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 28.59,
+      "input_tokens": 10564,
+      "cached_input_tokens": null,
+      "output_tokens": 1414,
+      "total_tokens": 11978,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 9.26,
+      "input_tokens": 11257,
+      "cached_input_tokens": null,
+      "output_tokens": 499,
+      "total_tokens": 11756,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 14.72,
+      "input_tokens": 11992,
+      "cached_input_tokens": null,
+      "output_tokens": 569,
+      "total_tokens": 12561,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\206129\\206098_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU39103108",
+        "ATU39103108"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        60795.08,
+        "60.795,08"
+      ],
+      "Net.Amount": [
+        true,
+        [
+          51672.62,
+          3296.0
+        ],
+        [
+          "3.296,00",
+          "51.672,62"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        [
+          5167.26,
+          659.2
+        ],
+        [
+          "659,20",
+          "5.167,26"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        [
+          10,
+          20
+        ],
+        [
+          "20,00",
+          "10,00"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "21.07.2023",
+        "21.07.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 33813,
+    "cached_input_tokens": 0,
+    "output_tokens": 2482,
+    "eur_estimate": 0.011733
+  }
+}

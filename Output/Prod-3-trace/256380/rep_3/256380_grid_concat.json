@@ -1,0 +1,98 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\256404\\256380_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 907.83,
+    "Invoice.Date": "29.11.2023",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": 10,
+    "Net.Amount": 825.3,
+    "Vat.Amount": 82.53
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Plan:\n- Confirm document is an invoice by checking headers/keywords.\n- Locate invoice date, invoice number, customer UID (sender VAT), totals, net and VAT amounts and VAT rate.\n- Do not infer missing values; take values exactly as shown (preserve decimals).\n\nFindings from text:\n- Invoice indicators present: \"Rechnung Nr.: 1122652\", \"Datum : 29.11.2023\", \"Ihre UID-Nr. ATU22642807\", totals table with Nettobetrag 825,30, Umsatzsteuer 82,53, Bruttobetrag 907,83 EUR, USt.-Satz 10%.\n- Classification: invoice (not a payment reminder or report).\n\nCandidate field mappings (exact textual values to be converted per schema rules in final extraction):\n- Invoice.Date: \"29.11.2023\"\n- Sender.VatId: \"ATU22642807\"\n- Vat.Rate: \"10\" (from \"10%\"; percentage symbol to be removed)\n- Net.Amount: \"825,30\"\n- Vat.Amount: \"82,53\"\n- GrandTotal.Amount: \"907,83\"\n\nNotes:\n- Numeric formatting uses comma as decimal separator in source; final output must preserve decimal places but will need to conform to numeric type in schema. No other VAT groups or exchange rates found.",
+    "step2": "GrandTotal.Amount (907,83)\n- Evidence: \"Bruttobetrag ... 907,83 EUR\" in totals row and repeated under Gesamt.\n- Consistency: equals Net + VAT (825,30 + 82,53 = 907,83).\n- Confidence: 98%\n\nInvoice.Date (\"29.11.2023\")\n- Evidence: \"Datum : 29.11.2023\" clearly labeled near Rechnung Nr.\n- Consistency: Matches Lieferscheindatum also shown as 29.11.2023.\n- Confidence: 99%\n\nSender.VatId (\"ATU22642807\")\n- Evidence: Labeled \"Ihre UID-Nr. ATU22642807\" in header.\n- Consistency: Format matches Austrian UID (ATU...).\n- Confidence: 98%\n\nVat.Rate (10)\n- Evidence: \"USt.-Satz 10%\" shown above the Nettobetrag/Umsatzsteuer/Bruttobetrag table.\n- Consistency: VAT amount (82,53) corresponds to 10% of 825,30.\n- Confidence: 98%\n\nNet.Amount (825,30)\n- Evidence: \"Nettobetrag 825,30\" shown in totals table.\n- Consistency: VAT calculation and gross match.\n- Confidence: 99%\n\nVat.Amount (82,53)\n- Evidence: \"Umsatzsteuer 82,53\" in totals table.\n- Consistency: 10% of 825,30 = 82,53; sums to gross 907,83.\n- Confidence: 99%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 5.65,
+      "input_tokens": 1965,
+      "cached_input_tokens": null,
+      "output_tokens": 475,
+      "total_tokens": 2440,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.92,
+      "input_tokens": 2295,
+      "cached_input_tokens": null,
+      "output_tokens": 401,
+      "total_tokens": 2696,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.76,
+      "input_tokens": 2932,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3213,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\256404\\256380_test.json",
+    "per_field": {
+      "GrandTotal.Amount": [
+        true,
+        907.83,
+        "907,83"
+      ],
+      "Net.Amount": [
+        true,
+        825.3,
+        "825,30"
+      ],
+      "Vat.Amount": [
+        true,
+        82.53,
+        "82,53"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "29.11.2023",
+        "29.11.2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 5,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7192,
+    "cached_input_tokens": 0,
+    "output_tokens": 1157,
+    "eur_estimate": 0.003584
+  }
+}

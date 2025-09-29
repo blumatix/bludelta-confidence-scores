@@ -1,0 +1,109 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198575\\198575_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 5100.0,
+    "Invoice.Date": "2/20/2023",
+    "Sender.VatId": "LT100005407518",
+    "Vat.Rate": 0,
+    "Net.Amount": 5100.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.75,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Very good chance",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (1) verify this is an invoice, (2) locate each required field, (3) consider ambiguous alternatives, and (4) decide what to extract without guessing.\n\n1) Document classification\n- Evidence for invoice:\n  - Title “VAT INVOICE” visible.\n  - Series GLS2302-07669 and “Date: 2/20/2023.”\n  - Totals shown: “Total excl. VAT 5,100.00 EUR”, “VAT - 0.00 EUR”, “Total incl. VAT 5,100.00 EUR”.\n  - Sender info block with “VAT code: LT100005407518”.\n- No prominent exclusion indicators (no “Zahlungserinnerung”/“Mahnung” headers). Conclusion: document qualifies as an invoice.\n\n2) Locate required fields in text\n- Invoice.Date: “Date: 2/20/2023” (clear).\n- Sender.VatId: top block shows “VAT   code:   LT100005407518”.\n- GrandTotal.Amount: “Total incl. VAT 5,100.00 EUR” → numeric 5,100.00.\n- Net.Amount: “Total excl. VAT 5,100.00 EUR” → numeric 5,100.00.\n- Vat.Amount: shown as “VAT - 0.00 EUR” → numeric 0.00.\n- Vat.Rate: document shows sales tax code “EKS_ESNE_0” and VAT amount 0.00. No explicit percent like “0%” printed, but the VAT line is zero and code suggests exempt. Per No Inference Policy, only extract explicit numeric VAT rate if present. The invoice does not display a percent value; however there is a VAT line of 0.00 and sales tax code ending with “_0”. Alternatives considered:\n  - Treat Vat.Rate as 0 (supported indirectly by VAT amount = 0.00 and code containing “_0”).\n  - Leave Vat.Rate empty due to absence of explicit percent symbol or label.\n- Rule 2 (No Inference) forbids guessing. The code “EKS_ESNE_0” and VAT amount 0.00 constitute indirect evidence but not an explicit percentage string. Still, the schema expects Vat.Rate as a number or empty. Given the clear VAT amount 0.00 and the “_0” suffix in tax code, the most consistent, evidence-supported extraction is Vat.Rate = 0 (no percent symbol per rule 5).\n\n3) Decimal and formatting decisions\n- Preserve decimals as in source: amounts have two decimals (e.g., 5,100.00 → 5100.00).\n- Vat.Rate should be returned without “%”: 0.\n\n4) Final field mapping (to be output later)\n- Invoice.Date = \"2/20/2023\"\n- Sender.VatId = \"LT100005407518\"\n- GrandTotal.Amount = 5100.00\n- Net.Amount = 5100.00\n- Vat.Amount = 0.00\n- Vat.Rate = 0\n\nNo other required fields are present or necessary.",
+    "step2": "GrandTotal.Amount — High confidence (~95%)\n- Evidence: Clear line “Total incl. VAT 5,100.00 EUR” in invoice totals section.\n- Consistency: Matches “Amount in words: Five thousand one hundred EUR and 00 ct.” and the “Price excl. VAT” line with same numeric sum.\n- Ambiguity: Very low.\n\nInvoice.Date — High confidence (~98%)\n- Evidence: Explicit “Date: 2/20/2023” under invoice header.\n- Consistency: Loading date is 2/16/2023 and other dates (e.g., invoice printing date 2/28/2023) do not conflict; the explicit invoice Date is unambiguous.\n- Ambiguity: Negligible.\n\nSender.VatId — High confidence (~95%)\n- Evidence: Top-left sender block shows “VAT   code:   LT100005407518.”\n- Consistency: Located in sender/company header; format matches VAT ID.\n- Ambiguity: Low.\n\nNet.Amount — High confidence (~95%)\n- Evidence: Explicit “Total excl. VAT 5,100.00 EUR” in totals.\n- Consistency: Matches GrandTotal when VAT is zero and matches amount-in-words.\n- Ambiguity: Very low.\n\nVat.Amount — High confidence (~95%)\n- Evidence: Explicit “VAT - 0.00 EUR” line.\n- Consistency: Matches Net vs. Total incl. VAT equality.\n- Ambiguity: Very low.\n\nVat.Rate — Moderate confidence (~75%)\n- Evidence: No explicit percent printed. VAT amount is 0.00 and sales tax code “EKS_ESNE_0” contains “_0”, implying zero rate or exemption.\n- Consistency: Vat.Amount = 0.00 supports a 0% rate, and total/incl equals excl.\n- Ambiguity: Because there is no explicit “0%” label, this requires interpreting the code and amounts; under a strict “no inference” rule there is some uncertainty."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.73,
+      "input_tokens": 6882,
+      "cached_input_tokens": null,
+      "output_tokens": 1046,
+      "total_tokens": 7928,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.7,
+      "input_tokens": 7591,
+      "cached_input_tokens": null,
+      "output_tokens": 421,
+      "total_tokens": 8012,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.24,
+      "input_tokens": 8312,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 8595,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198575\\198575.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "LT100005407518",
+        "LT100005407518"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        5100.0,
+        "5,100.00"
+      ],
+      "Net.Amount": [
+        true,
+        5100.0,
+        [
+          "5,100.00",
+          "5,100.00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        [
+          "0.00",
+          "0.00"
+        ]
+      ],
+      "Vat.Rate": [
+        false,
+        0,
+        []
+      ],
+      "Invoice.Date": [
+        true,
+        "2/20/2023",
+        "2/20/2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 22785,
+    "cached_input_tokens": 0,
+    "output_tokens": 1750,
+    "eur_estimate": 0.001752
+  }
+}

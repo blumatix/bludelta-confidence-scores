@@ -1,0 +1,109 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198567\\198567_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 76.76,
+    "Invoice.Date": "30 März 2023",
+    "Sender.VatId": "FR12487773327",
+    "Vat.Rate": 0,
+    "Net.Amount": 76.76,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains header \"Rechnung\" and invoice-like sections (Rechnungsdatum, Rechnungsnummer, Rechnungsdetails, Line items, Zahlbetrag). No exclusion terms like \"Mahnung\" prominent. Classify as invoice.\n\nIdentify candidate fields from text:\n- Invoice date: line shows \"Rechnungsdatum /Lieferdatum 30 März 2023\" — invoice date = 30 März 2023.\n- Grand total / Zahlbetrag: appears as \"Zahlbetrag 76,76 €\" and repeated in totals table as 76,76 €.\n- Sender VAT ID: multiple VAT mentions for seller Amazon EU S.à r.l. — \"USt-IDNr. FR12487773327\" appears near top and in company block \"TVA : FR 12487773327\". Sender VAT ID = FR12487773327.\n- VAT groups: In totals table shows USt. % = 0% with corresponding Zwischensumme (ohne USt.) 76,76 € and USt. 0,00 €. Also line item shows \"0% (1)\" and note \"(1) Steuerfreie innergemeinschaftliche Lieferung...\" So a single VAT group with rate 0, Net 76,76, Vat 0,00.\n\nCheck no inference:\n- Currency is EUR but schema fields expect numeric values without currency symbol; will strip \"€\" but preserve decimals as in input (comma decimal). Must convert to number format (dot) for JSON numeric type while keeping same decimals—so 76,76 -> 76.76 and 0,00 -> 0.00. VAT rate should be number without percent symbol -> 0.\n\nMultiple occurrences:\n- Only one VAT group present.\n\nPotential ambiguities and choices:\n- Invoice date listed alongside \"Lieferdatum\" — treat as Invoice.Date = \"30 März 2023\" (preserve original string).\n- Net.Amount and Vat.Amount values taken from VAT summary lines: Net 76,76 €, Vat 0,00 €.\n- GrandTotal.Amount use Zahlbetrag 76,76 €.\n\nFinal mapping to schema fields (values identified, to be formatted per JSON numeric/string types):\n- GrandTotal.Amount: 76.76\n- Invoice.Date: \"30 März 2023\"\n- Sender.VatId: \"FR12487773327\"\n- Vat.Rate: 0\n- Net.Amount: 76.76\n- Vat.Amount: 0.00",
+    "step2": "GrandTotal.Amount:\n- Evidence: \"Zahlbetrag 76,76 €\" appears twice (top and totals). Totals table shows USt. Gesamt 76,76 €.\n- Consistency: Matches line-item subtotal and VAT summary.\n- Confidence: Very high.\n\nInvoice.Date:\n- Evidence: \"Rechnungsdatum /Lieferdatum 30 März 2023\" clearly printed.\n- Ambiguity: Date appears as combined label but explicit value present.\n- Confidence: Very high.\n\nSender.VatId:\n- Evidence: \"USt-IDNr. FR12487773327\" appears near header and company block (\"TVA : FR 12487773327\").\n- Consistency: Same VAT shown multiple times.\n- Confidence: Very high.\n\nVat.Rate:\n- Evidence: Line item and VAT summary show \"0%\" and note explaining tax-free intra-community supply.\n- Ambiguity: Could interpret as tax-exempt rather than VAT applied, but represented as 0% in document.\n- Confidence: High.\n\nNet.Amount:\n- Evidence: VAT summary shows Zwischensumme (ohne USt.) 76,76 € and line items sum to same.\n- Consistency: Matches GrandTotal when VAT is 0.\n- Confidence: Very high.\n\nVat.Amount:\n- Evidence: VAT summary shows USt. 0,00 €; line item marked 0%.\n- Consistency: Matches VAT rate 0%.\n- Confidence: Very high."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.47,
+      "input_tokens": 2587,
+      "cached_input_tokens": null,
+      "output_tokens": 642,
+      "total_tokens": 3229,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.54,
+      "input_tokens": 3148,
+      "cached_input_tokens": null,
+      "output_tokens": 306,
+      "total_tokens": 3454,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.83,
+      "input_tokens": 3754,
+      "cached_input_tokens": null,
+      "output_tokens": 344,
+      "total_tokens": 4098,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198567\\198567.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "FR12487773327",
+        "FR12487773327"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        76.76,
+        "76,76"
+      ],
+      "Net.Amount": [
+        true,
+        76.76,
+        [
+          "76,76",
+          "76,76"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        [
+          "0,00",
+          "0,00"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        0,
+        "0"
+      ],
+      "Invoice.Date": [
+        true,
+        "30 März 2023",
+        "30 März 2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 9489,
+    "cached_input_tokens": 0,
+    "output_tokens": 1292,
+    "eur_estimate": 0.000927
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\165166\\165166_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 45.67,
+    "Invoice.Date": "24.11.2022",
+    "Sender.VatId": "ATU 47239901",
+    "Vat.Rate": 19,
+    "Net.Amount": 45.67,
+    "Vat.Amount": ""
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.8,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.2
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Chances are slight"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains \"Rechnung\" and invoice-like headers → likely an invoice.\n- No prominent exclusion terms (\"Mahnung\", \"Zahlungserinnerung\") dominating → proceed.\n\nKey candidate extractions from text:\n- Dates: \"Datum:     24.11.2022\" → Invoice.Date = \"24.11.2022\".\n- VAT IDs: two VAT-like values appear:\n  - \"Dachser:        UID-NR.         ATU      47239901\" (labelled with Dachser) \n  - \"Ust-IdNr.:      DE   273932271\" (appears in DT Service contact block).\n  The invoice header shows \"DACHSER ... Rechnung\" and the UID labelled with Dachser; therefore Sender.VatId = \"ATU 47239901\".\n- Totals and VAT:\n  - The invoice shows line sums and a summary: \"Netto-Warenwert EUR Mwst 19% Betrag EUR 45,67Euro\"\n    - This indicates Net amount = 45,67 (45.67).\n    - VAT rate = 19% → Vat.Rate = 19 (no % sign).\n    - No explicit VAT monetary amount shown separately; Grand total appears as 45,67 EUR as well.\n  - Per No Inference rule: do not compute VAT amount. Since VAT monetary value is not explicitly present, Vat.Amount = \"\".\n  - GrandTotal.Amount: the invoice shows total/betrag 45,67 EUR → GrandTotal.Amount = 45.67.\n\nAmbiguities considered and rejected:\n- Could Sender.VatId be \"DE 273932271\"? That belongs to DT Service contact block; header and UID label point to Dachser as invoicing entity, so choose ATU 47239901.\n- VAT monetary amount could be computed (45.67 * 0.19 = 8.6773) but No Inference policy forbids computing missing values; leave Vat.Amount empty.\n\nFinal planned field assignments (to be output in JSON next):\n- \"Invoice.Date\": \"24.11.2022\"\n- \"Sender.VatId\": \"ATU 47239901\"\n- \"Vat.Rate\": 19\n- \"Net.Amount\": 45.67\n- \"Vat.Amount\": \"\"\n- \"GrandTotal.Amount\": 45.67",
+    "step2": "{\n  \"GrandTotal.Amount\": 45.67,\n  \"Invoice.Date\": \"24.11.2022\",\n  \"Sender.VatId\": \"ATU 47239901\",\n  \"Vat.Rate\": 19,\n  \"Net.Amount\": 45.67,\n  \"Vat.Amount\": \"\"\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.48,
+      "input_tokens": 2449,
+      "cached_input_tokens": null,
+      "output_tokens": 1134,
+      "total_tokens": 3583,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.9,
+      "input_tokens": 2990,
+      "cached_input_tokens": null,
+      "output_tokens": 456,
+      "total_tokens": 3446,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.38,
+      "input_tokens": 3362,
+      "cached_input_tokens": null,
+      "output_tokens": 278,
+      "total_tokens": 3640,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\165166\\165166.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU 47239901",
+        "DE 273932271"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        45.67,
+        "45,67"
+      ],
+      "Net.Amount": [
+        true,
+        45.67,
+        "45,67"
+      ],
+      "Vat.Amount": [
+        false,
+        "",
+        []
+      ],
+      "Vat.Rate": [
+        true,
+        19,
+        "19"
+      ],
+      "Invoice.Date": [
+        true,
+        "24.11.2022",
+        "24.11.2022"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 8801,
+    "cached_input_tokens": 0,
+    "output_tokens": 1868,
+    "eur_estimate": 0.001094
+  }
+}

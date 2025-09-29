@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\273943\\273932_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 895.54,
+    "Invoice.Date": "01.08.2023",
+    "Sender.VatId": "ATU 52106509",
+    "Vat.Rate": 20,
+    "Net.Amount": 746.28,
+    "Vat.Amount": 149.26
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (a) confirm this is an invoice, (b) identify candidate values for each required field, and (c) note any uncertainties to avoid guessing.\n\n1) Classification check\n- Invoice indicators present: the document contains \"Rechnung\", \"Rechnung\" header context, invoice-like headers (Pos, Bezeichnung, Menge, E-Preis, Mwst), totals labeled Netto / Mwst / Brutto, and UID/Ust-ID entries. No exclusion keywords (e.g., Mahnung) dominate. Conclusion: classify as an invoice.\n\n2) Locate fields per schema\n- GrandTotal.Amount: The Brutto / Endbetrag shows 895,54 EUR. Candidate: 895,54.\n- Invoice.Date: \"Datum\" shows 01.08.2023 (also Liefer-Datum 01.08.2023). Candidate: \"01.08.2023\".\n- Sender.VatId: UID / Ust-ID lines: two tax IDs appear. Sender (C.A.I. iLux Michael Pühse e.U.) shows \"UID: ATU 52106509\" at top; another \"Ust-ID: ATU 64131246\" appears near customer/representative line. The sender VAT is the top UID: candidate \"ATU52106509\" (preserve formatting no spaces? will keep as in source).\n- Vat.Rate / Net.Amount / Vat.Amount: The totals section lists Netto 746,28; Mwst 20% -> 149,26. Vat.Rate candidate: 20; Net.Amount candidate: 746,28; Vat.Amount candidate: 149,26.\n\n3) Verification & no-inference\n- Numeric formats: decimals use comma; schema expects numbers. Will convert to numeric values preserving decimal places (746,28 -> 746.28 etc.) only in final extraction.\n- Do not infer any missing values. All required fields have visible candidates.\n\n4) Ambiguities noted\n- Two different tax IDs present; sender UID assumed is the top \"UID: ATU 52106509\" based on header location. Will not guess otherwise.\n- Date appears clearly as 01.08.2023.\n\nProceed to produce final JSON with these extracted values.",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"confidence\": \"High (95%)\",\n    \"justification\": \"Explicitly shown as Brutto / Endbetrag: 895,54 EUR in the totals section.\"\n  },\n  \"Invoice.Date\": {\n    \"confidence\": \"High (95%)\",\n    \"justification\": \"Date labeled 'Datum' and Liefer-Datum both show 01.08.2023.\"\n  },\n  \"Sender.VatId\": {\n    \"confidence\": \"High (90%)\",\n    \"justification\": \"Top-header shows 'UID: ATU 52106509' associated with the sender; another Ust-ID appears elsewhere but header UID aligns with sender.\"\n  },\n  \"Vat.Rate\": {\n    \"confidence\": \"High (95%)\",\n    \"justification\": \"Totals table and line item show '20%' VAT rate for the invoice.\"\n  },\n  \"Net.Amount\": {\n    \"confidence\": \"High (95%)\",\n    \"justification\": \"Totals table lists Netto as 746,28 EUR.\"\n  },\n  \"Vat.Amount\": {\n    \"confidence\": \"High (95%)\",\n    \"justification\": \"Totals table lists Mwst (VAT amount) as 149,26 EUR.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.35,
+      "input_tokens": 1752,
+      "output_tokens": 720,
+      "total_tokens": 2472
+    },
+    "step2": {
+      "runtime_sec": 4.44,
+      "input_tokens": 2223,
+      "output_tokens": 460,
+      "total_tokens": 2683
+    },
+    "step3": {
+      "runtime_sec": 3.97,
+      "input_tokens": 2760,
+      "output_tokens": 346,
+      "total_tokens": 3106
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273943\\273932_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU 52106509",
+        "ATU 52106509"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        895.54,
+        "895,54"
+      ],
+      "Net.Amount": [
+        true,
+        746.28,
+        "746,28"
+      ],
+      "Vat.Amount": [
+        true,
+        149.26,
+        "149,26"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "01.08.2023",
+        "01.08.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  }
+}

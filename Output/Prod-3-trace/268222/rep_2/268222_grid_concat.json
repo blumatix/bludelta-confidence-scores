@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\268231\\268222_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 388.1,
+    "Invoice.Date": "31.12.2023",
+    "Sender.VatId": "ATU14400600",
+    "Vat.Rate": 10,
+    "Net.Amount": 352.82,
+    "Vat.Amount": 35.28
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Step 1 — SOLUTION REASONING:\n\n1) Determine if document is an invoice:\n   - Contains invoice indicators: \"Entgeltminderungsbeleg\", \"Netto\", \"MWST%\", \"BRUTTO\", \"UID\", invoice-like totals and dates. No prominent exclusion terms (\"Zahlungserinnerung\", \"Mahnung\", \"Servicebericht\") present. Conclusion: treat as invoice.\n\n2) Locate Invoice.Date:\n   - Found near header: \"WIEN,                31.12.2023\" → Invoice.Date = \"31.12.2023\".\n\n3) Identify Sender.VatId:\n   - Footer lists \"UID:    ATU      14400600\" (company IMGRO...) and header shows \"UID Kunde: ATU22642807\" (customer). Schema asks for Sender.VatId → use sender UID = \"ATU14400600\".\n\n4) Extract GrandTotal.Amount:\n   - \"BRUTTO                                                        388,10              EUR\" → Grand total = 388,10. Preserve decimals; convert comma to dot for numeric JSON → 388.10.\n\n5) Extract Net.Amount:\n   - \"NETTO                                                    352,82              EUR\" and line \"352,82\" associated with netto → Net = 352,82 → numeric 352.82.\n\n6) Extract Vat.Rate and Vat.Amount:\n   - \"MWST             10,00          %von                                      352,82                                        35,28            EUR\" and header shows \"MWST% ... 10,00\" → Vat.Rate = 10 (drop percent sign per rules). Vat.Amount = 35,28 → numeric 35.28.\n\n7) Verify No Inference Violations:\n   - All extracted values explicitly present in text. No guessing required.\n\n8) Number formatting:\n   - Keep same decimal precision as input (two decimals). Convert commas to decimal points for numeric fields in JSON.",
+    "step2": "Invoice classification confidence:\n- High. Document contains invoice-like headers (\"Entgeltminderungsbeleg\", NETTO, MWST, BRUTTO), totals, UID, and invoice date; no exclusion terms present.\n\nField-by-field confidence:\n\n1) Invoice.Date = \"31.12.2023\"\n- Evidence: Explicit \"WIEN,                31.12.2023\" near header.\n- Confidence: Very high.\n\n2) Sender.VatId = \"ATU14400600\"\n- Evidence: Footer shows \"UID:    ATU      14400600\" associated with IMGRO (sender company details). There is also \"UID Kunde: ATU22642807\" (customer), but sender UID is clearly in footer.\n- Potential ambiguity: two UIDs present; selection of sender UID depends on interpreting footer as sender. Context strongly indicates footer UID is sender.\n- Confidence: High.\n\n3) GrandTotal.Amount = 388.10\n- Evidence: Line \"BRUTTO                                                        388,10              EUR\" clearly shows gross total.\n- Confidence: Very high.\n\n4) Net.Amount = 352.82\n- Evidence: \"NETTO                                                    352,82              EUR\" and \"Umsatz ... 35.282,16\" appears elsewhere but NETTO value 352,82 is explicit in the summary; matches VAT calc (352.82 + 35.28 = 388.10).\n- Potential ambiguity: large numbers like 35.282,16 appear as total turnover in cents/units, but NETTO in the credit note summary is 352,82 — consistent with VAT lines.\n- Confidence: Very high.\n\n5) Vat.Rate = 10\n- Evidence: Multiple occurrences: \"MWST% ... 10,00\" and \"MWST 10,00 %von 352,82 ... 35,28\".\n- Formatting: percentage symbol removed per rules.\n- Confidence: Very high.\n\n6) Vat.Amount = 35.28\n- Evidence: Explicit \"35,28            EUR\" in the MWST line; plus nets sum to brutto.\n- Confidence: Very high.\n\nOverall numerical consistency check:\n- Net (352.82) + VAT (35.28) = 388.10 (Brutto) — consistent."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.67,
+      "input_tokens": 2043,
+      "cached_input_tokens": null,
+      "output_tokens": 792,
+      "total_tokens": 2835,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.66,
+      "input_tokens": 2498,
+      "cached_input_tokens": null,
+      "output_tokens": 478,
+      "total_tokens": 2976,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.59,
+      "input_tokens": 3276,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3557,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\268231\\268222_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU14400600",
+        "ATU 14400600"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        388.1,
+        "388,10"
+      ],
+      "Net.Amount": [
+        true,
+        352.82,
+        "352,82"
+      ],
+      "Vat.Amount": [
+        true,
+        35.28,
+        "35,28"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "31.12.2023",
+        "31.12.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7817,
+    "cached_input_tokens": 0,
+    "output_tokens": 1551,
+    "eur_estimate": 0.004403
+  }
+}

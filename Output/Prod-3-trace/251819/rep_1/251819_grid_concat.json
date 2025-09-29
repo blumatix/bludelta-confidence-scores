@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\251861\\251819_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 276.0,
+    "Invoice.Date": "31.10.2023",
+    "Sender.VatId": "ATU46674503",
+    "Vat.Rate": 20,
+    "Net.Amount": 230.0,
+    "Vat.Amount": 46.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will parse the text to locate invoice indicators (headers like \"Rechnung\", invoice number, dates, totals) and confirm absence of exclusion terms dominating. Then I will extract values strictly as present, without guessing, mapping them to the schema fields:\n\n- Search for invoice date strings labeled (e.g., \"31. Oktober 2023\", \"31.10.2023\") and record exact text.\n- Find grand total / bruttobetrag value (e.g., \"Bruttobetrag ... 276,00 EUR\") and preserve decimals as given; strip currency symbol and convert to numeric.\n- Locate sender VAT ID (UID/UID-Nr. labels like \"UID-Nr.: ATU22642807\" or \"UID: ATU46674503\"); take the one associated with the sender (österreichische Post AG is the sender — check header proximity).\n- Identify VAT rate(s) (e.g., \"20 %\") and record numeric percent without the \"%\" sign; if multiple VAT groups appear, list each group separately.\n- Extract Net.Amount(s) corresponding to each VAT group (e.g., \"Nettosumme 230,00 EUR\") as numeric preserving decimals.\n- Extract Vat.Amount(s) corresponding to each VAT group (e.g., \"46,00 EUR\") as numeric preserving decimals.\n- Apply rules: if document clearly non-invoice (exclusion terms dominant), return all fields empty; do not infer missing fields; if multiple possible VAT IDs present, choose the one tied to the sender; preserve exact decimal formatting.\n\nI will then produce the required JSON with fields filled only when explicitly present in the text; otherwise leave fields as empty strings.",
+    "step2": "GrandTotal.Amount: High — \"Bruttobetrag Rechnung 276,00 EUR\" clearly present and unambiguous.\n\nInvoice.Date: High — date appears as \"31. Oktober 2023\" / \"31.10.2023\" in multiple places (Leistung: 31.10.2023), consistent.\n\nSender.VatId: High — two UIDs appear: \"UlD-Nr.: ATU22642807\" tied to BÄKO (recipient) and \"UID: ATU 46674503\" shown under österreichische Post AG (sender). The sender UID ATU46674503 is clearly associated with the sender block.\n\nVat.Rate: High — VAT rate \"20 %\" appears repeatedly (USt 20%, \"20 % von 230,00\"), unambiguous.\n\nNet.Amount: High — \"Nettosumme 230,00 EUR\" / Nettowert 230,00 clearly present.\n\nVat.Amount: High — \"46,00 EUR\" shown as Umsatzsteuer 20% von 230,00, consistent with amounts."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.52,
+      "input_tokens": 2021,
+      "cached_input_tokens": null,
+      "output_tokens": 541,
+      "total_tokens": 2562,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.05,
+      "input_tokens": 2417,
+      "cached_input_tokens": null,
+      "output_tokens": 613,
+      "total_tokens": 3030,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 7.17,
+      "input_tokens": 2946,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3227,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\251861\\251819_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU46674503",
+        "ATU 46674503"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        276.0,
+        "276,00"
+      ],
+      "Net.Amount": [
+        true,
+        230.0,
+        "230,00"
+      ],
+      "Vat.Amount": [
+        true,
+        46.0,
+        "46,00"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        false,
+        "31.10.2023",
+        "31. Oktober 2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7384,
+    "cached_input_tokens": 0,
+    "output_tokens": 1435,
+    "eur_estimate": 0.004107
+  }
+}

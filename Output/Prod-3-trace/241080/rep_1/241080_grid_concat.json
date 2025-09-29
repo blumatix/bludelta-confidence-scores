@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\241212\\241080_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 109.6,
+    "Invoice.Date": "19.10.2023",
+    "Sender.VatId": "ATU38510009",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 91.33,
+    "Vat.Amount": 18.27
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "- Document classification: contains header \"Rechnung\", \"Rechnungs-Nr.\", \"Rechnungsdatum\" and line-item totals → classify as invoice.\n\n- Key fields located:\n  - Invoice date: \"Rechnungsdatum: 19.10.2023\"\n  - Grand total: \"Rechnungsbetrag EUR 109,60\" (final invoice total shown on page 2)\n  - Net amount (Warenwert): \"Warenwert (20,00 %) 91,33\"\n  - VAT amount: \"MwSt (20,00 %) 18,27\"\n  - VAT rate: \"20,00 %\" (present with comma)\n  - Sender VAT ID: Günthart GmbH footer shows \"ATU38510009\" (sender tax ID). Note: another USTID \"ATU 22642807\" appears near Lieferadresse (customer) — not used for Sender.VatId.\n\n- Normalizations to apply when forming final JSON:\n  - Numbers: convert comma decimals to dot, keep same decimal places (e.g., 91,33 → 91.33).\n  - VAT rate: remove percent sign and convert comma to dot, keep decimals (20,00 % → 20.00).\n  - If any field were missing, would return as empty string (no inference).",
+    "step2": "GrandTotal.Amount — 95% — \"Rechnungsbetrag EUR 109,60\" clearly shown on page 2 as final invoice total.\n\nInvoice.Date — 99% — \"Rechnungsdatum: 19.10.2023\" explicitly printed on page 1.\n\nSender.VatId — 85% — Footer shows \"ATU38510009\" (Günthart GmbH); another USTID (ATU 22642807) appears near Lieferadresse (likely customer), so selection is confident but possible ambiguity.\n\nVat.Rate — 95% — VAT shown repeatedly as \"20,00 %\" next to Warenwert/MwSt lines.\n\nNet.Amount — 95% — \"Warenwert (20,00 %) 91,33\" is clearly the net amount for the 20% group.\n\nVat.Amount — 95% — \"MwSt (20,00 %) 18,27\" is clearly the VAT amount for that group."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.18,
+      "input_tokens": 2566,
+      "cached_input_tokens": null,
+      "output_tokens": 857,
+      "total_tokens": 3423,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.55,
+      "input_tokens": 2894,
+      "cached_input_tokens": null,
+      "output_tokens": 462,
+      "total_tokens": 3356,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.94,
+      "input_tokens": 3400,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3683,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\241212\\241080_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU38510009",
+        "ATU38510009"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        109.6,
+        "109,60"
+      ],
+      "Net.Amount": [
+        true,
+        91.33,
+        "91,33"
+      ],
+      "Vat.Amount": [
+        true,
+        18.27,
+        "18,27"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "19.10.2023",
+        "19.10.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8860,
+    "cached_input_tokens": 0,
+    "output_tokens": 1602,
+    "eur_estimate": 0.004721
+  }
+}

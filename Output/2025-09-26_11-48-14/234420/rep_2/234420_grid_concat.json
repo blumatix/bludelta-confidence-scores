@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\234425\\234420_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 535.83,
+    "Invoice.Date": "09.10.2023",
+    "Sender.VatId": "ATU69710958",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 464.3,
+    "Vat.Amount": 92.86
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.85,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Highly likely",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I can’t share internal chain-of-thought, but here is a concise, non-sensitive summary of the planned, stepwise extraction approach I will use to produce the final structured output:\n\n1. Document classification\n   - Check for invoice indicators (presence of \"Rechnung\", invoice number, invoice date, totals). Confirmed: document is an invoice.\n\n2. Locate key fields\n   - Invoice Number: find \"Nummer 6523001718\" (contextual but not required by schema).\n   - Invoice Date: find \"Datum 09.10.2023\".\n   - Sender VAT ID: find occurrences of \"Ust-Id-Nr.\" or \"Ust.-ID-Nr.\"; identify the sender's VAT (CREATON GmbH) VAT shown as \"ATU69710958\" in header and also \"Ihre Ust-Id-Nr. ATU64131246\" appears as customer? Note: determine which VAT belongs to sender (CREATON GmbH -> ATU69710958).\n   - Totals and VAT grouping: locate net total, VAT rate and VAT amount lines. Identify \"Gesamtbetrag Netto 464,30 EUR\", VAT line \"R2 - 20,00% USt auf 464,30 ... 92,86 EUR\", and \"Gesamtbetrag Brutto 557,16 EUR\". Identify final payable \"Zahlbetrag 535,83 EUR\" (after skonto), but schema requests GrandTotal.Amount = total payable amount on the invoice — select the invoice's payable amount (use \"Zahlbetrag 535,83\" if treating payment amount as grand total; otherwise use \"Gesamtbetrag Brutto 557,16\"). I will prefer the explicit \"Zahlbetrag\" as GrandTotal.Amount per schema meaning.\n\n3. Handle VAT groupings and numeric formats\n   - Extract VAT group entries: Vat.Rate = 20.00 (drop percentage symbol per rule: store as number 20.00), Net.Amount = 464.30, Vat.Amount = 92.86 — preserving decimals as in source.\n   - Ensure numeric values have same decimal places as in source.\n\n4. Apply rules\n   - If any required field is missing or ambiguous and cannot be determined from explicit text, leave it as an empty string (no guessing).\n   - Ensure output matches the exact JSON schema fields and types.\n\n5. Final selection decisions (to be applied when generating final JSON)\n   - GrandTotal.Amount: use \"Zahlbetrag 535,83\" (explicit payable amount).\n   - Invoice.Date: \"09.10.2023\".\n   - Sender.VatId: \"ATU69710958\" (CREATON GmbH header VAT).\n   - Vat.Item grouping: one entry with Vat.Rate 20.00, Net.Amount 464.30, Vat.Amount 92.86.\n\nI will now produce the final JSON extraction following this plan.",
+    "step2": "I can’t share internal chain-of-thought or step-by-step private reasoning. I can, however, provide concise confidence estimates and brief evidence for each extracted field.\n\n- GrandTotal.Amount — Confidence: 85%  \n  Evidence: \"Zahlbetrag 535,83 EUR\" explicitly shown as payment amount after skonto; clear numeric value.\n\n- Invoice.Date — Confidence: 99%  \n  Evidence: \"Datum 09.10.2023\" clearly printed near header.\n\n- Sender.VatId — Confidence: 90%  \n  Evidence: Two VAT IDs appear: \"Ust-Id-Nr. ATU64131246\" (near customer block) and \"Ust.-ID-Nr. ATU69710958\" (company header). Attribution to sender (CREATON GmbH) aligns with header VAT ATU69710958.\n\n- Vat.Rate — Confidence: 95%  \n  Evidence: Line \"R2 - 20,00% USt auf 464,30\" explicitly indicates 20.00% VAT rate.\n\n- Net.Amount — Confidence: 95%  \n  Evidence: \"Gesamtbetrag Netto 464,30 EUR\" and the VAT calculation reference to 464,30 confirm net amount.\n\n- Vat.Amount — Confidence: 95%  \n  Evidence: VAT amount shown as \"92,86 EUR\" next to the 20.00% VAT line."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.52,
+      "input_tokens": 2694,
+      "cached_input_tokens": null,
+      "output_tokens": 799,
+      "total_tokens": 3493,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.95,
+      "input_tokens": 3348,
+      "cached_input_tokens": null,
+      "output_tokens": 488,
+      "total_tokens": 3836,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.16,
+      "input_tokens": 3944,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 4291,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\234425\\234420_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU69710958",
+        "ATU69710958,"
+      ],
+      "GrandTotal.Amount": [
+        false,
+        535.83,
+        "557,16"
+      ],
+      "Net.Amount": [
+        true,
+        464.3,
+        "464,30"
+      ],
+      "Vat.Amount": [
+        true,
+        92.86,
+        "92,86"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20.00"
+      ],
+      "Invoice.Date": [
+        true,
+        "09.10.2023",
+        "09.10.2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 9986,
+    "cached_input_tokens": 0,
+    "output_tokens": 1634,
+    "eur_estimate": 0.005024
+  }
+}

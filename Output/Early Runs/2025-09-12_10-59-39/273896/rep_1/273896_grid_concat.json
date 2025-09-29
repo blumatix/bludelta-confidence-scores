@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\273905\\273896_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 705.32,
+    "Invoice.Date": "26.01.2024",
+    "Sender.VatId": "ATU66427645",
+    "Vat.Rate": 10,
+    "Net.Amount": 641.2,
+    "Vat.Amount": 64.12
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not output the final JSON yet. High-level extraction reasoning and decisions:\n\n- Document classification: contains clear invoice indicators (\"Rechnung\", \"Rechnungsbetrag\", \"USt.\", invoice number, dates, totals, line items). No exclusion terms dominant. Therefore treat as an invoice.\n\n- Invoice date: found \"Datum: 26.01.2024\" at top — use \"26.01.2024\".\n\n- Grand total: \"Rechnungsbetrag 705,32 €\" — take total 705.32 (preserve two decimals).\n\n- VAT groups: One VAT group shown:\n  - Nettobetrag 641,20 €,\n  - \"+ 10,00% USt. von 641,20\" giving 64,12 € VAT.\n  - VAT rate is 10% — per rule, extract rate as number without percent: 10.\n  - Net.Amount = 641.20; Vat.Amount = 64.12.\n\n- Sender VAT ID: two UIDs present:\n  - Near header for Bäko-Österreich: \"UID: ATU22642807\".\n  - At bottom under provider details (Unterweger Früchteküche GmbH): \"UID-Nr.: ATU66427645\".\n  The invoice issuer/sender appears to be Unterweger Früchteküche GmbH (footer bank details), so select Sender.VatId = \"ATU66427645\". (No inference beyond visible text.)\n\n- Conformance to rules:\n  - No missing fields inferred (all required fields found).\n  - Decimal places preserved (two decimals).\n  - VAT rate extracted without the \"%\" sign.\n\nI will produce the final JSON next.",
+    "step2": "GrandTotal.Amount — Confidence: 0.98\nEvidence: \"Rechnungsbetrag 705,32 €\" clearly printed; numeric parsing straightforward.\n\nInvoice.Date — Confidence: 0.95\nEvidence: \"Datum: 26.01.2024\" at top of document; unambiguous date format.\n\nSender.VatId — Confidence: 0.85\nEvidence: Two UIDs present: \"UID: ATU22642807\" (near Bäko-Österreich header) and \"UID-Nr.: ATU66427645\" in footer with supplier name Unterweger Früchteküche GmbH. Chosen UID corresponds to footer supplier; moderate uncertainty due to multiple UIDs.\n\nVat.Rate — Confidence: 0.98\nEvidence: \"+ 10,00% USt. von 641,20\" clearly shows 10% VAT rate.\n\nNet.Amount — Confidence: 0.98\nEvidence: \"Nettobetrag 641,20 €\" explicitly printed; matches vat calculation.\n\nVat.Amount — Confidence: 0.98\nEvidence: \"64,12 €\" shown as USt. on 641,20 at 10% (64,12 €); aligns arithmetically."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.84,
+      "input_tokens": 1767,
+      "output_tokens": 868,
+      "total_tokens": 2635
+    },
+    "step2": {
+      "runtime_sec": 3.79,
+      "input_tokens": 2130,
+      "output_tokens": 391,
+      "total_tokens": 2521
+    },
+    "step3": {
+      "runtime_sec": 4.07,
+      "input_tokens": 2662,
+      "output_tokens": 281,
+      "total_tokens": 2943
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273905\\273896_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU66427645",
+        "ATU66427645"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        705.32,
+        "705,32"
+      ],
+      "Net.Amount": [
+        true,
+        641.2,
+        "641,20"
+      ],
+      "Vat.Amount": [
+        true,
+        64.12,
+        "64,12"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "26.01.2024",
+        "26.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  }
+}

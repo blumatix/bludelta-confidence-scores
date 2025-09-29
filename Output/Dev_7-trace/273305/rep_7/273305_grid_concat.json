@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\273366\\273305_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 391.68,
+    "Invoice.Date": "12.12.2023",
+    "Sender.VatId": "ATU78657801",
+    "Vat.Rate": 20,
+    "Net.Amount": 326.4,
+    "Vat.Amount": 65.28
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.93,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: Document contains invoice indicators (\"Rechnung\", invoice number, date, totals, line items) and no exclusion terms — treat as invoice.\n\nExtraction plan:\n1. Locate invoice header for number and date.\n2. Locate grand total (ENDBETRAG) and currency.\n3. Locate net amount (Warenwert) and VAT group lines (rate and VAT amount).\n4. Locate sender VAT ID (company footer) — ensure it's sender, not customer VAT.\n5. Preserve original decimal formatting (commas) when noting values; final output will supply numbers per schema.\n\nKey findings (candidates):\n- Invoice Number: \"RE074117\"\n- Invoice Date: \"12.12.2023\"\n- Grand Total (ENDBETRAG): \"391,68 EUR\"\n- Net Amount (Warenwert): \"326,40 EUR\"\n- VAT Rate: \"20%\" (group line \"zuzüglich 20% MWSt\")\n- VAT Amount: \"65,28 EUR\"\n- Sender VAT ID: \"ATU78657801\" (footer under FEIFAR BEFESTIGUNGSTECHNIK GMBH)\n\nValidation notes:\n- Multiple VAT IDs present: customer VAT \"ATU64131246\" appears near \"Kunde\" — per rule, Sender.VatId must be sender's VAT (footer value used).\n- Values appear consistently as EUR; exchange rates not applicable.\n- No missing required fields among the candidates above.\n\nI will now produce the extracted JSON in the next step.",
+    "step2": "GrandTotal.Amount — High confidence\n- Evidence: \"ENDBETRAG: 391,68 EUR\" clearly printed on invoice.\n\nInvoice.Date — High confidence\n- Evidence: Header shows \"vom 12.12.2023\" next to invoice number.\n\nSender.VatId — High confidence\n- Evidence: Footer lists \"ATU78657801\" under FEIFAR BEFESTIGUNGSTECHNIK GMBH (sender). Note: customer VAT \"ATU64131246\" also appears near \"Kunde\" but is not sender.\n\nVat.Rate — High confidence\n- Evidence: Line \"zuzüglich 20% MWSt\" explicitly states 20% VAT.\n\nNet.Amount — High confidence\n- Evidence: \"Warenwert: 326,40 EUR\" matches net amount before VAT.\n\nVat.Amount — High confidence\n- Evidence: VAT line shows \"65,28 EUR\" corresponding to 20% of 326,40 and matches displayed VAT amount."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.1,
+      "input_tokens": 2020,
+      "cached_input_tokens": null,
+      "output_tokens": 638,
+      "total_tokens": 2658,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.35,
+      "input_tokens": 2345,
+      "cached_input_tokens": null,
+      "output_tokens": 402,
+      "total_tokens": 2747,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.06,
+      "input_tokens": 2824,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3105,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273366\\273305_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU78657801",
+        "ATU78657801"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        391.68,
+        "391,68"
+      ],
+      "Net.Amount": [
+        true,
+        326.4,
+        "326,40"
+      ],
+      "Vat.Amount": [
+        true,
+        65.28,
+        "65,28"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "12.12.2023",
+        "12.12.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7189,
+    "cached_input_tokens": 0,
+    "output_tokens": 1321,
+    "eur_estimate": 0.003867
+  }
+}

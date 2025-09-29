@@ -1,0 +1,114 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198422\\198422_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 33.99,
+    "Invoice.Date": "28 März 2023",
+    "Sender.VatId": "DE814584193",
+    "Vat.Rate": 19,
+    "Net.Amount": 28.56,
+    "Vat.Amount": 5.43
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 1.0,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will identify invoice indicators, check for exclusion terms, locate required fields, consider alternatives, and determine extracted values.\n\n1) Document classification\n- Invoice indicators present: headings \"Rechnung\", \"Rechnungsnummer\", \"Rechnungsdatum\", \"Zahlbetrag\", line items, VAT percent \"USt. %\", totals. No exclusion headers like \"Mahnung\" or \"Zahlungserinnerung\". Conclusion: this is an invoice. Proceed to extraction.\n\n2) Locate candidate fields\n- Grand total / Zahlbetrag: Page 1 shows \"Zahlbetrag 33,99 €\". Page 2 repeats \"Zahlbetrag 33,99 €\". Candidate GrandTotal.Amount = 33,99 (needs numeric with same decimals).\n- Invoice date: Page 1 near \"Rechnungsdatum /Lieferdatum 28 März 2023\". Candidate Invoice.Date = \"28 März 2023\" (string exact as shown).\n- Sender VAT ID: The seller \"Amazon EU S.à r.l., Niederlassung Deutschland\" shows \"USt-IDNr. DE814584193\" multiple times (header and footer). Candidate Sender.VatId = \"DE814584193\".\n- VAT groups: Page 2 shows the VAT breakdown table. For line item:\n  - USt. %: \"19%\" appears in column; rule: extract rate without % → 19.\n  - Net amount for that group: table shows in VAT breakdown \"19% ... (ohne USt.) 28,56 €\" → Net.Amount = 28,56 (keep decimals).\n  - VAT amount for that group: shows \"5,43 €\" (USt. amount) → Vat.Amount = 5,43.\n- Confirm sums: Net 28,56 + VAT 5,43 = 33,99 matches GrandTotal 33,99. Consistent.\n\n3) Consider alternatives / ambiguous items\n- Could the Sender.VatId instead be the buyer's VAT? The document lists seller as Amazon EU S.à r.l. with USt-IDNr. DE814584193 in seller block; that's the sender. The supplier Dachser SE also has USt-IDNr. DE815512007, but Dachser appears as customer/addresses, not sender of invoice. The invoice header shows \"Verkauft von Amazon EU S.à r.l.\" so Sender.VatId should be DE814584193. Choose DE814584193.\n- Decimal separators in source use comma. Per rules, preserve decimals exactly (two decimals). For numeric fields, retain same decimals.\n- VAT rate must be numeric without %: use 19.\n\n4) Multiple occurrences\n- Only one VAT group present (19%). Provide single set of Vat.Rate / Net.Amount / Vat.Amount corresponding to that group.\n\n5) Final mapping (values to include in final JSON)\n- GrandTotal.Amount -> 33,99\n- Invoice.Date -> \"28 März 2023\"\n- Sender.VatId -> \"DE814584193\"\n- Vat.Rate -> 19\n- Net.Amount -> 28,56\n- Vat.Amount -> 5,43\n\nNo other plausible alternative extractions; all values consistent with invoice totals.",
+    "step2": "GrandTotal.Amount (33,99)\n- Evidence: \"Zahlbetrag 33,99 €\" shown on page 1 and repeated on page 2; matches line-item total.\n- Internal consistency: equals Net + VAT (28,56 + 5,43).\n- Confidence: 99%\n\nInvoice.Date (\"28 März 2023\")\n- Evidence: \"Rechnungsdatum /Lieferdatum 28 März 2023\" clearly printed.\n- Internal consistency: fits order/ship dates; unambiguous.\n- Confidence: 98%\n\nSender.VatId (\"DE814584193\")\n- Evidence: \"USt-IDNr. DE814584193\" appears with seller \"Amazon EU S.à r.l., Niederlassung Deutschland\" in header/footer.\n- Alternative: another VAT (DE815512007) appears for Dachser (customer), but context indicates Amazon is seller/sender.\n- Confidence: 98%\n\nVat.Rate (19)\n- Evidence: VAT column shows \"19%\" for the item and in VAT breakdown.\n- Rule applied: percent sign removed per instructions.\n- Confidence: 100%\n\nNet.Amount (28,56)\n- Evidence: VAT breakdown shows 19% group \"(ohne USt.) 28,56 €\".\n- Internal consistency: Net + VAT = GrandTotal.\n- Confidence: 99%\n\nVat.Amount (5,43)\n- Evidence: VAT breakdown shows VAT amount \"5,43 €\" and USt. Gesamt lists 5,43 €.\n- Internal consistency: Net + VAT = GrandTotal.\n- Confidence: 99%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.43,
+      "input_tokens": 2505,
+      "cached_input_tokens": null,
+      "output_tokens": 798,
+      "total_tokens": 3303,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.4,
+      "input_tokens": 3222,
+      "cached_input_tokens": null,
+      "output_tokens": 460,
+      "total_tokens": 3682,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.02,
+      "input_tokens": 3854,
+      "cached_input_tokens": null,
+      "output_tokens": 279,
+      "total_tokens": 4133,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198422\\198422.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DE814584193",
+        [
+          "DE814584193",
+          "DE814584193",
+          "DE 814584193",
+          "DE 814584193"
+        ]
+      ],
+      "GrandTotal.Amount": [
+        true,
+        33.99,
+        "33,99"
+      ],
+      "Net.Amount": [
+        true,
+        28.56,
+        [
+          "28,56",
+          "28,56"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        5.43,
+        [
+          "5,43",
+          "5,43"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        19,
+        "19"
+      ],
+      "Invoice.Date": [
+        true,
+        "28 März 2023",
+        "28 März 2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 9581,
+    "cached_input_tokens": 0,
+    "output_tokens": 1537,
+    "eur_estimate": 0.001017
+  }
+}

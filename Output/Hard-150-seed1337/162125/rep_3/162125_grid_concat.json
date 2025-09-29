@@ -1,0 +1,98 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\162125\\162125_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1230.54,
+    "Invoice.Date": "05.10.2022",
+    "Sender.VatId": "ATU61917206",
+    "Vat.Rate": 0,
+    "Net.Amount": 1230.54,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (1) verify this is an invoice, (2) locate candidate fields, (3) resolve ambiguities, and (4) choose the most supported values.\n\n1) Invoice validation\n- Document contains clear invoice indicators: header \"Rechnung\", an invoice ID \"AR1012209444\", and an invoice date near the header. It includes totals and VAT grouping lines. No exclusion keywords (e.g., \"Mahnung\") dominate. Conclusion: treat as invoice.\n\n2) Locate candidate values in text\n- Invoice date: line \"Langkampfen                              : 05.10.2022\" → candidate \"05.10.2022\".\n- Invoice ID (not required by schema but confirms): \"Rechnung : AR1012209444\".\n- Sender VAT (VAT of the issuing company): bottom block shows \"UID:   ATU61917206\" tied to Balmung Medical Handel GmbH → candidate \"ATU61917206\". Note there is also \"Ihre UID: ATU47239901\" (this is the customer’s VAT) — do not use that as Sender.VatId.\n- Grand total: \"Rechnungsbetrag € 1.230,54\" and \"Warenwert € 1.230,54\" → candidate 1230.54.\n- VAT grouping: shows \"0% Basis: 1230,54\" and \"ermäßigt % Basis: 0,00\" and \"normal% Basis: 0,00\" → indicates VAT rate applied is 0% on the full base.\n  - Vat.Rate candidate: 0\n  - Net.Amount candidate: 1230.54 (base amount)\n  - Vat.Amount candidate: 0,00 → numeric 0.00\n\n3) Ambiguity checks and rule compliance\n- No inference used beyond explicit text.\n- Numeric formatting: original used comma; converted to decimal point preserving two decimals (1230.54, 0.00).\n- VAT rate must be returned without \"%\" → use 0.\n- All required fields are present explicitly; choose the values above.\n\n4) Selected values to output in final JSON\n- Invoice.Date: \"05.10.2022\"\n- Sender.VatId: \"ATU61917206\"\n- GrandTotal.Amount: 1230.54\n- Vat.Rate: 0\n- Net.Amount: 1230.54\n- Vat.Amount: 0.00\n\nI will now produce the final JSON with these values.",
+    "step2": "GrandTotal.Amount — 95% confident. Evidence: \"Rechnungsbetrag € 1.230,54\" and matching \"Warenwert € 1.230,54\" explicitly present.\n\nInvoice.Date — 95% confident. Evidence: \"Langkampfen : 05.10.2022\" appears next to header area where invoice date is typically printed.\n\nSender.VatId — 90% confident. Evidence: Bottom block shows \"UID: ATU61917206\" associated with Balmung Medical Handel GmbH (sender). Note customer VAT \"Ihre UID: ATU47239901\" is also present but clearly labeled as the customer.\n\nVat.Rate — 95% confident. Evidence: VAT grouping displays \"0% Basis: 1230,54\" indicating a 0% VAT rate applied to the invoice total.\n\nNet.Amount — 95% confident. Evidence: \"0% Basis: 1230,54\" and totals match \"Warenwert € 1.230,54\", indicating net amount 1230.54.\n\nVat.Amount — 95% confident. Evidence: With 0% on base 1230,54 the VAT amount is explicitly shown as 0,00 in grouping lines."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.14,
+      "input_tokens": 2006,
+      "cached_input_tokens": null,
+      "output_tokens": 906,
+      "total_tokens": 2912,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.09,
+      "input_tokens": 2575,
+      "cached_input_tokens": null,
+      "output_tokens": 387,
+      "total_tokens": 2962,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.53,
+      "input_tokens": 3134,
+      "cached_input_tokens": null,
+      "output_tokens": 219,
+      "total_tokens": 3353,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\162125\\162125.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU61917206",
+        "ATU61917206"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1230.54,
+        "1.230,54"
+      ],
+      "Net.Amount": [
+        true,
+        1230.54,
+        "1230,54"
+      ],
+      "Vat.Rate": [
+        true,
+        0,
+        "0"
+      ],
+      "Invoice.Date": [
+        true,
+        "05.10.2022",
+        "05.10.2022"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 5,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7715,
+    "cached_input_tokens": 0,
+    "output_tokens": 1512,
+    "eur_estimate": 0.000915
+  }
+}

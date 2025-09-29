@@ -1,0 +1,142 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\215898\\215898_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 14455.0,
+    "Invoice.Date": "24-Dec-2022",
+    "Sender.VatId": "24AEBPB6411",
+    "Vat.Rate": [
+      9,
+      9
+    ],
+    "Net.Amount": [
+      8000.0,
+      3500.0
+    ],
+    "Vat.Amount": [
+      1440.0,
+      630.0
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.8,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I can’t share my internal chain-of-thought. Below is a concise, non-sensitive summary of the extraction plan, evidence found in the text, and which target fields appear extractable or missing.\n\n1. Document classification\n- Evidence it is an invoice: title \"TAX INVOICE\", labels \"Invoice No.\", \"Invoice Date:\", GSTIN, PAN, totals, line-item-like sections, tax breakdown (CGST/SGST), and grand total in numbers and words.\n- No prominent exclusion keywords (e.g., \"Mahnung\", \"Zahlungserinnerung\") in header area.\n- Conclusion: classify as an invoice and proceed with extraction.\n\n2. Fields and source locations (what to extract)\n- Invoice.Date: located at \"Invoice Date. : 24-Dec-2022\".\n- GrandTotal.Amount: numeric grand total shown as \"14,455.00\" (also spelled in words \"Fourteen Thousand Four Hundred Fifty Five only. 14,455.00\").\n- Sender.VatId: sender GSTIN appears as \"GSTIN/UIN:me 24AEBPB6411 Code M :12ZV\" and later \"Company's PAN No. : AEBPB6411 M\" — the GSTIN string candidate is \"24AEBPB6411\" (sender GSTIN). (Will extract exact string if present.)\n- Vat groups: two tax groups are present:\n  - CGST @ 9% and SGST @ 9% shown; tax amounts shown as 1,102.50 each in one place and broken down by HSN lines: e.g., taxable 8,000.00 with 9% -> 720.00 central and 720.00 state; and taxable 3,500.00 with 9% -> 315.00 and 315.00; totals produce VAT total 2,205.00 (combined), with each CGST and SGST totals 1,102.50.\n- Vat.Rate entries: 9 and 9 (two groups at 9%).\n- Net.Amount entries per VAT group: taxable values 8,000.00 and 3,500.00.\n- Vat.Amount entries per VAT group: VAT amounts per group (combined CGST+SGST?) Schema expects Vat.Amount per rate group; per group VAT amount (sum of central+state) appear as 1,440.00 for first line (720+720) and 630.00 for second (315+315). Those correspond to groups.\n3. Ambiguities / rules compliance\n- No inference: will not guess missing values.\n- Maintain decimals as in source (e.g., 14,455.00; 8,000.00; 3,500.00; 720.00; 315.00; 1,102.50).\n- Vat.Rate should be numbers without %: \"9\".\n- Sender.VatId: will use exact GSTIN string as found (\"24AEBPB6411\") if clearly present.\n4. Next step\n- Populate the JSON fields per schema with the exact extracted strings/numbers identified above, leaving any field empty if not explicitly present.",
+    "step2": "GrandTotal.Amount — 95%: \"14,455.00\" appears clearly as numeric total and repeated in words and table.\n\nInvoice.Date — 98%: \"Invoice Date. : 24-Dec-2022\" is explicit.\n\nSender.VatId — 80%: GSTIN-like token \"24AEBPB6411\" appears near \"GSTIN/UIN:\"; some noise around it but likely correct.\n\nVat.Rate — 95%: CGST @ 9% and SGST @ 9% are explicitly shown; rate value \"9\" is unambiguous.\n\nNet.Amount (items) — 90%: Two taxable values clearly listed as \"8,000.00\" and \"3,500.00\" in HSN/Taxable columns.\n\nVat.Amount (items) — 90%: Corresponding VAT totals per taxable group shown as 1,440.00 (720+720) and 630.00 (315+315); these numbers are present though formatting noisy."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.38,
+      "input_tokens": 5307,
+      "cached_input_tokens": null,
+      "output_tokens": 983,
+      "total_tokens": 6290,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.71,
+      "input_tokens": 6017,
+      "cached_input_tokens": null,
+      "output_tokens": 407,
+      "total_tokens": 6424,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.65,
+      "input_tokens": 6532,
+      "cached_input_tokens": null,
+      "output_tokens": 505,
+      "total_tokens": 7037,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\215898\\215898.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "24AEBPB6411",
+        "24AEBPB6411M1ZV"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        14455.0,
+        "14,455.00"
+      ],
+      "Net.Amount": [
+        false,
+        [
+          8000.0,
+          3500.0
+        ],
+        [
+          "750.00",
+          "8.000.00",
+          "750.00",
+          "8.000.00",
+          "3,500.00",
+          "3,500.00"
+        ]
+      ],
+      "Vat.Amount": [
+        false,
+        [
+          1440.0,
+          630.0
+        ],
+        [
+          "67.50",
+          "720.00",
+          "67.50",
+          "720.00",
+          "315.00",
+          "315.00"
+        ]
+      ],
+      "Vat.Rate": [
+        false,
+        [
+          9,
+          9
+        ],
+        [
+          "9",
+          "9",
+          "9",
+          "9",
+          "9",
+          "9"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "24-Dec-2022",
+        "24-Dec-2022"
+      ]
+    },
+    "summary": {
+      "matched": 2,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 17856,
+    "cached_input_tokens": 0,
+    "output_tokens": 1895,
+    "eur_estimate": 0.001556
+  }
+}

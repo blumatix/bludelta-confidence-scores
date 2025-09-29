@@ -1,0 +1,116 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198304\\198304_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1100.0,
+    "Invoice.Date": "2023-02-22",
+    "Sender.VatId": "PL6921133130",
+    "Vat.Rate": 0,
+    "Net.Amount": 1100.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.92,
+    "Sender.VatId": 0.94,
+    "Vat.Rate": 0.93,
+    "Net.Amount": 0.94,
+    "Vat.Amount": 0.94
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Plan to extract fields:\n- Determine document is an invoice: presence of \"Rechnung\", totals, VAT mentions, invoice number \"120/2023\", currency and totals lines — classify as invoice.\n- Locate GrandTotal.Amount: find \"Gesamtsumme: in EUR 1 100,00\" and \"Gesamtsumme: 1 100,00\" — use 1100.00 preserving decimals format from source (input shows two decimals).\n- Locate Invoice.Date: search for invoice-related date; \"Verkaufsdatum: 2023-02-22\" and Ladedatum/Entladen dates; choose 2023-02-22 as invoice issue date.\n- Locate Sender.VatId: sender block shows \"Ust. Id. Nr: PL 6921133130\" — extract exactly \"PL6921133130\" or preserve spacing? Per no inference, take as appears: \"PL   6921133130\" → normalize to \"PL6921133130\".\n- Locate VAT groups: invoice shows \"Podatek VAT UE 0%\" and corresponding amounts in EUR: net 1 100,00, VAT 0,00. Extract Vat.Rate as 0 (without %), Net.Amount as 1100.00, Vat.Amount as 0.00. Ensure decimals preserved.\n- Verify no other VAT groups present; only 0% group across invoice — include single VAT entry.\n- If any field missing or ambiguous, would return empty string; but all required fields appear present.\n\nNext step: produce final JSON with fields per schema.",
+    "step2": "Confidence assessment per field:\n\n- GrandTotal.Amount:\n  Evidence: multiple \"Gesamtsumme: in EUR 1 100,00\" and \"Gesamtsumme: 1 100,00\" lines, and \"offen bleibt: EUR 1 100,00\".\n  Confidence: High. Text consistently shows 1 100,00 EUR.\n\n- Invoice.Date:\n  Evidence: \"Verkaufsdatum:_ 2023-02-22\" appears near header; other dates present (Ladedatum 2023-02-21, Entladens 2023-02-22).\n  Confidence: High that 2023-02-22 is the invoice/issue date shown.\n\n- Sender.VatId:\n  Evidence: In seller block: \"Ust.   Id. Nr: PL   6921133130\".\n  Confidence: High. VAT ID clearly present; minimal risk in extracting as \"PL6921133130\" (no inference beyond removing spaces).\n\n- Vat.Rate:\n  Evidence: \"Podatek VAT UE 0%\" and \"Mehrwertsteuer... 0,00\" for VAT amount; VAT group labeled 0%.\n  Confidence: High that VAT rate is 0. (Per rule, return as number 0 without percent.)\n\n- Net.Amount:\n  Evidence: Line shows net-like value \"in EUR 1 100,00\" associated with VAT 0% group and Gesamtsumme equals 1 100,00.\n  Confidence: High that net amount for the VAT group is 1 100,00.\n\n- Vat.Amount:\n  Evidence: VAT amount shown as \"0,00\" in EUR lines for the VAT 0% group.\n  Confidence: High that VAT amount is 0,00.\n\nOverall consistency: All fields align (net 1 100,00 + VAT 0,00 = total 1 100,00). Low ambiguity."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.03,
+      "input_tokens": 3405,
+      "cached_input_tokens": null,
+      "output_tokens": 524,
+      "total_tokens": 3929,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.86,
+      "input_tokens": 3784,
+      "cached_input_tokens": null,
+      "output_tokens": 403,
+      "total_tokens": 4187,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.06,
+      "input_tokens": 4487,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 4770,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198304\\198304.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "PL6921133130",
+        "PL 6921133130"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1100.0,
+        "1 100,00"
+      ],
+      "Net.Amount": [
+        false,
+        1100.0,
+        [
+          "1 100,00",
+          "5221,59",
+          "1 100,00",
+          "5221,59"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        [
+          "0,00",
+          "0,00",
+          "0,00",
+          "0,00"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        0,
+        [
+          "0",
+          "0"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "2023-02-22",
+        "2023-02-22"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 11676,
+    "cached_input_tokens": 0,
+    "output_tokens": 1210,
+    "eur_estimate": 0.001007
+  }
+}

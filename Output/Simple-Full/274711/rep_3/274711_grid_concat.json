@@ -1,0 +1,103 @@
+{
+  "input_path": "C:\\Users\\jonas\\Desktop\\LLM-Confidence\\Documents\\274711\\274711_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 6103.24,
+    "Invoice.Date": "2024-01-29",
+    "Sender.VatId": "ATU31800708",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 5548.4,
+    "Vat.Amount": 554.84
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.97,
+    "Invoice.Date": 0.93,
+    "Sender.VatId": 0.995,
+    "Vat.Rate": 0.93,
+    "Net.Amount": 0.93,
+    "Vat.Amount": 0.93
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will identify invoice indicators, locate each required field, consider alternatives, and decide whether to extract or leave empty.\n\n1) Document classification:\n- Presence of headings: \"Rechnung\" (German for invoice) appears near top; other invoice-like elements present: invoice number \"2401681\", dates, totals, VAT, line items, sender details. No exclusion terms like \"Mahnung\" or \"Zahlungserinnerung\". Conclusion: document is an invoice → proceed.\n\n2) Locate GrandTotal.Amount:\n- Look for total payable. Text shows:\n  - \"Endbetrag EUR 6.103,24\"\n- Interpretation: Grand total = 6.103,24 EUR. Keep decimal formatting as in input. Will convert to number type preserving decimals and comma? Schema expects number; decimals must match input. Replace comma with dot for numeric representation: 6103.24.\n\n3) Locate Invoice.Date:\n- Dates present: \"Stans, 2024-01-29\" and \"Ihr Auftrag: 32400921 vom: 2024-01-23\".\n- Which is invoice issue date? Commonly \"Stans, 2024-01-29\" aligns with invoice date. Also header shows \"Rechnung 2401681\" then on right \"Stans, 2024-01-29\". Choose 2024-01-29 as Invoice.Date (string). Alternative 2024-01-23 is order date; do not use. Extract \"2024-01-29\".\n\n4) Locate Sender.VatId:\n- Sender is Adolf Darbo AG; UID-Nr. (VAT) appears: \"Darbo-UID-Nr.: ATU31800708\" and later \"UID-Nr.: ATU31800708\". Use \"ATU31800708\".\n\n5) Locate Vat.Rate, Net.Amount, Vat.Amount:\n- VAT group: shows \"MWSt-Basis 1 5.548,40 MWSt 10,00 554,84\"\n- Interpret: Net amount for VAT group = 5.548,40 EUR; VAT rate = 10,00 (%); VAT amount = 554,84 EUR.\n- Conversions: numbers need numeric types. Replace comma with dot: Net = 5548.40, Vat.Amount = 554.84, Vat.Rate = 10 (drop percent symbol per rules, keep decimals? Rule 5: extract rates without percentage symbol. Input \"10,00\" -> numeric 10.00 or 10. Schema allows number; keep same decimals as input -> 10.00.\n- Confirm no other VAT groups present. Only one group found.\n\n6) No inference for missing fields:\n- All required fields found; no guessing needed.\n\n7) Final mapping planned:\n- GrandTotal.Amount: 6103.24 (number)\n- Invoice.Date: \"2024-01-29\"\n- Sender.VatId: \"ATU31800708\"\n- Vat.Rate: 10.00 (number)\n- Net.Amount: 5548.40 (number)\n- Vat.Amount: 554.84 (number)\n\nEnd of reasoning.",
+    "step2": "GrandTotal.Amount — Confidence: High (≥95%)\n- Evidence: Explicit line \"Endbetrag EUR 6.103,24\" clearly indicates total payable. Formatting consistent with subtotal + VAT: 5.548,40 + 554,84 = 6.103,24.\n\nInvoice.Date — Confidence: High (≈90–95%)\n- Evidence: \"Stans, 2024-01-29\" appears near header and aligns with typical invoice placement. Alternative date \"vom: 2024-01-23\" corresponds to order date; chosen 2024-01-29 is more likely the invoice issue date.\n\nSender.VatId — Confidence: Very High (≥99%)\n- Evidence: \"Darbo-UID-Nr.: ATU31800708\" and repeated \"UID-Nr.: ATU31800708\" clearly denote sender VAT ID.\n\nVat.Rate — Confidence: High (≈90–95%)\n- Evidence: VAT line shows \"MWSt ... 10,00\" which denotes 10% VAT. No other VAT rates present. Interpreted per rule to return numeric without percent.\n\nNet.Amount — Confidence: High (≈90–95%)\n- Evidence: \"MWSt-Basis ... 5.548,40\" matches net amount before VAT and sums with VAT to GrandTotal. Clear single VAT base present.\n\nVat.Amount — Confidence: High (≈90–95%)\n- Evidence: \"MWSt ... 554,84\" explicitly listed as VAT amount for the group; arithmetic consistency with net and total confirms correctness.\n\nOverall consistency: Net + Vat = GrandTotal (5.548,40 + 554,84 = 6.103,24), supporting high confidence in the extracted numeric values."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.26,
+      "input_tokens": 1906,
+      "cached_input_tokens": null,
+      "output_tokens": 848,
+      "total_tokens": 2754,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.92,
+      "input_tokens": 2609,
+      "cached_input_tokens": null,
+      "output_tokens": 362,
+      "total_tokens": 2971,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.53,
+      "input_tokens": 3271,
+      "cached_input_tokens": null,
+      "output_tokens": 285,
+      "total_tokens": 3556,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "C:\\Users\\jonas\\Desktop\\LLM-Confidence\\Documents\\274711\\274711_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU31800708",
+        "ATU31800708"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        6103.24,
+        "6.103,24"
+      ],
+      "Net.Amount": [
+        true,
+        5548.4,
+        "5.548,40"
+      ],
+      "Vat.Amount": [
+        true,
+        554.84,
+        "554,84"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "2024-01-29",
+        "2024-01-29"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7786,
+    "cached_input_tokens": 0,
+    "output_tokens": 1495,
+    "eur_estimate": 0.004299
+  }
+}

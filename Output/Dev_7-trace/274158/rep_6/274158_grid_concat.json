@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\274158\\274158_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1644.61,
+    "Invoice.Date": "01.02.2024",
+    "Sender.VatId": "ATU65161022",
+    "Vat.Rate": 10,
+    "Net.Amount": 1495.1,
+    "Vat.Amount": 149.51
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.97,
+    "Net.Amount": 0.96,
+    "Vat.Amount": 0.96
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification\n- Contains \"RECHNUNG\" and invoice-like sections (invoice number, invoice date, Nettobetrag, USt., Rechnungsbetrag) → classify as invoice.\n\n2) Key fields located (exact text excerpts)\n- Invoice ID: \"RECHNUNG        202400029\" → Invoice number present (not required by schema but validates invoice).\n- Invoice Date: \"vom 01.02.2024\" → Invoice.Date = \"01.02.2024\".\n- Sender VAT: top header shows \"Konditorei Haderer GmbH ... ATU65161022\" → Sender.VatId = \"ATU65161022\".\n- Net amount: line \"Nettobetrag 1.495,10 EUR\" → Net.Amount = 1495.10 (preserve decimals as in source 1.495,10).\n- VAT rate and VAT amount: line \"+ 10,00% USt. von 1.495,10 149,51 EUR\" → Vat.Rate = 10 (per rule remove percent sign), Vat.Amount = 149.51.\n- Grand total: \"Rechnungsbetrag 1.644,61 EUR\" → GrandTotal.Amount = 1644.61.\n\n3) Verification and rules compliance\n- No exclusion keywords (Mahnung/Zahlungserinnerung) dominate → proceed.\n- Numbers keep same decimals (input uses two decimals, preserved).\n- No inference used; each extracted value present explicitly.\n- Vat.Rate returned as number without \"%\" and matching input (10,00 → 10).\n- All fields required by schema identified and will be filled.\n\n4) Potential ambiguities checked\n- Multiple VAT occurrences? Only one VAT group present (+10,00% ... 149,51) — use that.\n- Currency symbols are present in source but schema requires numeric values without currency — will return numbers only.\n- Sender VAT chosen from header \"ATU65161022\" (also document contains recipient VAT \"ATU22642807\" but schema asks for Sender.VatId, so use sender).\n\nProceed to produce final JSON with these exact extracted values.",
+    "step2": "GrandTotal.Amount — 95%: Value \"1.644,61 EUR\" clearly labeled \"Rechnungsbetrag\" on document; numeric parsing straightforward.\n\nInvoice.Date — 98%: \"vom 01.02.2024\" appears next to invoice header \"RECHNUNG 202400029\"; explicit date format.\n\nSender.VatId — 90%: \"ATU65161022\" appears in header next to company name (Konditorei Haderer GmbH); distinct VAT format. (Note: recipient VAT ATU22642807 also present but located under Lieferempfänger.)\n\nVat.Rate — 97%: Shown as \"+ 10,00% USt.\" next to VAT line; percentage clear. Converted to numeric \"10\" per rule.\n\nNet.Amount — 96%: \"Nettobetrag 1.495,10 EUR\" explicitly printed; clear numeric value with commas as decimal separators.\n\nVat.Amount — 96%: VAT line shows \"149,51 EUR\" associated with the 10,00% on 1.495,10; clear numeric VAT amount."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.14,
+      "input_tokens": 2089,
+      "cached_input_tokens": null,
+      "output_tokens": 773,
+      "total_tokens": 2862,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.94,
+      "input_tokens": 2549,
+      "cached_input_tokens": null,
+      "output_tokens": 366,
+      "total_tokens": 2915,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.24,
+      "input_tokens": 3056,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 3403,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274158\\274158_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU65161022",
+        "ATU65161022"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1644.61,
+        "1.644,61"
+      ],
+      "Net.Amount": [
+        true,
+        1495.1,
+        "1.495,10"
+      ],
+      "Vat.Amount": [
+        true,
+        149.51,
+        "149,51"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "01.02.2024",
+        "01.02.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7694,
+    "cached_input_tokens": 0,
+    "output_tokens": 1486,
+    "eur_estimate": 0.004263
+  }
+}

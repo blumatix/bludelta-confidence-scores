@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\181904\\181851_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 238.46,
+    "Invoice.Date": "03.04.2023",
+    "Sender.VatId": "ATU63242011",
+    "Vat.Rate": 20,
+    "Net.Amount": 198.72,
+    "Vat.Amount": 39.74
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.97,
+    "Net.Amount": 0.96,
+    "Vat.Amount": 0.96
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will:\n\n- Verify document is an invoice: It contains \"Rechnung\", invoice number \"2203959\", invoice date \"vom 03.04.2023\", line items, totals (\"Rechnungsbetrag\"), and VAT—so classify as invoice (no exclusion terms dominate).\n\n- Locate invoice-level fields:\n  - Invoice Date: found \"Rechnung 2203959 vom 03.04.2023\" → 03.04.2023.\n  - Grand Total: found \"Rechnungsbetrag 238,46 €\" → 238,46 (keep comma decimals as in source).\n  - Sender VAT ID: found \"UID-Nr.: ATU63242011\" in header/footer → ATU63242011.\n\n- Locate VAT group values (invoice-level VAT summary):\n  - Nettobetrag: \"Nettobetrag 198,72 €\" → Net.Amount = 198,72.\n  - VAT line: \"+ 20,00% USt. von 198,72 39,74 €\" → Vat.Rate = 20 (drop %), Vat.Amount = 39,74.\n\n- Apply rules:\n  - Do not infer missing values; all extracted values are explicitly present.\n  - Preserve decimal formatting as in the document.\n  - These VAT figures apply to the entire invoice (are in the totals block), so include them.\n\nNext step: produce the final JSON with these extracted fields.",
+    "step2": "GrandTotal.Amount — 238,46: 95% confident. \"Rechnungsbetrag 238,46 €\" appears clearly in the totals block.\n\nInvoice.Date — 03.04.2023: 98% confident. Explicit \"Rechnung 2203959 vom 03.04.2023\" header.\n\nSender.VatId — ATU63242011: 98% confident. \"UID-Nr.: ATU63242011\" appears in footer/header.\n\nVat.Rate — 20: 97% confident. VAT shown as \"+ 20,00% USt.\" in totals; rate extracted without percent sign.\n\nNet.Amount — 198,72: 96% confident. \"Nettobetrag 198,72 €\" present in totals block.\n\nVat.Amount — 39,74: 96% confident. VAT amount shown as \"39,74 €\" corresponding to the 20% line.\n\nNotes: All values were taken verbatim from the invoice totals block; formatting of decimals preserved."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.78,
+      "input_tokens": 2788,
+      "cached_input_tokens": null,
+      "output_tokens": 624,
+      "total_tokens": 3412,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.59,
+      "input_tokens": 3139,
+      "cached_input_tokens": null,
+      "output_tokens": 410,
+      "total_tokens": 3549,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.74,
+      "input_tokens": 3657,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3938,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\181904\\181851_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU63242011",
+        "ATU63242011,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        238.46,
+        "238,46"
+      ],
+      "Net.Amount": [
+        true,
+        198.72,
+        "198,72"
+      ],
+      "Vat.Amount": [
+        true,
+        39.74,
+        "39,74"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "03.04.2023",
+        "03.04.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 9584,
+    "cached_input_tokens": 0,
+    "output_tokens": 1315,
+    "eur_estimate": 0.004383
+  }
+}

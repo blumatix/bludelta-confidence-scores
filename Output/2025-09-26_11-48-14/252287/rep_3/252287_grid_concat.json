@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\252295\\252287_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 3388.57,
+    "Invoice.Date": "13.11.2023",
+    "Sender.VatId": "ATU71679515",
+    "Vat.Rate": 10,
+    "Net.Amount": 3080.52,
+    "Vat.Amount": 308.05
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: document contains clear invoice indicators (\"Rechnung\", \"Nummer/Datum\", invoice line items, \"Warenwert\", VAT breakdown) and no exclusion terms — proceed with extraction.\n\nEvidence and field mapping (confirmed, no guessing):\n- Invoice.Date: \"13.11.2023\" appears as Rechnung Nummer/Datum: 920235356 / 13.11.2023 and Liefer-/Leistungsdatum: 13.11.2023. Use invoice issue date: 13.11.2023.\n- Sender.VatId: seller block at bottom shows \"USt-Id.Nr ATU71679515\" — this is the sender's VAT ID.\n- GrandTotal.Amount: invoice shows totals \"Summe\" / Endbetrag 3.388,57 EUR — Grand total = 3.388,57 -> numeric 3388.57.\n- Net.Amount: \"Nettobetrag\" / Warenwert 3.080,52 -> numeric 3080.52.\n- Vat.Rate: VAT group line shows \"10 %\" -> numeric 10.\n- Vat.Amount: VAT amount shown 308,05 -> numeric 308.05.\n\nVerification notes:\n- Currency EUR present; schema requires numbers without currency symbols.\n- Decimal separators converted from comma to dot, preserving two decimals as in source.\n- No other VAT groups present; exchange rates not applicable.\n- Sender VAT taken from seller (\"S. Spitz GmbH\") USt-Id.Nr, not the customer UID (\"Ihre UID-Nummer: ATU22642807\"), per schema Sender.VatId requirement.\n\nI will now produce the JSON extraction.",
+    "step2": "GrandTotal.Amount — Confidence: High\n- Evidence: \"Endbetrag\" / \"Summe\" listed as \"3.388,57\" EUR near totals. Single clear total present. Conversion from comma to dot straightforward (3.388,57 -> 3388.57).\n\nInvoice.Date — Confidence: High\n- Evidence: \"Nummer/Datum: 920235356 / 13.11.2023\" and \"Liefer-/Leistungsdatum: 13.11.2023\". Invoice issue date explicitly shown as 13.11.2023.\n\nSender.VatId — Confidence: High\n- Evidence: Seller block lists \"USt-Id.Nr           ATU71679515\" associated with S. Spitz GmbH (seller). Distinct from \"Ihre UID-Nummer: ATU22642807\" (customer). Sender VAT clearly labeled.\n\nVat.Rate — Confidence: High\n- Evidence: VAT group row shows \"10 %\" for the invoice totals. Only one VAT group present.\n\nNet.Amount — Confidence: High\n- Evidence: \"Nettobetrag\" / Warenwert shown as \"3.080,52\" matching line-item sums. Clear, single net amount (3080.52).\n\nVat.Amount — Confidence: High\n- Evidence: VAT amount shown in totals as \"308,05\" under MwSt. corresponding to 10% of net. Clear and consistent (308.05).\n\nOverall consistency: high — net + vat equals grand total (3080.52 + 308.05 = 3388.57)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.54,
+      "input_tokens": 2075,
+      "cached_input_tokens": null,
+      "output_tokens": 666,
+      "total_tokens": 2741,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.33,
+      "input_tokens": 2467,
+      "cached_input_tokens": null,
+      "output_tokens": 393,
+      "total_tokens": 2860,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.24,
+      "input_tokens": 3096,
+      "cached_input_tokens": null,
+      "output_tokens": 219,
+      "total_tokens": 3315,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\252295\\252287_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU71679515",
+        "ATU71679515"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        3388.57,
+        "3.388,57"
+      ],
+      "Net.Amount": [
+        true,
+        3080.52,
+        "3.080,52"
+      ],
+      "Vat.Amount": [
+        true,
+        308.05,
+        "308,05"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "13.11.2023",
+        "13.11.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7638,
+    "cached_input_tokens": 0,
+    "output_tokens": 1278,
+    "eur_estimate": 0.003891
+  }
+}

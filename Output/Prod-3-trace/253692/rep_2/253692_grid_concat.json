@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\253692\\253692_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 776.64,
+    "Invoice.Date": "16.11.2023",
+    "Sender.VatId": "ATU57335468",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 647.2,
+    "Vat.Amount": 129.44
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.7,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Very good chance",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: Document is an invoice (contains \"Rechnung\", invoice number, invoice date, totals, VAT lines).\n\nExtraction plan (concise, non-sensitive summary):\n- Locate invoice-level headers and fields: \"Rechnung Nr.\", \"Datum\", totals and VAT breakdown.\n- Do not infer missing values; use exact labeled fields.\n- For Sender.VatId use the VAT label associated with the sender; choose the value labeled \"USt-Id\" near the top.\n- Parse numeric amounts preserving decimals and comma separators as in source.\n- Extract VAT rate without percent sign.\n\nKey extracted candidates (exact text locations):\n- Invoice.Date: \"Datum: 16.11.2023\"\n- GrandTotal.Amount: \"776,64\"\n- Net.Amount: \"647,20\" (labeled \"Gesamt Netto\" / Net total shown above VAT line)\n- Vat.Rate: \"20,00\" (displayed as \"20,00 % MwSt.\")\n- Vat.Amount: \"129,44\" (shown next to VAT line)\n- Sender.VatId: \"ATU57335468\" (label \"USt-Id:\" near top)\n\nAmbiguities considered:\n- Two VAT IDs appear near header: \"KD.USt-ID: ATU37102103\" (customer) and \"USt-Id: ATU57335468\". Chosen sender VAT is \"USt-Id: ATU57335468\" because it labels the invoice issuer section.\n\nI will now produce the final JSON extraction.",
+    "step2": "GrandTotal.Amount: high — \"Gesamtbetrag 776,64\" clearly printed.\nInvoice.Date: high — \"Datum: 16.11.2023\" clearly printed.\nSender.VatId: medium — \"USt-Id: ATU57335468\" present but a second VAT id \"KD.USt-ID: ATU37102103\" (customer) introduces slight ambiguity; chosen value matches sender label.\nVat.Rate: high — \"20,00 % MwSt.\" clearly printed (rate extracted without %).\nNet.Amount: high — \"Gesamt Netto 647,20\" clearly printed above VAT line.\nVat.Amount: high — \"129,44\" shown next to the 20,00% MwSt. line."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.33,
+      "input_tokens": 1828,
+      "cached_input_tokens": null,
+      "output_tokens": 701,
+      "total_tokens": 2529,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.48,
+      "input_tokens": 2192,
+      "cached_input_tokens": null,
+      "output_tokens": 415,
+      "total_tokens": 2607,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.91,
+      "input_tokens": 2651,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 2998,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\253692\\253692_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU57335468",
+        "ATU57335468"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        776.64,
+        "776,64"
+      ],
+      "Net.Amount": [
+        true,
+        647.2,
+        "647,20"
+      ],
+      "Vat.Amount": [
+        true,
+        129.44,
+        "129,44"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "16.11.2023",
+        "16.11.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6671,
+    "cached_input_tokens": 0,
+    "output_tokens": 1463,
+    "eur_estimate": 0.003999
+  }
+}

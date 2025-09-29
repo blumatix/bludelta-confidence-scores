@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198561\\198561_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1400.0,
+    "Invoice.Date": "09.08.2022",
+    "Sender.VatId": "FR47546650334",
+    "Vat.Rate": 0,
+    "Net.Amount": 1400.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.8,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.7,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.8,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Highly likely",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Very good chance",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Highly likely",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Summary of approach and findings (concise):\n\n1. Document classification\n- Found clear invoice indicators: headings \"INVOICE -TAX DOCUMENT No.220100247\", \"Invoice\", \"Total\", VAT references, invoice-like sections (issuer, IBAN, invoice date, due date, line with price/VAT/Total). No exclusion indicators (e.g., \"Mahnung\", \"Zahlungserinnerung\") dominating. Therefore treat as an invoice.\n\n2. Fields to extract per schema and source locations\n- GrandTotal.Amount: total payable appears in invoice area. Candidate tokens: \"Totalount 1,400.00ncyUR 0.00 1,1,480.0\" and earlier line shows \"1,400.0\" — ambiguity due to OCR noise. Also recapitulation section shows totals in CZK but unclear. Primary invoice total most consistent: 1,400.00 (currency EUR implied). Keep numeric formatting as in source.\n- Invoice.Date: dates present: \"date 09.08.2022\" near top of invoice block; also \"Invoice te: 23.08.2022\" and \"Duedate 23.08.2022\". The explicit label \"date 09.08.2022\" tied to Order number looks like invoice issue date. Candidate: \"09.08.2022\".\n- Sender.VatId: \"Customerdentif.er: FR47546650334\" appears under invoice header as customer identifier (VAT-like with FR prefix). Also \"Identif.ber:580168\" exists for sender, but VAT-style FR47546650334 is clearly a VAT ID. Candidate: \"FR47546650334\".\n- Vat.Rate / Net.Amount / Vat.Amount: Recapitulation shows tax table headings \"TaxasenCZK %VAT VATnCZK TotalZK\" with entries that are OCR-noisy:\n  - One line appears as \"34510,0310% 0,00 0,00\" which could be Net=34510,03 CZK with VAT rate 10% and VAT 0,00 — but that conflicts (VAT zero with 10%). Another line \"0,00 15% 0,00 0,03\" is also messy. In the main invoice line the VAT column shows \"0%\" and VAT \"0.00\" with Price 1,400.00 and Total 1,400.0.\n  - Given rule against inference, use only clearly readable VAT group: from line item \"Price%VAT      VAT      Total\" shows \"1,400.00 0% 0.00 1,400.0\". Thus extract one VAT group: Vat.Rate = 0, Net.Amount = 1400.00, Vat.Amount = 0.00.\n- Preserve decimals as in source (two decimals where present). For Vat.Rate remove % symbol per rules (0% -> 0).\n\n3. Ambiguities and decisions\n- Grand total ambiguous due to OCR \"1,1,480.0\" noise; the line item and totals consistently show 1,400.00 with VAT 0.00 and total 1,400.0. To avoid guessing, prefer the clearly repeated numeric 1400.00 as GrandTotal.Amount.\n- Invoice.Date chosen as \"09.08.2022\" because explicitly labeled \"date 09.08.2022\" near invoice header.\n- Sender.VatId chosen as \"FR47546650334\" from \"Customerdentif.er\".\n- Only one VAT group returned (0% / 1400.00 / 0.00) because other tax-table entries are too OCR-corrupted to extract without inference.\n\nNext step: produce final JSON with these extracted values (or empty strings if fields missing).",
+    "step2": "GrandTotal.Amount — Confidence: Medium-High (~80%)\n- Evidence: Multiple lines show 1,400.00 as price and total for the single invoice line (\"1,400.00\", \"1,400.0\"). OCR noise \"1,1,480.0\" is present but appears erroneous. Consistency between line price and displayed total supports 1,400.00.\n- Risk: OCR corruption in the \"Totalount\" line could mean true grand total formatted differently.\n\nInvoice.Date — Confidence: High (~90%)\n- Evidence: Explicit token \"date 09.08.2022\" appears in the invoice header area near order and identifiers.\n- Risk: There is another date \"23.08.2022\" labeled near \"Invoice te:\" and due date, but the clearly labeled \"date 09.08.2022\" is most likely the invoice issue date.\n\nSender.VatId — Confidence: Medium (~70%)\n- Evidence: \"Customerdentif.er: FR47546650334\" is present and matches VAT-like format (country prefix FR + digits).\n- Risk: Labeling is OCR-corrupted (\"Customerdentif.er\") and there is another identifier \"Identif.ber:580168\" which could be sender's internal ID. Assignment of FR... as Sender.VatId assumes it is the VAT ID.\n\nVat.Rate — Confidence: High (~90%)\n- Evidence: Line item shows \"0%\" in VAT column for the charge; clear textual \"0%\" exists.\n- Risk: Minor OCR issues but percent value is explicit.\n\nNet.Amount — Confidence: Medium-High (~80%)\n- Evidence: The invoice line shows price 1,400.00 and VAT 0.00, yielding net 1,400.00; net matches displayed price formatting.\n- Risk: OCR noise in totals line, but net amount directly visible.\n\nVat.Amount — Confidence: High (~90%)\n- Evidence: VAT column shows \"0.00\" for the line and recapitulation indicates zero VAT in multiple places.\n- Risk: Low; consistent zero VAT across document."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.97,
+      "input_tokens": 2628,
+      "cached_input_tokens": null,
+      "output_tokens": 987,
+      "total_tokens": 3615,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.19,
+      "input_tokens": 3470,
+      "cached_input_tokens": null,
+      "output_tokens": 498,
+      "total_tokens": 3968,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.1,
+      "input_tokens": 4204,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 4551,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198561\\198561.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "FR47546650334",
+        "CZ28580168"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1400.0,
+        "1,400.00"
+      ],
+      "Net.Amount": [
+        true,
+        1400.0,
+        "1,400.00"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0.00"
+      ],
+      "Vat.Rate": [
+        false,
+        0,
+        []
+      ],
+      "Invoice.Date": [
+        true,
+        "09.08.2022",
+        "09.08.2022"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 10302,
+    "cached_input_tokens": 0,
+    "output_tokens": 1832,
+    "eur_estimate": 0.001156
+  }
+}

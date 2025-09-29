@@ -1,0 +1,114 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198506\\198506_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 290.0,
+    "Invoice.Date": "Mar 27, 2023",
+    "Sender.VatId": "DK53139655",
+    "Vat.Rate": 0,
+    "Net.Amount": 290.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I'll reason step by step to extract the requested fields from the provided invoice text. I will (a) confirm the document is an invoice, (b) locate candidate values for each schema field, (c) verify multiple occurrences, and (d) note any ambiguities or missing data so no inference is made.\n\n1) Document classification (invoice vs non-invoice)\n- Invoice indicators present: the header shows \"IMPORT INVOICE\", \"Invoice Number\", \"Invoice Date\", \"Total Payable Amount\", tax specifications, line-item charges, and totals. No prominent exclusion headers like \"Mahnung\" or \"Zahlungserinnerung\". Conclusion: document qualifies as an invoice → proceed with extraction.\n\n2) Identify fields required by schema\nFields required: GrandTotal.Amount, Invoice.Date, Sender.VatId, Vat.Rate, Net.Amount, Vat.Amount. Note: Vat.Rate/Net.Amount/Vat.Amount can have multiple entries (Vat.Item array implied).\n\n3) Locate Invoice.Date\n- Lines show \"Invoice Date Mar 27, 2023\" (appears on both pages). Candidate: \"Mar 27, 2023\". Keep exact formatting as string.\n\n4) Locate Sender.VatId\n- Several VAT numbers appear:\n  - At top: \"Tax id. no.: DE815512007\"\n  - Also lines: \"VAT Nr. DE: 25 65 18 614\" and \"VAT Nr. DK: 53 13 96 55\" and later \"VAT number DK53139655\".\n- Determine which corresponds to sender: header shows Customer section (DACHSER SE) and separately company footer shows Maersk A/S with VAT number DK53139655. The label \"Tax id. no.: DE815512007\" appears near customer address block (likely customer's tax id). The schema field \"Sender.VatId\" expects Tax ID of the sender (VAT). The invoice issuer is Maersk A/S (footer). Maersk DK VAT appears as \"VAT number DK53139655\" and elsewhere \"VAT Nr. DK: 53 13 96 55\" — these are the same number with/without spacing. Which to pick? Must not infer; choose exact visible sender VAT. The footer explicitly: \"VAT number DK53139655\" — use \"DK53139655\".\n\n5) Locate GrandTotal.Amount\n- Totals section shows:\n  - \"Total Base Amount EUR 290.00\"\n  - \"Total Taxes(see spec. below) EUR 0.00\"\n  - \"Total Payable Amount EUR 290.00\"\n- Grand total (Total Payable Amount) is 290.00. Numeric type preserved with decimals: 290.00.\n\n6) Locate VAT groups (Vat.Rate, Net.Amount, Vat.Amount)\n- Tax Specification table (page 2) shows:\n  - \"DK 0% VAT/EU supply of services Base Amount 290.00 Tax Amount 0.00\"\n  - Repeats \"TOTAL DK 290.00 0.00\"\n- Also within line items, taxes indicated \"DK VAT 0%\".\n- Therefore VAT group: Rate = 0 (must be returned without %), Net.Amount = 290.00 (base amount), Vat.Amount = 0.00.\n- Confirm decimal precision: 290.00 and 0.00.\n\n7) Cross-check currency and conversions (irrelevant for schema)\n- Exchange rate present (EUR to DKK 7.44534) but schema's ExchangeRate not in final output. Ignore per rules.\n\n8) Multiple occurrences handling\n- Only one VAT group present (0% DK VAT). No multiple VAT items needed beyond one entry.\n\n9) Ambiguities and decisions (no inference)\n- Sender VAT: chose \"DK53139655\" as explicitly labeled \"VAT number DK53139655\" in footer associated with Maersk A/S (the invoice issuer). Do not include DE815512007 since that appears to be customer's tax id.\n- Invoice date exact string preserved as \"Mar 27, 2023\".\n- All monetary values returned as numbers with same decimals as input.\n\nConclusion: ready to produce JSON with:\n- GrandTotal.Amount: 290.00 (number)\n- Invoice.Date: \"Mar 27, 2023\"\n- Sender.VatId: \"DK53139655\"\n- Vat.Rate: 0 (number)\n- Net.Amount: 290.00 (number)\n- Vat.Amount: 0.00 (number)\n\nI will now output the final JSON object.",
+    "step2": "GrandTotal.Amount — Confidence: 99%\n- Evidence: \"Total Payable Amount EUR 290.00\" appears clearly in totals section on page 1. Matches \"Total Base Amount 290.00\" and \"Total Taxes 0.00\". Very unambiguous.\n\nInvoice.Date — Confidence: 98%\n- Evidence: \"Invoice Date Mar 27, 2023\" appears on both pages. Formatting preserved. Minor OCR risk for month/day order but text is clear.\n\nSender.VatId — Confidence: 85%\n- Evidence: Footer lists Maersk (invoice issuer) and \"VAT number DK53139655\" explicitly. Potential ambiguity because other VAT/TAX IDs (e.g., \"Tax id. no.: DE815512007\") appear (likely customer). Chosen DK53139655 as sender VAT based on proximity to Maersk footer; small risk if mapping between labels and entities misinterpreted.\n\nVat.Rate — Confidence: 99%\n- Evidence: Tax specification shows \"DK 0% VAT/EU\" and line items show \"DK VAT 0%\". Clear zero rate.\n\nNet.Amount — Confidence: 99%\n- Evidence: Tax specification and totals show Base Amount 290.00 (EUR). Matches Total Payable minus taxes. Clear.\n\nVat.Amount — Confidence: 99%\n- Evidence: Tax Amount listed as 0.00 in tax specification and totals. Clear."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.74,
+      "input_tokens": 3269,
+      "cached_input_tokens": null,
+      "output_tokens": 1142,
+      "total_tokens": 4411,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.91,
+      "input_tokens": 4266,
+      "cached_input_tokens": null,
+      "output_tokens": 360,
+      "total_tokens": 4626,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.41,
+      "input_tokens": 4862,
+      "cached_input_tokens": null,
+      "output_tokens": 217,
+      "total_tokens": 5079,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198506\\198506.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DK53139655",
+        "DK53139655"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        290.0,
+        "290.00"
+      ],
+      "Net.Amount": [
+        true,
+        290.0,
+        [
+          "290.00",
+          "290.00",
+          "290.00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        [
+          "0.00",
+          "0.00",
+          "0.00"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        0,
+        "0"
+      ],
+      "Invoice.Date": [
+        true,
+        "Mar 27, 2023",
+        [
+          "Mar 27, 2023",
+          "Mar 27, 2023"
+        ]
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 12397,
+    "cached_input_tokens": 0,
+    "output_tokens": 1719,
+    "eur_estimate": 0.001221
+  }
+}

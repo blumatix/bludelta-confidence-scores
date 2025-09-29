@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231281\\231251_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2040.14,
+    "Invoice.Date": "25.09.2023",
+    "Sender.VatId": "ATU69710958",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 1770.12,
+    "Vat.Amount": 354.02
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification\n- Presence of clear invoice indicators: \"Rechnung\", \"Nummer\", \"Datum\", \"Gesamtbetrag Brutto\", \"Zahlbetrag\", line items, VAT lines. No prominent exclusion terms (no \"Mahnung\"/\"Zahlungserinnerung\" as header). Conclusion: this is an invoice — proceed to extraction.\n\n2) Locate invoice date\n- Found \"Datum 25.09.2023\" near top. Candidate Invoice.Date = \"25.09.2023\".\n\n3) Locate Grand Total / amount payable\n- Several totals present:\n  - \"Gesamtbetrag Brutto 2.124,14 EUR\" — gross total before skonto.\n  - \"Skonto brutto 4,00-% auf 2.100,14 ... 84,00- EUR\"\n  - \"Zahlbetrag 2.040,14 EUR\" — final amount payable after discount.\n- Per schema \"Total payable amount on the invoice\" = \"Zahlbetrag\". Candidate GrandTotal.Amount = 2.040,14 -> numeric 2040.14 (preserve decimals).\n\n4) Sender VAT ID\n- Two VAT IDs appear:\n  - \"Ihre Ust-Id-Nr. ATU64131246\" likely buyer's VAT (labeled \"Ihre\").\n  - Footer: \"Ust.-ID-Nr. ATU69710958\" under company info (CREATON GmbH).\n- Sender is CREATON GmbH; therefore Sender.VatId = \"ATU69710958\".\n\n5) VAT group(s), net and VAT amounts, rate\n- Found VAT breakdown:\n  - \"Gesamtbetrag Netto 1.770,12 EUR\"\n  - \"R2 - 20,00% USt auf 1.770,12 R2 20.00% 354,02 EUR\"\n- This indicates a VAT group at 20.00% applied to net 1.770,12 producing VAT 354,02.\n- Per rules: extract rate without \"%\" and keep decimals as in input.\n- Candidate Vat.Rate = 20.00 (number), Net.Amount = 1.770,12 -> 1770.12 (number), Vat.Amount = 354,02 -> 354.02 (number).\n\n6) Verify no inference or ambiguity\n- All extracted values appear explicitly in text.\n- Do not infer other VAT groups or different senders.\n- Maintain original decimal precision when converting to numeric form.\n\n7) Final mapping (values confirmed for final output)\n- Invoice.Date -> \"25.09.2023\"\n- GrandTotal.Amount -> 2040.14\n- Sender.VatId -> \"ATU69710958\"\n- Vat.Rate -> 20.00\n- Net.Amount -> 1770.12\n- Vat.Amount -> 354.02",
+    "step2": "- GrandTotal.Amount (2,040.14 EUR): High confidence. The text explicitly lists \"Zahlbetrag 2.040,14 EUR\" which is the payable amount after skonto; no conflicting \"Zahlbetrag\" elsewhere.\n\n- Invoice.Date (\"25.09.2023\"): Very high confidence. \"Datum 25.09.2023\" appears clearly near the invoice header.\n\n- Sender.VatId (\"ATU69710958\"): High confidence. Footer lists \"Ust.-ID-Nr. ATU69710958\" under company information for CREATON GmbH (the sender). There is another VAT shown as \"Ihre Ust-Id-Nr. ATU64131246\" but that is labeled as the recipient's (\"Ihre\"), so selecting ATU69710958 for sender is well supported.\n\n- Vat.Rate (20.00): High confidence. The VAT line reads \"R2 - 20,00% USt ... R2 20.00%\" clearly indicating 20% rate. Rate extracted without symbol per rules.\n\n- Net.Amount (1,770.12 EUR): High confidence. The line \"Gesamtbetrag Netto 1.770,12 EUR\" directly provides this net total.\n\n- Vat.Amount (354.02 EUR): High confidence. The VAT amount \"354,02 EUR\" is shown next to the 20% VAT line and corresponds to 20% of 1,770.12, matching arithmetic."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.88,
+      "input_tokens": 2824,
+      "cached_input_tokens": null,
+      "output_tokens": 1172,
+      "total_tokens": 3996,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.35,
+      "input_tokens": 3467,
+      "cached_input_tokens": null,
+      "output_tokens": 308,
+      "total_tokens": 3775,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.28,
+      "input_tokens": 4075,
+      "cached_input_tokens": null,
+      "output_tokens": 285,
+      "total_tokens": 4360,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231281\\231251_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU69710958",
+        "ATU69710958,"
+      ],
+      "GrandTotal.Amount": [
+        false,
+        2040.14,
+        "2.124,14"
+      ],
+      "Net.Amount": [
+        true,
+        1770.12,
+        "1.770,12"
+      ],
+      "Vat.Amount": [
+        true,
+        354.02,
+        "354,02"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20.00"
+      ],
+      "Invoice.Date": [
+        true,
+        "25.09.2023",
+        "25.09.2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 10366,
+    "cached_input_tokens": 0,
+    "output_tokens": 1765,
+    "eur_estimate": 0.005334
+  }
+}

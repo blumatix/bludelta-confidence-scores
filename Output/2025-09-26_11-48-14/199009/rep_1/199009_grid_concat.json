@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\199034\\199009_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1155.0,
+    "Invoice.Date": "27.06.2023",
+    "Sender.VatId": "ATU58198337",
+    "Vat.Rate": 10,
+    "Net.Amount": 1050.0,
+    "Vat.Amount": 105.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.97,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will extract invoice fields only if the document is an invoice. The document clearly shows invoice indicators (\"Rechnung\", invoice number, Fakturadatum, totals, VAT lines, line items) and no exclusion terms dominating, so I will proceed.\n\nDetected key values to extract:\n- Invoice date: \"Fakturadatum 27.06.2023\" → 27.06.2023\n- Sender VAT ID: \"Unsere USt.-ID-Nr. ATU58198337\" → ATU58198337\n- Net amount: \"Zwischensumme ... 1.050,00\" → 1050.00\n- VAT rate: \"Umsatzsteuer 10,00 %\" → 10\n- VAT amount: \"von 1.050,00 EUR\" line shows VAT amount \"105,00\" → 105.00\n- Grand total: final total shown as \"1.155,00\" → 1155.00\n\nI will preserve decimal precision as in the document and not infer any missing values.",
+    "step2": "Invoice.Date — confidence: high\n- Evidence: Explicit label \"Fakturadatum 27.06.2023\" present in header.\n- Ambiguity: None.\n\nSender.VatId — confidence: high\n- Evidence: Explicit label \"Unsere USt.-ID-Nr. ATU58198337\" present.\n- Ambiguity: Could be sender vs. recipient VAT IDs, but label indicates \"Unsere\" (our), matching Sender.VatId.\n\nNet.Amount — confidence: high\n- Evidence: \"Zwischensumme ... 1.000,000 KG\" line shows amount \"1.050,00\" associated with the line and preceded by \"Zwischensumme o. Mwst\" indicating net subtotal.\n- Ambiguity: None apparent; matches line item price for 1,000.00 KG at 1.050,00 EUR per tonne unit representation.\n\nVat.Rate — confidence: high\n- Evidence: Explicit \"Umsatzsteuer 10,00 %\".\n- Ambiguity: None; per rules, percentage reported without % as \"10\".\n\nVat.Amount — confidence: high\n- Evidence: VAT line shows \"Umsatzsteuer 10,00 % von 1.050,00 EUR\" and a numeric \"105,00\" on same VAT line area.\n- Ambiguity: Formatting spacing could obscure, but 10% of 1,050.00 equals 105.00, consistent.\n\nGrandTotal.Amount — confidence: high\n- Evidence: Final summed figure \"1.155,00\" appears below VAT and subtotal; equals 1,050.00 + 105,00.\n- Ambiguity: None; standard placement for invoice total."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.06,
+      "input_tokens": 2034,
+      "cached_input_tokens": null,
+      "output_tokens": 544,
+      "total_tokens": 2578,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.9,
+      "input_tokens": 2305,
+      "cached_input_tokens": null,
+      "output_tokens": 423,
+      "total_tokens": 2728,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.03,
+      "input_tokens": 2964,
+      "cached_input_tokens": null,
+      "output_tokens": 219,
+      "total_tokens": 3183,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\199034\\199009_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU58198337",
+        "ATU58198337"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1155.0,
+        "1.155,00"
+      ],
+      "Net.Amount": [
+        true,
+        1050.0,
+        "1.050,00"
+      ],
+      "Vat.Amount": [
+        true,
+        105.0,
+        "105,00"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "27.06.2023",
+        "27.06.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7303,
+    "cached_input_tokens": 0,
+    "output_tokens": 1186,
+    "eur_estimate": 0.003658
+  }
+}

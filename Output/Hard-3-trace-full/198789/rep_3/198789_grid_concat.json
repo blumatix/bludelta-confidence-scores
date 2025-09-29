@@ -1,0 +1,109 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198789\\198789_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1540.0,
+    "Invoice.Date": "2023-03-29",
+    "Sender.VatId": "PL9231551644",
+    "Vat.Rate": 0,
+    "Net.Amount": 1540.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.85,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Highly likely",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I can’t share my internal step-by-step chain-of-thought. I will instead provide a concise, non-sensitive summary of the extraction approach and key evidence from the document that will guide the final structured extraction:\n\n- Document classification: Contains the word \"INVOICE\" and invoice-like sections (invoice number \"0913/03/2023\", seller/company block with NIP: PL9231551644, buyer block with NIP: DE 815512007), totals and \"TO PAY\" lines — classify as an invoice.\n\n- Candidate data locations:\n  - Invoice.Date: top-right shows \"Siedlec, Żodyń, 2023-03-29\" and \"Date of sell: 2023-03-27\". Likely invoice issue date is 2023-03-29; sale date is 2023-03-27.\n  - Sender.VatId: seller NIP: PL9231551644 (use as VAT ID).\n  - GrandTotal.Amount / Totals: \"TO PAY: 1 540,00 EUR\" and also \"TO PAY PLN: 7 224,29 PLN\". Grand total (invoice currency) appears to be 1 540,00 EUR.\n  - Net.Amount / Vat.Amount / Vat.Rate: Line item shows Net value \"1 540,00\", VAT group labelled \"Np.\" and VAT [%] = 0,00 — indicates reverse charge / no VAT charged. So Net.Amount = 1540.00, Vat.Amount = 0.00, Vat.Rate = 0 (extract rate as number without %).\n  - Currency formatting: European style with space as thousands separator and comma as decimal; preserve decimals as in source (two decimals).\n  - No explicit separate \"VAT amount\" field other than group showing 0,00; follow No Inference rule (use exact values shown).\n\n- Ambiguities/choices to avoid:\n  - Do not use sale date (2023-03-27) unless schema expects it; prefer invoice issue date (2023-03-29) as Invoice.Date based on header.\n  - Use seller NIP as Sender.VatId (explicit).\n  - Use EUR amount for GrandTotal.Amount; return numeric values without currency symbols and preserving decimals.\n  - Vat.Rate should be 0 (from \"0,00\" shown), returned as number 0.\n  - If any required field cannot be unambiguously located, it would be left empty per No Inference policy — but all required fields have explicit values here.\n\nI will now prepare the final JSON extraction following the schema and rules.",
+    "step2": "- GrandTotal.Amount: Confidence ~95% — Evidence: \"TO PAY: 1     540,00                   EUR\" clearly shown as total payable in invoice currency; matches NET total lines. Low residual uncertainty only from possible alternative \"TO PAY PLN\" but invoice currency is EUR.\n\n- Invoice.Date: Confidence ~85% — Evidence: header shows \"Siedlec, Żodyń, 2023-03-29\" and nearby \"Date of sell: 2023-03-27\". Interpretation chosen: 2023-03-29 as issue date (typical placement). Uncertainty due to presence of two dates.\n\n- Sender.VatId: Confidence ~99% — Evidence: Seller block explicitly \"NIP:     PL9231551644\" (Polish VAT ID) in company header.\n\n- Vat.Rate: Confidence ~95% — Evidence: Tax column shows \"Np.\" and VAT [%] value \"0,00\" indicating 0% (or reverse charge/no VAT). Interpreted as numeric 0 per rule to omit percent sign. Minor uncertainty only from formatting (\"Np.\" label).\n\n- Net.Amount: Confidence ~95% — Evidence: Line item NET VALUE shown as \"1 540,00\" and TOTAL NET \"1 540,00\". Matches TO PAY EUR. Formatting preserved. Low residual uncertainty from spacing/formatting.\n\n- Vat.Amount: Confidence ~95% — Evidence: VAT amount shown as \"0,00\" in tax column and totals. Matches Vat.Rate=0. Minor uncertainty only from \"Np.\" (reverse charge) semantics but numeric VAT amount explicitly 0,00."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.34,
+      "input_tokens": 6887,
+      "cached_input_tokens": null,
+      "output_tokens": 802,
+      "total_tokens": 7689,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.76,
+      "input_tokens": 7480,
+      "cached_input_tokens": null,
+      "output_tokens": 534,
+      "total_tokens": 8014,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.86,
+      "input_tokens": 8122,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 8405,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198789\\198789.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "PL9231551644",
+        "PL9231551644"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1540.0,
+        "1 540,00"
+      ],
+      "Net.Amount": [
+        true,
+        1540.0,
+        [
+          "1 540,00",
+          "1 540,00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        [
+          "0,00",
+          "0,00"
+        ]
+      ],
+      "Vat.Rate": [
+        false,
+        0,
+        []
+      ],
+      "Invoice.Date": [
+        true,
+        "2023-03-29",
+        "2023-03-29"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 22489,
+    "cached_input_tokens": 0,
+    "output_tokens": 1619,
+    "eur_estimate": 0.001691
+  }
+}

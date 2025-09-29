@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\273196\\273182_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 4593.6,
+    "Invoice.Date": "24.01.2024",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": 10,
+    "Net.Amount": 4176.0,
+    "Vat.Amount": 417.6
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.6,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Planned extraction steps and evidence summary (concise, non-sensitive):\n\n1. Document classification\n- Found invoice indicators: header \"Rechnung\", \"Nr. 1097649\", \"Datum: 24.01.2024\", totals section with \"Nettobetrag\", \"Mehrwertsteuer 10%\", and \"Bruttobetrag\". No prominent exclusion terms. Classified as invoice.\n\n2. Fields to extract and source text\n- Invoice.Date: from \"Datum: 24.01.2024\" (page 1).\n- GrandTotal.Amount: from \"Bruttobetrag EUR 4.593,60\" (page 2).\n- Vat.Rate: from \"Mehrwertsteuer 10%\" and nearby \"10,00 %\". Extract numeric rate as 10.\n- Net.Amount: from \"Nettobetrag EUR 4.176,00\" (page 2).\n- Vat.Amount: from \"Mehrwertsteuer ... 417,60\" (page 2).\n- Sender.VatId: possible UID lines: \"UID: ATU22642807\" (page 1) and another UID on page 2 \"UID-Nr.: ATU 63 30 65 77\" — ambiguity: primary sender is Salzburg Schokolade GmbH (header) whose UID on page 1 is ATU22642807. I will treat ATU22642807 as Sender.VatId because it appears next to customer block and matches invoice header context.\n\n3. Validations and rules\n- Preserved decimals and formatting of numeric values (commas used as decimal separators in source). Will convert numeric values to numbers preserving decimal places — keeping original decimals.\n- VAT rate will be returned without \"%\" as required.\n- No inference beyond visible text; if ambiguous, prefer the UID adjacent to invoice header.\n\nNext step: produce the JSON extraction (not yet requested).",
+    "step2": "Confidence assessment for each field (evidence and likelihood):\n\n- Invoice.Date\n  - Evidence: \"Datum: 24.01.2024\" clearly printed on page 1.\n  - Confidence: Very high.\n\n- GrandTotal.Amount\n  - Evidence: \"Bruttobetrag EUR 4.593,60\" on page 2 (matches Nettobetrag + VAT).\n  - Consistency: Nettobetrag 4.176,00 + Mehrwertsteuer 417,60 = 4.593,60.\n  - Confidence: Very high.\n\n- Vat.Rate\n  - Evidence: \"Mehrwertsteuer 10%\" and \"10,00 %\".\n  - Consistency: VAT amount equals 10% of net (417,60 = 10% of 4.176,00).\n  - Confidence: Very high.\n\n- Net.Amount\n  - Evidence: \"Nettobetrag EUR 4.176,00\" on page 2 and shown as Übertrag.\n  - Consistency: Matches line-item total 4.176,00.\n  - Confidence: Very high.\n\n- Vat.Amount\n  - Evidence: \"Mehrwertsteuer ... 417,60\" shown next to 10% line on page 2.\n  - Consistency: Matches 10% of Nettobetrag.\n  - Confidence: Very high.\n\n- Sender.VatId\n  - Evidence: Two UID-like entries: \"UID: ATU22642807\" (page 1, in customer/invoice header area) and \"UID-Nr.: ATU 63 30 65 77\" (page 2, in footer company info).\n  - Ambiguity: Which corresponds to sender (Salzburg Schokolade GmbH)? Page 1 UID appears in the block near \"Kunde Nr.\" and invoice header; page 2 UID-Nr. appears in company footer with multiple IDs. The sender company at top is \"Salzburg Schokolade GmbH\" — the UID on page 1 (ATU22642807) is adjacent to header but could belong to the customer block labeling \"UID:\" under customer section. The page-2 UID (ATU 63 30 65 77) is in the company info/footer and formatted like the sender's UID.\n  - Likelihoods:\n    - ATU22642807 as Sender.VatId: moderate confidence (might be customer UID).\n    - ATU63306577 (normalized from \"ATU 63 30 65 77\") as Sender.VatId: moderate confidence (appears in sender/company footer).\n  - Overall confidence: Moderate due to ambiguity; one of the two is the sender VAT ID but uncertainty which."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 15.36,
+      "input_tokens": 2507,
+      "cached_input_tokens": null,
+      "output_tokens": 588,
+      "total_tokens": 3095,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.66,
+      "input_tokens": 2950,
+      "cached_input_tokens": null,
+      "output_tokens": 634,
+      "total_tokens": 3584,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.96,
+      "input_tokens": 3820,
+      "cached_input_tokens": null,
+      "output_tokens": 411,
+      "total_tokens": 4231,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\273196\\273182_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU 63 30 65 77"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        4593.6,
+        "4.593,60"
+      ],
+      "Net.Amount": [
+        true,
+        4176.0,
+        "4.176,00"
+      ],
+      "Vat.Amount": [
+        true,
+        417.6,
+        "417,60"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "24.01.2024",
+        "24.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 9277,
+    "cached_input_tokens": 0,
+    "output_tokens": 1633,
+    "eur_estimate": 0.004866
+  }
+}

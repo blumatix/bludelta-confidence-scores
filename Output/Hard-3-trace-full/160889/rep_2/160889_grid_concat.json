@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\160889\\160889_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": "",
+    "Invoice.Date": "28.10.2022",
+    "Sender.VatId": "11R03578561495",
+    "Vat.Rate": "",
+    "Net.Amount": "",
+    "Vat.Amount": ""
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.1,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.75,
+    "Vat.Rate": 0.05,
+    "Net.Amount": 0.2,
+    "Vat.Amount": 0.1
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Highly unlikely",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Very good chance",
+    "Vat.Rate": "Almost no chance",
+    "Net.Amount": "Chances are slight",
+    "Vat.Amount": "Highly unlikely"
+  },
+  "reasoning": {
+    "step1": "Plan and observations to extract required fields:\n\n1. Document classification\n- Contains clear invoice indicators: \"RAČUN\", \"Datum računa\", \"RAČUN br. 22-624/1/1\", \"Valuta\", \"UKUPNO\", currency \"kn.\" => classify as invoice.\n- No prominent exclusion terms (\"Zahlungserinnerung\", \"Mahnung\", \"Servicebericht\") found.\n\n2. Candidate field matches in text\n- Invoice.Date: found \"Datum računa: 28.10.2022\" — strong extraction candidate: \"28.10.2022\".\n- Sender.VatId: several VAT-like strings:\n  - Top area: \"OTB 03578561495 ; VAT         iD:11R03578561495\" — OCR noise present; exact substring \"VAT iD:11R03578561495\" exists.\n  - Also \"UXD Nr. ATU47239901\" (likely another tax id for DACHSER/Austria) — ambiguous which is sender vs recipient. The sender (MARIĆ PROMET) appears at top with the VAT lines, so use that top VAT string as Sender.VatId (no normalization per rules).\n- GrandTotal.Amount / Net.Amount / Vat.Amount / Vat.Rate:\n  - Under \"TRANSPORT kn.\" line shows two numeric columns: \"4.895,32                      650,00\"\n  - \"UKUPNO\" line repeats \"4.895,32                      650,00\"\n  - No explicit labels clarifying which column is net, VAT, or grand total. There is also text \"Prijenos porezne obveze ... REWERSE CHARGE\" indicating reverse charge — VAT may not be charged on invoice (VAT amount possibly 0 or absent), and VAT rate may be omitted.\n  - No explicit \"Total Amount\" label with a single unequivocal payable amount; therefore Net.Amount, Vat.Amount, Vat.Rate, and GrandTotal.Amount are ambiguous from available text.\n  - Because of \"reverse charge\" wording, VAT rate/amount may not be present; per \"No Inference\" rule, cannot guess values.\n\n3. Decisions based on rules\n- Invoice classification: proceed with extraction.\n- Invoice.Date: extract \"28.10.2022\".\n- Sender.VatId: extract exact OCR string \"11R03578561495\" as shown after \"VAT iD:\" (include surrounding digits as-is).\n- GrandTotal.Amount / Net.Amount / Vat.Amount / Vat.Rate: multiple numeric candidates present but no unambiguous label mapping to required schema fields. Per No Inference rule, do not guess — these should be left empty unless a clear mapping is present.\n\n4. Final extraction plan (to produce JSON next)\n- Set Invoice.Date = \"28.10.2022\".\n- Set Sender.VatId = \"11R03578561495\" (exact OCR substring after \"VAT iD:\").\n- Set GrandTotal.Amount, Vat.Rate, Net.Amount, Vat.Amount = empty strings due to ambiguity/absence of explicit labeled totals and the reverse-charge note.",
+    "step2": "GrandTotal.Amount: 10% — No explicit labeled grand total; numbers present (4.895,32 and 650,00) but roles unclear and reverse-charge noted, so extremely uncertain.\n\nInvoice.Date: 95% — \"Datum računa: 28.10.2022\" is explicitly present and unambiguous.\n\nSender.VatId: 75% — \"VAT iD:11R03578561495\" appears near sender block; OCR noise around it but extracted string matches visible pattern; moderate-high confidence.\n\nVat.Rate: 5% — No explicit VAT percentage present; reverse-charge wording suggests VAT not shown. Very low confidence.\n\nNet.Amount: 20% — Possible candidate \"4.895,32\" but no clear label tying it to net amount; low confidence.\n\nVat.Amount: 10% — Possible candidate \"650,00\" but no explicit label and reverse-charge note conflicts; very low confidence."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 14.7,
+      "input_tokens": 1723,
+      "cached_input_tokens": null,
+      "output_tokens": 1290,
+      "total_tokens": 3013,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.38,
+      "input_tokens": 2420,
+      "cached_input_tokens": null,
+      "output_tokens": 390,
+      "total_tokens": 2810,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.09,
+      "input_tokens": 2918,
+      "cached_input_tokens": null,
+      "output_tokens": 268,
+      "total_tokens": 3186,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\160889\\160889.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "11R03578561495",
+        "HR03578561495"
+      ],
+      "GrandTotal.Amount": [
+        false,
+        "",
+        "650,00"
+      ],
+      "Net.Amount": [
+        false,
+        "",
+        []
+      ],
+      "Vat.Amount": [
+        false,
+        "",
+        []
+      ],
+      "Vat.Rate": [
+        false,
+        "",
+        []
+      ],
+      "Invoice.Date": [
+        true,
+        "28.10.2022",
+        "28.10.2022"
+      ]
+    },
+    "summary": {
+      "matched": 1,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7061,
+    "cached_input_tokens": 0,
+    "output_tokens": 1948,
+    "eur_estimate": 0.001035
+  }
+}

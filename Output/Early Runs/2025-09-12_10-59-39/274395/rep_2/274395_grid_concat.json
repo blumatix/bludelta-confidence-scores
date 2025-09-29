@@ -1,0 +1,100 @@
+{
+  "input_path": "..\\Documents\\274400\\274395_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 506.73,
+    "Invoice.Date": "23.1.2024",
+    "Sender.VatId": "ATU36768002",
+    "Vat.Rate": 10,
+    "Net.Amount": 460.67,
+    "Vat.Amount": 46.06
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.85,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Highly likely",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Sorry—I can’t share internal step-by-step chain-of-thought. I can, however, give a concise, non-sensitive summary of the extraction approach I’ll use:\n\n- Classify document as invoice by checking for invoice keywords (e.g., \"Rechnungswesen\", \"Rechn.Nr.\", totals, amounts, due date) and ensuring exclusion terms do not dominate.\n- Locate explicit invoice fields to extract (Invoice Date, Grand Total, Sender VAT/UID, VAT rate(s), Net amount(s), VAT amount(s)) only when clearly present in the text.\n- Do not infer missing values; leave fields empty if not explicitly given.\n- Preserve numeric formatting/decimals and VAT rates without the percent symbol.\n- If document is not an invoice, return all fields as empty strings.\n\nIf you want, I can now proceed and return the final JSON extraction.",
+    "step2": "GrandTotal.Amount\n- Evidence: \"Endsaldo EUR 506,73\" and multiple occurrences of \"506,73\" in payment sections.\n- Likelihood: Very high (≈95%).\n\nInvoice.Date\n- Evidence: \"Datum: 23.1.2024\" appears twice (header near Rechn.Nr. and payment block).\n- Likelihood: Very high (≈95%).\n\nSender.VatId (UID)\n- Evidence: \"UID: ATU36768002\" in footer line with web address.\n- Likelihood: Very high (≈95%).\n\nVat.Rate\n- Evidence: Table header shows \"10% Ust.\" with line items listing netto, 10% Ust., brutto.\n- Likelihood: High (≈90%).\n\nNet.Amount\n- Evidence: Line items show net amounts: \"Abfallwirtschaftsgebühr 309, 05\" and \"Kanalbenützungsgebühr 151, 62\". Their sum equals 460.67 (309.05 + 151.62 = 460.67). The document also shows Endsaldo 506.73 which includes VAT 46.06.\n- Likelihood per extracted net total:\n  - If expecting total net for VAT group: medium-high (≈85%) for 460,67.\n  - If expecting a single net amount matching grand total minus VAT: same as above.\n\nVat.Amount\n- Evidence: Line VAT amounts: \"30, 90\" and \"15,16\" shown in table; their sum is 46.06 (30.90 + 15.16 = 46.06), which plus net 460.67 equals gross 506.73.\n- Likelihood per VAT group entries: Very high for the two amounts individually (≈95%) and for their sum (≈95%)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 3.97,
+      "input_tokens": 2170,
+      "output_tokens": 373,
+      "total_tokens": 2543
+    },
+    "step2": {
+      "runtime_sec": 6.04,
+      "input_tokens": 2358,
+      "output_tokens": 442,
+      "total_tokens": 2800
+    },
+    "step3": {
+      "runtime_sec": 5.9,
+      "input_tokens": 3006,
+      "output_tokens": 409,
+      "total_tokens": 3415
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274400\\274395_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU36768002",
+        "ATU36768002,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        506.73,
+        "506,73"
+      ],
+      "Net.Amount": [
+        false,
+        460.67,
+        [
+          "309, 05",
+          "151, 62"
+        ]
+      ],
+      "Vat.Amount": [
+        false,
+        46.06,
+        [
+          "30, 90",
+          "15,16"
+        ]
+      ],
+      "Vat.Rate": [
+        false,
+        10,
+        [
+          "10",
+          "10"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "23.1.2024",
+        "23.1.2024"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\217236\\217221_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1548.8,
+    "Invoice.Date": "04.08.2023",
+    "Sender.VatId": "ATU35980300",
+    "Vat.Rate": 10,
+    "Net.Amount": 1408.0,
+    "Vat.Amount": 140.8
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.92,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.94,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Classify document as invoice:\n- Header contains \"RECHNUNG\" (German for Invoice) and invoice layout with line items, totals, VAT — qualifies as invoice.\n- No exclusion terms like \"Mahnung\" or \"Zahlungserinnerung\" prominent. Proceed with extraction.\n\n2) Locate Invoice.Date:\n- Found near invoice header: \"RECHNUNG   4391262950   04.08.2023\"\n- Candidate Invoice.Date = \"04.08.2023\".\n\n3) Locate Sender.VatId:\n- Top-right block shows company Mondelez Österreich GmbH and \"UID-Nr   ATU    35980300\"\n- Sender VAT candidate = \"ATU35980300\" (concatenate as standard VAT id).\n\n4) Locate totals and VAT groups:\n- Bottom summary line shows columns/labels: \"Bruttowert   Nettowert   UST   inkl.UST   UST %   Fakturabetrag\"\n- Corresponding values visible:\n  - Nettowert = \"1.408,00\"\n  - UST = \"140,80\"\n  - inkl.UST / Fakturabetrag = \"1.548,80\" and currency \"EUR\"\n  - UST % = \"10,00\"\n- Interpretations:\n  - GrandTotal.Amount = Fakturabetrag = 1.548,80\n  - Net.Amount = 1.408,00\n  - Vat.Amount = 140,80\n  - Vat.Rate = 10 (per rule, omit percent symbol)\n\n5) Verify numeric formatting:\n- Keep decimals as in input (comma as decimal separator in source). For numeric JSON fields, convert to numbers preserving decimal places: 1548.80, 1408.00, 140.80. Vat.Rate as number 10 (no decimals given, but input shows \"10,00\" — could be treated as 10 or 10.00; preserve as number 10).\n\n6) Check No Inference / Missing data:\n- All required fields located explicitly; no guesses needed.\n\nConclusion: extracted candidates:\n- Invoice.Date = \"04.08.2023\"\n- Sender.VatId = \"ATU35980300\"\n- GrandTotal.Amount = 1548.80\n- Net.Amount = 1408.00\n- Vat.Amount = 140.80\n- Vat.Rate = 10",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"confidence\": \"95%\",\n    \"reason\": \"Label 'Fakturabetrag' adjacent to 1.548,80 and currency EUR; matches incl. UST total in summary.\"\n  },\n  \"Invoice.Date\": {\n    \"confidence\": \"98%\",\n    \"reason\": \"Date '04.08.2023' appears next to 'RECHNUNG' and invoice number in header.\"\n  },\n  \"Sender.VatId\": {\n    \"confidence\": \"92%\",\n    \"reason\": \"Top-right shows 'UID-Nr   ATU    35980300' for Mondelez Österreich GmbH; clear VAT identifier.\"\n  },\n  \"Vat.Rate\": {\n    \"confidence\": \"90%\",\n    \"reason\": \"Summary shows 'UST %' value '10,00' in the totals row; consistent with VAT amount and net/total.\"\n  },\n  \"Net.Amount\": {\n    \"confidence\": \"94%\",\n    \"reason\": \"Summary column 'Nettowert' lists 1.408,00 corresponding with shown VAT and gross totals.\"\n  },\n  \"Vat.Amount\": {\n    \"confidence\": \"95%\",\n    \"reason\": \"Summary 'UST' value 140,80 directly shown in totals row and mathematically consistent with net and total.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 14.04,
+      "input_tokens": 1705,
+      "cached_input_tokens": null,
+      "output_tokens": 1214,
+      "total_tokens": 2919,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 11.25,
+      "input_tokens": 2262,
+      "cached_input_tokens": null,
+      "output_tokens": 604,
+      "total_tokens": 2866,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.37,
+      "input_tokens": 2846,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3129,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\217236\\217221_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU35980300",
+        "ATU 35980300"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1548.8,
+        "1.548,80"
+      ],
+      "Net.Amount": [
+        true,
+        1408.0,
+        "1.408,00"
+      ],
+      "Vat.Amount": [
+        true,
+        140.8,
+        "140,80"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "04.08.2023",
+        "04.08.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6813,
+    "cached_input_tokens": 0,
+    "output_tokens": 2101,
+    "eur_estimate": 0.005134
+  }
+}

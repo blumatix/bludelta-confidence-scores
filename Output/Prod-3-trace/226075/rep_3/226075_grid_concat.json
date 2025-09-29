@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\226104\\226075_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 99.5,
+    "Invoice.Date": "23.08.2023",
+    "Sender.VatId": "ATU55640701",
+    "Vat.Rate": 10,
+    "Net.Amount": 87.73,
+    "Vat.Amount": 8.77
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.8,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Highly likely",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Brief non-sensitive extraction plan and findings summary:\n\n- Classification: document contains \"Rechnung\", invoice number, dates, totals and line items → treat as invoice.\n- Invoice number located: \"Rechnung: 58218\".\n- Invoice date: appears as \"Mils bei Imst, 23.08.2023\" and stay dates \"23.08.2023–24.08.2023\" — invoice issue date candidate: 23.08.2023.\n- Sender VAT/UID: two UIDs present — \"UID: ATU 34774508\" near the top (likely guest/company) and \"UID: ATU55640701\" in footer for Trofana Erlebnisdorf und Gastronomie GmbH (invoice issuer). Use the footer UID as Sender.VatId.\n- Grand total: displayed as 99,50 € (also shown as \"Offen 99,50 €\") → GrandTotal.Amount = 99,50.\n- VAT groups visible:\n  - A group showing rate \"10,00\" with Net 87,73, Vat 8,77, Brutto 96,50.\n  - A group for the tourist tax (Kurtaxe) showing Net 3,00 and Vat 0,00 (rate OCR'd as \"0,001\" but semantically 0%).\n  - Combined Net 90,73, Vat 8,77, Total 99,50.\n- Following rules: will not infer beyond visible text; will represent VAT rates without percent sign (e.g., 10 and 0). Decimal precision will match source.",
+    "step2": "- GrandTotal.Amount: High (95%) — \"99,50 €\" appears multiple times including \"Offen 99,50 €\" and summary lines; decimals and currency clearly shown.\n\n- Invoice.Date: High (90%) — \"Mils bei Imst, 23.08.2023\" and stay dates \"23.08.2023-24.08.2023\"; 23.08.2023 is the clear issue date candidate though invoice label near date not explicit.\n\n- Sender.VatId: High (95%) — footer shows \"UID: ATU55640701\" alongside issuer company details; matches typical sender VAT placement. Top-of-page \"UID: ATU 34774508\" likely guest/company but footer UID aligns with issuer.\n\n- Vat.Rate(s): Medium-High (80%) — visible group \"10,00\" clearly corresponds to VAT (10). Another group OCR shows \"0,001\" but context (Kurtaxe, VAT 0,00) indicates 0% — confidence slightly reduced due to OCR artefact.\n\n- Net.Amount(s): High (90%) — Net values visible: 87,73 (for 10% group) and 3,00 (0% group), sum 90,73 matches displayed combined net.\n\n- Vat.Amount(s): High (90%) — VAT amounts visible: 8,77 (10% group) and 0,00 (0% group); sum 8,77 matches combined VAT and total consistency."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.5,
+      "input_tokens": 1689,
+      "cached_input_tokens": null,
+      "output_tokens": 849,
+      "total_tokens": 2538,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.02,
+      "input_tokens": 2073,
+      "cached_input_tokens": null,
+      "output_tokens": 509,
+      "total_tokens": 2582,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 11.73,
+      "input_tokens": 2690,
+      "cached_input_tokens": null,
+      "output_tokens": 729,
+      "total_tokens": 3419,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\226104\\226075_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU55640701",
+        "ATU55640701"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        99.5,
+        "99,50"
+      ],
+      "Net.Amount": [
+        true,
+        87.73,
+        "87,73"
+      ],
+      "Vat.Amount": [
+        true,
+        8.77,
+        "8,77"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "23.08.2023",
+        "23.08.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6452,
+    "cached_input_tokens": 0,
+    "output_tokens": 2087,
+    "eur_estimate": 0.00503
+  }
+}

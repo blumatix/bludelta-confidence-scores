@@ -1,0 +1,118 @@
+{
+  "input_path": "..\\Documents\\274201\\274201_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 827.41,
+    "Invoice.Date": "29.01.2024",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": [
+      10,
+      20
+    ],
+    "Net.Amount": [
+      562.9,
+      173.52
+    ],
+    "Vat.Amount": [
+      56.29,
+      34.7
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification:\n- Presence of keywords: \"Rechnung\", \"Rechnungsdatum\", \"Gesamtsumme\", \"MwSt\", line items, invoice number => supports invoice.\n- No exclusion keywords like \"Mahnung\" or \"Zahlungserinnerung\" prominently present.\n- Header sections (Rechnung / Nr., Rechnungsdatum, line items, Summe exkl. MwSt, Gesamtsumme) align with invoice structure.\n=> Classify as invoice; proceed to extraction.\n\n2) Locate Invoice.Date:\n- Found \"Rechnungsdatum                                 29.01.2024\".\n- Extracted Invoice.Date = \"29.01.2024\" (string, exact format as in text).\n\n3) Locate Sender.VatId:\n- Found \"Ihre UID/VAT-Nr.                            ATU22642807\".\n- Extracted Sender.VatId = \"ATU22642807\" (exact).\n\n4) Locate GrandTotal.Amount:\n- Found \"Gesamtsumme                  EUR                                827,41\".\n- Numeric amount in text is \"827,41\". Preserve decimals as in input; numeric type required — interpret as 827.41.\n\n5) Locate Net.Amount and VAT groups:\n- Found \"Summe          exkl.     MwSt                                   736,42\" => Net total (excl. VAT) = 736,42 => 736.42.\n- Found VAT breakdown lines:\n  - \"10%      MWSt         für   562,90                                 56,29\" => VAT rate 10, base/net 562,90, VAT amount 56,29.\n  - \"20%      MWSt         für   173,52                                 34,70\" => VAT rate 20, base/net 173,52, VAT amount 34,70.\n- Verify sums: net bases 562.90 + 173.52 = 736.42 (matches Summe exkl. MwSt). VAT amounts 56.29 + 34.70 = 90.99. Net + VAT = 736.42 + 90.99 = 827.41 (matches Gesamtsumme). Consistent.\n\n6) VAT rate formatting:\n- Per rules, rates extracted without % sign: \"10\" and \"20\".\n\n7) No inference beyond visible data:\n- All extracted values come directly from the text; no guessing.\n\nSummary of extracted values to output in final JSON:\n- Invoice.Date = \"29.01.2024\"\n- Sender.VatId = \"ATU22642807\"\n- GrandTotal.Amount = 827.41\n- Net.Amount entries = 562.90 and 173.52 (corresponding to VAT groups)\n- Vat.Rate entries = 10 and 20\n- Vat.Amount entries = 56.29 and 34.70",
+    "step2": "Invoice.Date — 95% confidence. Evidence: Explicit label \"Rechnungsdatum\" followed by \"29.01.2024\" in header.\n\nSender.VatId — 98% confidence. Evidence: Explicit label \"Ihre UID/VAT-Nr.\" with value \"ATU22642807\".\n\nGrandTotal.Amount — 98% confidence. Evidence: \"Gesamtsumme EUR 827,41\" clearly shown; matches net + VAT.\n\nNet.Amount (group totals) — 99% confidence. Evidence: \"Summe exkl. MwSt 736,42\" and VAT group bases \"für 562,90\" and \"für 173,52\" which sum to 736,42.\n\nVat.Rate(s) — 99% confidence. Evidence: VAT lines show \"10% MWSt\" and \"20% MWSt\" clearly; rates extracted as 10 and 20.\n\nVat.Amount(s) — 99% confidence. Evidence: VAT amounts shown as \"56,29\" for 10% group and \"34,70\" for 20% group; their sum 90,99 matches GrandTotal - Net.\n\nOverall consistency — Very high: net bases (562,90 + 173,52 = 736,42) plus VAT amounts (56,29 + 34,70 = 90,99) total 827,41, matching displayed Gesamtsumme."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.11,
+      "input_tokens": 1954,
+      "output_tokens": 1041,
+      "total_tokens": 2995
+    },
+    "step2": {
+      "runtime_sec": 5.86,
+      "input_tokens": 2555,
+      "output_tokens": 551,
+      "total_tokens": 3106
+    },
+    "step3": {
+      "runtime_sec": 8.54,
+      "input_tokens": 3119,
+      "output_tokens": 565,
+      "total_tokens": 3684
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274201\\274201_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU79411414"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        827.41,
+        "827,41"
+      ],
+      "Net.Amount": [
+        true,
+        [
+          562.9,
+          173.52
+        ],
+        [
+          "562,90",
+          "173,52"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        [
+          56.29,
+          34.7
+        ],
+        [
+          "56,29",
+          "34,70"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        [
+          10,
+          20
+        ],
+        [
+          "10",
+          "20"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "29.01.2024",
+        "29.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  }
+}

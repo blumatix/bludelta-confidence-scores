@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198604\\198604_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 153.39,
+    "Invoice.Date": "03.Januar 2023",
+    "Sender.VatId": "DE812321109",
+    "Vat.Rate": "",
+    "Net.Amount": 153.39,
+    "Vat.Amount": ""
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (1) verify this is an invoice by checking headers and totals, (2) locate explicit invoice date, totals, and VAT identifiers, (3) avoid any inference where values are not explicitly present, and (4) map found values to the required schema.\n\nFindings from the text:\n- Document is an invoice (contains \"Rechnung\", \"Rechnungsnr.\", \"Fälliger Gesamtbetrag\", etc.).\n- Invoice date appears as \"Rechnungsdatum 03.Januar 2023\".\n- Grand total appears as \"Fälliger Gesamtbetrag EUR 153,39\" → numeric 153.39.\n- Sender VAT ID is explicitly shown as \"UPS USt-ID-Nr.: DE812321109\".\n- The invoice states \"MwSt.-frei 153,39\" and \"Art.44 - Dir 2006/112/EC 153,39\", indicating the amount is VAT-exempt. No VAT rate or VAT amount is provided anywhere.\n- Per the \"No Inference\" rule: do not invent a VAT rate or VAT amount. Net amount is explicitly the VAT-free amount 153,39 → numeric 153.39. VAT rate and VAT amount must be left empty.\n\nDecision for schema mapping:\n- GrandTotal.Amount = 153.39\n- Invoice.Date = \"03.Januar 2023\"\n- Sender.VatId = \"DE812321109\"\n- Net.Amount = 153.39\n- Vat.Rate = \"\" (not present)\n- Vat.Amount = \"\" (not present)",
+    "step2": "GrandTotal.Amount (153.39)\n- Evidence: Explicit line \"Fälliger Gesamtbetrag EUR 153,39\" and repeated in payment section \"Fälliger Gesamtbetrag EUR 153,39\".\n- Consistency: Matches \"MwSt.-frei 153,39\" and \"Art.44 ... 153,39\".\n- Confidence: Very high.\n\nInvoice.Date (\"03.Januar 2023\")\n- Evidence: Explicit header \"Rechnungsdatum 03.Januar          2023\".\n- Consistency: Date format clearly shown.\n- Confidence: Very high.\n\nSender.VatId (\"DE812321109\")\n- Evidence: Text shows \"UPS USt-ID-Nr.:                         DE812321109\".\n- Ambiguity check: Another VAT-like ID \"CHE105985126\" appears labeled \"Kunden USt-ID-Nr.\" (customer), so sender VAT is clearly the DE... entry.\n- Confidence: Very high.\n\nNet.Amount (153.39)\n- Evidence: \"MwSt.-frei 153,39\" and the invoice total equals that amount; net amount logically equals VAT-free total.\n- Rule check: No inference needed — the text explicitly labels 153,39 as MwSt.-frei.\n- Confidence: High to very high.\n\nVat.Rate (\"\")\n- Evidence: No explicit VAT percentage present; invoice marks amounts as VAT-exempt under Art.44.\n- Rule check: No inference allowed; leave empty.\n- Confidence: N/A (field intentionally empty due to absence of data).\n\nVat.Amount (\"\")\n- Evidence: No explicit VAT monetary amount shown; VAT-exempt lines imply zero VAT but no explicit VAT amount printed.\n- Rule check: No inference allowed; leave empty.\n- Confidence: N/A (field intentionally empty due to absence of data)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.49,
+      "input_tokens": 1964,
+      "cached_input_tokens": null,
+      "output_tokens": 901,
+      "total_tokens": 2865,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.7,
+      "input_tokens": 2336,
+      "cached_input_tokens": null,
+      "output_tokens": 373,
+      "total_tokens": 2709,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.08,
+      "input_tokens": 3009,
+      "cached_input_tokens": null,
+      "output_tokens": 275,
+      "total_tokens": 3284,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198604\\198604.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DE812321109",
+        "DE812321109"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        153.39,
+        "153,39"
+      ],
+      "Net.Amount": [
+        false,
+        153.39,
+        []
+      ],
+      "Vat.Amount": [
+        false,
+        "",
+        []
+      ],
+      "Vat.Rate": [
+        false,
+        "",
+        []
+      ],
+      "Invoice.Date": [
+        true,
+        "03.Januar 2023",
+        "03.Januar 2023"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7309,
+    "cached_input_tokens": 0,
+    "output_tokens": 1549,
+    "eur_estimate": 0.000908
+  }
+}

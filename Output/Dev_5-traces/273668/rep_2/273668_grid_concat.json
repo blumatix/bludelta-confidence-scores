@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\273694\\273668_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 345.6,
+    "Invoice.Date": "06.12.2023",
+    "Sender.VatId": "ATU 63022268",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 288.0,
+    "Vat.Amount": 57.6
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.92,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification:\n- Document contains \"Rechnung\" and invoice elements (invoice number R230571, dates, totals, VAT lines, line items) → qualifies as an invoice (no exclusion terms like \"Mahnung\" prominent).\n\nExtraction plan and verification of each required field:\n1. Invoice.Date\n   - Evidence: \"Datum\" row shows \"06.12.2023\" (also \"Lieferdatum\" 06.12.2023). Take \"06.12.2023\" as the invoice issue date.\n\n2. Sender.VatId\n   - There are multiple VAT-like strings:\n     - Under recipient block: \"Ihre USt-ID-Nr.\" shows \"ATU 64131246\" (this is the buyer/customer VAT).\n     - In sender footer: \"UID-NR: ATU 63022268\" (belongs to Weidenthaler GmbH, the sender).\n   - Per schema, Sender.VatId = sender's VAT → choose \"ATU 63022268\".\n\n3. GrandTotal.Amount\n   - Evidence: \"Endbetrag 345,60 EUR\" and \"zahlbar ... 345,60 EUR\" → Grand total = 345,60.\n\n4. Vat.Rate\n   - Evidence: Line reads \"zuzüglich USt 20,00% aus 288,00\" → VAT rate = 20,00 (extract numeric without percent as required).\n\n5. Net.Amount\n   - Evidence: VAT line shows \"aus 288,00\" (taxable base) and \"Gesamtbetrag 288,00 EUR\" → Net amount = 288,00.\n\n6. Vat.Amount\n   - Evidence: VAT line shows VAT amount \"57,60 EUR\" → Vat.Amount = 57,60.\n\nNotes on formatting and rules:\n- No inference beyond visible text; where multiple occurrences existed, selected sender's UID for Sender.VatId.\n- Preserved decimal precision as in source (commas shown in original). Final numeric values will be represented as numbers with the same decimal places.",
+    "step2": "{\n  \"GrandTotal.Amount\": 345.60,\n  \"Invoice.Date\": \"06.12.2023\",\n  \"Sender.VatId\": \"ATU 63022268\",\n  \"Vat.Rate\": 20.00,\n  \"Net.Amount\": 288.00,\n  \"Vat.Amount\": 57.60\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.09,
+      "input_tokens": 1636,
+      "cached_input_tokens": null,
+      "output_tokens": 875,
+      "total_tokens": 2511,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.06,
+      "input_tokens": 2070,
+      "cached_input_tokens": null,
+      "output_tokens": 398,
+      "total_tokens": 2468,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.05,
+      "input_tokens": 2417,
+      "cached_input_tokens": null,
+      "output_tokens": 284,
+      "total_tokens": 2701,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273694\\273668_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU 63022268",
+        "ATU 63022268"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        345.6,
+        "345,60"
+      ],
+      "Net.Amount": [
+        true,
+        288.0,
+        "288,00"
+      ],
+      "Vat.Amount": [
+        true,
+        57.6,
+        "57,60"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "06.12.2023",
+        "06.12.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6123,
+    "cached_input_tokens": 0,
+    "output_tokens": 1557,
+    "eur_estimate": 0.004041
+  }
+}

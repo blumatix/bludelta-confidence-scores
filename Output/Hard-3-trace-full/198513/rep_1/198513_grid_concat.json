@@ -1,0 +1,109 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198513\\198513_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 12.0,
+    "Invoice.Date": "24/02/2023",
+    "Sender.VatId": "IT00098090210",
+    "Vat.Rate": 0,
+    "Net.Amount": 12.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.7,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Very good chance",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I can’t share detailed step-by-step chain-of-thought. Below is a concise, non-sensitive summary of the extraction plan and the evidence-based choices I will use to produce the final structured data:\n\n- Document classification: contains clear invoice headers (\"INVOICE\", \"Number\", invoice-style table, totals). No exclusion keywords prominent. Therefore treat as an invoice.\n\n- Key extracted identifiers and where found:\n  - Invoice Number: \"3006301\" (from line: \"Number 3006301\").\n  - Invoice Date: \"24/02/2023\" (from line: \"of 24/02/2023\").\n  - Sender VAT ID: two tax IDs appear: \"Cod. Fisc. e Part. IVA: IT00098090210\" associated with Fercam S.p.A (sender header) and \"P.I./C.F. NL003342293B01\" (likely recipient). Per header context, I'll select IT00098090210 as Sender.VatId.\n  - Monetary totals:\n    - Line shows Taxable 12,00 and VAT 0,00 and Amount 12,00 EUR. Totals area shows \"12,00 EUR\" as invoice total.\n  - VAT rate: no explicit percent shown; VAT amount is 0,00. Possible interpretations: VAT rate unspecified or effectively 0. I will treat VAT rate as 0 if no percent is present (consistent with rule to avoid guessing percentages).\n\n- Ambiguities considered and resolution:\n  - Two tax IDs: chose the one tied to the sender company header (IT00098090210) per structured-header rule.\n  - VAT percentage missing: do not invent a percent; use 0 only if warranted by explicit 0.00 VAT amount. Will record VAT rate as 0 (numeric) because VAT amount is explicitly 0,00 and no percent appears.\n  - Decimal formatting: preserve comma decimals as in source but convert to numeric format with same decimal places (e.g., 12,00 -> 12.00) in final JSON per schema number types.\n\nNext step: produce the final JSON object with fields filled per schema, leaving any truly missing values empty.",
+    "step2": "Invoice.Date: 24/02/2023 — Confidence: 95% — Clear \"of 24/02/2023\" next to Number.\n\nGrandTotal.Amount: 12.00 — Confidence: 95% — Total shown as \"12,00 EUR\" in totals area.\n\nInvoice.Number: 3006301 — Confidence: 95% — Clearly labeled \"Number 3006301\".\n\nSender.VatId: IT00098090210 — Confidence: 90% — \"Cod. Fisc. e Part. IVA: IT00098090210\" appears in sender header; alternative tax ID (NL003342293B01) exists but is labeled \"P.I./C.F.\" likely for recipient.\n\nVat.Rate: 0 — Confidence: 70% — No percentage printed; VAT amount is explicitly 0,00, so rate inferred as 0 but percent not explicitly present.\n\nNet.Amount: 12.00 — Confidence: 95% — Taxable shown as \"12,00\" consistent with line and total.\n\nVat.Amount: 0.00 — Confidence: 95% — VAT column shows \"0,00\" explicitly."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.04,
+      "input_tokens": 2029,
+      "cached_input_tokens": null,
+      "output_tokens": 901,
+      "total_tokens": 2930,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 12.09,
+      "input_tokens": 2529,
+      "cached_input_tokens": null,
+      "output_tokens": 565,
+      "total_tokens": 3094,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.22,
+      "input_tokens": 3074,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3355,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198513\\198513.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "IT00098090210",
+        "IT00098090210"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        12.0,
+        [
+          "12,00",
+          "12,00"
+        ]
+      ],
+      "Net.Amount": [
+        true,
+        12.0,
+        "12,00"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Vat.Rate": [
+        false,
+        0,
+        []
+      ],
+      "Invoice.Date": [
+        true,
+        "24/02/2023",
+        [
+          "24/02/2023",
+          "24/02/2023"
+        ]
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7632,
+    "cached_input_tokens": 0,
+    "output_tokens": 1747,
+    "eur_estimate": 0.000993
+  }
+}

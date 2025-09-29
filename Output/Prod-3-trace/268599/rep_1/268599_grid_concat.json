@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\268599\\268599_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 18.0,
+    "Invoice.Date": "08.01.2024",
+    "Sender.VatId": "ATU66213527",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 15.0,
+    "Vat.Amount": 3.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "- Classification: Document contains \"Rechnung\", \"Rechnungsendbetrag\", explicit VAT line and totals → qualifies as an invoice (not a payment reminder or report).\n\n- Candidate invoice date fields:\n  - \"Druckdatum 08.01.2024\" — explicit printed date on invoice.\n  - \"Verrechnete Lieferscheine ... vom 04.01.2024\" — delivery note date (not invoice issue date).\n  - Decision: use Druckdatum 08.01.2024 as Invoice.Date.\n\n- Sender VAT ID:\n  - Two UID numbers present:\n    - Next to \"Rechnungsanschrift\" : ATU22642807 (this is the recipient/customer UID shown with billing address).\n    - Bottom \"UID-Nummer: ATU66213527\" alongside company registration info (this is the invoicing company/hollu).\n  - Schema requires Sender.VatId → choose ATU66213527.\n\n- VAT rate and amounts:\n  - VAT line: \"+  20,0 %   Ust.   von   15,00     €                                          3,00   €\"\n    - Vat.Rate = 20.0 (remove percent symbol per rules; keep decimal places as in input = one decimal).\n    - Net.Amount = 15,00 € → preserve decimals as 15.00.\n    - Vat.Amount = 3,00 € → preserve decimals as 3.00.\n\n- Grand total:\n  - \"Rechnungsendbetrag                                                             18,00    €\"\n    - GrandTotal.Amount = 18.00 (preserve two decimals as shown).\n\n- Verify No inference beyond visible text:\n  - All chosen values are explicitly present; no guesses made.\n\n- Final field mapping decided:\n  - Invoice.Date = \"08.01.2024\"\n  - Sender.VatId = \"ATU66213527\"\n  - Vat.Rate = 20.0\n  - Net.Amount = 15.00\n  - Vat.Amount = 3.00\n  - GrandTotal.Amount = 18.00",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"value\": 18.00,\n    \"confidence\": \"95%\",\n    \"evidence\": \"Explicit line 'Rechnungsendbetrag 18,00 €'.\"\n  },\n  \"Invoice.Date\": {\n    \"value\": \"08.01.2024\",\n    \"confidence\": \"90%\",\n    \"evidence\": \"Explicit 'Druckdatum 08.01.2024' on invoice; likely invoice issue date.\"\n  },\n  \"Sender.VatId\": {\n    \"value\": \"ATU66213527\",\n    \"confidence\": \"90%\",\n    \"evidence\": \"Bottom section lists 'UID-Nummer: ATU66213527' tied to issuing company (hollu).\"\n  },\n  \"Vat.Rate\": {\n    \"value\": 20.0,\n    \"confidence\": \"98%\",\n    \"evidence\": \"Explicit VAT line '+ 20,0 % Ust.'; rate clearly shown.\"\n  },\n  \"Net.Amount\": {\n    \"value\": 15.00,\n    \"confidence\": \"98%\",\n    \"evidence\": \"VAT base shown as 'von 15,00 €' on VAT line and matches subtotal.\"\n  },\n  \"Vat.Amount\": {\n    \"value\": 3.00,\n    \"confidence\": \"98%\",\n    \"evidence\": \"VAT amount explicitly shown as '3,00 €' on VAT line.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 15.9,
+      "input_tokens": 2193,
+      "cached_input_tokens": null,
+      "output_tokens": 1144,
+      "total_tokens": 3337,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.94,
+      "input_tokens": 2680,
+      "cached_input_tokens": null,
+      "output_tokens": 437,
+      "total_tokens": 3117,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.72,
+      "input_tokens": 3289,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 3636,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\268599\\268599_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU66213527",
+        "ATU66213527,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        18.0,
+        "18,00"
+      ],
+      "Net.Amount": [
+        true,
+        15.0,
+        "15,00"
+      ],
+      "Vat.Amount": [
+        true,
+        3.0,
+        "3,00"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,0"
+      ],
+      "Invoice.Date": [
+        true,
+        "08.01.2024",
+        "08.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8162,
+    "cached_input_tokens": 0,
+    "output_tokens": 1928,
+    "eur_estimate": 0.005131
+  }
+}

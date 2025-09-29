@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\273626\\273562_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 652.9,
+    "Invoice.Date": "24.01.2024",
+    "Sender.VatId": "ATU47542609",
+    "Vat.Rate": 20,
+    "Net.Amount": 544.08,
+    "Vat.Amount": 108.82
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will classify the document as an invoice (contains \"RECHNUNG\", invoice number, invoice date, totals, VAT lines). Extraction plan and decisions:\n- Locate invoice date: \"Rechnungsdatum : 24.01.2024\" → Invoice.Date = \"24.01.2024\".\n- Determine sender VAT ID: two Ust.-Id. occurrences found:\n  - Near recipient block: \"Ust.-Id.: ATU22642807\" (appears with BÄKO-ÖSTERREICH recipient).\n  - In footer under PAPIER-METTLER address: \"Ust.-Id.: ATU47542609\".\n  Sender is Papier-Mettler (footer block), so extract Sender.VatId = \"ATU47542609\".\n- Grand total: \"Rechnungsbetrag 652,90 EUR\" → GrandTotal.Amount = 652.90 (preserve decimals).\n- VAT group(s): lines show \"Steuerpfl.Betrag 544,08 EUR\" and \"+ 20,00% MWST 108,82 EUR\".\n  - Vat.Rate = 20 (no % per rule).\n  - Net.Amount = 544.08.\n  - Vat.Amount = 108.82.\n- No other VAT groups or exchange rates applicable to entire invoice detected.\n- No guessing; if any field were missing I would leave it empty.",
+    "step2": "GrandTotal.Amount — Confidence: high (≈95%)\n- Evidence: Explicit line \"Rechnungsbetrag 652,90 EUR\".\n- Consistency: Matches net + VAT (544,08 + 108,82 = 652,90).\n- Risks: OCR could misread comma/decimal, but numbers consistent.\n\nInvoice.Date — Confidence: high (≈98%)\n- Evidence: Explicit \"Rechnungsdatum : 24.01.2024\".\n- Consistency: Also matches Lieferdatum 24.01.2024.\n- Risks: minimal (clear labeled date).\n\nSender.VatId — Confidence: high (≈90%)\n- Evidence: Two Ust.-Id. values present; sender block (PAPIER-METTLER Austria GmbH) in footer shows \"Ust.-Id.: ATU47542609\".\n- Consistency: Company name in header/footer aligns with sender; recipient block contains different Ust.-Id (ATU22642807).\n- Risks: Possible confusion between sender and recipient VAT IDs, but footer placement strongly indicates sender.\n\nVat.Rate — Confidence: high (≈95%)\n- Evidence: Line \"+  20,00%     MWST\" clearly indicates 20% VAT.\n- Consistency: VAT amount (108,82) equals 20% of net (544,08).\n- Risks: none significant.\n\nNet.Amount — Confidence: high (≈95%)\n- Evidence: \"Steuerpfl.Betrag 544,08 EUR\" and item totals indicate net 544,08.\n- Consistency: 544,08 + 108,82 = 652,90.\n- Risks: OCR mislabeling of \"Steuerpfl.Betrag\" vs. net, but arithmetic supports.\n\nVat.Amount — Confidence: high (≈95%)\n- Evidence: \"+  20,00%     MWST                                108,82    EUR\".\n- Consistency: 20% of 544,08 = 108,816 → rounded/presented as 108,82 matching printed VAT.\n- Risks: rounding interpretation minimal."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.91,
+      "input_tokens": 2136,
+      "cached_input_tokens": null,
+      "output_tokens": 934,
+      "total_tokens": 3070,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.42,
+      "input_tokens": 2437,
+      "cached_input_tokens": null,
+      "output_tokens": 561,
+      "total_tokens": 2998,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.04,
+      "input_tokens": 3139,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3420,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273626\\273562_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU47542609",
+        "ATU47542609"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        652.9,
+        "652,90"
+      ],
+      "Net.Amount": [
+        true,
+        544.08,
+        "544,08"
+      ],
+      "Vat.Amount": [
+        true,
+        108.82,
+        "108,82"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "24.01.2024",
+        "24.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7712,
+    "cached_input_tokens": 0,
+    "output_tokens": 1776,
+    "eur_estimate": 0.004769
+  }
+}

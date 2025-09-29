@@ -1,0 +1,112 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\214536\\214536_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 9184.0,
+    "Invoice.Date": "2022-12-26T13:45:45",
+    "Sender.VatId": "DGL210708H70",
+    "Vat.Rate": 16.0,
+    "Net.Amount": 8200.0,
+    "Vat.Amount": 1312.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.94,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Instead, here is a concise, non-sensitive outline of the extraction plan I will follow:\n\n1. Verify document is an invoice by checking for keywords (\"Factura\", \"Total\", \"I.V.A.\", invoice number, line items). If exclusion keywords dominate, return empty fields.\n2. Locate Invoice Date: search for \"Fecha y Hora de Emisión\" / \"Fecha y Hora de expedición\" and extract the date/time string (keep original format).\n3. Locate Grand Total: find \"TOTAL\" or \"TOTAL\" line and extract the numeric amount preserving decimals; remove currency symbol.\n4. Locate VAT groups: find lines with \"I.V.A.\" and their percentage(s) and corresponding VAT amount(s) and net (subtotal) where present; extract rate as number without \"%\" and amounts as numbers keeping decimals.\n5. Locate Sender VAT ID: find issuer RFC labeled near top (R.F.C. of issuer).\n6. Apply No-Inference rule: if any field not explicitly present, leave it empty.\n7. Ensure numeric types preserve decimal precision and VAT rate is numeric without percent symbol.\n8. Prepare final JSON following the provided schema, with empty strings for missing values.",
+    "step2": "GrandTotal.Amount — High confidence\n- Evidence: \"TOTAL                                         $9,184.00\" clearly present near totals section.\n- Consistency: Matches Sub-Total $8,200.00 + I.V.A. 16.00% $1,312.00 = $9,512.00? Wait: shown I.V.A. 16.00% $1,312.00 and I.V.A. Retenido 4.00% $328.00; Sub-Total $8,200.00 + I.V.A. $1,312.00 - I.V.A. Retenido $328.00 = $9,184.00, consistent with displayed TOTAL.\n- Conclusion: extraction of 9184.00 (without currency) is reliable.\n\nInvoice.Date — High confidence\n- Evidence: \"Fecha y Hora de Emisión\" / \"Fecha y Hora de Emisión ... 26/12/2022      13:45:45\" and ISO form \"2022-12-26T13:45:45\" both present.\n- Conclusion: date/time 2022-12-26T13:45:45 (preserve format) is reliable.\n\nSender.VatId — High confidence\n- Evidence: Issuer RFC at top: \"R.F.C.:      DGL210708H70\" clearly labeled for DRIVING GOODS LOGISTICS.\n- Conclusion: DGL210708H70 is reliable.\n\nVat.Rate — High confidence (as groups)\n- Evidence: Lines show \"I.V.A.   16.00%\" and \"I.V.A.   Retenido     4.00%\".\n- Conclusion: VAT group rates 16.00 and 4.00 can be extracted (without %). Confident.\n\nNet.Amount — High confidence (per VAT groups)\n- Evidence: Sub-Total $8,200.00 corresponds to net taxable amount for IVA calculation.\n- Considerations: There is a single Sub-Total shown; mapping to VAT groups: Net for 16.00% = 8,200.00 (assumed), VAT retained 4% corresponds to 328.00 which is 4% of 8,200.00. 16% of 8,200.00 = 1,312.00 matches I.V.A. 16.00% line.\n- Conclusion: Net.Amount 8200.00 for the VAT group is consistent.\n\nVat.Amount — High confidence (per VAT groups)\n- Evidence: \"I.V.A.   16.00%                                    $1,312.00\" and \"I.V.A.   Retenido     4.00%                                                                                        $328.00\"\n- Conclusion: VAT amounts 1312.00 and 328.00 match calculations; extraction reliable.\n\nOverall notes:\n- Document is clearly an invoice (Factura, totals, RFC, line items), no exclusion keywords dominate.\n- All numeric values are explicitly present and internally consistent."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 6.48,
+      "input_tokens": 7937,
+      "cached_input_tokens": null,
+      "output_tokens": 446,
+      "total_tokens": 8383,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 12.97,
+      "input_tokens": 8238,
+      "cached_input_tokens": null,
+      "output_tokens": 617,
+      "total_tokens": 8855,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.73,
+      "input_tokens": 9155,
+      "cached_input_tokens": null,
+      "output_tokens": 421,
+      "total_tokens": 9576,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\214536\\214536.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DGL210708H70",
+        "DGL210708H70"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        9184.0,
+        "9,184.00"
+      ],
+      "Net.Amount": [
+        true,
+        8200.0,
+        [
+          "8,200.00",
+          "8,200.00"
+        ]
+      ],
+      "Vat.Amount": [
+        false,
+        1312.0,
+        [
+          "1,312.00",
+          "328.00"
+        ]
+      ],
+      "Vat.Rate": [
+        false,
+        16.0,
+        [
+          "16.00",
+          "4.00"
+        ]
+      ],
+      "Invoice.Date": [
+        false,
+        "2022-12-26T13:45:45",
+        "26/12/2022"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 25330,
+    "cached_input_tokens": 0,
+    "output_tokens": 1484,
+    "eur_estimate": 0.001786
+  }
+}

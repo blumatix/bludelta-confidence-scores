@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\214971\\214971_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 11602.95,
+    "Invoice.Date": "2022-12-27T17:01:00",
+    "Sender.VatId": "CAM080324GQ1",
+    "Vat.Rate": 16,
+    "Net.Amount": 1063.66,
+    "Vat.Amount": 170.19
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.6,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.8,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Likely",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "High-level plan:\n- Confirm document is an invoice by presence of invoice indicators (titles like FACTURA/CFDI, folio fiscal, totals, line items). Multiple invoice-like sections are present.\n- Identify which invoice to extract: prioritize the main consolidated section that contains Grand Total, invoice date, sender RFC/VAT, VAT rate and VAT breakdown. There are multiple CFDI documents (pages 1–4); the primary header with \"CASA DE ADUANAS MENDOZA\" (page 1) contains a clear issue datetime and totals—treat this as the target invoice.\n- Extract exact text values without guessing. If a field is missing or ambiguous across docs, leave it empty per No Inference policy.\n- Preserve numeric decimals as in the text; strip percentage symbol from VAT rate.\n\nCandidate field evidence (to be used or left empty if ambiguous):\n- Invoice.Date: \"Expedido ... el: 2022-12-27T17:01:00\" (page 1) — clear ISO datetime.\n- Sender.VatId: \"CAM080324GQ1\" appears under EMISOR on page 1 (RFC-like).\n- GrandTotal.Amount: page 1 shows \"SUB-TOTAL $11,602.95\" and a line showing Gastos Comprobados $10,369.10 and IVA $170.19; context indicates a payable total of $11,602.95. (Will use 11602.95 if consistent.)\n- Vat.Rate / Vat.Amount / Net.Amount candidates:\n  - One VAT group: IVA 16% shown with amount \"170.19\" and a base \"Base para el IVA 1,063.66\" (page 1). So Vat.Rate = 16, Vat.Amount = 170.19, Net.Amount = 1,063.66 for that VAT group.\n- Verify no other invoice-level exchange rates applicable (Tipo de Cambio noted 1.00 but exchange rates not requested).\n- Ensure numbers keep original decimal precision.\n\nDecision notes for final extraction:\n- Use the CASA DE ADUANAS (page 1) invoice fields above.\n- If any of these exact values are not present in the final structured extraction step, leave that field empty instead of inferring.",
+    "step2": "I can’t share internal chain-of-thought, but I can provide a concise confidence assessment for each extracted field:\n\n- Invoice.Date — Confidence: High. Clear ISO datetime \"2022-12-27T17:01:00\" labeled as issued.\n- Sender.VatId — Confidence: Medium-High. \"CAM080324GQ1\" appears under EMISOR; format matches an RFC/VAT ID.\n- GrandTotal.Amount — Confidence: Medium. Document shows \"SUB-TOTAL $11,602.95\" as the overall payable total contextually; labeling is consistent but multiple totals appear across pages.\n- Vat.Rate — Confidence: High. \"IVA AL 16 %\" is explicitly stated.\n- Net.Amount — Confidence: High. \"Base para el IVA 1,063.66\" is explicitly given for the IVA group.\n- Vat.Amount — Confidence: High. IVA amount \"170.19\" is explicitly shown.\n\nIf you want, I will now output the final JSON with these values."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.44,
+      "input_tokens": 8139,
+      "cached_input_tokens": null,
+      "output_tokens": 984,
+      "total_tokens": 9123,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.24,
+      "input_tokens": 8658,
+      "cached_input_tokens": null,
+      "output_tokens": 469,
+      "total_tokens": 9127,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.17,
+      "input_tokens": 9171,
+      "cached_input_tokens": null,
+      "output_tokens": 290,
+      "total_tokens": 9461,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\214971\\214971.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "CAM080324GQ1",
+        "CAM080324GQ1"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        11602.95,
+        "11,602.95"
+      ],
+      "Net.Amount": [
+        true,
+        1063.66,
+        "$1,063.66"
+      ],
+      "Vat.Amount": [
+        true,
+        170.19,
+        "$170.19"
+      ],
+      "Vat.Rate": [
+        true,
+        16,
+        "16"
+      ],
+      "Invoice.Date": [
+        false,
+        "2022-12-27T17:01:00",
+        "2022-12-27"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 25968,
+    "cached_input_tokens": 0,
+    "output_tokens": 1743,
+    "eur_estimate": 0.001908
+  }
+}

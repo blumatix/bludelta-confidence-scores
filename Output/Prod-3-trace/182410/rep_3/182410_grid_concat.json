@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\182418\\182410_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 5919.4,
+    "Invoice.Date": "31.03.2023",
+    "Sender.VatId": "ATU63294722",
+    "Vat.Rate": 20,
+    "Net.Amount": 4932.83,
+    "Vat.Amount": 986.57
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.96,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Classify document as invoice:\n- Presence of multiple invoice indicators: \"Rechnung\", \"Rechnungsnummer: 2303111089\", \"Datum: 31.03.2023\", totals, VAT (\"Umsatzsteuer\"), \"Gesamtbetrag\" — strongly invoice.\n- No exclusion indicators like \"Mahnung\" prominent. Proceed with extraction.\n\n2) Locate Grand total:\n- Bottom of page 4 shows table: \"Gesamtbetrag 5   919,40 EUR\" and \"Summe 4 932,83 EUR ... Steuerbetrag 986,57 EUR\" — Grand total = 5 919,40 EUR -> numeric 5919.40.\n\n3) Locate Invoice date:\n- Header lines multiple pages: \"Datum: 31.03.2023\" and \"Rechnung ... vom 31.03.2023\" -> Invoice.Date = \"31.03.2023\" (preserve format).\n\n4) Determine Sender VAT ID:\n- Company info block at bottom lists \"UID: ATU63294722\" for REDER TRANSPORTE KG (sender). Also top shows \"Ihre USt.-IdNr. ATU22810000\" (likely recipient). Per rule Sender.VatId = sender's tax id -> \"ATU63294722\".\n\n5) VAT rate:\n- Multiple line items show \"20% Umsatzsteuer\" and summary shows \"20,0 % Umsatzsteuer\" -> Vat.Rate = 20 (no percent sign).\n\n6) Net amount and VAT amount:\n- Summary shows \"Summe 4 932,83 EUR\" (net/steuerfrei vs. steuerpflichtig context indicates net taxable amount) and \"Steuerbetrag 986,57 EUR\" -> Net.Amount = 4932.83, Vat.Amount = 986.57 (preserve decimals).\n\n7) Verify no inference beyond visible data:\n- All values are taken directly from document text; missing fields would be left empty, but all required fields found.",
+    "step2": "GrandTotal.Amount (5919.40): 98% — clearly printed as \"Gesamtbetrag 5   919,40 EUR\" at invoice summary.\n\nInvoice.Date (\"31.03.2023\"): 99% — appears multiple times as \"Datum: 31.03.2023\" and \"vom 31.03.2023\".\n\nSender.VatId (\"ATU63294722\"): 90% — \"UID: ATU63294722\" appears in sender/company block; alternative VAT (ATU22810000) appears as \"Ihre USt.-IdNr.\" (likely recipient), so slight ambiguity but sender UID matches company header.\n\nVat.Rate (20): 99% — multiple line items show \"20% Umsatzsteuer\" and summary shows \"20,0 %\".\n\nNet.Amount (4932.83): 96% — summary shows \"Summe 4 932,83 EUR\" corresponding to taxable/net amount in summary table.\n\nVat.Amount (986.57): 97% — summary shows \"Steuerbetrag 986,57 EUR\" in the invoice total table."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.0,
+      "input_tokens": 6519,
+      "cached_input_tokens": null,
+      "output_tokens": 929,
+      "total_tokens": 7448,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.94,
+      "input_tokens": 6983,
+      "cached_input_tokens": null,
+      "output_tokens": 426,
+      "total_tokens": 7409,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.02,
+      "input_tokens": 7517,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 7800,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\182418\\182410_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU63294722",
+        "ATU63294722"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        5919.4,
+        "5 919,40"
+      ],
+      "Net.Amount": [
+        true,
+        4932.83,
+        "4 932,83"
+      ],
+      "Vat.Amount": [
+        true,
+        986.57,
+        "986,57"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,0"
+      ],
+      "Invoice.Date": [
+        true,
+        "31.03.2023",
+        "31.03.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 21019,
+    "cached_input_tokens": 0,
+    "output_tokens": 1638,
+    "eur_estimate": 0.007458
+  }
+}

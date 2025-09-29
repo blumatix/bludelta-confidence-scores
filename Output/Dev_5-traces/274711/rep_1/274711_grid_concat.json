@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\274711\\274711_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 6103.24,
+    "Invoice.Date": "2024-01-29",
+    "Sender.VatId": "ATU31800708",
+    "Vat.Rate": 10,
+    "Net.Amount": 5548.4,
+    "Vat.Amount": 554.84
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.96
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (1) verify the document is an invoice, (2) locate candidate fields, (3) normalize numeric formats, and (4) prepare extraction.\n\n1) Invoice classification\n- Document contains \"Rechnung\", invoice-like headers, totals, VAT lines, invoice number and dates → classified as invoice.\n\n2) Locate candidate fields (positions and raw text found)\n- Invoice date: \"Stans, 2024-01-29\" and \"vom: 2024-01-23\" (issue date candidate: 2024-01-29 appears as place+date).\n- Sender VAT ID: \"Darbo-UID-Nr.: ATU31800708\".\n- Grand total / Endbetrag: \"Endbetrag EUR 6.103,24\".\n- Net amount / MWSt-Basis total: \"MWSt-Basis 1 5.548,40\" and \"Auftragssumme 5.548,40\".\n- VAT rate and amount: \"MWSt 10,00\" and \"554,84\" aligned with VAT line.\n- Currency: EUR (explicit).\n\n3) Ambiguities / choices to resolve\n- Two dates present: \"vom: 2024-01-23\" (order date) and \"Stans, 2024-01-29\" (invoice/place date). Prefer \"Stans, 2024-01-29\" as Invoice.Date.\n- Numeric format uses period as thousands separator and comma as decimal (e.g., 6.103,24). Will convert to numeric values preserving decimals (e.g., 6103.24).\n- VAT rate shown as \"10,00\" → extract without percent sign and with decimal preserved if present (expected as 10).\n\n4) Extraction-ready values (candidates to be emitted in final JSON)\n- Invoice.Date → \"2024-01-29\"\n- Sender.VatId → \"ATU31800708\"\n- GrandTotal.Amount → 6103.24\n- Net.Amount → 5548.40\n- Vat.Rate → 10\n- Vat.Amount → 554.84\n\nI will now produce the final JSON with these fields (or empty strings if any were missing) when requested.",
+    "step2": "GrandTotal.Amount (6103.24) — Confidence: 95%\nEvidence: \"Endbetrag EUR 6.103,24\" clearly shown; numeric conversion from European format consistent.\n\nInvoice.Date (\"2024-01-29\") — Confidence: 90%\nEvidence: Two dates present; \"Stans, 2024-01-29\" appears as place+date (typical invoice issue date). Alternative \"vom: 2024-01-23\" likely order date.\n\nSender.VatId (\"ATU31800708\") — Confidence: 99%\nEvidence: Explicit label \"Darbo-UID-Nr.: ATU31800708\" clearly matches sender VAT.\n\nVat.Rate (10) — Confidence: 98%\nEvidence: Line shows \"MWSt 10,00\" indicating 10% VAT; extracted without percent sign per rules.\n\nNet.Amount (5548.40) — Confidence: 95%\nEvidence: \"Auftragssumme 5.548,40\" and \"MWSt-Basis ... 5.548,40\" match; converted from European format.\n\nVat.Amount (554.84) — Confidence: 96%\nEvidence: VAT line shows \"554,84\" aligned with 10% of net (5,548.40 × 0.10 = 554.84)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.18,
+      "input_tokens": 1906,
+      "cached_input_tokens": null,
+      "output_tokens": 785,
+      "total_tokens": 2691,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.29,
+      "input_tokens": 2378,
+      "cached_input_tokens": null,
+      "output_tokens": 471,
+      "total_tokens": 2849,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.7,
+      "input_tokens": 2926,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 3273,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274711\\274711_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU31800708",
+        "ATU31800708"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        6103.24,
+        "6.103,24"
+      ],
+      "Net.Amount": [
+        true,
+        5548.4,
+        "5.548,40"
+      ],
+      "Vat.Amount": [
+        true,
+        554.84,
+        "554,84"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "2024-01-29",
+        "2024-01-29"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7210,
+    "cached_input_tokens": 0,
+    "output_tokens": 1603,
+    "eur_estimate": 0.004359
+  }
+}

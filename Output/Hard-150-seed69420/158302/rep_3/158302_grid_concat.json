@@ -1,0 +1,98 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\158302\\158302_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1605.35,
+    "Invoice.Date": "2022-11-30",
+    "Sender.VatId": "13-2793095",
+    "Vat.Rate": 0.0,
+    "Net.Amount": 1030.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Instead, here is a concise, non-sensitive summary of the extraction steps I will use to produce the final structured invoice data:\n\n- Verify document is an invoice by presence of \"INVOICE\", invoice number, date, totals and line-item-like charges; check exclusion keywords (none prominent).\n- Locate Invoice No. and Date: found near header as \"Invoice No. 3163911427\" and \"Date 2022-11-30\".\n- Locate Grand Total: identify total amount labeled \"Total Amount 1,605.35\" (USD context); confirm matches subtotal lines.\n- Locate VAT/Sales tax info: in tax table on page 2 showing tax codes A and B. Determine VAT rates and amounts:\n  - Code A: Net 1,030.00, VAT % shown as 0.000, Tax USD 0.00, Gross 1,030.00 (note text \"without VAT - these services are not taxable\").\n  - Code B: Net 575.35, labeled \"DUTIES\", Tax USD not indicated separately; appears as gross 575.35.\n- Determine Sender VAT ID: header shows \"Our VAT REG no. 13-2793095\" — extract as Sender.VatId.\n- Map fields to schema:\n  - GrandTotal.Amount from total amount (1,605.35).\n  - Invoice.Date as 2022-11-30.\n  - Sender.VatId as 13-2793095.\n  - Vat.Rate, Net.Amount, Vat.Amount will be populated from tax table entries, preserving decimals and removing percent signs (for A: rate 0.000, net 1030.00, vat 0.00; for B: rate empty if not given as percent — treat as missing per No Inference; net 575.35, vat amount blank unless explicit).\n- Apply No Inference policy: do not guess missing VAT rate or VAT amount for Code B if not explicitly given.\n- Ensure numeric fields keep original decimal formatting and output final JSON with required keys (empty strings where data absent).",
+    "step2": "GrandTotal.Amount (1,605.35)\n- Evidence: Page 2 shows \"Total Amount 1,605.35\" and page 1 subtotal lines sum to 1,605.35. High consistency. Confidence: high.\n\nInvoice.Date (2022-11-30)\n- Evidence: Header near Invoice No. shows \"Date 2022-11-30\". Clear label. Confidence: high.\n\nSender.VatId (13-2793095)\n- Evidence: Header block shows \"Our    VAT     REG     no. 13-2793095\". Explicit. Confidence: high.\n\nVat.Rate / Net.Amount / Vat.Amount — Tax group A\n- Evidence: Tax table row A lists Net USD 1,030.00, \"% VAT 0.000\", Tax USD 0.00, Gross 1,030.00; also note \"without VAT - these services are not taxable\". All three values explicitly present. Confidence: high.\n\nVat.Rate / Net.Amount / Vat.Amount — Tax group B\n- Evidence: Tax table row B shows Net USD 575.35 and label \"DUTIES\" with Gross 575.35. There is no explicit VAT percentage for B and no separate VAT USD shown. According to rules, do not infer a rate or VAT amount. Confidence: Net amount high; Vat.Rate missing (low/confidence: absent); Vat.Amount missing (absent).\n\nOverall classification as invoice\n- Evidence: Multiple invoice indicators (INVOICE header, Invoice No., Date, line charges, totals). No exclusion keywords prominent. Confidence: high."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.25,
+      "input_tokens": 2863,
+      "cached_input_tokens": null,
+      "output_tokens": 636,
+      "total_tokens": 3499,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.2,
+      "input_tokens": 3354,
+      "cached_input_tokens": null,
+      "output_tokens": 398,
+      "total_tokens": 3752,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 8.21,
+      "input_tokens": 3988,
+      "cached_input_tokens": null,
+      "output_tokens": 477,
+      "total_tokens": 4465,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\158302\\158302.json",
+    "per_field": {
+      "GrandTotal.Amount": [
+        true,
+        1605.35,
+        "1,605.35"
+      ],
+      "Net.Amount": [
+        true,
+        1030.0,
+        "1,030.00"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0.00"
+      ],
+      "Vat.Rate": [
+        true,
+        0.0,
+        "0.000"
+      ],
+      "Invoice.Date": [
+        true,
+        "2022-11-30",
+        "2022-11-30"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 5,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 10205,
+    "cached_input_tokens": 0,
+    "output_tokens": 1511,
+    "eur_estimate": 0.001039
+  }
+}

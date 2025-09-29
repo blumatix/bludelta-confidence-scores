@@ -1,0 +1,130 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\269808\\269807_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 16032.34,
+    "Invoice.Date": "31.12.2023",
+    "Sender.VatId": "ATU23264205",
+    "Vat.Rate": [
+      10,
+      20
+    ],
+    "Net.Amount": [
+      14559.96,
+      13.65
+    ],
+    "Vat.Amount": [
+      1456.0,
+      2.73
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains invoice indicators: \"Belegnr.\", \"Rechnungsdetails\", line items, \"Gesamtsumme\", VAT lines, \"Gutschriftsbetrag\" — classify as invoice (not a Mahnung/Zahlungserinnerung).\n\nKey fields located:\n- Sender VAT (UID at bottom for NÖM AG): \"UID: ATU23264205\" → Sender.VatId = ATU23264205.\n- Invoice date: next to \"Belegnr.\" shows \"v. 31.12.2023\" → Invoice.Date = 31.12.2023.\n- Grand total: \"Gutschriftsbetrag 16.032,34\" → GrandTotal.Amount = 16032.34.\n- Net total (excl.): \"Gesamtbetrag exkl. 14.573,61\" → Net.Amount (total excl. VAT) = 14573.61.\n- VAT groups (two lines):\n  - 10,00% von 14.559,96 => Vat.Rate = 10, Net.Amount = 14559.96, Vat.Amount = 1.456,00 → VAT amount 1456.00.\n  - 20,00% von 13,65   => Vat.Rate = 20, Net.Amount = 13.65,   Vat.Amount = 2,73    → VAT amount 2.73.\n- Total VAT check: 1456.00 + 2.73 = 1458.73, and 14573.61 + 1458.73 = 16032.34 (matches GrandTotal).\n\nDecision about structure:\n- There are multiple VAT groups; will include both VAT group values (rates without % sign, net amounts and VAT amounts) as extracted above.\n- Numeric values converted to numeric form preserving decimals and thousand separators removed.",
+    "step2": "I'll evaluate confidence for each extracted field based on evidence and consistency.\n\n1) Document classification as invoice — High confidence\n- Evidence: presence of \"Belegnr.\", \"Rechnungsdetails\", line items, \"Gesamtsumme\", VAT lines, and a clear credit total (\"Gutschriftsbetrag\"). No exclusion headers such as \"Mahnung\" or \"Zahlungserinnerung\".\n\n2) Sender.VatId = \"ATU23264205\" — High confidence\n- Evidence: UID listed near footer: \"UID: ATU23264205\". There is another UID earlier (\"UID: ATU22642807\") near recipient block; but header/footer UID for NÖM AG in footer clearly matches sender (company information). Distinction between recipient and sender is clear in layout; thus sender VAT chosen from footer. Possible small ambiguity because two UIDs appear; confidence still high given footer company block.\n\n3) Invoice.Date = \"31.12.2023\" — High confidence\n- Evidence: Next to \"Belegnr. 31689494\" appears \"v. 31.12.2023\" which denotes the document date. Formatting is explicit.\n\n4) GrandTotal.Amount = 16032.34 — High confidence\n- Evidence: \"Gutschriftsbetrag 16.032,34\" shown as final credit amount. Numeric match consistent with net + VAT sums shown. Commas used as decimal separators; converted correctly to numeric with dot.\n\n5) Net.Amount = 14573.61 — High confidence\n- Evidence: \"Gesamtbetrag exkl. 14.573,61\" explicitly shown. Matches sum of VAT-group bases (14.559,96 + 13,65 = 14.573,61). Good internal consistency.\n\n6) Vat groups:\n  - Vat.Rate = 10, Net.Amount = 14559.96, Vat.Amount = 1456.00 — High confidence\n    - Evidence: \"Umsatzsteuer 10,00% von 14.559,96 1.456,00\". Values match formatting and contribute to totals.\n  - Vat.Rate = 20, Net.Amount = 13.65, Vat.Amount = 2.73 — High confidence\n    - Evidence: \"Umsatzsteuer 20,00% von 13,65 2,73\". Clear line.\n\n7) Consistency check — High confidence\n- Sum of VAT amounts: 1456.00 + 2.73 = 1458.73. Net 14573.61 + VAT 1458.73 = 16032.34, which matches Gutschriftsbetrag.\n\nAmbiguities considered:\n- Two different UID occurrences — resolved by sender footer context.\n- \"Belegnr.\" vs \"Rechnung\" wording — treated as invoice; confidence remains high.\n\nOverall confidence: high for all extracted fields."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.62,
+      "input_tokens": 1743,
+      "cached_input_tokens": null,
+      "output_tokens": 1224,
+      "total_tokens": 2967,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.73,
+      "input_tokens": 2182,
+      "cached_input_tokens": null,
+      "output_tokens": 604,
+      "total_tokens": 2786,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 10.84,
+      "input_tokens": 3086,
+      "cached_input_tokens": null,
+      "output_tokens": 632,
+      "total_tokens": 3718,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\269808\\269807_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU23264205",
+        "ATU23264205"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        16032.34,
+        "16.032,34"
+      ],
+      "Net.Amount": [
+        true,
+        [
+          14559.96,
+          13.65
+        ],
+        [
+          "14.559,96",
+          "13,65"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        [
+          1456.0,
+          2.73
+        ],
+        [
+          "1.456,00",
+          "2,73"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        [
+          10,
+          20
+        ],
+        [
+          "10,00",
+          "20,00"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "31.12.2023",
+        "31.12.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7011,
+    "cached_input_tokens": 0,
+    "output_tokens": 2460,
+    "eur_estimate": 0.005798
+  }
+}

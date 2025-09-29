@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\273354\\273300_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 469.81,
+    "Invoice.Date": "19.10.2023",
+    "Sender.VatId": "ATU56554614",
+    "Vat.Rate": 20,
+    "Net.Amount": 391.51,
+    "Vat.Amount": 78.3
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains header \"Rechnung\" and invoice elements (Belegdatum, totals, VAT), no exclusion keywords — classify as invoice.\n\nKey extracted text locations:\n- Invoice date: \"Belegdatum: 19.10.2023\" (page 1).\n- Two VAT identifiers present:\n  - \"USt-IdNr.: ATU64131246\" near billing block (likely recipient/customer VAT).\n  - Footer \"UID-Nr.: ATU 56554614\" associated with SIHGA® GmbH (sender). Per schema Sender.VatId → use sender's UID: ATU56554614.\n- Totals area (page 2):\n  - \"Betrag 391,51\"\n  - \"Umsatzsteuer 20% 78,30\"\n  - \"Gesamt (EUR) 469,81\"\n\nField mapping (evidence):\n- GrandTotal.Amount = 469,81 (from \"Gesamt (EUR) 469,81\").\n- Invoice.Date = \"19.10.2023\" (from \"Belegdatum: 19.10.2023\").\n- Sender.VatId = \"ATU56554614\" (from footer \"UID-Nr.: ATU 56554614\" linked to SIHGA® GmbH).\n- Vat.Rate = 20 (from \"Umsatzsteuer 20%\"; per rule, omit %).\n- Net.Amount = 391,51 (from \"Betrag 391,51\" / \"Übertrag 391,51\" preceding VAT).\n- Vat.Amount = 78,30 (from \"Umsatzsteuer 20% 78,30\").\n\nNotes on choices and rules:\n- No guessing: used only explicit text.\n- Multiple VAT-like IDs present; selected sender's UID from company footer as Sender.VatId.\n- Preserved original decimal formatting (comma decimals noted; will convert to numeric form in final output preserving decimals).\n- VAT group corresponds to entire invoice (20% on whole invoice), so included as single VAT group.",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"value\": 469.81,\n    \"confidence\": \"high\",\n    \"justification\": \"Exact match to 'Gesamt (EUR) 469,81' in totals section.\"\n  },\n  \"Invoice.Date\": {\n    \"value\": \"19.10.2023\",\n    \"confidence\": \"high\",\n    \"justification\": \"Explicit 'Belegdatum: 19.10.2023' on page 1.\"\n  },\n  \"Sender.VatId\": {\n    \"value\": \"ATU56554614\",\n    \"confidence\": \"high\",\n    \"justification\": \"Footer lists 'UID-Nr.: ATU 56554614' associated with SIHGA® GmbH (sender).\"\n  },\n  \"Vat.Rate\": {\n    \"value\": 20,\n    \"confidence\": \"high\",\n    \"justification\": \"Clearly shown as 'Umsatzsteuer 20%'.\"\n  },\n  \"Net.Amount\": {\n    \"value\": 391.51,\n    \"confidence\": \"high\",\n    \"justification\": \"Shown as 'Betrag 391,51' / 'Übertrag 391,51' preceding VAT.\"\n  },\n  \"Vat.Amount\": {\n    \"value\": 78.30,\n    \"confidence\": \"high\",\n    \"justification\": \"Shown as 'Umsatzsteuer 20% 78,30' in totals area.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.73,
+      "input_tokens": 6371,
+      "cached_input_tokens": null,
+      "output_tokens": 881,
+      "total_tokens": 7252,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 9.36,
+      "input_tokens": 6851,
+      "cached_input_tokens": null,
+      "output_tokens": 441,
+      "total_tokens": 7292,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.57,
+      "input_tokens": 7464,
+      "cached_input_tokens": null,
+      "output_tokens": 217,
+      "total_tokens": 7681,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\273354\\273300_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU56554614",
+        "ATU 56554614"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        469.81,
+        "469,81"
+      ],
+      "Net.Amount": [
+        true,
+        391.51,
+        "391,51"
+      ],
+      "Vat.Amount": [
+        true,
+        78.3,
+        "78,30"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "19.10.2023",
+        "19.10.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 20686,
+    "cached_input_tokens": 0,
+    "output_tokens": 1539,
+    "eur_estimate": 0.007213
+  }
+}

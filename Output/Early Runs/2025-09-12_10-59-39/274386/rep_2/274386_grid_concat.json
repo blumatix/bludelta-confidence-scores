@@ -1,0 +1,109 @@
+{
+  "input_path": "..\\Documents\\274415\\274386_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 946.93,
+    "Invoice.Date": "29.01.2024",
+    "Sender.VatId": "ATU38297008",
+    "Vat.Rate": [
+      0,
+      10
+    ],
+    "Net.Amount": [
+      382.08,
+      513.5
+    ],
+    "Vat.Amount": [
+      0,
+      51.35
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification\n- Presence of \"Rechnungsnummer\", \"Datum\", \"UID\", \"Gesamtsumme\", line items with periods and USt rates → qualifies as an invoice.\n- No exclusion terms like \"Mahnung\" or \"Zahlungserinnerung\" prominently present. Proceed with extraction.\n\n2) Identify issuer (sender) VAT ID\n- Top block: \"UID:   ATU    38297008\" — appears under \"Gemeinde Wals-Siezenheim\" (issuer). Alternative UID found later as \"UID-Nummer: ATU37102103\" near the right column, but context shows that is paired with \"Absender: Gemeinde Wals-Siezenheim\" line? Need to disambiguate:\n  - The top-left UID clearly associated with the header/issuer (Gemeinde Wals-Siezenheim).\n  - The right-column \"UID-Nummer: ATU37102103\" appears next to \"Absender: Firma Salzburger Sand- und Kieswerke ...\" — that likely is the recipient/sender of the transfer. The schema asks for Sender.VatId (tax ID of the sender of invoice) — invoice issuer is Gemeinde Wals-Siezenheim, so take top-left UID \"ATU38297008\".\n- Conclusion: Sender.VatId = \"ATU38297008\".\n\n3) Invoice date\n- Right column: \"Datum: 29.01.2024\" — clear invoice date.\n- Conclusion: Invoice.Date = \"29.01.2024\".\n\n4) Grand total amount\n- Several occurrences:\n  - \"Vorschreibungsbetrag 946,93 EUR\"\n  - \"Betrag: EUR 946,93\"\n  - Instruction text: \"Bitte die ausgewiesene Gesamtsumme ... einzahlen.\" with due date; consistent with 946,93.\n- Conclusion: GrandTotal.Amount = 946.93 (retain decimal places as in input: two decimals).\n\n5) VAT groups, net and VAT amounts\n- The invoice shows two VAT groups:\n  - First group: \"0,00 % netto 382,08 Ust-Betr. 0,00\" — net 382.08, Vat.Amount 0.00, Vat.Rate 0.\n  - Second group: \"10,00 % netto 513,50 Ust-Betr. 51,35\" — net 513.50, Vat.Amount 51.35, Vat.Rate 10.\n- Verify sums: 382.08 + 513.50 = 895.58 net; VAT 0.00 + 51.35 = 51.35; net + VAT = 946.93 matches GrandTotal.Amount.\n- Preserve decimals as in text.\n\n6) No inference / ambiguity handling\n- Multiple UID candidates considered and resolved by header context; no other fields require guessing.\n- All required fields identified with explicit textual evidence.\n\n7) Planned extracted values to output (to be formatted per schema in final step)\n- GrandTotal.Amount: 946.93\n- Invoice.Date: \"29.01.2024\"\n- Sender.VatId: \"ATU38297008\"\n- Vat groups:\n  - Vat.Rate: 0, Net.Amount: 382.08, Vat.Amount: 0.00\n  - Vat.Rate: 10, Net.Amount: 513.50, Vat.Amount: 51.35",
+    "step2": "I will evaluate each extracted field, giving evidence and estimated confidence.\n\n1) GrandTotal.Amount = 946.93\n- Evidence: \"Vorschreibungsbetrag 946,93 EUR\" and \"Betrag: EUR 946,93\" appear explicitly.\n- Consistency check: Net (382,08 + 513,50 = 895,58) + VAT (0,00 + 51,35 = 51,35) = 946,93.\n- Confidence: Very high (~99%).\n\n2) Invoice.Date = \"29.01.2024\"\n- Evidence: Right-column label \"Datum: 29.01.2024\" clearly shown.\n- Confidence: Very high (~99%).\n\n3) Sender.VatId = \"ATU38297008\"\n- Evidence: Top-left header shows \"UID:   ATU    38297008\" directly under the Gemeinde Wals-Siezenheim header (invoice issuer). Another UID (\"UID-Nummer: ATU37102103\") appears near the right column associated with the \"Absender: Firma Salzburger Sand- und Kieswerke\" (payer/other party), so choosing the top-left UID for the invoice sender is supported by layout/context.\n- Ambiguity: presence of second UID requires contextual interpretation but header placement strongly indicates ATU38297008 is the issuer's VAT.\n- Confidence: High (~90%).\n\n4) VAT group 1: Vat.Rate = 0 ; Net.Amount = 382.08 ; Vat.Amount = 0.00\n- Evidence: Text shows \"0,00 % netto 382,08 Ust-Betr. 0,00\".\n- Decimal formatting preserved.\n- Confidence: Very high (~99%).\n\n5) VAT group 2: Vat.Rate = 10 ; Net.Amount = 513.50 ; Vat.Amount = 51.35\n- Evidence: Text shows \"10,00 % netto 513,50 Ust-Betr. 51,35\".\n- Rate converted to number without % as required (10).\n- Confidence: Very high (~99%).\n\nOverall consistency: VAT groups sum to GrandTotal.Amount; date and totals clearly labeled. Main residual uncertainty is potential ambiguity between two UIDs in the document; otherwise extraction is strongly supported."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.01,
+      "input_tokens": 1909,
+      "output_tokens": 1289,
+      "total_tokens": 3198
+    },
+    "step2": {
+      "runtime_sec": 5.05,
+      "input_tokens": 2630,
+      "output_tokens": 472,
+      "total_tokens": 3102
+    },
+    "step3": {
+      "runtime_sec": 11.32,
+      "input_tokens": 3371,
+      "output_tokens": 627,
+      "total_tokens": 3998
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274415\\274386_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU38297008",
+        "ATU 38297008"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        946.93,
+        "946,93"
+      ],
+      "Net.Amount": [
+        false,
+        [
+          382.08,
+          513.5
+        ],
+        "513,50"
+      ],
+      "Vat.Amount": [
+        false,
+        [
+          0,
+          51.35
+        ],
+        "51,35"
+      ],
+      "Vat.Rate": [
+        false,
+        [
+          0,
+          10
+        ],
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "29.01.2024",
+        "29.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  }
+}

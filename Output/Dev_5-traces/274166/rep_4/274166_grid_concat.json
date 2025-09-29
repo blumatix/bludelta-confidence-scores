@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\274232\\274166_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 91.17,
+    "Invoice.Date": "26.01.2024",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": 10,
+    "Net.Amount": 82.88,
+    "Vat.Amount": 8.29
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.8,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification: invoice (contains \"GUTSCHRIFT\", \"Rechnung\"-style fields, invoice number, date, totals).\n\nDetected candidate fields:\n- Invoice date: \"Datum: 26.01.2024\" — clear.\n- Sender VAT ID: \"USt-Id: ATU22642807\" — clear.\n- Totals: \"Nettowert gesamt 82,88\", \"10% MWSt von 82,88 = 8,29\", \"Bruttobetrag 91,17\", also a 00% MWSt line with 0,00.\n- Skonto section shows \"abzüglich Skonto ... = 1,82\" and a resulting amount \"89,35\" (post-skonto). Ambiguity whether Grand Total is pre- or post-skonto; \"Bruttobetrag 91,17\" is the invoice gross total before skonto. \n\nExtraction decisions (most consistent with invoice layout):\n- Invoice.Date = \"26.01.2024\"\n- Sender.VatId = \"ATU22642807\"\n- GrandTotal.Amount = 91,17 (Bruttobetrag shown on invoice)\n- VAT groups to extract (invoice-level):\n  - Rate = 10 ; Net.Amount = 82,88 ; Vat.Amount = 8,29\n- Other VAT group 0% (00% MWSt) present with Net 0,00 and Vat 0,00 but contains no tax amount.\n\nNo inference beyond these visible values; decimals preserved as in source.",
+    "step2": "GrandTotal.Amount (91,17)\n- Evidence: \"Bruttobetrag 91,17\" explicitly printed.\n- Consistency: Bruttobetrag equals Nettowert (82,88) + VAT (8,29) = 91,17; matches.\n- Confidence: High\n\nInvoice.Date (\"26.01.2024\")\n- Evidence: \"Datum: 26.01.2024\" clearly labeled at top.\n- Consistency: Matches delivery/position dates referenced.\n- Confidence: High\n\nSender.VatId (\"ATU22642807\")\n- Evidence: \"USt-Id: ATU22642807\" explicitly present.\n- Consistency: There is another USt-IdNr. ATU14391601 in footer (company registration), but the prominent \"USt-Id:\" near header matches sender VAT; potential ambiguity between two VAT numbers.\n- Confidence: Medium-High (strong textual match, minor ambiguity due to second VAT in footer)\n\nVat groups (invoice-level)\n- Group 1\n  - Vat.Rate (10)\n    - Evidence: \"10% MWSt von 82,88 8,29\" shows 10% rate applied.\n    - Confidence: High\n  - Net.Amount (82,88)\n    - Evidence: \"Nettowert gesamt 82,88\" and used in VAT calculation line for 10% rate.\n    - Confidence: High\n  - Vat.Amount (8,29)\n    - Evidence: \"10% MWSt ... 8,29\" explicitly shown.\n    - Consistency: 82,88 * 0.10 = 8,288 → rounded/displayed as 8,29; matches printed value.\n    - Confidence: High\n\n- Group 2 (0%/00%)\n  - Vat.Rate (0)\n    - Evidence: \"00% MWSt von 0,00 0,00\" line present.\n    - Confidence: High for existence of 0% group\n  - Net.Amount (0,00)\n    - Evidence: Line shows 0,00.\n    - Confidence: High\n  - Vat.Amount (0,00)\n    - Evidence: Line shows 0,00.\n    - Confidence: High\n\nNotes on possible pitfalls\n- Grand total vs. post-skonto total: There is a skonto adjustment showing final 89,35; however \"Bruttobetrag 91,17\" is the clear gross total. Choice of GrandTotal as 91,17 is well supported but depends on whether \"GrandTotal\" should be after discounts—document most clearly labels 91,17 as Bruttobetrag.\n- Sender.VatId ambiguity due to second VAT number in footer; contextual placement favors the header USt-Id."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.25,
+      "input_tokens": 1906,
+      "cached_input_tokens": null,
+      "output_tokens": 904,
+      "total_tokens": 2810,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.45,
+      "input_tokens": 2241,
+      "cached_input_tokens": null,
+      "output_tokens": 648,
+      "total_tokens": 2889,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 8.1,
+      "input_tokens": 3094,
+      "cached_input_tokens": null,
+      "output_tokens": 537,
+      "total_tokens": 3631,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274232\\274166_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU14391601,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        91.17,
+        "91,17"
+      ],
+      "Net.Amount": [
+        true,
+        82.88,
+        "82,88"
+      ],
+      "Vat.Amount": [
+        true,
+        8.29,
+        "8,29"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "26.01.2024",
+        "26.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7241,
+    "cached_input_tokens": 0,
+    "output_tokens": 2089,
+    "eur_estimate": 0.005207
+  }
+}

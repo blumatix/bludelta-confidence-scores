@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\267722\\267670_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 752.84,
+    "Invoice.Date": "31.12.2023",
+    "Sender.VatId": "ATU73666623",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 684.4,
+    "Vat.Amount": 68.44
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.75,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Very good chance",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not output internal chain-of-thought. Below is a concise, non-sensitive plan and verification steps I will use to extract the required fields from the document:\n\n1. Classify document:\n   - Look for invoice indicators: presence of \"Gutschrift\", \"Belegnummer\", \"Belegdatum\", currency \"EUR\", totals, VAT ID, tax lines — these indicate an invoice/credit-note.\n   - Check for exclusion keywords (e.g., \"Zahlungserinnerung\", \"Mahnung\") — none present in prominent headers.\n\n2. Locate and extract fields:\n   - Invoice.Date: find \"Belegdatum\" value → expected \"31.12.2023\".\n   - Sender.VatId: find sender UID/Ust-IdNr. → candidates: \"ATU22642807\" (near \"Ihre Ust-IdNr.\") and \"ATU 73666623\" (UID-Nr. in footer). Use the one labeled as sender’s VAT ID; footer \"UID-Nr.: ATU   73666623\" appears to be company registration VAT — confirm label proximity. The \"Ihre Ust-IdNr.: ATU22642807\" appears under header near Belegdatum (likely recipient). Choose the value explicitly labeled as sender VAT ID.\n   - GrandTotal.Amount: find final payable/endbetrag → \"Endbetrag\" = 752,84 (EUR). Extract numeric value preserving decimals and no currency symbol → 752.84.\n   - VAT groups: find tax table showing Net amount, Steuersatz, Steuerbetrag:\n     - Net.Amount = 684,40 → 684.40\n     - Vat.Rate = 10,00 % → extract as number without % → 10.00 (keep decimals as in source)\n     - Vat.Amount = 68,44 → 68.44\n   - Net.Amount and Vat.Amount correspond to the tax group; include them accordingly.\n\n3. Verification rules:\n   - Do not infer missing values.\n   - Preserve decimal places as in document.\n   - Ensure fields match labels (e.g., use sender VAT explicitly labeled for sender).\n   - If ambiguity remains for Sender.VatId, prefer the footer \"UID-Nr.\" as sender VAT ID because it is under HARIBO contact details.\n\n4. Outcome:\n   - Prepare JSON with required keys populated from the located values; if any field cannot be confidently located, leave it empty.\n\nI will now produce the final structured JSON output.",
+    "step2": "I can’t share internal chain-of-thought, but here is a concise confidence summary for each field (value — confidence — brief evidence):\n\n- Invoice.Date: \"31.12.2023\" — 95% — labeled \"Belegdatum: 31.12.2023\" in header.\n- Sender.VatId: \"ATU73666623\" — 75% — appears as \"UID-Nr.: ATU   73666623\" under HARIBO contact; alternative VAT (\"ATU22642807\") appears as \"Ihre Ust-IdNr.\" near recipient. \n- GrandTotal.Amount: 752.84 — 98% — labeled \"Endbetrag\" with 752,84.\n- Vat.Rate: 10.00 — 98% — tax table shows \"10,00 %\".\n- Net.Amount: 684.40 — 98% — tax table shows base \"684,40\".\n- Vat.Amount: 68.44 — 98% — tax table shows \"Steuerbetrag\" 68,44."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.88,
+      "input_tokens": 1569,
+      "cached_input_tokens": null,
+      "output_tokens": 709,
+      "total_tokens": 2278,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.88,
+      "input_tokens": 2133,
+      "cached_input_tokens": null,
+      "output_tokens": 482,
+      "total_tokens": 2615,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.04,
+      "input_tokens": 2659,
+      "cached_input_tokens": null,
+      "output_tokens": 411,
+      "total_tokens": 3070,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\267722\\267670_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU73666623",
+        "ATU 73666623"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        752.84,
+        "752,84"
+      ],
+      "Net.Amount": [
+        true,
+        684.4,
+        "684,40"
+      ],
+      "Vat.Amount": [
+        true,
+        68.44,
+        "68,44"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "31.12.2023",
+        "31.12.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6361,
+    "cached_input_tokens": 0,
+    "output_tokens": 1602,
+    "eur_estimate": 0.004171
+  }
+}

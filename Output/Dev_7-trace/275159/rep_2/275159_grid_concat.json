@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\275159\\275159_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 24353.89,
+    "Invoice.Date": "30.01.2024",
+    "Sender.VatId": "ATU16040004",
+    "Vat.Rate": 10,
+    "Net.Amount": 22139.9,
+    "Vat.Amount": 2213.99
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification: contains \"Rechnung\"/\"Invoice\", invoice number, invoice date, totals, VAT — classify as invoice.\n\n2) Locate invoice date: \"Fakturadatum 30.01.2024\" → Invoice.Date = \"30.01.2024\".\n\n3) Identify sender VAT: label \"Unsere USt.-ID-Nr.\" followed by \"ATU16040004\" → Sender.VatId = \"ATU16040004\".\n\n4) Find totals and VAT group:\n   - \"Zwischensumme o. USt.\" shows \"22.160,000 KG\" but monetary Subtotal value shown as \"22.139,90\" (labeled Subtotal before output tax).\n   - \"Umsatzsteuer 10,00 % von 22.139,90 EUR\" → Vat.Rate = 10, Net.Amount = 22.139,90, Vat.Amount = 2.213,99.\n   - \"Gesamtbetrag Total Amount 24.353,89\" → GrandTotal.Amount = 24.353,89.\n\n5) Numeric formatting: preserve decimals and comma as in source; numeric schema requires numbers — will convert to numeric values keeping decimals (22.139,90 → 22139.90; 2.213,99 → 2213.99; 24.353,89 → 24353.89) in final extraction.\n\n6) No inference beyond visible text; all fields mapped to explicit invoice text.",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"ExtractedValue\": 24353.89,\n    \"Confidence\": \"High\",\n    \"Evidence\": \"Line labeled 'Gesamtbetrag / Total Amount' shows 24.353,89.\"\n  },\n  \"Invoice.Date\": {\n    \"ExtractedValue\": \"30.01.2024\",\n    \"Confidence\": \"High\",\n    \"Evidence\": \"Label 'Fakturadatum / Invoice Date' followed by 30.01.2024.\"\n  },\n  \"Sender.VatId\": {\n    \"ExtractedValue\": \"ATU16040004\",\n    \"Confidence\": \"High\",\n    \"Evidence\": \"Label 'Unsere USt.-ID-Nr.' with ATU16040004.\"\n  },\n  \"Vat.Rate\": {\n    \"ExtractedValue\": 10,\n    \"Confidence\": \"High\",\n    \"Evidence\": \"Line 'Umsatzsteuer 10,00 % von 22.139,90 EUR' explicitly states 10,00%.\"\n  },\n  \"Net.Amount\": {\n    \"ExtractedValue\": 22139.90,\n    \"Confidence\": \"High\",\n    \"Evidence\": \"Subtotal before tax shown as '22.139,90 EUR' associated with VAT calculation.\"\n  },\n  \"Vat.Amount\": {\n    \"ExtractedValue\": 2213.99,\n    \"Confidence\": \"High\",\n    \"Evidence\": \"VAT line shows 10% of 22.139,90 resulting in 2.213,99 EUR.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.25,
+      "input_tokens": 3014,
+      "cached_input_tokens": null,
+      "output_tokens": 570,
+      "total_tokens": 3584,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.57,
+      "input_tokens": 3335,
+      "cached_input_tokens": null,
+      "output_tokens": 648,
+      "total_tokens": 3983,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.63,
+      "input_tokens": 3932,
+      "cached_input_tokens": null,
+      "output_tokens": 284,
+      "total_tokens": 4216,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\275159\\275159_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU16040004",
+        "ATU16040004"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        24353.89,
+        "24.353,89"
+      ],
+      "Net.Amount": [
+        true,
+        22139.9,
+        "22.139,90"
+      ],
+      "Vat.Amount": [
+        true,
+        2213.99,
+        "2.213,99"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "30.01.2024",
+        "30.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 10281,
+    "cached_input_tokens": 0,
+    "output_tokens": 1502,
+    "eur_estimate": 0.00486
+  }
+}

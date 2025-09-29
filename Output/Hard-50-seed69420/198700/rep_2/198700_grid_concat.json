@@ -1,0 +1,98 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198700\\198700_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 600.0,
+    "Invoice.Date": "23-03-31",
+    "Sender.VatId": "CHE-106.847.567",
+    "Vat.Rate": 0,
+    "Net.Amount": 600.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.85,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Highly likely",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Plan:\n- Verify document is an invoice by checking headers and totals.\n- Locate invoice date, sender VAT ID, grand total, net and VAT amounts, and VAT rate.\n- Do not infer missing values; use exact text evidence.\n\nFindings (evidence-based, no guesses):\n- Invoice indicator: \"FAKTURA /INVOICE\" present.\n- Invoice number line shows \"Nr. 0004630\" and adjacent date \"23-03-31\" — treat \"23-03-31\" as Invoice.Date.\n- Sender identifiers: \"MÜLLER LOGISTIK AG\" at top; UID shown later as \"CHE-106.847.567 MWST\" — use this as Sender.VatId.\n- Totals and VAT:\n  - Line showing \"Gesamt 600,00 EUR\" and \"BETRAG 600,00 EUR\" — Grand total = 600.00 EUR.\n  - Net line shows \"Netto 0,00 % 600,00 EUR\" — Net.Amount = 600.00.\n  - VAT rate shown as \"0,00 %\".\n  - VAT amount shown as \"0,00 % ... 0,00\" (VAT amount = 0.00).\n- Preserve decimal places as in source (two decimals).\n- No other invoice-wide exchange rates present.\n\nFields to output in final JSON:\n- Invoice.Date: \"23-03-31\"\n- Sender.VatId: \"CHE-106.847.567\"\n- GrandTotal.Amount: 600.00\n- Net.Amount: 600.00\n- Vat.Rate: 0\n- Vat.Amount: 0.00",
+    "step2": "GrandTotal.Amount — Confidence: High (~95%)\n- Evidence: Multiple clear occurrences: \"Gesamt 600,00 EUR\", \"BETRAG 600,00 EUR\", and \"total 600.00 EUR\" in English section. Consistent labels indicating invoice total. Decimal format preserved.\n\nInvoice.Date — Confidence: Moderate-High (~85%)\n- Evidence: On the invoice header line near \"FAKTURA /INVOICE\" appears \"23-03-31\". Also elsewhere Leistungsdatum shows \"23-03-21\" and other dates (e.g., service dates 21.03.2023). Chosen \"23-03-31\" based on proximity to invoice number in header; plausible as issue date but minor ambiguity due to multiple dates.\n\nSender.VatId — Confidence: High (~90%)\n- Evidence: UID shown as \"CHE-106.847.567 MWST\" near sender block. This matches Swiss UID format and is explicitly labeled UID/MWST. Clear match to sender tax ID.\n\nVat.Rate — Confidence: High (~95%)\n- Evidence: VAT shown as \"0,00 %\" next to line item and net lines. Explicitly printed; unambiguous. Extracted as numeric \"0\" per rule to omit percent sign.\n\nNet.Amount — Confidence: High (~90%)\n- Evidence: \"Netto 0,00 % 600,00 EUR\" indicates net amount 600,00 EUR. Multiple occurrences show 600.00 as net. Formatting preserved.\n\nVat.Amount — Confidence: High (~95%)\n- Evidence: VAT amount displayed as \"0,00\" (percent and amount), consistent with 0% VAT applied; VAT monetary amount implied zero. Clear and consistent.\n\nOverall notes:\n- Main uncertainty is Invoice.Date due to multiple dates on document (service dates, loading dates, header timestamps). Other numeric fields clearly labeled and consistent."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.19,
+      "input_tokens": 5238,
+      "cached_input_tokens": null,
+      "output_tokens": 1052,
+      "total_tokens": 6290,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.81,
+      "input_tokens": 5633,
+      "cached_input_tokens": null,
+      "output_tokens": 390,
+      "total_tokens": 6023,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.87,
+      "input_tokens": 6323,
+      "cached_input_tokens": null,
+      "output_tokens": 282,
+      "total_tokens": 6605,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198700\\198700.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "CHE-106.847.567",
+        "CHE-106.847.567"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        600.0,
+        "600,00"
+      ],
+      "Net.Amount": [
+        true,
+        600.0,
+        "600,00"
+      ],
+      "Vat.Rate": [
+        true,
+        0,
+        "0,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "23-03-31",
+        "23-03-31"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 5,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 17194,
+    "cached_input_tokens": 0,
+    "output_tokens": 1724,
+    "eur_estimate": 0.001463
+  }
+}

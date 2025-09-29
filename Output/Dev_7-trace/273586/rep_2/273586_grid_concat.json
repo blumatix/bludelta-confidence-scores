@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\273632\\273586_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 29193.12,
+    "Invoice.Date": "25.01.2024",
+    "Sender.VatId": "ATU39103108",
+    "Vat.Rate": 10,
+    "Net.Amount": 26539.2,
+    "Vat.Amount": 2653.92
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will extract invoice data by these steps:\n\n1. Confirm document is an invoice:\n   - Contains \"Rechnung\", invoice number, invoice-like headers, line items, totals → classify as invoice.\n\n2. Locate invoice date:\n   - Found \"Datum 25.01.2024\" → candidate Invoice.Date = \"25.01.2024\".\n\n3. Locate sender VAT ID:\n   - Found \"VAT Registration n° ATU39103108\" and repeated \"ATU39103108\" → Sender.VatId = \"ATU39103108\".\n\n4. Locate totals and VAT group(s):\n   - At bottom: table shows 10,00 % with values:\n     - Net total: \"26.539,20\"\n     - MwSt.-€: \"2.653,92\"\n     - Gesamtsumme brutto: \"29.193,12\"\n   - VAT rate = 10 (remove percent symbol as required).\n   - Convert comma decimals to dot for numeric fields when producing final JSON.\n\n5. Map schema fields:\n   - GrandTotal.Amount = 29.193,12 → numeric 29193.12\n   - Net.Amount = 26.539,20 → numeric 26539.20\n   - Vat.Amount = 2.653,92 → numeric 2653.92\n   - Vat.Rate = 10 → numeric 10\n   - Invoice.Date = \"25.01.2024\"\n   - Sender.VatId = \"ATU39103108\"\n\n6. Verify no conflicting multiple occurrences:\n   - Only one invoice date and one sender VAT clearly present.\n   - Only one VAT group (10%) applies to entire invoice → acceptable.\n\n7. Ensure no inference beyond visible data:\n   - All values taken exactly from text (only decimal comma → dot conversion for numeric formatting).",
+    "step2": "Invoice.Date = \"25.01.2024\"\nConfidence: High (≈95%)\nEvidence: \"Datum 25.01.2024\" appears clearly in header.\n\nSender.VatId = \"ATU39103108\"\nConfidence: High (≈95%)\nEvidence: \"VAT Registration n° ATU39103108\" and repeated \"ATU39103108\" in footer.\n\nVat.Rate = 10\nConfidence: High (≈95%)\nEvidence: VAT table shows \"10,00 %\" for the invoice VAT group; rule requires removing the percent sign.\n\nNet.Amount = 26539.20\nConfidence: High (≈90%)\nEvidence: VAT table line shows \"26.539,20\" as netto (net). Parsing requires converting comma to decimal point. Slight lower confidence only due to potential OCR comma/period ambiguity.\n\nVat.Amount = 2653.92\nConfidence: High (≈90%)\nEvidence: VAT table shows \"MwSt.-€ 2.653,92\". Converted comma to decimal point. Same minor OCR formatting risk.\n\nGrandTotal.Amount = 29193.12\nConfidence: High (≈95%)\nEvidence: Table shows \"Gesamtsumme brutto 29.193,12\" as total gross amount; conversion from comma to decimal point."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.45,
+      "input_tokens": 2664,
+      "cached_input_tokens": null,
+      "output_tokens": 832,
+      "total_tokens": 3496,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.82,
+      "input_tokens": 3055,
+      "cached_input_tokens": null,
+      "output_tokens": 397,
+      "total_tokens": 3452,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.62,
+      "input_tokens": 3593,
+      "cached_input_tokens": null,
+      "output_tokens": 220,
+      "total_tokens": 3813,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273632\\273586_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU39103108",
+        "ATU39103108"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        29193.12,
+        "29.193,12"
+      ],
+      "Net.Amount": [
+        true,
+        26539.2,
+        "26.539,20"
+      ],
+      "Vat.Amount": [
+        true,
+        2653.92,
+        "2.653,92"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "25.01.2024",
+        "25.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 9312,
+    "cached_input_tokens": 0,
+    "output_tokens": 1449,
+    "eur_estimate": 0.004555
+  }
+}

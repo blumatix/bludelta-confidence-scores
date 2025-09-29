@@ -1,0 +1,108 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\204560\\204560_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 6504.06,
+    "Invoice.Date": "24.04.2023",
+    "Sender.VatId": "DE811373330",
+    "Vat.Rate": 19,
+    "Net.Amount": 5465.6,
+    "Vat.Amount": 1038.46
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (a) confirm this is an invoice, (b) identify candidate fields and their textual evidence, and (c) note any ambiguities to avoid guessing.\n\n1) Invoice classification\n- Evidence of invoice: header \"RECHNUNG\", invoice identifier \"DRA/10976022\" (page 1 & 2), and many invoice elements (positions, Preise, USt, Summe). Conclusion: document is an invoice.\n\n2) Candidate field extractions with textual sources\n- Invoice.Date: \"Datum : 24.04.2023\" (page 1 and page 2).\n- GrandTotal.Amount: \"Summe EUR 6504,06\" (page 2, rightmost total).\n- Sender.VatId: \"USt-IdNr. DE811373330\" (page 1 and page 2).\n- Vat.Rate: \"USt 19,0 %\"(page 2 line with totals) → capture as 19 (percentage symbol will be removed later).\n- Vat.Amount: \"1038,46\" shown next to USt 19,0 % in totals row (page 2).\n- Net amounts:\n  - Warenwert (goods net): \"5220,60\" (page 2).\n  - Kosten (costs/shipping net): \"245,00\" (page 2).\n  - The displayed totals row shows these items and the VAT; the implied net total (Warenwert + Kosten) equals 5220,60 + 245,00 = 5465,60 — this is the invoice net amount before VAT as shown by the components.\n\n3) Ambiguities / rules check\n- Numbers and labels for VAT rate and VAT amount are explicitly present — no inference needed.\n- Net.Amount should reflect the invoice-level net total. The document shows Warenwert and Kosten separately and their sum equals 5465,60; this is an explicit arithmetic relationship on the page (not an assumed value).\n- No exclusion terms (e.g., \"Mahnung\") dominate; header validation passed.\n- No exchange rates present.\n- Maintain original decimal formatting for all numeric values.\n\nI will now produce the final JSON extraction (per schema) using the values and formats identified above.",
+    "step2": "GrandTotal.Amount — 95% — Visible on page 2 as \"Summe EUR 6504,06\" (clear total, matches line-item sum including VAT).\n\nInvoice.Date — 99% — Explicitly printed twice as \"Datum : 24.04.2023\" (page 1 and page 2).\n\nSender.VatId — 99% — Explicit label \"USt-IdNr. DE811373330\" appears on both pages.\n\nVat.Rate — 98% — Shown as \"USt 19,0 %\" on the totals line (clear VAT percentage); reported value corresponds directly.\n\nNet.Amount — 95% — Net components shown as \"Warenwert 5220,60\" and \"Kosten 245,00\" on page 2; their sum (5465,60) is the invoice-level net amount implied by the displayed breakdown.\n\nVat.Amount — 97% — Shown on totals line as \"1038,46\" next to the 19,0% VAT label (consistent with net*0.19)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.76,
+      "input_tokens": 2411,
+      "cached_input_tokens": null,
+      "output_tokens": 980,
+      "total_tokens": 3391,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.29,
+      "input_tokens": 2926,
+      "cached_input_tokens": null,
+      "output_tokens": 354,
+      "total_tokens": 3280,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.31,
+      "input_tokens": 3452,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3735,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\204560\\204560.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DE811373330",
+        [
+          "DE811373330",
+          "DE811373330"
+        ]
+      ],
+      "GrandTotal.Amount": [
+        true,
+        6504.06,
+        "6504,06"
+      ],
+      "Vat.Amount": [
+        true,
+        1038.46,
+        "1038,46"
+      ],
+      "Vat.Rate": [
+        true,
+        19,
+        [
+          "volle USt.",
+          "volle USt.",
+          "19,0"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "24.04.2023",
+        [
+          "24.04.2023",
+          "24.04.2023"
+        ]
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 5,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8789,
+    "cached_input_tokens": 0,
+    "output_tokens": 1617,
+    "eur_estimate": 0.001005
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\269457\\269430_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 240.0,
+    "Invoice.Date": "25.09.2023",
+    "Sender.VatId": "ATU17569806",
+    "Vat.Rate": 20,
+    "Net.Amount": 200.0,
+    "Vat.Amount": 40.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will:\n- Classify the document using invoice indicators (titles like \"GUTSCHRIFT\", invoice number, date, totals) and ensure no exclusion terms dominate.\n- Locate explicit fields: Belegnummer, Datum, UID/UID-NR entries, Netto, MwSt., Gutschriftsbetrag.\n- Map extracted values to schema fields without guessing; preserve decimals and numeric types.\n- Confirm VAT rate format (remove % sign) and that totals correspond (Net + Vat = GrandTotal).\n\nFindings from the text (fields identified for extraction):\n- Document type: GUTSCHRIFT (credit note) with Belegnummer GS20230044 — passes invoice-like validation.\n- Datum: \"25.09.2023\" — will be Invoice.Date.\n- UID/UID-Nr. entries:\n  - \"Kd.UID-Nr.: ATU64131246\" (customer VAT) — not Sender.VatId.\n  - \"UID-NR: ATU 17569806\" at footer — corresponds to sender VAT; will be Sender.VatId (use \"ATU17569806\" without extra spaces).\n- Monetary totals shown:\n  - Netto: \"200,00 EUR\" → Net.Amount = 200.00 (preserve two decimals).\n  - MwSt.: \"20 %    40,00 EUR\" → Vat.Rate = 20 (no percent sign), Vat.Amount = 40.00.\n  - Gutschriftsbetrag: \"240,00 EUR\" → GrandTotal.Amount = 240.00.\n- No conflicting multiple values for these fields; values are explicit, so no inference needed.\n\nI will now produce the JSON with these exact extracted values.",
+    "step2": "{\n  \"GrandTotal.Amount\": 240.00,\n  \"Invoice.Date\": \"25.09.2023\",\n  \"Sender.VatId\": \"ATU17569806\",\n  \"Vat.Rate\": 20,\n  \"Net.Amount\": 200.00,\n  \"Vat.Amount\": 40.00\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.55,
+      "input_tokens": 1778,
+      "cached_input_tokens": null,
+      "output_tokens": 869,
+      "total_tokens": 2647,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 11.13,
+      "input_tokens": 2182,
+      "cached_input_tokens": null,
+      "output_tokens": 523,
+      "total_tokens": 2705,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.99,
+      "input_tokens": 2557,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 2838,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\269457\\269430_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU17569806",
+        "ATU 17569806"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        240.0,
+        "240,00"
+      ],
+      "Net.Amount": [
+        true,
+        200.0,
+        [
+          "200,00",
+          "200,00",
+          "200,00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        40.0,
+        [
+          "40,00",
+          "40,00",
+          "40,00"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        [
+          "20",
+          "20",
+          "20"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "25.09.2023",
+        "25.09.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6517,
+    "cached_input_tokens": 0,
+    "output_tokens": 1673,
+    "eur_estimate": 0.004328
+  }
+}

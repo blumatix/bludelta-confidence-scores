@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\182575\\182550_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 166.57,
+    "Invoice.Date": "07.04.2023",
+    "Sender.VatId": "ATU39103108",
+    "Vat.Rate": 10,
+    "Net.Amount": 151.43,
+    "Vat.Amount": 15.14
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.96
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains invoice indicators (\"Rechnung\", invoice number, VAT, Totals) and no exclusion headers → classify as invoice.\n\nDetected candidate fields (evidence lines):\n- Invoice.Date: \"Datum 07.04.2023\"\n- Sender.VatId: \"VAT Registration n° ATU39103108\"\n- Vat.Rate: \"10,00 %\"\n- Net.Amount: \"151,43\" (appears as Gesamtsumme netto / Wert netto)\n- Vat.Amount: \"15,14\" (appears as MwSt.-€von / MwSt.-€)\n- GrandTotal.Amount: \"166,57\" (appears as Gesamtsumme brutto / NETTO line shows EUR 166,57)\n\nValidation notes and choices:\n- Kept values exactly as printed (including two decimals and comma decimal separator in source); schema expects numbers — will convert commas to dots in final extraction.\n- Vat.Rate will be returned without the percent symbol (10).\n- No inference used for missing fields; all extracted values have direct textual matches.\n- Multiple occurrences: only one set of totals/VAT found, so single entries used.",
+    "step2": "GrandTotal.Amount (166,57)\n- Evidence: \"Gesamtsumme brutto\" / NETTO lines show \"EUR 166,57\" and table final column lists 166,57 as brutto total.\n- Consistency: Matches Net (151,43) + Vat (15,14) = 166,57.\n- Confidence: 98%\n\nInvoice.Date (\"07.04.2023\")\n- Evidence: \"Datum 07.04.2023\" at top right.\n- Consistency: Standard invoice date position; unambiguous.\n- Confidence: 99%\n\nSender.VatId (\"ATU39103108\")\n- Evidence: \"VAT Registration n° ATU39103108\" and repeated later \"ATU39103108\".\n- Consistency: Matches company header Lesaffre Austria AG.\n- Confidence: 99%\n\nVat.Rate (10)\n- Evidence: Line items show \"10    %\" and VAT table shows \"10,00       %\" for the VAT group.\n- Consistency: All line items use 10%; single VAT group present.\n- Confidence: 98%\n\nNet.Amount (151,43)\n- Evidence: Table shows \"Wert netto\" / \"Gesamtsumme netto\" as 151,43; also \"Nettobetrag\" column sums to 151,43.\n- Consistency: Net + Vat = Grand Total.\n- Confidence: 98%\n\nVat.Amount (15,14)\n- Evidence: VAT table column \"MwSt.-€von\" or \"MwSt.-€\" shows 15,14 for the 10% group.\n- Consistency: 10% of 151,43 = 15,143 → rounded/presented as 15,14, matches printed VAT.\n- Confidence: 96%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.29,
+      "input_tokens": 2134,
+      "cached_input_tokens": null,
+      "output_tokens": 627,
+      "total_tokens": 2761,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.87,
+      "input_tokens": 2424,
+      "cached_input_tokens": null,
+      "output_tokens": 439,
+      "total_tokens": 2863,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.49,
+      "input_tokens": 3099,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3380,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\182575\\182550_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU39103108",
+        "ATU39103108"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        166.57,
+        "166,57"
+      ],
+      "Net.Amount": [
+        true,
+        151.43,
+        "151,43"
+      ],
+      "Vat.Amount": [
+        true,
+        15.14,
+        "15,14"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "07.04.2023",
+        "07.04.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7657,
+    "cached_input_tokens": 0,
+    "output_tokens": 1347,
+    "eur_estimate": 0.004015
+  }
+}

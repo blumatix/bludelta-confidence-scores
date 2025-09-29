@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\269107\\269107_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2011.58,
+    "Invoice.Date": "08.01.2024",
+    "Sender.VatId": "DE159518412",
+    "Vat.Rate": 19,
+    "Net.Amount": 1690.4,
+    "Vat.Amount": 321.18
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.97,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification\n- Contains header \"Rechnung\" (German for Invoice) and invoice-like elements (Nummer, Lieferadresse, positions, MwSt, totals) → classify as invoice.\n- No exclusion terms (\"Mahnung\", \"Zahlungserinnerung\", \"Servicebericht\") prominently present → not excluded.\n\n2) Locate invoice date\n- Found near top right: \"vom 08.01.2024\" → Invoice.Date = \"08.01.2024\".\n\n3) Identify sender VAT ID\n- Two VAT-like entries present:\n  - \"VAT DE250202095\" (near top)\n  - \"UST  ID  NR.  DE  159518412\" (bottom, labeled explicitly \"UST ID NR.\" which in German denotes VAT identification number of the supplier)\n- Prefer the explicit supplier VAT label \"UST ID NR. DE 159518412\" as Sender.VatId = \"DE159518412\".\n- Note: \"VAT DE250202095\" is present but not clearly the sender VAT; do not infer beyond explicit label.\n\n4) VAT rate(s), net and VAT amounts\n- VAT table shows a single VAT group with \"% MwSt 19,00\" and corresponding amounts:\n  - Nettobetrag Ware: 1.690,40\n  - MwSt: 321,18\n  - Gesamtbetrag (including VAT): EUR 2.011,58\n- Per rules, extract rate without \"%\" → Vat.Rate = 19\n- Net.Amount = 1690,40 (preserve decimal places)\n- Vat.Amount = 321,18 (preserve decimal places)\n- GrandTotal.Amount = 2011,58 (preserve decimals; numeric)\n\n5) Number formatting decision\n- Input uses comma as decimal separator. For numeric fields, maintain numeric values with same decimal precision; will convert separators to standard numeric form (period) when producing final numeric JSON.\n\n6) No-inference and completeness checks\n- All required fields are present in the document explicitly; no values will be guessed.",
+    "step2": "I can’t share internal step-by-step chain-of-thought, but I can provide concise confidence levels and brief evidential notes for each extracted field.\n\n- GrandTotal.Amount — Confidence: 95% — Clear \"Gesamtbetrag EUR 2.011,58\" present near totals.\n- Invoice.Date — Confidence: 98% — Explicit \"vom 08.01.2024\" near header.\n- Sender.VatId — Confidence: 85% — Two VAT-like values present; \"UST ID NR. DE 159518412\" explicitly labeled and likely sender VAT, but an additional \"VAT DE250202095\" appears.\n- Vat.Rate — Confidence: 98% — Single VAT group shows \"19,00\" % in VAT table.\n- Net.Amount — Confidence: 97% — Nettobetrag \"1.690,40\" shown in VAT summary.\n- Vat.Amount — Confidence: 97% — MwSt value \"321,18\" shown in VAT summary."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.57,
+      "input_tokens": 2154,
+      "cached_input_tokens": null,
+      "output_tokens": 814,
+      "total_tokens": 2968,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.08,
+      "input_tokens": 2631,
+      "cached_input_tokens": null,
+      "output_tokens": 402,
+      "total_tokens": 3033,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.72,
+      "input_tokens": 3141,
+      "cached_input_tokens": null,
+      "output_tokens": 218,
+      "total_tokens": 3359,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\269107\\269107_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DE159518412",
+        "DE 159518412"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        2011.58,
+        "2.011,58"
+      ],
+      "Net.Amount": [
+        true,
+        1690.4,
+        "1.690,40"
+      ],
+      "Vat.Amount": [
+        true,
+        321.18,
+        "321,18"
+      ],
+      "Vat.Rate": [
+        true,
+        19,
+        "19,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "08.01.2024",
+        "08.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7926,
+    "cached_input_tokens": 0,
+    "output_tokens": 1434,
+    "eur_estimate": 0.004225
+  }
+}

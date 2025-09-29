@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\274292\\274287_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1425.11,
+    "Invoice.Date": "26.01.2024",
+    "Sender.VatId": "DE131453639",
+    "Vat.Rate": 19,
+    "Net.Amount": 1197.57,
+    "Vat.Amount": 227.5383
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Plan to extract fields:\n\n1. Classify document as invoice: presence of \"Rechnung\", invoice number \"RE240043\", totals, VAT, invoice-related headers → proceed.\n\n2. Check exclusion terms: none of \"Zahlungserinnerung\"/\"Mahnung\"/\"Servicebericht\" in prominent header → not excluded.\n\n3. Locate Invoice.Date: find \"Datum: 26.01.2024\" near header — candidate for Invoice.Date.\n\n4. Locate GrandTotal.Amount: find \"Rechnungsbetrag 1.425,11\" and the Brutto total \"1.425,1083\" (extended precision) — need to decide which is invoice Grand Total. Prefer the rounded \"1.425,11\" labeled \"Rechnungsbetrag\".\n\n5. Locate Sender.VatId: search for USt-IdNr. entries. Two USt-IdNr. appear: \"DE250202095\" (under customer section) and \"DE131453639\" (at footer with company details). Determine which is sender: footer lists company and \"USt-IdNr.: DE131453639\" → use DE131453639 as Sender.VatId.\n\n6. Locate VAT groups: see table showing Netto 1.197,57, MwSt in % 19% and MwSt. 227,5383, Brutto 1.425,1083. Extract Vat.Rate = 19 (without %), Net.Amount = 1197,57 (preserve decimals as in input), Vat.Amount = 227,5383 (preserve decimals).\n\n7. Numeric formatting: convert German formatted numbers (thousands dots, comma decimals) to standard numeric form with dot decimal and preserve decimal places (e.g., \"1.197,57\" -> 1197.57; \"227,5383\" -> 227.5383; \"1.425,11\" -> 1425.11).\n\n8. No inference: if ambiguity remains (e.g., which USt-IdNr belongs to sender), prefer explicit footer company association; if any field missing, leave empty.\n\nProceed to extract these values accordingly.",
+    "step2": "GrandTotal.Amount — 95% confidence.\nEvidence: \"Rechnungsbetrag 1.425,11\" appears clearly near totals; also a bruto value shown as \"1.425,1083\" (more precision). The rounded \"Rechnungsbetrag 1.425,11\" is explicitly labeled as invoice amount, so high confidence that 1425.11 is correct.\n\nInvoice.Date — 98% confidence.\nEvidence: \"Datum: 26.01.2024\" appears in header area; format and placement match typical invoice date.\n\nSender.VatId — 90% confidence.\nEvidence: Two USt-IdNr. values present: \"DE250202095\" (near customer block labeled \"Ihre USt-IdNr:\") and \"USt-IdNr.: DE131453639\" in the footer next to company info. Footer USt-IdNr. is associated with the sender company details, so DE131453639 is likely the sender VAT ID. Slight uncertainty only due to two IDs present.\n\nVat.Rate — 99% confidence.\nEvidence: VAT shown as \"19%\" in the totals table; extraction to numeric \"19\" is direct and unambiguous.\n\nNet.Amount — 99% confidence.\nEvidence: Netto shown as \"1.197,57\" in totals table; clear net amount for the invoice.\n\nVat.Amount — 97% confidence.\nEvidence: MwSt. displayed as \"227,5383\" in the totals table; explicit VAT amount. Slight uncertainty only about formatting/precision because brutto also shows extended precision."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 14.51,
+      "input_tokens": 2102,
+      "cached_input_tokens": null,
+      "output_tokens": 832,
+      "total_tokens": 2934,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.34,
+      "input_tokens": 2557,
+      "cached_input_tokens": null,
+      "output_tokens": 457,
+      "total_tokens": 3014,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.62,
+      "input_tokens": 3155,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 3502,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274292\\274287_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DE131453639",
+        "DE131453639"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1425.11,
+        "1.425,11"
+      ],
+      "Net.Amount": [
+        true,
+        1197.57,
+        "1.197,57"
+      ],
+      "Vat.Amount": [
+        true,
+        227.5383,
+        "227,5383"
+      ],
+      "Vat.Rate": [
+        true,
+        19,
+        "19"
+      ],
+      "Invoice.Date": [
+        true,
+        "26.01.2024",
+        "26.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7814,
+    "cached_input_tokens": 0,
+    "output_tokens": 1636,
+    "eur_estimate": 0.004549
+  }
+}

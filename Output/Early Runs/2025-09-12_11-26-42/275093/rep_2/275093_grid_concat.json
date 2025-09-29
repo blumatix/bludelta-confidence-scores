@@ -1,0 +1,100 @@
+{
+  "input_path": "..\\Documents\\275120\\275093_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 223.74,
+    "Invoice.Date": "31.01.2024",
+    "Sender.VatId": "ATU22195005",
+    "Vat.Rate": 10,
+    "Net.Amount": 203.4,
+    "Vat.Amount": 20.34
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Instead, here is a concise, non-sensitive summary of the extraction procedure I will use:\n\n- Confirm document is an invoice by checking for invoice keywords (e.g., \"Rechnung\", \"Rechnungsdatum\", totals, VAT) and absence of exclusion headers (e.g., \"Mahnung\").\n- Locate invoice metadata: invoice date from the \"Rechnungsdatum\" field.\n- Locate sender VAT/UID from the header/footer area labeled \"UID\" or \"USt-IdNr\".\n- Parse VAT summary table for VAT rate(s), corresponding net amounts and VAT amounts (preserve decimals, remove percent sign from rate).\n- Extract Grand Total from the invoice totals row/sum (preserve decimals; currency not returned).\n- Apply \"no inference\" rule: if a field is not explicitly present, leave it empty.\n- If document fails invoice validation, return all fields empty.\n\nI will next produce the structured JSON extraction based on these steps.",
+    "step2": "GrandTotal.Amount — 95% confidence.\nEvidence: \"Summe ... 223,74 EUR\" in VAT summary row; matches total row.\n\nInvoice.Date — 99% confidence.\nEvidence: \"Rechnungsdatum.: 31.01.2024\" clearly present.\n\nSender.VatId — 85% confidence.\nEvidence: Footer shows \"UID: ATU22195005\" alongside efko company details (seller). Potential ambiguity because \"Ihre USt-IdNr :ATU22642807\" appears (buyer VAT), but seller UID in footer indicates ATU22195005.\n\nVat.Rate — 99% confidence.\nEvidence: VAT summary row labeled \"10%\" for the listed line; rate should be reported as \"10\".\n\nNet.Amount — 99% confidence.\nEvidence: Nettobetrag / Nettowarenwert shown as \"203,40\" corresponding to 10% VAT group.\n\nVat.Amount — 99% confidence.\nEvidence: Mehrwertsteuer column shows \"20,34\" for the 10% group."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 5.95,
+      "input_tokens": 2083,
+      "cached_input_tokens": null,
+      "output_tokens": 592,
+      "total_tokens": 2675
+    },
+    "step2": {
+      "runtime_sec": 4.9,
+      "input_tokens": 2298,
+      "cached_input_tokens": null,
+      "output_tokens": 604,
+      "total_tokens": 2902
+    },
+    "step3": {
+      "runtime_sec": 5.77,
+      "input_tokens": 2787,
+      "cached_input_tokens": null,
+      "output_tokens": 473,
+      "total_tokens": 3260
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\275120\\275093_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU22195005",
+        "ATU22195005,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        223.74,
+        "223,74"
+      ],
+      "Net.Amount": [
+        true,
+        203.4,
+        "203,40"
+      ],
+      "Vat.Amount": [
+        true,
+        20.34,
+        "20,34"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "31.01.2024",
+        "31.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7168,
+    "cached_input_tokens": 0,
+    "output_tokens": 1669,
+    "eur_estimate": 0.004464
+  }
+}

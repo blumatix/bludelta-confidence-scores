@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\214971\\214971_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 910.6,
+    "Invoice.Date": "2022-11-29T14:27:54",
+    "Sender.VatId": "ICA9507256L6",
+    "Vat.Rate": 16,
+    "Net.Amount": 785.0,
+    "Vat.Amount": 125.6
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I can’t share internal step-by-step chain-of-thought. I will instead give a brief, non-sensitive summary of the evaluation approach and key observed data points relevant for extraction:\n\n- Document classification: contains multiple CFDI/invoice indicators (words like FACTURA, Folio Fiscal, Tipo de Comprobante: I - Ingreso, Totals, IVA). No prominent exclusion headers (e.g., Mahnung). Classified as invoice(s).\n\n- Strategy to extract fields: locate invoice-level blocks (several distinct CFDI invoices appear), prioritize invoice header blocks with \"Fecha de Emisión\"/\"Expedido en ... el:\" or \"Fecha y Hora de Emisión\"/\"Fecha y Hora de Certificación\", find Grand Total amounts, VAT group lines (rate, net base, VAT amount), and sender VAT (RFC/Tax ID labeled as Emisor or similar). Do not infer missing values; if ambiguous, leave empty.\n\n- Key candidate values (ambiguous/multiple occurrences across pages; not finalized):\n  - Dates seen: 2022-12-27T17:01:00; 2022-12-27T17:04:31; 2022-11-29T14:27:54/56; 2022-12-08T09:32:00/02.\n  - Grand totals seen: $10,369.10; $910.60; $5,843.50; $2,958.00; $11,602.95 (appear in different invoice blocks).\n  - VAT rates/amounts: IVA 16% appears (value 16), VAT amounts observed include 170.19; 125.60; 0.00; 408.00.\n  - Net/base amounts observed corresponding to VAT groups: 1,063.66; 785.00; 5,843.50; 2,550.00; (positions ambiguous).\n  - Sender VAT IDs (RFCs) observed for emitters: CAM080324GQ1; ICA9507256L6; CPA990703623; GYS1010015I2 and numeric certificate IDs (multiple issuer blocks).\n\nIf you want, I will now proceed to produce the structured JSON extraction per the schema for a single selected invoice block (specify which invoice/date/folio), or extract the most consistent set across the document—tell me which you prefer.",
+    "step2": "I can’t share internal chain-of-thought. Below is a concise, non-sensitive confidence summary for the candidate extracted fields (relative confidence: High/Medium/Low) with brief evidence pointers.\n\n- GrandTotal.Amount\n  - Candidates: 10,369.10; 910.60; 5,843.50; 2,958.00; 11,602.95\n  - Confidence per candidate:\n    - 10,369.10 — Medium (clearly printed as \"Gastos Comprobados $10,369.10\" but may be a component, not final invoice grand total)\n    - 910.60 — High (page 2 shows SUBTOTAL $785.00, IVA 16% $125.60, TOTAL $910.60)\n    - 5,843.50 — High (page 3 shows SUBTOTAL and TOTAL both $5,843.50 with IVA 0.00)\n    - 2,958.00 — High (page 4 shows Total: 2,958.00 matching subtotal+IVA)\n    - 11,602.95 — Medium (appears as Sub-total/Saldo a S/Cargo in first block but context suggests combined totals)\n- Invoice.Date\n  - Candidates: 2022-12-27T17:01:00; 2022-12-27T17:04:31; 2022-11-29T14:27:54/56; 2022-12-08T09:32:00/02\n  - Confidence:\n    - 2022-12-27T17:01:00 — Medium (explicit \"Expedido ... el: 2022-12-27T17:01:00\" on page 1)\n    - 2022-12-27T17:04:31 — Medium (certification timestamp present; may differ from issue)\n    - 2022-11-29T14:27:54/56 — High for the invoices on pages 2–3 (clearly printed certification/folio timestamps)\n    - 2022-12-08T09:32:00/02 — High for the invoice on page 4 (explicit \"Fecha y Hora de Emisión: 2022-12-08T09:32:00\" and certification 09:32:02)\n- Sender.VatId\n  - Candidates: CAM080324GQ1; ICA9507256L6; CPA990703623; GYS1010015I2 (and others)\n  - Confidence:\n    - CAM080324GQ1 — High for the page-1 emitter (clearly labeled near \"EMISOR\")\n    - ICA9507256L6 — High for pages 2–3 emitter (ICAVE header RFC)\n    - CPA990703623 — High for page 4 emitter (clearly printed)\n    - GYS1010015I2 — Medium/Low (appears inside cadenas/certificates; less clearly the main RFC)\n- Vat.Rate\n  - Candidate: 16\n  - Confidence: High (multiple lines explicitly state \"IVA 16%\" or \"I.V.A. 16%\")\n- Net.Amount (VAT base)\n  - Candidates: 1,063.66; 785.00; 5,843.50; 2,550.00\n  - Confidence:\n    - 1,063.66 — High (listed as Base para el IVA 1,063.66 adjacent to IVA 170.19)\n    - 785.00 — High (page 2 subtotal before IVA 125.60)\n    - 5,843.50 — High (page 3 subtotal and total where IVA 0.00)\n    - 2,550.00 — High (page 4 shows Subtotal Neto 2,550.00)\n- Vat.Amount\n  - Candidates: 170.19; 125.60; 0.00; 408.00\n  - Confidence:\n    - 170.19 — High (explicit line \"IVA AL 16% $170.19\")\n    - 125.60 — High (page 2 \"I.V.A. 16%: $125.60\")\n    - 0.00 — High (page 3 shows \"I.V.A. 16%: $0.00\")\n    - 408.00 — High (page 4 shows \"(+) IVA (16%): 408.00)\n\nIf you want a final JSON extraction for a specific invoice instance (specify which: page 1 block dated 2022-12-27, page 2 invoice (total 910.60, date 2022-11-29), page 3 invoice (total 5,843.50, date 2022-11-29), or page 4 invoice (total 2,958.00, date 2022-12-08)), tell me which and I will produce the schema-compliant JSON (leaving uncertain/missing fields empty)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.83,
+      "input_tokens": 8139,
+      "cached_input_tokens": null,
+      "output_tokens": 818,
+      "total_tokens": 8957,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 12.33,
+      "input_tokens": 8684,
+      "cached_input_tokens": null,
+      "output_tokens": 1129,
+      "total_tokens": 9813,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.25,
+      "input_tokens": 10049,
+      "cached_input_tokens": null,
+      "output_tokens": 352,
+      "total_tokens": 10401,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\214971\\214971.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ICA9507256L6",
+        "CAM080324GQ1"
+      ],
+      "GrandTotal.Amount": [
+        false,
+        910.6,
+        "11,602.95"
+      ],
+      "Net.Amount": [
+        false,
+        785.0,
+        "$1,063.66"
+      ],
+      "Vat.Amount": [
+        false,
+        125.6,
+        "$170.19"
+      ],
+      "Vat.Rate": [
+        true,
+        16,
+        "16"
+      ],
+      "Invoice.Date": [
+        false,
+        "2022-11-29T14:27:54",
+        "2022-12-27"
+      ]
+    },
+    "summary": {
+      "matched": 1,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 26872,
+    "cached_input_tokens": 0,
+    "output_tokens": 2299,
+    "eur_estimate": 0.002148
+  }
+}

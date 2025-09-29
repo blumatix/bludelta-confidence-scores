@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231286\\231250_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 424.49,
+    "Invoice.Date": "25.09.2023",
+    "Sender.VatId": "ATU23474201",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 353.74,
+    "Vat.Amount": 70.75
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.92,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Presence of header \"Rechnung\" and typical invoice elements (Belegnr., Rechnungsbetrag, Positions, Nettobetrag, Mehrwertsteuer, Gesamtbetrag) → classify as invoice.\n- No exclusion keywords like \"Mahnung\" or \"Zahlungserinnerung\" prominent → proceed with extraction.\n\nLocate candidate fields and verify:\n1. GrandTotal.Amount\n   - Text: \"Gesamtbetrag ... 424,49\" and \"Rechnungsbetrag EUR 424,49\"\n   - Clear total payable amount = 424,49 → numeric 424.49\n\n2. Invoice.Date\n   - Possible dates present: multiple dates (Belegnr./-datum shows \"90598986S / 25.09.2023\"; Lieferscheinnr. also \"25.09.2023\"). \"Belegnr./-datum\" and the invoice identifier indicate invoice issue date = 25.09.2023\n   - Use \"25.09.2023\" as Invoice.Date (format preserved as in text).\n\n3. Sender.VatId\n   - Sender block shows \"UID-Nr. ATU23474201\" under Swisspearl Österreich GmbH\n   - Use \"ATU23474201\" as sender VAT ID (exact string).\n\n4. Vat.Rate\n   - Under \"Mehrwertsteuer\" line: \"20,00 %\"\n   - Extract numeric rate without percent symbol and as number = 20.00 (per rule keep decimals as in input; input shows two decimals \"20,00\" → 20.00). Could also be represented as 20 per rule \"19%\" -> \"19\", but keep decimals matching input.\n\n5. Net.Amount\n   - \"Nettobetrag ... 353,74\" appears as net amount\n   - Extract numeric 353.74\n\n6. Vat.Amount\n   - \"Mehrwertsteuer ... 353,74 EUR 20,00 % 70,75\" shows VAT amount = 70,75\n   - Extract numeric 70.75\n\nCheck for alternatives/conflicts:\n- Multiple dates: order dates and delivery dates present, but \"Belegnr./-datum\" adjacent to invoice identifier is strongest indicator for invoice date → 25.09.2023.\n- VAT rate appears only as 20,00% applied to whole invoice (not per-line exclusive conversions) → acceptable.\n- No missing required fields; all found explicitly in document text.\n- Follow No Inference and decimal-preservation rules: convert commas to decimal point but preserve two decimals.",
+    "step2": "GrandTotal.Amount (424.49)\n- Evidence: \"Rechnungsbetrag EUR 424,49\" and \"Gesamtbetrag ... 424,49\" both present.\n- Consistency: Nettobetrag 353,74 + Mehrwertsteuer 70,75 = 424,49 matches.\n- Confidence: High\n\nInvoice.Date (\"25.09.2023\")\n- Evidence: \"Belegnr./-datum ... 90598986S / 25.09.2023\" and other document dates (Liefer-/Auftragsdatum) share same day; \"Belegnr./-datum\" is the most likely invoice issue date label.\n- Ambiguity: multiple dates present but this label strongly indicates invoice date.\n- Confidence: High\n\nSender.VatId (\"ATU23474201\")\n- Evidence: Sender block lists \"UID-Nr.   ATU23474201\" under Swisspearl Österreich GmbH.\n- Ambiguity: None apparent.\n- Confidence: High\n\nVat.Rate (20.00)\n- Evidence: \"Mehrwertsteuer ... 20,00 %\" shown on VAT line.\n- Ambiguity: None; appears to apply to invoice-level VAT line.\n- Confidence: High\n\nNet.Amount (353.74)\n- Evidence: \"Nettobetrag ... 353,74\" and \"Positionsnetto\" preceding matches totals leading to Nettobetrag.\n- Consistency: Nettobetrag + VAT = GrandTotal.\n- Confidence: High\n\nVat.Amount (70.75)\n- Evidence: VAT line shows \"20,00 % 70,75\" adjacent to Mehrwertsteuer.\n- Consistency: 353,74 * 0.20 = 70,748 → rounded/displayed as 70,75 matching document.\n- Confidence: High"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.43,
+      "input_tokens": 2197,
+      "cached_input_tokens": null,
+      "output_tokens": 796,
+      "total_tokens": 2993,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.17,
+      "input_tokens": 2784,
+      "cached_input_tokens": null,
+      "output_tokens": 444,
+      "total_tokens": 3228,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.19,
+      "input_tokens": 3464,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3747,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231286\\231250_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU23474201",
+        "ATU23474201"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        424.49,
+        "424,49"
+      ],
+      "Net.Amount": [
+        true,
+        353.74,
+        "353,74"
+      ],
+      "Vat.Amount": [
+        true,
+        70.75,
+        "70,75"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "25.09.2023",
+        "25.09.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8445,
+    "cached_input_tokens": 0,
+    "output_tokens": 1523,
+    "eur_estimate": 0.004493
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "C:\\Users\\jonas\\Desktop\\LLM-Confidence\\Documents\\275138\\275138_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 285.08,
+    "Invoice.Date": "31.01.2024",
+    "Sender.VatId": "ATU 22642807",
+    "Vat.Rate": 10,
+    "Net.Amount": 259.16,
+    "Vat.Amount": 25.92
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 1.0,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification\n- Contains header \"Rechnung\" and invoice-like fields (Rechnungs-Nr., Rechnungsdatum, USTID, line items, Zwischensumme, MwSt, Rechnungsbetrag) → classify as invoice.\n- No exclusion terms (e.g., \"Mahnung\") dominate → proceed.\n\n2) Identify candidate fields\n- Invoice.Date: \"Rechnungsdatum: 31.01.2024\" → candidate \"31.01.2024\".\n- Sender.VatId: \"USTID: ATU      22642807\" and \"ATU 22642807\" elsewhere → candidate \"ATU 22642807\".\n- Vat.Rate: Lines indicate \"MwSt (10,00 %)\" and \"Warenwert (10,00 %)\"; tax rate is 10% → candidate numeric 10.\n- Net.Amount: \"Warenwert (10,00 %) 259,16\" and \"Zwischensumme EUR 259,16\" → candidate numeric 259,16.\n- Vat.Amount: \"MwSt (10,00 %) 25,92\" → candidate numeric 25,92.\n- GrandTotal.Amount: There are two amounts: \"Rechnungsbetrag EUR 285,08\" and also \"Rechnungsbetrag EUR 276,53\" (the latter appears next to a skonto-adjusted line). 285,08 = 259,16 + 25,92 (gross invoice total); 276,53 equals gross minus possible 3% skonto. Per \"Bei Zahlung bis 14.02.2024 gewähren wir 3,00 % Skonto.\" the standard invoice total (without early-payment discount) is 285,08 → candidate GrandTotal.Amount = 285,08.\n\n3) Verify numeric formatting and rules\n- Keep decimals as in source (two decimals).\n- VAT rate must be returned without percent sign → 10.\n- No inference beyond text: used shown fields only.\n- Choose \"ATU 22642807\" as Sender.VatId preserving identifier text.\n\n4) Ambiguities considered\n- If GrandTotal were interpreted as post-skonto, 276,53 would be chosen; however the invoice explicitly lists \"Rechnungsbetrag EUR 285,08\" and separately shows skonto-adjusted amount → select 285,08 as GrandTotal.\n\nConclusion: fields to extract — Invoice.Date \"31.01.2024\"; Sender.VatId \"ATU 22642807\"; Vat.Rate 10; Net.Amount 259,16; Vat.Amount 25,92; GrandTotal.Amount 285,08.",
+    "step2": "GrandTotal.Amount (285,08)\n- Evidence: Explicit line \"Rechnungsbetrag                                  EUR                   285,08\".\n- Cross-check: 259,16 (net) + 25,92 (VAT) = 285,08 matches.\n- Ambiguity: Another \"Rechnungsbetrag EUR 276,53\" appears (skonto-adjusted), but invoice clearly lists 285,08 as the invoice total.\n- Confidence: 98%\n\nInvoice.Date (\"31.01.2024\")\n- Evidence: Explicit \"Rechnungsdatum: 31.01.2024\".\n- Ambiguity: None apparent.\n- Confidence: 100%\n\nSender.VatId (\"ATU 22642807\")\n- Evidence: \"USTID: ATU         22642807\" and repeated \"ATU 22642807\".\n- Ambiguity: Formatting includes spaces; content is unambiguous VAT identifier.\n- Confidence: 99%\n\nVat.Rate (10)\n- Evidence: Multiple mentions \"MwSt (10,00 %)\" and \"Warenwert (10,00 %)\".\n- Ambiguity: Some lines reference skonto (3%) but that is a discount, not VAT; VAT rate consistently 10%.\n- Confidence: 99%\n\nNet.Amount (259,16)\n- Evidence: \"Warenwert (10,00 %) 259,16\" and \"Zwischensumme EUR 259,16\".\n- Cross-check: Net + VAT = gross 285,08.\n- Ambiguity: None significant.\n- Confidence: 99%\n\nVat.Amount (25,92)\n- Evidence: \"MwSt (10,00 %) 25,92\".\n- Cross-check: 10% of 259,16 = 25,916 → rounds/displayed as 25,92 in document; matches printed VAT amount.\n- Ambiguity: Rounding consistent with source.\n- Confidence: 99%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 14.44,
+      "input_tokens": 2684,
+      "cached_input_tokens": null,
+      "output_tokens": 1258,
+      "total_tokens": 3942,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.91,
+      "input_tokens": 3285,
+      "cached_input_tokens": null,
+      "output_tokens": 471,
+      "total_tokens": 3756,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.11,
+      "input_tokens": 3992,
+      "cached_input_tokens": null,
+      "output_tokens": 346,
+      "total_tokens": 4338,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "C:\\Users\\jonas\\Desktop\\LLM-Confidence\\Documents\\275138\\275138_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU 22642807",
+        "ATU38510009"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        285.08,
+        "285,08"
+      ],
+      "Net.Amount": [
+        true,
+        259.16,
+        "259,16"
+      ],
+      "Vat.Amount": [
+        true,
+        25.92,
+        "25,92"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "31.01.2024",
+        "31.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 9961,
+    "cached_input_tokens": 0,
+    "output_tokens": 2075,
+    "eur_estimate": 0.005781
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "input_path": "..\\Documents\\274400\\274395_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 506.73,
+    "Invoice.Date": "23.1.2024",
+    "Sender.VatId": "ATU36768002",
+    "Vat.Rate": 10,
+    "Net.Amount": 460.67,
+    "Vat.Amount": 46.06
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Determine if document is an invoice:\n- Contains invoice indicators: \"Rechn.Nr.\", \"Datum:\", \"Netto 10% Ust. Brutto\", line items with net/vat/brutto, \"Endsaldo EUR 506,73\", payment/IBAN details. No prominent exclusion terms (\"Mahnung\", \"Zahlungserinnerung\") in header. Conclusion: classify as invoice.\n\n2) Locate Grand Total:\n- Found \"Endsaldo EUR 506,73\" and repeated \"506,73\" in payment section. Extract GrandTotal.Amount = 506,73 → convert to numeric 506.73 (preserving two decimals).\n\n3) Locate Invoice Date:\n- Found \"Datum: 23.1.2024\" (appears twice). Preserve format as string \"23.1.2024\".\n\n4) Locate Sender VAT ID:\n- Found \"UID: ATU36768002\" near footer. Extract Sender.VatId = \"ATU36768002\".\n\n5) Identify VAT groups and amounts:\n- Header shows \"Netto 10% Ust. Brutto\".\n- Line items:\n  - Abfallwirtschaftsgebühr: Netto 309,05 ; Ust. 30,90 ; Brutto 339,95\n  - Kanalbenützungsgebühr: Netto 151,62 ; Ust. 15,16 ; Brutto 166,78\n- Both groups use 10% VAT. Per instructions, combine exchange/applicable VAT groups for entire invoice.\n- Sum Net.Amount = 309,05 + 151,62 = 460,67 → numeric 460.67 (two decimals).\n- Sum Vat.Amount = 30,90 + 15,16 = 46,06 → numeric 46.06 (two decimals).\n- Vat.Rate = 10 (extract without %).\n\n6) Verify consistency:\n- Net 460.67 + Vat 46.06 = 506.73 matches GrandTotal.Amount 506.73. All values consistent.\n\n7) No inference beyond visible data:\n- All extracted fields come directly from text. If any field had been missing, would be left empty.",
+    "step2": "GrandTotal.Amount:\n- Evidence: \"Endsaldo EUR 506,73\" and multiple occurrences of \"506,73\" in payment section.\n- Consistency: Matches sum of net + VAT (460,67 + 46,06 = 506,73).\n- Confidence: 99%\n\nInvoice.Date:\n- Evidence: \"Datum: 23.1.2024\" appears twice (header and payment reference).\n- Format preserved as in source.\n- Confidence: 99%\n\nSender.VatId:\n- Evidence: \"UID: ATU36768002\" in footer area near contact info.\n- Confidence: 98%\n\nVat.Rate:\n- Evidence: Column header shows \"10% Ust.\" and line items' VAT values are consistent with 10% of the nets.\n- Extraction rule: percentage returned without \"%\" → \"10\".\n- Confidence: 99%\n\nNet.Amount:\n- Evidence: Line item nets: 309,05 and 151,62; summed = 460,67; value consistent with totals and arithmetic.\n- Decimal places preserved.\n- Confidence: 99%\n\nVat.Amount:\n- Evidence: Line item VATs: 30,90 and 15,16; summed = 46,06; together with net equals grand total.\n- Decimal places preserved.\n- Confidence: 99%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.71,
+      "input_tokens": 2170,
+      "cached_input_tokens": null,
+      "output_tokens": 1030,
+      "total_tokens": 3200
+    },
+    "step2": {
+      "runtime_sec": 5.43,
+      "input_tokens": 2631,
+      "cached_input_tokens": null,
+      "output_tokens": 339,
+      "total_tokens": 2970
+    },
+    "step3": {
+      "runtime_sec": 3.85,
+      "input_tokens": 3175,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3456
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274400\\274395_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU36768002",
+        "ATU36768002,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        506.73,
+        "506,73"
+      ],
+      "Net.Amount": [
+        false,
+        460.67,
+        [
+          "309, 05",
+          "151, 62"
+        ]
+      ],
+      "Vat.Amount": [
+        false,
+        46.06,
+        [
+          "30, 90",
+          "15,16"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        [
+          "10",
+          "10"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "23.1.2024",
+        "23.1.2024"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7976,
+    "cached_input_tokens": 0,
+    "output_tokens": 1650,
+    "eur_estimate": 0.004609
+  }
+}

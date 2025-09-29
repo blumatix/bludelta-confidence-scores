@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\267727\\267696_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 660.61,
+    "Invoice.Date": "03.01.2024",
+    "Sender.VatId": "ATU67782722",
+    "Vat.Rate": 10,
+    "Net.Amount": 600.55,
+    "Vat.Amount": 60.06
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification\n- Contains invoice-like headers: \"Rechnungsnummer\", \"Rechnungsdatum\", line items, totals — qualifies as invoice.\n- No exclusion terms like \"Mahnung\" or \"Zahlungserinnerung\" dominating.\n\n2) Locate fields\n- Invoice date: \"Rechnungsdatum: 03.01.2024\" → Invoice.Date = \"03.01.2024\".\n- Grand total: Page 2 shows \"zu erstattender Betrag EUR 660,61\" → GrandTotal.Amount = 660.61.\n- Sender VAT ID: Two VAT IDs present:\n  - \"Ihre USt.-ID.: ATU22642807\" (customer/recipient);\n  - \"VAT/UID-Nr: ATU67782722\" next to Puratos (sender). Schema asks Sender.VatId → use ATU67782722.\n- VAT rate and amounts: Summary table shows Netto 600,55; Ust 10%; Ust amount 60,06 → Vat.Rate = 10; Net.Amount = 600.55; Vat.Amount = 60.06.\n\n3) Verify no inference\n- All extracted values appear explicitly in the text; no guessing used.\n- Decimal commas converted to dot for numeric JSON format while preserving two decimals.\n\n4) Multiple occurrences check\n- Only one global VAT group present; use those values.",
+    "step2": "Invoice.Date — 03.01.2024: 99% — explicit label \"Rechnungsdatum: 03.01.2024\".\n\nGrandTotal.Amount — 660.61: 95% — explicit \"zu erstattender Betrag EUR 660,61\"; minor OCR/comma-to-dot normalization.\n\nSender.VatId — ATU67782722: 90% — \"VAT/UID-Nr: ATU67782722\" appears next to Puratos (sender); another VAT ID (ATU22642807) is labeled \"Ihre USt.-ID.\" (recipient), so selected as sender ID.\n\nVat.Rate — 10: 98% — summary shows \"10 %\" for Ust%.\n\nNet.Amount — 600.55: 95% — summary shows \"Netto 600,55\"; high confidence, normalized decimal.\n\nVat.Amount — 60.06: 95% — summary shows \"Ust ... 60,06\"; high confidence, normalized decimal."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.48,
+      "input_tokens": 2244,
+      "cached_input_tokens": null,
+      "output_tokens": 677,
+      "total_tokens": 2921,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 10.26,
+      "input_tokens": 2584,
+      "cached_input_tokens": null,
+      "output_tokens": 596,
+      "total_tokens": 3180,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.25,
+      "input_tokens": 3096,
+      "cached_input_tokens": null,
+      "output_tokens": 345,
+      "total_tokens": 3441,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\267727\\267696_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU67782722",
+        "ATU67782722"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        660.61,
+        "660,61"
+      ],
+      "Net.Amount": [
+        true,
+        600.55,
+        "600,55"
+      ],
+      "Vat.Amount": [
+        true,
+        60.06,
+        "60,06"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "03.01.2024",
+        "03.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7924,
+    "cached_input_tokens": 0,
+    "output_tokens": 1618,
+    "eur_estimate": 0.004542
+  }
+}

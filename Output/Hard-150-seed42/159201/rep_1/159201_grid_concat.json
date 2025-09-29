@@ -1,0 +1,106 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\159201\\159201_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 600.0,
+    "Invoice.Date": "17.03.2022",
+    "Sender.VatId": "CZ28138511",
+    "Vat.Rate": "",
+    "Net.Amount": 15384.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.2,
+    "Net.Amount": 0.6,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Chances are slight",
+    "Net.Amount": "Likely",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will: identify whether this is an invoice, locate invoice fields, and extract exact text/numeric values without guessing.\n\n1) Document classification\n- Contains headings \"FAKTURA\", \"číslo:\", monetary totals, VAT references and invoice dates → classify as an invoice (no exclusion terms like \"Mahnung\" dominate).\n\n2) Locate fields and extraction decisions\n- Invoice.Date: found \"Datum vystavení 17.03.2022\" → extract \"17.03.2022\".\n- GrandTotal.Amount: invoice shows \"Celkem EUR : 600,00\" and repeated \"600,00\" as total in EUR. The invoice currency appears EUR; grand total numeric value is 600,00 → extract numeric 600.00? (Will preserve input decimals as \"600,00\" then convert to number format consistent with schema: keep decimals as in input—will represent as number with same decimal places.)\n- Sender.VatId: supplier DIČ: \"CZ28138511\" → extract \"CZ28138511\".\n- Vat.Rate / Net.Amount / Vat.Amount: VAT treatment states \"Plnění je osvobozeno od DPH podle § 9 ... The reverse charge is applicable.\" The VAT table shows VAT amount 0,00 and base \"bez daně 15 384,00\" and \"daň 0,00\". There is no explicit VAT percentage listed. Possible interpretations:\n  - VAT rate is not provided — must leave Vat.Rate empty per No Inference.\n  - Net amount (base) appears as \"15 384,00\" (Kč) corresponding to total in Kč when converted; but GrandTotal is given in EUR as 600,00. The Net.Amount field expects a number (no currency). The invoice shows \"bez daně 15 384,00\" (Kč). This is a net amount present; will extract numeric 15384,00 preserving decimals and thousands formatting? Schema expects a number; will represent as 15384.00 keeping decimals per input (two decimals).\n  - Vat.Amount is shown as 0,00 → extract 0.00.\n- Currency/exchange rate: Kurs 25,640 Kč /1 EUR present but ExchangeRate is not in schema.\n\n3) Handling formats and rules\n- Do not infer a VAT percentage; leave Vat.Rate empty.\n- Preserve decimals as in source (two decimals). Convert thousand separators and comma decimals into numeric values for JSON numbers.\n- If ambiguity between EUR and Kč for Net.Amount, use the explicit \"bez daně 15 384,00\" (Kč) as Net.Amount and Vat.Amount 0,00. GrandTotal.Amount use 600,00 (EUR) as numeric.\n\n4) Final mapping plan\n- GrandTotal.Amount: 600.00 (from \"600,00\" EUR)\n- Invoice.Date: \"17.03.2022\"\n- Sender.VatId: \"CZ28138511\"\n- Vat.Rate: \"\" (not provided)\n- Net.Amount: 15384.00 (from \"15 384,00\")\n- Vat.Amount: 0.00\n\nNo guessing beyond these explicit values.",
+    "step2": "GrandTotal.Amount — High confidence\n- Evidence: \"Celkem EUR : 600,00\" and multiple occurrences of \"600,00\" as total; clear numeric total in invoice.\n\nInvoice.Date — High confidence\n- Evidence: Explicit label \"Datum vystavení 17.03.2022\".\n\nSender.VatId — High confidence\n- Evidence: Supplier DIČ shown as \"CZ28138511\" near supplier block.\n\nVat.Rate — Low confidence\n- Evidence: No explicit VAT percentage in the document; text says \"osvobozeno od DPH\" / reverse charge. Therefore rate cannot be determined without inference.\n\nNet.Amount — Medium confidence\n- Evidence: \"bez daně 15 384,00\" appears in VAT summary (Kč). Likely the net/base amount, but currency context differs from Grand Total (EUR), so mapping to Net.Amount is plausible but slightly ambiguous.\n\nVat.Amount — High confidence\n- Evidence: VAT summary shows \"daň 0,00\" / VAT amount 0,00 explicitly."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.15,
+      "input_tokens": 2019,
+      "cached_input_tokens": null,
+      "output_tokens": 852,
+      "total_tokens": 2871,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 13.35,
+      "input_tokens": 2726,
+      "cached_input_tokens": null,
+      "output_tokens": 412,
+      "total_tokens": 3138,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.15,
+      "input_tokens": 3246,
+      "cached_input_tokens": null,
+      "output_tokens": 279,
+      "total_tokens": 3525,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\159201\\159201.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "CZ28138511",
+        "CZ28138511"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        600.0,
+        [
+          "600,00",
+          "600,00"
+        ]
+      ],
+      "Net.Amount": [
+        false,
+        15384.0,
+        "600,00"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Vat.Rate": [
+        false,
+        "",
+        "0,0"
+      ],
+      "Invoice.Date": [
+        true,
+        "17.03.2022",
+        "17.03.2022"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7991,
+    "cached_input_tokens": 0,
+    "output_tokens": 1543,
+    "eur_estimate": 0.00094
+  }
+}

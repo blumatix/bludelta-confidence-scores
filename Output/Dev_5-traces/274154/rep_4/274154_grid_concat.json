@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\274226\\274154_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 58.8,
+    "Invoice.Date": "26.01.2024",
+    "Sender.VatId": "ATU66213527",
+    "Vat.Rate": 20,
+    "Net.Amount": 49,
+    "Vat.Amount": 9.8
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 1,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 1,
+    "Net.Amount": 1,
+    "Vat.Amount": 1
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification:\n- Contains clear invoice indicators: \"Rechnung\", \"Rechnungsdatum\", \"Rechnung RS0017657\", line items, totals, \"Ust.\" → classify as invoice.\n- No exclusion indicators like \"Mahnung\" or \"Zahlungserinnerung\" prominent.\n\n2) Locate invoice date:\n- Found \"Rechnungsdatum 26.01.2024\" → Invoice.Date = \"26.01.2024\".\n\n3) Locate sender VAT ID:\n- Two UID entries: near header \"UID-Nr. ATU22642807\" (next to Rechnungsanschrift block) and bottom block \"UID-Nummer: ATU66213527\".\n- Determine sender: document header shows hollu Systemhygiene GmbH (sender). The bottom block with bank details and \"UID-Nummer: ATU66213527\" is sender company registration info. Therefore Sender.VatId = \"ATU66213527\".\n- Do not use customer UID ATU53289105 (that's recipient).\n\n4) Locate totals and VAT:\n- Nettopreis / Gesamtsumme lines show:\n  - \"Gesamtsumme 49,00 €\"\n  - \"+ 20 % Ust. von 49,00 € 9,80 €\"\n  - \"Rechnungsbetrag 58,80 €\"\n- Grand total = 58.80 (use same decimals).\n- VAT rate = 20 (without percent symbol per rule).\n- Net amount = 49.00.\n- VAT amount = 9.80.\n\n5) Verify no inference / ambiguity:\n- All extracted values explicitly present in text; no guessing required.\n- Maintain decimal precision as shown.\n\n6) Prepare outputs matching schema types:\n- GrandTotal.Amount: 58.80 (number)\n- Invoice.Date: \"26.01.2024\"\n- Sender.VatId: \"ATU66213527\"\n- Vat.Rate: 20 (number)\n- Net.Amount: 49.00 (number)\n- Vat.Amount: 9.80 (number)",
+    "step2": "GrandTotal.Amount — Confidence: 98%\nEvidence: \"Rechnungsbetrag 58,80 €\" explicitly shown. Consistent with Nettopreis 49,00 € + VAT 9,80 € = 58,80 €. Low uncertainty only from OCR misreading of comma/decimal.\n\nInvoice.Date — Confidence: 100%\nEvidence: \"Rechnungsdatum 26.01.2024\" explicitly present and unambiguous.\n\nSender.VatId — Confidence: 90%\nEvidence: Two UIDs present: \"UID-Nr. ATU22642807\" near Rechnungsanschrift block and \"UID-Nummer: ATU66213527\" in bank/company details. Sender (hollu Systemhygiene GmbH) is header; company registration block at bottom contains ATU66213527, which matches typical sender VAT placement. Minor ambiguity due to second UID near recipient block (ATU53289105), but selection of ATU66213527 is strongly supported.\n\nVat.Rate — Confidence: 100%\nEvidence: \"+ 20 % Ust. von 49,00 €\" explicitly states 20% VAT.\n\nNet.Amount — Confidence: 100%\nEvidence: \"Gesamtsumme 49,00 €\" and line item Nettopreis 49,00 € clearly shown as net amount before VAT.\n\nVat.Amount — Confidence: 100%\nEvidence: \"9,80 €\" shown next to \"+ 20 % Ust. von 49,00 €\" indicating VAT amount."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.03,
+      "input_tokens": 2041,
+      "cached_input_tokens": null,
+      "output_tokens": 692,
+      "total_tokens": 2733,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.36,
+      "input_tokens": 2484,
+      "cached_input_tokens": null,
+      "output_tokens": 384,
+      "total_tokens": 2868,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.06,
+      "input_tokens": 3073,
+      "cached_input_tokens": null,
+      "output_tokens": 207,
+      "total_tokens": 3280,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274226\\274154_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU66213527",
+        "ATU66213527,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        58.8,
+        "58,80"
+      ],
+      "Net.Amount": [
+        true,
+        49,
+        "49,00"
+      ],
+      "Vat.Amount": [
+        true,
+        9.8,
+        "9,80"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "26.01.2024",
+        "26.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7598,
+    "cached_input_tokens": 0,
+    "output_tokens": 1283,
+    "eur_estimate": 0.003891
+  }
+}

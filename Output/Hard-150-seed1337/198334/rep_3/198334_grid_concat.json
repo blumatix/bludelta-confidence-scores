@@ -1,0 +1,109 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198334\\198334_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 580.0,
+    "Invoice.Date": "2023-03-16",
+    "Sender.VatId": "PL6821772184",
+    "Vat.Rate": 0,
+    "Net.Amount": 580.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.92,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Classification: document contains clear invoice indicators: titles \"Faktura/Invoice\", invoice number \"FV/078/03/2023\", labeled \"data wystawienia/date of issue: 2023-03-16\", line items, totals (\"RAZEM/TOTAL\", \"DO ZAPŁATY/Total\"). No exclusion terms (\"Zahlungserinnerung\", \"Mahnung\", \"Servicebericht\") dominate. Conclusion: treat as invoice.\n\n2) Locate invoice date: text shows \"data wystawienia/date of issue: 2023-03-16\" — exact date found. Candidate Invoice.Date = \"2023-03-16\".\n\n3) Locate sender VAT ID: Seller block shows \"NIP/VAT:PL6821772184\" (also recipient has FR47546650334). Sender is PLT INVEST S.C.; so Sender.VatId = \"PL6821772184\".\n\n4) Determine GrandTotal.Amount: Totals area shows \"RAZEM/TOTAL: 580.00 EUR\" and also converted PLN \"2 726.87 PLN\". The invoice currency is EUR and \"DO ZAPŁATY/Total : 580.00 EUR\" explicitly; choose invoice grand total as 580.00 (no currency symbol per schema, numeric). GrandTotal.Amount = 580.00. (Alternative: use 2726.87 PLN — rejected because primary invoice currency and \"Total/DO ZAPŁATY\" show 580.00 EUR.)\n\n5) VAT groups and rates: Line item table shows netto/net 580.00, VAT % column shows \"0.00\" or \"np\" and VAT amount shown as 0.00. Also footnote \"Odwrotne obciążenie/Reverse-Charge\" and VAT system reference, but explicit VAT rate on lines is 0% (displayed as 0.00 and \"np\" meaning non-taxable). Therefore one VAT group: Vat.Rate = 0 (per rule: exclude percent symbol), Net.Amount = 580.00, Vat.Amount = 0.00. No other VAT groups present.\n\n6) Decimal preservation: amounts in source have two decimals; keep same (580.00, 0.00, 2726.87 noted but not used except as reference).\n\n7) No inference beyond visible values: all chosen values are verbatim from invoice text.\n\n8) Multiple-occurrence rule: only one sender VAT encountered for sender and one VAT group; record single occurrences.\n\nFinal plan: produce JSON with fields:\n- GrandTotal.Amount: 580.00\n- Invoice.Date: \"2023-03-16\"\n- Sender.VatId: \"PL6821772184\"\n- Vat.Rate: 0\n- Net.Amount: 580.00\n- Vat.Amount: 0.00",
+    "step2": "GrandTotal.Amount (580.00)\n- Evidence: \"DO ZAPŁATY/Total : 580.00 EUR\" and \"RAZEM/TOTAL: 580.00 EUR\".\n- Confidence: Very high. Clear explicit total in invoice currency.\n\nInvoice.Date (\"2023-03-16\")\n- Evidence: \"data wystawienia/date of issue: 2023-03-16\".\n- Confidence: Very high. Exact labeled date present.\n\nSender.VatId (\"PL6821772184\")\n- Evidence: Seller block shows \"NIP/VAT:PL6821772184\" adjacent to seller name PLT INVEST S.C.\n- Potential ambiguity: recipient also has VAT (FR47546650334) but placement indicates sender.\n- Confidence: High.\n\nVat.Rate (0)\n- Evidence: Line shows VAT column with \"0.00\" and \"np\" (non-taxable) and footnote indicating reverse charge; VAT amount shown as 0.00.\n- Confidence: High that reported rate/group is 0 for this invoice.\n\nNet.Amount (580.00)\n- Evidence: Line item net price and totals show \"netto/net 580.00\" and totals align to 580.00.\n- Confidence: Very high.\n\nVat.Amount (0.00)\n- Evidence: VAT value shown as \"0.00\" in line and totals.\n- Confidence: Very high."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.86,
+      "input_tokens": 4502,
+      "cached_input_tokens": null,
+      "output_tokens": 978,
+      "total_tokens": 5480,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.35,
+      "input_tokens": 5143,
+      "cached_input_tokens": null,
+      "output_tokens": 359,
+      "total_tokens": 5502,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.92,
+      "input_tokens": 5738,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 6019,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198334\\198334.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "PL6821772184",
+        [
+          "PL6821772184",
+          "PL6821772184"
+        ]
+      ],
+      "GrandTotal.Amount": [
+        true,
+        580.0,
+        "580.00"
+      ],
+      "Net.Amount": [
+        false,
+        580.0,
+        [
+          "2 726.87",
+          "580.00",
+          "580.00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        [
+          "0.00",
+          "0.00",
+          "0.00"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "2023-03-16",
+        "2023-03-16"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 5,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 15383,
+    "cached_input_tokens": 0,
+    "output_tokens": 1618,
+    "eur_estimate": 0.001335
+  }
+}

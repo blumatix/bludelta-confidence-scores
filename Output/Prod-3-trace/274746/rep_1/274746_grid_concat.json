@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\274746\\274746_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": -540.0,
+    "Invoice.Date": "22.01.2024",
+    "Sender.VatId": "ATU21956408",
+    "Vat.Rate": 20,
+    "Net.Amount": -450.0,
+    "Vat.Amount": -90.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Classification check\n- Document contains invoice indicators: \"Gutschrift Nr.:\", \"Gutschriftsbetrag\", \"MWSt\", line with article, amounts, dates → classify as invoice (credit note).\n- Exclusion terms (\"Zahlungserinnerung\", \"Mahnung\", \"Servicebericht\") are absent.\n\n2) Locate invoice date\n- Found \"Ebensee, am 22.01.2024\" (top area) and \"Lieferdatum: 22.01.2024\".\n- Use issue date = \"22.01.2024\".\n\n3) Identify sender VAT ID\n- Two UIDs present:\n  - Near recipient label: \"UID Empfänger: ATU22642807\" → recipient VAT.\n  - Footer/company block: \"UID: ATU21956408\" with Alpensalz GesmbH details → sender VAT.\n- Use sender VAT = \"ATU21956408\".\n\n4) Grand total\n- \"Gutschriftsbetrag in EUR: -540,00\" is the payable total for the credit note.\n- Convert to numeric with two decimals: -540.00.\n\n5) VAT groups and amounts\n- VAT lines present:\n  - \"+10% MWSt von 0,00 0,00\" → rate 10, net 0, vat 0\n  - \"+13% MWSt von 0,00 0,00\" → rate 13, net 0, vat 0\n  - \"+20% MWSt von -450,00 -90,00\" → rate 20, net -450, vat -90\n- Per instructions, do not infer or aggregate; extract groups as shown.\n- Schema limitation: select VAT group(s) to report. The only non-zero VAT group is 20%: Vat.Rate = 20, Net.Amount = -450.00, Vat.Amount = -90.00.\n\n6) Decimal and rate formatting\n- Preserve two decimal places as in source.\n- Remove percent symbol from rate (e.g., \"20\").\n\nSummary of extracted fields to output:\n- Invoice.Date: \"22.01.2024\"\n- Sender.VatId: \"ATU21956408\"\n- GrandTotal.Amount: -540.00\n- Vat.Rate: 20\n- Net.Amount: -450.00\n- Vat.Amount: -90.00",
+    "step2": "Invoice.Date — Confidence: 0.95\n- Evidence: \"Ebensee, am 22.01.2024\" near header and \"Lieferdatum: 22.01.2024\" both present.\n- Reasoning: Both occurrence and typical placement support using 22.01.2024 as issue date. Small uncertainty if another issue date exists elsewhere, but none found.\n\nSender.VatId — Confidence: 0.95\n- Evidence: Footer lists \"UID: ATU21956408\" directly in company block for Alpensalz GesmbH (sender).\n- Reasoning: Clear, unambiguous sender VAT; low risk of misassigning recipient VAT (recipient UID also present).\n\nGrandTotal.Amount — Confidence: 0.90\n- Evidence: \"Gutschriftsbetrag in EUR: -540,00\" appears as final total.\n- Reasoning: Negative value consistent with a credit note; formatting matches invoice totals. Minor risk if another final total exists, but none seen.\n\nVat.Rate / Net.Amount / Vat.Amount (20% group) — Confidence: 0.90\n- Evidence: Line: \"+   20    %     MWSt          von                    -450,00                                 -90,00\"\n- Reasoning: Rate clearly 20, net -450, VAT -90. Other VAT groups (10%, 13%) have zeros; primary non-zero group is 20%. Low risk of misreading signs or placement.\n\nNet.Amount and Vat.Amount formatting — Confidence: 0.95\n- Evidence: Numeric values shown with two decimals and negative signs.\n- Reasoning: Exact values extracted without alteration; high confidence in preserved decimals.\n\nOverall consistency check — Confidence: 0.90\n- Evidence: Net (-450.00) + VAT (-90.00) = Grand Total (-540.00), consistent arithmetic.\n- Reasoning: Internal sums match, reinforcing correctness."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 14.14,
+      "input_tokens": 1709,
+      "cached_input_tokens": null,
+      "output_tokens": 1139,
+      "total_tokens": 2848,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.23,
+      "input_tokens": 2255,
+      "cached_input_tokens": null,
+      "output_tokens": 465,
+      "total_tokens": 2720,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.23,
+      "input_tokens": 2956,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3237,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\274746\\274746_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU21956408",
+        "ATU21956408"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        -540.0,
+        "-540,00"
+      ],
+      "Net.Amount": [
+        true,
+        -450.0,
+        "-450,00"
+      ],
+      "Vat.Amount": [
+        true,
+        -90.0,
+        "-90,00"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "22.01.2024",
+        "22.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6920,
+    "cached_input_tokens": 0,
+    "output_tokens": 1885,
+    "eur_estimate": 0.004783
+  }
+}

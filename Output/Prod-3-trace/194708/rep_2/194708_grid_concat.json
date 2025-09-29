@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\194708\\194708_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 473.0,
+    "Invoice.Date": "06.06.2023",
+    "Sender.VatId": "ATU38510009",
+    "Vat.Rate": 10,
+    "Net.Amount": 430.0,
+    "Vat.Amount": 43.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Step 1 — reasoning:\n\n- Identify invoice-like indicators: presence of \"Rechnungs-Nr.\", \"Rechnungsdatum\", \"USTID\", line items, Zwischensumme, MwSt, Warenwert, Gutschriftsbetrag — document qualifies as invoice/credit note (not excluded).\n- Determine sender VAT (Sender.VatId): two USTIDs present:\n  - \"USTID: ATU 22642807\" appears near Liefer-/Leistungsdatum and likely belongs to the customer (Psenner GmbH).\n  - Contact block for Günthart GmbH at bottom shows \"ATU38510009\" — this is the issuer/sender VAT. Choose ATU38510009 as Sender.VatId per rule (sender tax ID).\n- Invoice date (Invoice.Date): \"Rechnungsdatum: 06.06.2023\" → use string \"06.06.2023\".\n- Grand total (GrandTotal.Amount): \"Gutschriftsbetrag EUR 473,00\" and \"Rechnungsbetrag EUR 473,00\" both show 473,00 → 473.00 (preserve two decimals).\n- VAT grouping:\n  - Warenwert (Net.Amount) = 430,00.\n  - MwSt (10,00 %) = 43,00.\n  - VAT rate = 10,00 % → extract numeric rate as 10 (no percent symbol).\n- Verify no other VAT groups present (there is a line \"Falscher Mehrwertsteuersatz\" but no additional rate amounts); therefore single VAT group only.\n- Ensure no inference beyond visible data; all extracted values come directly from the text.",
+    "step2": "- Document classification confidence: High — contains explicit invoice headers (\"Rechnungs-Nr.\", \"Rechnungsdatum\", line items, Zwischensumme, MwSt, Gutschriftsbetrag).\n\n- Invoice.Date (\"06.06.2023\"): Very high — exact label \"Rechnungsdatum: 06.06.2023\" present.\n\n- Sender.VatId (\"ATU38510009\"): High — bottom contact block lists \"ATU38510009\" associated with Günthart GmbH (issuer). There is another USTID (\"ATU 22642807\") near the delivery block that likely belongs to the customer; selection of ATU38510009 for sender is well supported.\n\n- GrandTotal.Amount (473.00): High — multiple places show \"Rechnungsbetrag EUR 473,00\" and \"Gutschriftsbetrag EUR 473,00\"; consistent total.\n\n- Vat.Rate (10): High — text shows \"MwSt (10,00 %)\" and \"Warenwert (10,00 %)\"; clear single VAT rate of 10%.\n\n- Net.Amount (430.00): High — \"Warenwert ... 430,00\" appears as net value corresponding to VAT group.\n\n- Vat.Amount (43.00): High — \"MwSt (10,00 %) 43,00\" explicitly present.\n\n- Potential ambiguity/risks: The document is titled \"Gutschrift\" (credit note) which may alter semantics but still provides amounts — does not change field extraction. Also a line \"0001 231 Falscher Mehrwertsteuersatz\" exists but does not provide alternate numeric VAT group; thus ignored per No Inference."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.27,
+      "input_tokens": 1905,
+      "cached_input_tokens": null,
+      "output_tokens": 927,
+      "total_tokens": 2832,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.17,
+      "input_tokens": 2303,
+      "cached_input_tokens": null,
+      "output_tokens": 356,
+      "total_tokens": 2659,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.34,
+      "input_tokens": 2959,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3240,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\194708\\194708_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU38510009",
+        "ATU38510009"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        473.0,
+        "473,00"
+      ],
+      "Net.Amount": [
+        true,
+        430.0,
+        "430,00"
+      ],
+      "Vat.Amount": [
+        true,
+        43.0,
+        "43,00"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "06.06.2023",
+        "06.06.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7167,
+    "cached_input_tokens": 0,
+    "output_tokens": 1564,
+    "eur_estimate": 0.004282
+  }
+}

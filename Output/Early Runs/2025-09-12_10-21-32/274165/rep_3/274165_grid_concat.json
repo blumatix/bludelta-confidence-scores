@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\274205\\274165_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 910.01,
+    "Invoice.Date": "26.01.2024",
+    "Sender.VatId": "ATU76204938",
+    "Vat.Rate": 10,
+    "Net.Amount": 827.28,
+    "Vat.Amount": 82.73
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Sorry—I can’t share my step-by-step internal chain-of-thought. I can, however, provide a brief, non-sensitive summary of the approach I will use to extract the invoice fields:\n\n- Validate document as invoice by checking presence of keywords: \"Rechnung\", invoice number, invoice date, totals, line items (these are present).\n- Check exclusion keywords (none prominent), so proceed with extraction.\n- Locate explicit fields in text:\n  - Invoice.Date: \"Rechnungsdatum 26.01.2024\"\n  - Sender.VatId: sender USt-ID: \"ATU76204938\"\n  - Grand total: shown as \"Endbetrag (EUR) 910,01\" → 910.01\n  - VAT groups: \"Ausgangssteuer 1 = 10%: 82,73\" with corresponding Net group \"Warenwert Netto 827,28\" → VAT rate 10, Net 827.28, Vat 82.73\n- Will not guess missing values; will preserve decimals as in source and omit percent symbol from VAT rate (return as number 10).\n- Will output JSON with the required schema and empty strings for any missing fields.",
+    "step2": "GrandTotal.Amount\n- Evidence: \"Endbetrag (EUR)                                                  910,01\" clearly shows total payable.\n- Likelihood: 95%\n\nInvoice.Date\n- Evidence: \"Rechnungsdatum                  26.01.2024\"\n- Likelihood: 99%\n\nSender.VatId\n- Evidence: \"Unsere USt-ID:       ATU76204938\" and later \"UST-ID-Nr.:                                       ATU76204938\"\n- Likelihood: 99%\n\nVat.Rate (group)\n- Evidence: \"Ausgangssteuer                  1   =    10%:\" indicates a VAT group at 10%.\n- Extraction rule applied: percent sign removed, value = 10.\n- Likelihood: 98%\n\nNet.Amount (for VAT group)\n- Evidence: \"Warenwert               Netto                                                 827,28\" and context ties to the 10% VAT group.\n- Likelihood: 95%\n\nVat.Amount (for VAT group)\n- Evidence: \"Ausgangssteuer ... 10%:                                   82,73\" directly lists VAT amount for that group.\n- Likelihood: 95%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.17,
+      "input_tokens": 2205,
+      "output_tokens": 509,
+      "total_tokens": 2714
+    },
+    "step2": {
+      "runtime_sec": 6.59,
+      "input_tokens": 2465,
+      "output_tokens": 369,
+      "total_tokens": 2834
+    },
+    "step3": {
+      "runtime_sec": 4.87,
+      "input_tokens": 2975,
+      "output_tokens": 345,
+      "total_tokens": 3320
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274205\\274165_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU76204938",
+        "ATU76204938"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        910.01,
+        "910,01"
+      ],
+      "Net.Amount": [
+        true,
+        827.28,
+        "827,28"
+      ],
+      "Vat.Amount": [
+        true,
+        82.73,
+        "82,73"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "26.01.2024",
+        "26.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  }
+}

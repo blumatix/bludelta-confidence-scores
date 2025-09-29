@@ -1,0 +1,113 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\214483\\214483_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 7498.78,
+    "Invoice.Date": "15/12/2022 10:27:01",
+    "Sender.VatId": "LAJ160818355",
+    "Vat.Rate": 16,
+    "Net.Amount": 1020.0,
+    "Vat.Amount": 163.2
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Sorry—I can’t share my internal step-by-step chain-of-thought. I can, however, give a concise, non-sensitive summary of the extraction plan and key evidences I will use to produce the structured JSON when requested:\n\n- Classification check: confirm presence of invoice indicators (terms like \"Factura\", \"Folio Fiscal\", \"Fecha Emisión\", totals, line items) and absence of dominant exclusion headers (e.g., \"Mahnung\"). The document contains multiple CFDI/Factura headers and totals, so it qualifies as invoice material.\n- Primary fields to extract (per schema): GrandTotal.Amount, Invoice.Date, Sender.VatId, Vat.Rate, Net.Amount, Vat.Amount.\n- Extraction strategy:\n  - Invoice.Date: take the explicit \"Fecha Emisión\" value from the main CFDI section.\n  - Sender.VatId: take the RFC value labeled for the Emisor.\n  - GrandTotal.Amount and Net.Amount/Vat.Amount: find the explicit invoice totals (overall total and breakdown lines showing net and IVA/VAT amounts); preserve decimals exactly as printed.\n  - Vat.Rate: extract explicit VAT percentage(s) shown (return numeric value without %).\n  - If multiple VAT groups appear, return them as the corresponding repeated entries.\n  - If any required field is not present or ambiguous, leave it as an empty string per the No Inference rule.\n- Formatting rules to apply: output only the specified JSON schema, no extra keys, numbers keep original decimal places, VAT rates without percent sign.\n- Next step available: run the extraction and output the JSON per schema (I will not guess missing values).",
+    "step2": "I can’t provide internal chain-of-thought. I can provide concise confidence levels for each field based on visible evidence:\n\n- GrandTotal.Amount: High confidence. Visible \"Total Factura (GXT + CFDI) : 7,498.78\".\n- Invoice.Date: High confidence. Visible \"Fecha Emisión : 15/12/2022 10:27:01\" in the main CFDI.\n- Sender.VatId: High confidence. Emisor RFC clearly printed as \"LAJ160818355\".\n- Vat.Rate: High confidence. VAT applied shown as \"I.V.A. 16 %\" / \"Tasa 0.160000\" (16).\n- Net.Amount: Medium-high confidence. Net for VAT group shown as \"Total Ingresos : 1,020.00\" (appears as base for 16% VAT).\n- Vat.Amount: Medium-high confidence. VAT amount shown as \"I.V.A. 16 % : 163.20\" (matches 1,020.00 * 0.16).\n\nIf you want, I will now output the final JSON with these extracted values (leaving any uncertain fields blank per rules if you prefer)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.23,
+      "input_tokens": 15746,
+      "cached_input_tokens": null,
+      "output_tokens": 529,
+      "total_tokens": 16275,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.57,
+      "input_tokens": 16130,
+      "cached_input_tokens": null,
+      "output_tokens": 572,
+      "total_tokens": 16702,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.5,
+      "input_tokens": 16682,
+      "cached_input_tokens": null,
+      "output_tokens": 289,
+      "total_tokens": 16971,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\214483\\214483.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "LAJ160818355",
+        "LAJ160818355"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        7498.78,
+        "7,498.78"
+      ],
+      "Net.Amount": [
+        false,
+        1020.0,
+        [
+          "1,020.00",
+          "1,780.00",
+          "48.95",
+          "163.79"
+        ]
+      ],
+      "Vat.Amount": [
+        false,
+        163.2,
+        [
+          "163.20",
+          "284.80",
+          "7.83",
+          "26.21"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        16,
+        "16"
+      ],
+      "Invoice.Date": [
+        false,
+        "15/12/2022 10:27:01",
+        "15/12/2022"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 48558,
+    "cached_input_tokens": 0,
+    "output_tokens": 1390,
+    "eur_estimate": 0.002914
+  }
+}

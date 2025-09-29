@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\274772\\274686_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 186.11,
+    "Invoice.Date": "29.01.2024",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": 20,
+    "Net.Amount": 155.09,
+    "Vat.Amount": 31.02
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Summary of extraction approach and findings (concise, non-sensitive):\n\n1) Document classification: contains clear invoice indicators (\"Rechnung\", \"Rechnungsendbetrag\", invoice number R1040539, line items, totals) — classify as invoice.\n\n2) Locate invoice-level fields:\n   - Invoice date: \"Druckdatum 29.01.2024\" → candidate Invoice.Date = \"29.01.2024\".\n   - Grand total: \"Rechnungsendbetrag 186,11 €\" → candidate GrandTotal.Amount = 186.11.\n   - Sender VAT ID: UID entries — sender (hollu) shows \"UID-Nr ATU22642807\" near Rechnungsanschrift → candidate Sender.VatId = \"ATU22642807\".\n\n3) VAT group details:\n   - Net amount: \"Zwischensumme 155,09 €\" → candidate Net.Amount = 155.09.\n   - VAT rate: \"+  20,0 % Ust. von 155,09 €\" → candidate Vat.Rate = 20.0 (drop % per rule).\n   - VAT amount: \"31,02 €\" shown alongside → candidate Vat.Amount = 31.02.\n\n4) Validation against rules:\n   - No inference used; values taken verbatim from invoice text (commas converted to decimal points preserving decimals).\n   - All extracted values correspond to invoice-wide totals (not line-item-specific).\n   - If any of the above were missing, would output empty strings per schema.\n\nI will prepare the final JSON extraction when you confirm to proceed.",
+    "step2": "GrandTotal.Amount — High confidence.\nEvidence: \"Rechnungsendbetrag 186,11 €\" clearly printed; numeric format matches expectation.\n\nInvoice.Date — High confidence.\nEvidence: \"Druckdatum 29.01.2024\" is the only clear date associated with the invoice header.\n\nSender.VatId — High confidence.\nEvidence: \"UID-Nr ATU22642807\" appears next to Rechnungsanschrift (sender block), matching sender VAT ID placement.\n\nVat.Rate — High confidence.\nEvidence: \"+  20,0 % Ust. von 155,09 €\" indicates a 20.0% VAT rate for the invoice.\n\nNet.Amount — High confidence.\nEvidence: \"Zwischensumme 155,09 €\" is the invoice subtotal before VAT.\n\nVat.Amount — High confidence.\nEvidence: VAT line shows \"31,02 €\" corresponding to 20% of 155,09 € (arithmetically consistent)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.73,
+      "input_tokens": 2172,
+      "output_tokens": 846,
+      "total_tokens": 3018
+    },
+    "step2": {
+      "runtime_sec": 5.52,
+      "input_tokens": 2513,
+      "output_tokens": 394,
+      "total_tokens": 2907
+    },
+    "step3": {
+      "runtime_sec": 3.91,
+      "input_tokens": 2984,
+      "output_tokens": 281,
+      "total_tokens": 3265
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274772\\274686_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU66213527,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        186.11,
+        "186,11"
+      ],
+      "Net.Amount": [
+        true,
+        155.09,
+        "155,09"
+      ],
+      "Vat.Amount": [
+        true,
+        31.02,
+        "31,02"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,0"
+      ],
+      "Invoice.Date": [
+        true,
+        "29.01.2024",
+        "29.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  }
+}

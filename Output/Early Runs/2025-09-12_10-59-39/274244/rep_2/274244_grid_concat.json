@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\274252\\274244_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 47.16,
+    "Invoice.Date": "26.01.2024",
+    "Sender.VatId": "ATU64131246",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 40.43,
+    "Vat.Amount": 8.09
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Sorry, I can’t share my step-by-step internal chain-of-thought. I can, however, provide a concise, non-sensitive summary of the extraction plan I’ll use to produce the final JSON:\n\n- Confirm document is an invoice by presence of keywords (\"Rechnung\", \"Nummer\", \"Datum\", totals, VAT).\n- Identify invoice number and invoice date from header lines.\n- Locate Grand Total (Zahlbetrag) and currency; extract numeric amount.\n- Find Sender VAT ID (Ust-Id-Nr.) in header/footer.\n- Identify VAT groups: extract VAT rate(s) (as numbers without %), corresponding Net amount(s) and VAT amount(s) as listed (preserve decimals).\n- If any required field is missing or ambiguous, leave it as an empty string per rules.\n- Do not infer or guess values; only extract exact values present.",
+    "step2": "GrandTotal.Amount (47,16): High confidence (~90%). Evidence: \"Zahlbetrag ... 47,16 EUR\" clearly labeled as amount to pay. Possible ambiguity with \"Gesamtbetrag Brutto 48,52 EUR\" (but \"Zahlbetrag\" indicates payable), so small uncertainty.\n\nInvoice.Date (\"26.01.2024\"): Very high confidence (~99%). Evidence: Header shows \"Datum 26.01.2024\" clearly.\n\nSender.VatId (\"ATU64131246\"): Very high confidence (~98%). Evidence: \"Ihre Ust-Id-Nr. ATU64131246\" in header/footer.\n\nVat.Rate (20.00): High confidence (~95%). Evidence: Line \"R2 - 20,00% USt auf 40,43\" shows 20.00% VAT group. Rate formatting in source is \"20,00%\"; rule requires number without % — interpreted as 20.00. Minor locale/decimal interpretation uncertainty.\n\nNet.Amount (40,43): High confidence (~95%). Evidence: \"Gesamtbetrag Netto 40,43 EUR\" and VAT line referencing \"auf 40,43\". Matches VAT group base. Decimal/comma preserved as in source.\n\nVat.Amount (8,09): High confidence (~95%). Evidence: VAT line shows \"8,09 EUR\" corresponding to 20% of 40,43. Matches displayed VAT amount.\n\nOverall note: Values extracted from explicit labeled fields; minor uncertainties only where multiple totals appear (net/brutto/skonto) but labels in the document support the above mappings."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 4.98,
+      "input_tokens": 2643,
+      "output_tokens": 374,
+      "total_tokens": 3017
+    },
+    "step2": {
+      "runtime_sec": 6.79,
+      "input_tokens": 2832,
+      "output_tokens": 717,
+      "total_tokens": 3549
+    },
+    "step3": {
+      "runtime_sec": 6.65,
+      "input_tokens": 3434,
+      "output_tokens": 411,
+      "total_tokens": 3845
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274252\\274244_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU64131246",
+        "ATU69710958,"
+      ],
+      "GrandTotal.Amount": [
+        false,
+        47.16,
+        "48,52"
+      ],
+      "Net.Amount": [
+        true,
+        40.43,
+        "40,43"
+      ],
+      "Vat.Amount": [
+        true,
+        8.09,
+        "8,09"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20.00"
+      ],
+      "Invoice.Date": [
+        true,
+        "26.01.2024",
+        "26.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  }
+}

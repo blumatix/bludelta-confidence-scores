@@ -1,0 +1,203 @@
+{
+  "input_path": "..\\Documents\\275159\\275159_grid_concat.txt",
+  "n_paths": 1,
+  "final_answer": {
+    "Vat.Rate": {
+      "value": 10.0,
+      "sum_confidence": 0.99,
+      "vote_count": 1,
+      "avg_confidence": 0.99
+    },
+    "Invoice.Date": {
+      "value": "30.01.2024",
+      "sum_confidence": 0.99,
+      "vote_count": 1,
+      "avg_confidence": 0.99
+    },
+    "GrandTotal.Amount": {
+      "value": 24353.89,
+      "sum_confidence": 0.99,
+      "vote_count": 1,
+      "avg_confidence": 0.99
+    },
+    "Sender.VatId": {
+      "value": "ATU16040004",
+      "sum_confidence": 0.95,
+      "vote_count": 1,
+      "avg_confidence": 0.95
+    },
+    "Net.Amount": {
+      "value": 22139.9,
+      "sum_confidence": 0.99,
+      "vote_count": 1,
+      "avg_confidence": 0.99
+    },
+    "Vat.Amount": {
+      "value": 2213.99,
+      "sum_confidence": 0.99,
+      "vote_count": 1,
+      "avg_confidence": 0.99
+    }
+  },
+  "runs": [
+    {
+      "input_path": "..\\Documents\\275159\\275159_grid_concat.txt",
+      "answer": {
+        "GrandTotal.Amount": 24353.89,
+        "Invoice.Date": "30.01.2024",
+        "Sender.VatId": "ATU16040004",
+        "Vat.Rate": 10.0,
+        "Net.Amount": 22139.9,
+        "Vat.Amount": 2213.99
+      },
+      "confidence_numeric": {
+        "GrandTotal.Amount": 0.99,
+        "Invoice.Date": 0.99,
+        "Sender.VatId": 0.95,
+        "Vat.Rate": 0.99,
+        "Net.Amount": 0.99,
+        "Vat.Amount": 0.99
+      },
+      "confidence_verbal": {
+        "GrandTotal.Amount": "Almost certain",
+        "Invoice.Date": "Almost certain",
+        "Sender.VatId": "Almost certain",
+        "Vat.Rate": "Almost certain",
+        "Net.Amount": "Almost certain",
+        "Vat.Amount": "Almost certain"
+      },
+      "reasoning": {
+        "step1": "I will identify invoice vs non-invoice, locate required fields, consider alternatives, and decide values or leave empty per rules.\n\n1) Invoice classification\n- Document contains \"Rechnung\" and \"Invoice\", invoice number, invoice date label, line items, subtotal, VAT and total — clearly an invoice. Proceed to extract.\n\n2) Locate Invoice.Date\n- Text shows \"Fakturadatum 30.01.2024\" and \"Invoice Date\" nearby. Strong match. Invoice.Date = \"30.01.2024\".\n\n3) Locate GrandTotal.Amount\n- \"Gesamtbetrag 24.353,89\" and \"Total Amount\" on page 2. This is total payable. Number formatting uses comma as decimal separator and dot as thousand separator. Need to output as number type preserving decimals. Interpret \"24.353,89\" as 24353.89. GrandTotal.Amount = 24353.89.\n\n4) Locate Sender.VatId\n- Two VAT IDs appear:\n  - \"Ihre USt.-ID-Nr. ATU22642807\" labeled \"Your VAT No.\" (likely buyer?) and\n  - \"Unsere USt.-ID-Nr. ATU16040004\" labeled \"Our VAT No.\" (sender).\n- Field required is Sender.VatId. \"Unsere USt.-ID-Nr. ATU16040004\" is sender VAT. Sender.VatId = \"ATU16040004\".\n\n5) Locate VAT group(s) (Vat.Rate, Net.Amount, Vat.Amount)\n- Page 2 shows:\n  - \"Zwischensumme o. USt. 22.160,000 KG 22.139,90\" — likely subtotal before tax. The numeric subtotal is \"22.139,90\" (22,139.90).\n  - \"Umsatzsteuer 10,00 % von 22.139,90 EUR 2.213,99\" — VAT rate 10.00%, VAT amount 2.213,99 (2,213.99).\n- So single VAT group with:\n  - Vat.Rate = 10.00 -> per rule, remove percent symbol and keep decimals: number 10.00 (but schema expects number; could be 10 or 10.00; keep same decimals as input -> \"10,00 %\" -> 10.00).\n  - Net.Amount = 22.139,90 -> interpret as 22139.90.\n  - Vat.Amount = 2.213,99 -> interpret as 2213.99.\n- Confirm sums: Net 22139.90 + VAT 2213.99 = 24353.89 matches GrandTotal. Good.\n\n6) Number formatting and decimals\n- Maintain decimal places as in input (two decimals). Convert comma decimal to dot for numeric fields. Vat.Rate keep two decimals (10.00).\n\n7) Any missing required fields?\n- All required fields found. No inference beyond visible data.\n\nConclusion: ready to produce final JSON with:\n- GrandTotal.Amount: 24353.89 (number)\n- Invoice.Date: \"30.01.2024\"\n- Sender.VatId: \"ATU16040004\"\n- Vat.Rate: 10.00 (number)\n- Net.Amount: 22139.90 (number)\n- Vat.Amount: 2213.99 (number)",
+        "step2": "GrandTotal.Amount — Confidence: Very High (≈99%)\n- Evidence: Explicit line \"Gesamtbetrag 24.353,89 / Total Amount\". Numeric matches sum of net + VAT shown. Low ambiguity.\n\nInvoice.Date — Confidence: Very High (≈99%)\n- Evidence: Explicit \"Fakturadatum 30.01.2024\" with nearby \"Invoice Date\". Clear date format, unambiguous.\n\nSender.VatId — Confidence: High (≈95%)\n- Evidence: Two VAT IDs present: \"Ihre USt.-ID-Nr. ATU22642807\" and \"Unsere USt.-ID-Nr. ATU16040004\". Label \"Unsere USt.-ID-Nr.\" (Our VAT No.) strongly indicates sender. Minor uncertainty only if header interpretation reversed, but context (our/your) is clear.\n\nVat.Rate — Confidence: Very High (≈99%)\n- Evidence: \"Umsatzsteuer 10,00 % von 22.139,90 EUR\" explicitly states 10.00%. Clear formatting and used in VAT calculation.\n\nNet.Amount — Confidence: Very High (≈99%)\n- Evidence: \"Zwischensumme o. USt. ... 22.139,90 / Subtotal before output tax\" directly gives net amount used as basis for VAT. Matches arithmetic.\n\nVat.Amount — Confidence: Very High (≈99%)\n- Evidence: \"Umsatzsteuer ... 2.213,99\" explicitly states VAT amount. Also arithmetically consistent with rate and net (22139.90 * 0.10 = 2213.99).\n\nOverall arithmetic consistency between Net + VAT = GrandTotal supports high confidence across fields."
+      },
+      "llm_logs": {
+        "step1": {
+          "runtime_sec": 7.7,
+          "input_tokens": 1950,
+          "cached_input_tokens": null,
+          "output_tokens": 831,
+          "total_tokens": 2781,
+          "timed_out": false
+        },
+        "step2": {
+          "runtime_sec": 5.34,
+          "input_tokens": 2700,
+          "cached_input_tokens": null,
+          "output_tokens": 354,
+          "total_tokens": 3054,
+          "timed_out": false
+        },
+        "step3": {
+          "runtime_sec": 3.99,
+          "input_tokens": 3142,
+          "cached_input_tokens": null,
+          "output_tokens": 286,
+          "total_tokens": 3428,
+          "timed_out": false
+        }
+      },
+      "evaluation": {
+        "ground_truth_path": "..\\Documents\\275159\\275159_test.json",
+        "per_field": {
+          "Sender.VatId": [
+            true,
+            "ATU16040004",
+            "ATU16040004"
+          ],
+          "GrandTotal.Amount": [
+            true,
+            24353.89,
+            "24.353,89"
+          ],
+          "Net.Amount": [
+            true,
+            22139.9,
+            "22.139,90"
+          ],
+          "Vat.Amount": [
+            true,
+            2213.99,
+            "2.213,99"
+          ],
+          "Vat.Rate": [
+            true,
+            10.0,
+            "10,00"
+          ],
+          "Invoice.Date": [
+            true,
+            "30.01.2024",
+            "30.01.2024"
+          ]
+        },
+        "summary": {
+          "matched": 6,
+          "total": 6,
+          "all_match": true
+        }
+      },
+      "cost": {
+        "input_tokens": 7792,
+        "cached_input_tokens": 0,
+        "output_tokens": 1471,
+        "eur_estimate": 0.000904
+      }
+    }
+  ],
+  "vote_debug": {
+    "Vat.Rate": {
+      "sum_conf_per_value": {
+        "10.0": 0.99
+      },
+      "counts": {
+        "10.0": 1
+      }
+    },
+    "Invoice.Date": {
+      "sum_conf_per_value": {
+        "30.01.2024": 0.99
+      },
+      "counts": {
+        "30.01.2024": 1
+      }
+    },
+    "GrandTotal.Amount": {
+      "sum_conf_per_value": {
+        "24353.89": 0.99
+      },
+      "counts": {
+        "24353.89": 1
+      }
+    },
+    "Sender.VatId": {
+      "sum_conf_per_value": {
+        "ATU16040004": 0.95
+      },
+      "counts": {
+        "ATU16040004": 1
+      }
+    },
+    "Net.Amount": {
+      "sum_conf_per_value": {
+        "22139.9": 0.99
+      },
+      "counts": {
+        "22139.9": 1
+      }
+    },
+    "Vat.Amount": {
+      "sum_conf_per_value": {
+        "2213.99": 0.99
+      },
+      "counts": {
+        "2213.99": 1
+      }
+    }
+  },
+  "cost": {
+    "input_tokens": 7792,
+    "cached_input_tokens": 0,
+    "output_tokens": 1471,
+    "eur_estimate": 0.000904
+  }
+}

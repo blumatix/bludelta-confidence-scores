@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\255516\\255511_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 769.33,
+    "Invoice.Date": "24.11.2023",
+    "Sender.VatId": "ATU23264205",
+    "Vat.Rate": 10,
+    "Net.Amount": 699.39,
+    "Vat.Amount": 69.94
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Step 1: Identify document type\n- Looked for invoice indicators: header \"Rechnung\", \"Gesamtbetrag\", line items, VAT percent — present.\n- No exclusion indicators (\"Mahnung\", \"Zahlungserinnerung\") dominating. Classified as an invoice.\n\nStep 2: Locate invoice date\n- Found \"v. 24.11.2023\" next to \"Belegnr. 31675517\" and \"Lieferschein 22897930 v. 24.11.2023\". Use invoice issue date = \"24.11.2023\".\n\nStep 3: Determine sender VAT ID\n- Two UIDs present:\n  - UID: ATU22642807 appears with BÄKO Österreich (invoice recipient / Warenempfänger).\n  - UID: ATU23264205 appears in footer with company details of NÖM AG (sender).\n- Sender.VatId = \"ATU23264205\".\n\nStep 4: Find VAT rate(s)\n- Found \"Umsatzsteuer 10,00%\" and line items show \"Ust % 10\". Vat.Rate = 10 (per Rule: no % symbol).\n\nStep 5: Extract net amount and VAT amount\n- \"Gesamtbetrag exkl. 699,39\" -> Net.Amount = 699.39 (preserve two decimals).\n- \"Umsatzsteuer 10,00% von 699,39 69,94\" -> Vat.Amount = 69.94 (preserve two decimals).\n\nStep 6: Extract grand total\n- \"Rechnungsbetrag 769,33\" -> GrandTotal.Amount = 769.33 (preserve two decimals).\n\nStep 7: Verify no inference and consistency\n- All extracted values explicitly present; no guessing.\n- Decimal formatting preserved.",
+    "step2": "GrandTotal.Amount (769.33)\n- Evidence: \"Rechnungsbetrag 769,33\" clearly printed.\n- Consistency: equals Net + VAT (699.39 + 69.94 = 769.33).\n- Confidence: 99%\n\nInvoice.Date (\"24.11.2023\")\n- Evidence: date shown as \"v. 24.11.2023\" adjacent to Belegnr. and Lieferschein; typical invoice issue date placement.\n- Ambiguity: multiple \"v.\" occurrences but same date repeated; no alternative invoice-date label.\n- Confidence: 95%\n\nSender.VatId (\"ATU23264205\")\n- Evidence: Footer lists company details for NÖM AG including \"UID: ATU23264205\" (matches sender header NÖM AG).\n- Ambiguity: another UID (ATU22642807) appears for the recipient; correct sender UID chosen based on sender/company header.\n- Confidence: 95%\n\nVat.Rate (10)\n- Evidence: \"Umsatzsteuer 10,00%\" and line-item Ust % column shows 10.\n- Formatting: extracted without percent per rule.\n- Confidence: 99%\n\nNet.Amount (699.39)\n- Evidence: \"Gesamtbetrag exkl. 699,39\" explicitly shown.\n- Consistency: used to compute VAT and grand total.\n- Confidence: 99%\n\nVat.Amount (69.94)\n- Evidence: \"Umsatzsteuer 10,00% von 699,39 69,94\" explicitly shown.\n- Consistency: 10% of 699.39 equals 69.939 → rounded/displayed as 69.94 in document; use displayed value.\n- Confidence: 98%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.77,
+      "input_tokens": 2040,
+      "cached_input_tokens": null,
+      "output_tokens": 699,
+      "total_tokens": 2739,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.04,
+      "input_tokens": 2466,
+      "cached_input_tokens": null,
+      "output_tokens": 430,
+      "total_tokens": 2896,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.71,
+      "input_tokens": 3132,
+      "cached_input_tokens": null,
+      "output_tokens": 217,
+      "total_tokens": 3349,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\255516\\255511_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU23264205",
+        "ATU23264205,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        769.33,
+        "769,33"
+      ],
+      "Net.Amount": [
+        true,
+        699.39,
+        "699,39"
+      ],
+      "Vat.Amount": [
+        true,
+        69.94,
+        "69,94"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "24.11.2023",
+        "24.11.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7638,
+    "cached_input_tokens": 0,
+    "output_tokens": 1346,
+    "eur_estimate": 0.004009
+  }
+}

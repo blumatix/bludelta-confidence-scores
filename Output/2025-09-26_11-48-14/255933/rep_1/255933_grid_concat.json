@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\255961\\255933_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 4740.0,
+    "Invoice.Date": "23.11.2023",
+    "Sender.VatId": "ATU61127809",
+    "Vat.Rate": 20,
+    "Net.Amount": 3950.0,
+    "Vat.Amount": 790.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: Document is an invoice (contains \"Rechnung\", invoice number, invoice date, totals, VAT line).\n\nDetected fields to extract:\n- Invoice date: \"23.11.2023\" (Rechnungsdatum)\n- Grand total: \"4.740,00\" EUR (Gesamtsumme)\n- Net amount: \"3.950,00\" EUR (Zwischensumme)\n- VAT rate: \"20%\" (listed as \"+20% MwSt.\")\n- VAT amount: \"790,00\" EUR (\"+790,00\")\n- Sender VAT ID: \"ATU61127809\" (listed under FIRMENBUCHNR. block as UID-NR.)\n\nNo inference used; values taken directly from the invoice text. I will produce the final JSON in the next step.",
+    "step2": "Invoice.Date — High confidence (≈95%): \"Rechnungsdatum 23.11.2023\" is explicitly shown.\n\nGrandTotal.Amount — High confidence (≈95%): \"Gesamtsumme in EUR 4.740,00\" is explicit and matches subtotal + VAT (3.950,00 + 790,00 = 4.740,00).\n\nNet.Amount — High confidence (≈95%): \"Zwischensumme in EUR 3.950,00\" is explicit and used as base for VAT calculation.\n\nVat.Rate — High confidence (≈95%): \"+20% MwSt. von 3.950,00\" explicitly states 20% VAT.\n\nVat.Amount — High confidence (≈95%): \"+790,00\" shown next to the VAT line; 20% of 3.950,00 equals 790,00, consistent.\n\nSender.VatId — Moderate-high confidence (≈85%): Two VAT/UID numbers appear: \"Ihre Ust-ID-Nr. ATU64131246\" near top (customer-related label “Ihre”) and \"UID-NR. ATU61127809\" in company block at bottom. I selected ATU61127809 as sender VAT because it appears in the sender/company information block; however there is potential ambiguity since ATU64131246 also appears on the page labeled \"Ihre Ust-ID-Nr.\" (likely the customer's VAT)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.14,
+      "input_tokens": 2115,
+      "cached_input_tokens": null,
+      "output_tokens": 683,
+      "total_tokens": 2798,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.54,
+      "input_tokens": 2333,
+      "cached_input_tokens": null,
+      "output_tokens": 430,
+      "total_tokens": 2763,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.82,
+      "input_tokens": 2935,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 3282,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\255961\\255933_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU61127809",
+        "ATU61127809"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        4740.0,
+        "4.740,00"
+      ],
+      "Net.Amount": [
+        true,
+        3950.0,
+        "3.950,00"
+      ],
+      "Vat.Amount": [
+        true,
+        790.0,
+        "+790,00"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "+20%"
+      ],
+      "Invoice.Date": [
+        true,
+        "23.11.2023",
+        "23.11.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7383,
+    "cached_input_tokens": 0,
+    "output_tokens": 1460,
+    "eur_estimate": 0.00415
+  }
+}

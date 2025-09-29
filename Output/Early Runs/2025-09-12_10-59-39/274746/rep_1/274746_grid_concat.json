@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\274746\\274746_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": -540.0,
+    "Invoice.Date": "22.01.2024",
+    "Sender.VatId": "ATU21956408",
+    "Vat.Rate": 20,
+    "Net.Amount": -450.0,
+    "Vat.Amount": -90.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will extract invoice fields by locating invoice indicators, validating invoice headers, and reading numeric totals and VAT group lines.\n\nFindings and verification steps:\n- Confirmed document is an invoice/credit note (\"Gutschrift Nr.: 101172\") with invoice-like sections and no exclusion terms.\n- Invoice date located next to location line: \"Ebensee, am 22.01.2024\" → Invoice.Date = \"22.01.2024\".\n- Grand total shown as \"Gutschriftsbetrag in EUR: -540,00\" → GrandTotal.Amount = -540,00.\n- Sender VAT ID (UID) in footer: \"UID: ATU21956408\" → Sender.VatId = \"ATU21956408\".\n- VAT groups listed; only 20% group has non-zero values:\n  - \"20 % MWSt von -450,00  -90,00\" → Vat.Rate = 20; Net.Amount = -450,00; Vat.Amount = -90,00.\n- No other non-zero VAT groups (10% and 13% show 0,00) so only the 20% group is populated.\n- Preserved original decimal formatting and signs; no guessing for missing fields.",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"confidence\": \"high\",\n    \"reasoning\": \"Document shows explicit line 'Gutschriftsbetrag in EUR: -540,00' which directly matches the extracted value; sign and decimals present.\"\n  },\n  \"Invoice.Date\": {\n    \"confidence\": \"high\",\n    \"reasoning\": \"Date appears clearly as 'Ebensee, am 22.01.2024' near header; format unambiguous.\"\n  },\n  \"Sender.VatId\": {\n    \"confidence\": \"high\",\n    \"reasoning\": \"Footer contains 'UID: ATU21956408' labeled for the sender; exact match.\"\n  },\n  \"Vat.Rate\": {\n    \"confidence\": \"high\",\n    \"reasoning\": \"VAT group lines list several rates; only the 20% group has non-zero amounts. Extracting '20' (without % per rule) matches the non-zero VAT row.\"\n  },\n  \"Net.Amount\": {\n    \"confidence\": \"high\",\n    \"reasoning\": \"The VAT group shows 'von -450,00' for the 20% line, corresponding to the taxable net amount; formatting and sign match the document.\"\n  },\n  \"Vat.Amount\": {\n    \"confidence\": \"high\",\n    \"reasoning\": \"The 20% VAT line shows '-90,00' as VAT amount; this is explicitly stated and consistent with 20% of -450,00.\"\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.55,
+      "input_tokens": 1709,
+      "output_tokens": 709,
+      "total_tokens": 2418
+    },
+    "step2": {
+      "runtime_sec": 8.05,
+      "input_tokens": 1977,
+      "output_tokens": 374,
+      "total_tokens": 2351
+    },
+    "step3": {
+      "runtime_sec": 6.16,
+      "input_tokens": 2556,
+      "output_tokens": 281,
+      "total_tokens": 2837
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274746\\274746_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU21956408",
+        "ATU21956408"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        -540.0,
+        "-540,00"
+      ],
+      "Net.Amount": [
+        true,
+        -450.0,
+        "-450,00"
+      ],
+      "Vat.Amount": [
+        true,
+        -90.0,
+        "-90,00"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "22.01.2024",
+        "22.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  }
+}

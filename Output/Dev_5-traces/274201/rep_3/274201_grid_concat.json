@@ -1,0 +1,130 @@
+{
+  "input_path": "..\\Documents\\274201\\274201_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 827.41,
+    "Invoice.Date": "29.01.2024",
+    "Sender.VatId": "ATU79411414",
+    "Vat.Rate": [
+      10,
+      20
+    ],
+    "Net.Amount": [
+      562.9,
+      173.52
+    ],
+    "Vat.Amount": [
+      56.29,
+      34.7
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will:\n- Verify this is an invoice by locating invoice keywords and headers (found \"Rechnung\", \"Rechnungsdatum\", totals).\n- Identify the invoice date (found \"Rechnungsdatum 29.01.2024\").\n- Determine the sender VAT: footer shows \"UID-Nr.: ATU79411414\" (supplier Wurth EF GmbH), while header lists \"Ihre UID/VAT-Nr. ATU22642807\" (customer); per schema Sender.VatId = ATU79411414.\n- Extract monetary totals exactly as printed (commas as decimal separators to be converted to numbers preserving decimals):\n  - Grand total: \"Gesamtsumme EUR 827,41\" → 827.41\n  - Net amount: \"Summe exkl. MwSt 736,42\" → 736.42\n- Extract VAT groups shown:\n  - 10% for 562,90 with VAT amount 56,29 → Vat.Rate 10, Net.Amount 562.90, Vat.Amount 56.29\n  - 20% for 173,52 with VAT amount 34,70 → Vat.Rate 20, Net.Amount 173.52, Vat.Amount 34.70\n- Ensure no inference beyond visible text and preserve decimal places as printed.",
+    "step2": "GrandTotal.Amount — 95% confident.\nEvidence: \"Gesamtsumme EUR                                827,41\" clearly printed. Minor OCR risk for digits, but formatting and consistency with net+VAT sums supports it.\n\nInvoice.Date — 99% confident.\nEvidence: \"Rechnungsdatum                                 29.01.2024\" explicitly present.\n\nSender.VatId — 90% confident.\nEvidence: Footer shows \"UID-Nr.:    ATU79411414\" associated with Wurth EF GmbH (sender). Header also shows \"Ihre UID/VAT-Nr. ATU22642807\" (customer); selection of footer value as sender VAT is supported but depends on interpreting footer as sender. Low risk of swapped roles.\n\nVat.Rate / Vat.Group entries — 98% confident.\nEvidence: Two VAT groups shown:\n- \"10%      MWSt         für   562,90                                 56,29\" → Rate 10, Net 562,90, Vat 56,29.\n- \"20%      MWSt         für   173,52                                 34,70\" → Rate 20, Net 173,52, Vat 34,70.\nFormatting is explicit and matches usual presentation.\n\nNet.Amount — 98% confident.\nEvidence: \"Summe          exkl.     MwSt                                   736,42\" explicitly present; equals sum of 562,90 + 173,52 = 736,42, consistent.\n\nVat.Amount — 98% confident.\nEvidence: VAT amounts shown as 56,29 and 34,70 corresponding to the 10% and 20% lines; their sum 90,99 plus net 736,42 equals grand total 827,41 (accounting for rounding), consistent.\n\nOverall consistency check — 97% confident.\nEvidence: Net + VAT sum matches grand total; line-item totals and VAT groupings are coherent. Minor uncertainty only around Sender.VatId role assignment between header/customer and footer/sender."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.67,
+      "input_tokens": 1954,
+      "cached_input_tokens": null,
+      "output_tokens": 663,
+      "total_tokens": 2617,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.61,
+      "input_tokens": 2240,
+      "cached_input_tokens": null,
+      "output_tokens": 545,
+      "total_tokens": 2785,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.78,
+      "input_tokens": 2926,
+      "cached_input_tokens": null,
+      "output_tokens": 629,
+      "total_tokens": 3555,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274201\\274201_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU79411414",
+        "ATU79411414"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        827.41,
+        "827,41"
+      ],
+      "Net.Amount": [
+        true,
+        [
+          562.9,
+          173.52
+        ],
+        [
+          "562,90",
+          "173,52"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        [
+          56.29,
+          34.7
+        ],
+        [
+          "56,29",
+          "34,70"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        [
+          10,
+          20
+        ],
+        [
+          "10",
+          "20"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "29.01.2024",
+        "29.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7120,
+    "cached_input_tokens": 0,
+    "output_tokens": 1837,
+    "eur_estimate": 0.004744
+  }
+}

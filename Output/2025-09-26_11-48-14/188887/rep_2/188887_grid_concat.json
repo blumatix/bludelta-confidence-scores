@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\189039\\188887_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 7596.0,
+    "Invoice.Date": "23.03.2023",
+    "Sender.VatId": "ATU63294722",
+    "Vat.Rate": 20,
+    "Net.Amount": 6330.0,
+    "Vat.Amount": 1266.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will extract invoice data only if the document is an invoice.\n\n- Document classification: contains \"Rechnung\", invoice number, invoice date, totals and VAT — classified as invoice.\n- Invoice.Date found: \"23.03.2023\" (header and page footers).\n- Sender identification: issuer UID in footer \"UID: ATU63294722\" — use as Sender.VatId.\n- Totals and VAT (bottom summary):\n  - Net amount (Summe): \"6.330,00 EUR\" → 6330.00\n  - VAT amount (Steuerbetrag): \"1.266,00 EUR\" → 1266.00\n  - Gesamtbetrag (Grand Total): \"7.596,00 EUR\" → 7596.00\n  - VAT rate: \"20,0 %\" → 20.0\n\nNo inference beyond explicitly present values.",
+    "step2": "- Document classification confidence:\n  - Evidence: multiple occurrences of \"Rechnung\", invoice number \"2303110709\", invoice date, line items, totals and VAT summary present. Confidence: high.\n\n- Invoice.Date (\"23.03.2023\"):\n  - Evidence: appears in header \"Rechnung 2303110709 vom 23.03.2023\" and repeated as \"Datum: 23.03.2023\" on page footers. Consistency: exact same date in several places. Confidence: very high.\n\n- Sender.VatId (\"ATU63294722\"):\n  - Evidence: footer shows \"UID: ATU63294722\" under Zentrale details for REDER TRANSPORTE KG; top-right also shows \"Ihre USt.-IdNr. ATU22810000\" which refers to recipient? Need to disambiguate sender vs recipient: invoice issuer appears to be REDER TRANSPORTE KG (Zentrale address), whose UID is ATU63294722. The header also shows \"ERRO Spedition- und Handelsgesellschaft mbH.\" as possible sender name, but the clear machine-printed UID in footer matches REDER TRANSPORTE KG. Risk: minor ambiguity because another VAT-like ID ATU22810000 appears labeled \"Ihre USt.-IdNr.\" (your VAT ID) and likely belongs to recipient. Chosen value corresponds to issuer’s UID in footer. Confidence: high (small ambiguity noted).\n\n- Net.Amount (6330.00):\n  - Evidence: bottom summary shows \"Summe 6.330,00 EUR\" and the column labels indicate \"steuerpflichtig 6.330,00 EUR\" which aligns with net taxable amount. Formatting uses comma as decimal separator; interpretation as 6330.00 is straightforward. No other aggregate net total conflicts. Confidence: high.\n\n- Vat.Amount (1266.00):\n  - Evidence: summary table shows \"Steuerbetrag 1.266,00 EUR\" and elsewhere \"20% Umsatzsteuer 1.266,00 EUR\". Matches arithmetic: 20% of 6330.00 = 1266.00. Consistency confirmed. Confidence: very high.\n\n- Vat.Rate (20 or 20.0):\n  - Evidence: summary shows \"20,0 %\", individual line items show \"20% Umsatzsteuer\". Per rules, rate should be numeric without percent sign; preserved precision suggests \"20\" or \"20.0\". Chosen extraction used 20.0 earlier. Risk: schema expects number; either 20 or 20.0 acceptable. Confidence: very high.\n\n- GrandTotal.Amount (7596.00):\n  - Evidence: summary shows \"Gesamtbetrag 7.596,00 EUR\". It equals Net (6330.00) + VAT (1266.00) = 7596.00. Consistency confirmed. Confidence: very high.\n\n- Potential pitfalls / checks:\n  - Ensure Sender.VatId is the issuer's UID (ATU63294722) not \"Ihre USt.-IdNr. ATU22810000\" which is recipient's VAT. Chosen value reflects issuer; confidence high but note ambiguity.\n  - Numeric parsing of comma decimal separators assumed correctly. Confidence: high.\n\nOverall confidence per field: Invoice.Date very high; Net, VAT amount, VAT rate, Grand Total very high; Sender.VatId high (minor ambiguity)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.28,
+      "input_tokens": 9881,
+      "cached_input_tokens": null,
+      "output_tokens": 701,
+      "total_tokens": 10582,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 10.89,
+      "input_tokens": 10117,
+      "cached_input_tokens": null,
+      "output_tokens": 707,
+      "total_tokens": 10824,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.23,
+      "input_tokens": 11124,
+      "cached_input_tokens": null,
+      "output_tokens": 284,
+      "total_tokens": 11408,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\189039\\188887_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU63294722",
+        "ATU63294722"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        7596.0,
+        "7.596,00"
+      ],
+      "Net.Amount": [
+        true,
+        6330.0,
+        "6.330,00"
+      ],
+      "Vat.Amount": [
+        true,
+        1266.0,
+        "1.266,00"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,0"
+      ],
+      "Invoice.Date": [
+        true,
+        "23.03.2023",
+        "23.03.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 31122,
+    "cached_input_tokens": 0,
+    "output_tokens": 1692,
+    "eur_estimate": 0.009774
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\275096\\275073_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 627.41,
+    "Invoice.Date": "31.01.24",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 522.84,
+    "Vat.Amount": 104.57
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.97,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Instead, a concise, non-sensitive summary of the analysis steps and key evidential findings:\n\n- Document classification: Contains the German word \"RECHNUNG\" prominently and invoice-like sections (invoice number fields, NETTOBETRAG / MEHRWERTSTEUER / GESAMTBETRAG), so it qualifies as an invoice (not a payment reminder or report).\n\n- Key locations to extract:\n  - Invoice date appears near header line with \"RE-DATUM\" and a date \"31.01.24\".\n  - VAT identification for sender: \"UST-ID-NR.: ATU22642807\".\n  - Totals block near bottom shows NETTOBETRAG EUR 522,84, MEHRWERTSTEUER 20,00% 104,57, and GESAMTBETRAG 627,41 — these map to Net.Amount, Vat.Rate, Vat.Amount, and GrandTotal.Amount.\n  - VAT rate displayed as \"20,00%\" — will be returned as number without percent symbol (\"20,00\" preserving decimals per rules) or parsed as numeric 20.00 depending on schema format rules.\n  - VAT amount shown as \"104,57\" (currencyless extraction required).\n  - Grand total shown as \"627,41\".\n  - Net amount shown as \"522,84\".\n\n- No conflicting multiple occurrences for these specific fields were found; sender VAT appears once.\n\n- Adherence to rules:\n  - Will not infer missing data.\n  - Will preserve decimal formatting as in source (commas as decimal separators will be converted to numeric decimals per JSON numeric types).\n  - Will return all required schema fields; if any were missing, they would be empty.\n\nProceed when you want me to output the final JSON extraction.",
+    "step2": "GrandTotal.Amount — Confidence: 98%\n- Evidence: \"GESAMTBETRAG 627,41\" explicitly shown in totals block.\n- Consistency: Matches NETTO + MEHRWERTSTEUER (522,84 + 104,57 = 627,41).\n- Risk: Minimal OCR/format misread risk.\n\nInvoice.Date — Confidence: 95%\n- Evidence: \"RE-DATUM\" near header with \"31.01.24\".\n- Consistency: Date format plausible and appears in invoice header.\n- Risk: Small risk if another date present; this is the clear invoice date label.\n\nSender.VatId — Confidence: 99%\n- Evidence: \"UST-ID-NR.: ATU22642807\" clearly printed.\n- Consistency: Standard Austrian VAT ID format (ATU...).\n- Risk: Minimal.\n\nVat.Rate — Confidence: 97%\n- Evidence: Totals block shows \"MEHRWERTSTEUER 20,00%\".\n- Consistency: Rate aligns with VAT amount and net total (20% of 522,84 = 104,568 → shown 104,57).\n- Risk: Very small rounding/OCR of comma vs. dot.\n\nNet.Amount — Confidence: 98%\n- Evidence: \"NETTOBETRAG EUR 522,84\" in totals block.\n- Consistency: Together with VAT amount yields Grand Total.\n- Risk: Minimal OCR error possibility.\n\nVat.Amount — Confidence: 97%\n- Evidence: \"MEHRWERTSTEUER 20,00% 104,57\" shows VAT monetary amount.\n- Consistency: 20% of 522,84 equals 104,568 → printed as 104,57 (rounded), consistent.\n- Risk: Minor rounding/format interpretation."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.62,
+      "input_tokens": 2232,
+      "cached_input_tokens": null,
+      "output_tokens": 638,
+      "total_tokens": 2870,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.25,
+      "input_tokens": 2621,
+      "cached_input_tokens": null,
+      "output_tokens": 505,
+      "total_tokens": 3126,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.04,
+      "input_tokens": 3267,
+      "cached_input_tokens": null,
+      "output_tokens": 346,
+      "total_tokens": 3613,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\275096\\275073_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU66643000,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        627.41,
+        "627,41 *"
+      ],
+      "Net.Amount": [
+        true,
+        522.84,
+        "522,84"
+      ],
+      "Vat.Amount": [
+        true,
+        104.57,
+        "104,57"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "31.01.24",
+        "31.01.24"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 8120,
+    "cached_input_tokens": 0,
+    "output_tokens": 1489,
+    "eur_estimate": 0.004362
+  }
+}

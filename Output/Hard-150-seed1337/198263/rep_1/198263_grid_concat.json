@@ -1,0 +1,101 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198263\\198263_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2700.0,
+    "Invoice.Date": "2023.03.20",
+    "Sender.VatId": "ATU19208701",
+    "Vat.Rate": 0,
+    "Net.Amount": 2700.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.85,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.85
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Highly likely",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Highly likely"
+  },
+  "reasoning": {
+    "step1": "Classification: invoice (contains \"Rechnung\", document number, totals).\n\nPlanned extractions and evidence:\n- Invoice.Date: \"2023.03.20\" (header line with Date).\n- GrandTotal.Amount: 2700.00 (lines: \"Gesamt 2.700,00 EUR\"; Netto/Gesamt both 2.700,00 EUR).\n- Sender.VatId: \"ATU19208701\" (top left: \"Unser UID-Code: ATU19208701\" for LKW WALTER).\n- Vat.Rate: 0 (there is \"0,00 % 2.700,00 EUR\" associated with Fracht → VAT rate is 0%).\n- Net.Amount: 2700.00 (Netto 2.700,00 EUR).\n- Vat.Amount: 0.00 (0% of 2,700.00 → 0,00 EUR shown).\n\nNo fields require guessing; all values are taken from visible invoice text.",
+    "step2": "Invoice.Date — Confidence: High\n- Evidence: Explicit header row shows \"Datum\" with value \"2023.03.20\".\n- Risk: OCR could misplace dots, but format matches typical date and aligns with Leistungsdatum 2023.03.14.\n\nGrandTotal.Amount — Confidence: High\n- Evidence: \"Gesamt 2.700,00 EUR\" and \"Netto 2.700,00 EUR\" appear on same summary lines; clear numeric total 2.700,00.\n- Risk: Currency present (EUR) but schema expects number; conversion from \"2.700,00\" to numeric 2700.00 is straightforward.\n\nSender.VatId — Confidence: High\n- Evidence: Top-left shows \"Unser UID-Code: ATU19208701\" for LKW WALTER; matches UST-ID elsewhere for sender (ATU...).\n- Risk: OCR could misread characters, but string appears consistent in two places (ATU19208701).\n\nVat.Rate — Confidence: Medium-High\n- Evidence: Near charge lines shows \"0,00 % 2.700,00 EUR\" indicating VAT rate 0%.\n- Risk: Layout ambiguous—\"0,00 %\" might refer to VAT rate or another percent column; however the presence of \"Steuerschuldnerschaft des Leistungsempfängers\" (reverse charge) supports 0% VAT on invoice.\n\nNet.Amount — Confidence: High\n- Evidence: \"Netto 2.700,00 EUR\" explicitly shown.\n- Risk: Low; aligns with Grand Total given VAT = 0.\n\nVat.Amount — Confidence: Medium-High\n- Evidence: If VAT rate is 0% on net 2,700.00, VAT amount should be 0,00 EUR; the document shows \"0,00 %\" and no separate VAT monetary amount, implying zero VAT.\n- Risk: OCR might not show an explicit \"VAT amount\" line; inference that VAT amount is 0 follows directly from shown 0% rate and rule forbidding guesses—however the invoice displays \"0,00 %\", which supports returning 0.00.\n\nOverall note on compliance with No Inference policy:\n- Fields are taken from explicit text: date, sender VAT ID, netto/gross values, and the \"0,00 %\" marker. The only minor inference is representing \"0,00 %\" as numeric 0 for Vat.Rate and deriving Vat.Amount as 0.00 from that rate and explicit net amount; both are directly supported by invoice text."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.46,
+      "input_tokens": 5507,
+      "cached_input_tokens": null,
+      "output_tokens": 531,
+      "total_tokens": 6038,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.92,
+      "input_tokens": 5765,
+      "cached_input_tokens": null,
+      "output_tokens": 528,
+      "total_tokens": 6293,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.94,
+      "input_tokens": 6593,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 6940,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198263\\198263.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU19208701",
+        [
+          "ATU19208701",
+          "ATU19208701"
+        ]
+      ],
+      "GrandTotal.Amount": [
+        true,
+        2700.0,
+        "2.700,00"
+      ],
+      "Net.Amount": [
+        true,
+        2700.0,
+        "2.700,00"
+      ],
+      "Vat.Rate": [
+        true,
+        0,
+        "0,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "2023.03.20",
+        "2023.03.20"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 5,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 17865,
+    "cached_input_tokens": 0,
+    "output_tokens": 1406,
+    "eur_estimate": 0.001385
+  }
+}

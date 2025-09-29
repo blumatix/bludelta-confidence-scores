@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\158066\\158066_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 250.0,
+    "Invoice.Date": "12.10.2022",
+    "Sender.VatId": "SI65645740",
+    "Vat.Rate": "",
+    "Net.Amount": 250.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.8,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.85,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Highly likely",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Reasoning steps to extract structured invoice data:\n\n1. Classification: Document contains \"Rechnung\" and invoice-like sections (positions, amounts, dates), and no prominent exclusion terms like \"Mahnung\". Proceed as invoice.\n\n2. Locate totals:\n   - Found \"Für Zahlung: EUR                                              250,00\" — interpreted as total payable.\n   - Also multiple occurrences of \"250,00\" associated with line/total. Conclude GrandTotal.Amount = 250,00.\n\n3. Invoice date:\n   - Found \"Ort,    Datum:             PREVALJE,12.10.2022\" — invoice date is \"12.10.2022\".\n\n4. Sender VAT ID:\n   - Block near bottom: \"SENICA AA d.o.o. ... ID: SI65645740\" — treat \"ID: SI65645740\" as sender VAT ID. (Top also shows \"Käufers MwSt ID: ATU39840703\" labeled as buyer; thus SI65645740 is sender.)\n\n5. VAT rate:\n   - Text states \"VAT reverse charge under Article 44...\" and shows VAT amounts \"MwSt : 0,00\" and \"MwSt zusammen : 0,00\" but no explicit percentage rate is given. Per no-inference rule, do not assume a numeric percent. Leave Vat.Rate empty.\n\n6. Net and VAT amounts:\n   - VAT amount shown as 0,00 in multiple places -> Vat.Amount = 0,00.\n   - Total payable is 250,00 and VAT is 0,00, so Net.Amount corresponds to 250,00 (explicit net total not separately labeled but supported by totals). Keep same decimal formatting.\n\n7. Decimal and format rules:\n   - Preserve two decimal places as in source.\n   - Return numeric fields as numbers with decimals.\n\n8. Final mapping:\n   - GrandTotal.Amount → 250.00\n   - Invoice.Date → \"12.10.2022\"\n   - Sender.VatId → \"SI65645740\"\n   - Vat.Rate → \"\" (not explicitly provided)\n   - Net.Amount → 250.00\n   - Vat.Amount → 0.00",
+    "step2": "Confidence assessment for each extracted field:\n\n1. GrandTotal.Amount = 250.00\n- Evidence: \"Für     Zahlung:               EUR                                              250,00\" clearly indicates amount due. Also line item and totals show 250,00.\n- Confidence: High (strong, explicit textual match).\n\n2. Invoice.Date = \"12.10.2022\"\n- Evidence: \"Ort,    Datum:             PREVALJE,12.10.2022\" directly provides date.\n- Confidence: High (explicit and unambiguous).\n\n3. Sender.VatId = \"SI65645740\"\n- Evidence: Bottom block: \"SENICA AA d.o.o.... ID: SI65645740 / Matična št.: 6546820000\". Context indicates company details for sender; \"ID:\" likely VAT/Tax ID.\n- Alternative: Top shows buyer VAT \"ATU39840703\", which could cause confusion but label \"Käufers MwSt ID: ATU39840703\" identifies buyer separately.\n- Confidence: Medium-High (strong evidence but slight ambiguity whether \"ID:\" is VAT vs. company ID; formatted like a VAT ID with country code SI).\n\n4. Vat.Rate = \"\"\n- Evidence: No explicit percent rate present; document states \"VAT reverse charge...\" and VAT amounts shown as 0,00, but no numeric rate.\n- Rule: No inference allowed.\n- Confidence: High (correctly left empty due to lack of explicit rate).\n\n5. Net.Amount = 250.00\n- Evidence: Total payable is 250,00 and VAT is 0,00; no separate explicit net labeled, but totals and line item indicate net equals 250,00.\n- Alternative: Could be ambiguous if displayed totals include VAT, but presence of \"MwSt : 0,00\" supports net = total.\n- Confidence: Medium-High (logical given VAT 0,00 and explicit total, though net label not spelled out).\n\n6. Vat.Amount = 0.00\n- Evidence: Multiple occurrences of \"MwSt : 0,00\" and \"MwSt zusammen : 0,00\".\n- Confidence: High (explicitly stated)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 15.28,
+      "input_tokens": 1711,
+      "cached_input_tokens": null,
+      "output_tokens": 1353,
+      "total_tokens": 3064,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.63,
+      "input_tokens": 2215,
+      "cached_input_tokens": null,
+      "output_tokens": 456,
+      "total_tokens": 2671,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 11.91,
+      "input_tokens": 2971,
+      "cached_input_tokens": null,
+      "output_tokens": 278,
+      "total_tokens": 3249,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\158066\\158066.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "SI65645740",
+        "SI65645740"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        250.0,
+        "250,00"
+      ],
+      "Net.Amount": [
+        true,
+        250.0,
+        "250,00"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Vat.Rate": [
+        false,
+        "",
+        []
+      ],
+      "Invoice.Date": [
+        true,
+        "12.10.2022",
+        "12.10.2022"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 6897,
+    "cached_input_tokens": 0,
+    "output_tokens": 2087,
+    "eur_estimate": 0.001075
+  }
+}

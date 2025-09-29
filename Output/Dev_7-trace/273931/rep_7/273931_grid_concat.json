@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\273945\\273931_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2787.0,
+    "Invoice.Date": "31.10.2023",
+    "Sender.VatId": "ATU61738089",
+    "Vat.Rate": 20,
+    "Net.Amount": 2322.5,
+    "Vat.Amount": 464.5
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I'll reason step-by-step, exploring alternatives and verifying extracted fields against the invoice text.\n\n1. Document classification (invoice vs non-invoice)\n   - Presence of keywords: \"Rechnung\" (German for invoice) appears in header. Other invoice indicators: \"Rechnungsbetrag\", \"MWST.\", \"EUR\", \"Kundennr.\", \"Nr.\", line items with quantities, unit prices, and total prices.\n   - No exclusion indicators like \"Mahnung\" or \"Zahlungserinnerung\" as prominent headers.\n   - Conclusion: This is an invoice — proceed with extraction.\n\n2. Identify GrandTotal.Amount\n   - Look for final payable amount labeled \"Rechnungsbetrag\" or similar.\n   - Found line: \"Rechnungsbetrag                                                             EUR                                2.787,00\"\n   - Interpret number: 2.787,00 (European format: dot as thousands separator, comma as decimal). That equals 2787.00.\n   - GrandTotal.Amount = 2787.00\n\n3. Identify Invoice.Date\n   - Look for date labeled as invoice date. Header shows \"Knittelf.,            31.10.2023\" near \"Kundennr.\" and UID numbers; context suggests invoice issued date.\n   - Also \"Betrifft: Lieferschein v. 31.10.2023\" references delivery note date, but invoice header date is 31.10.2023.\n   - Invoice.Date = \"31.10.2023\" (keep same format as in source).\n\n4. Identify Sender.VatId\n   - Check for UID / VAT numbers. Two UID numbers present:\n     - \"Ihre UID-Nr.:              ATU64131246\" (likely the recipient's VAT)\n     - \"UID-Nr:              ATU61738089\" (likely the sender's VAT)\n   - Which is sender? The invoice is from the company at top; typically the sender's UID is the one labeled \"UID-Nr:\" (no \"Ihre\"). So Sender.VatId = \"ATU61738089\".\n   - Do not infer further.\n\n5. Identify Vat.Rate, Net.Amount, Vat.Amount\n   - Look for VAT group lines. Found:\n     - \"20      %      MWST.                                                        EUR                                     464,50\"\n     - Prior to that: invoice subtotal \"EUR 2.322,50\" under \"ENDZUSAMMENSTELLUNG\" and repeated \"EUR 2.322,50\".\n     - So Net.Amount corresponds to 2.322,50 and Vat.Amount corresponds to 464,50 with Vat.Rate 20%.\n   - Convert European formatted numbers:\n     - Net.Amount = 2322.50\n     - Vat.Amount = 464.50\n     - Vat.Rate = 20 (per rule: without percent symbol)\n   - Verify arithmetic: 2322.50 + 464.50 = 2787.00 matches GrandTotal.Amount.\n\n6. Ensure no other VAT groups present\n   - Only one VAT rate line (20%) appears. No other VAT groups detected. So single VAT item.\n\n7. Apply No Inference Policy and formatting rules\n   - Keep date string as-is \"31.10.2023\".\n   - Keep numeric decimals exactly as source (two decimals).\n   - Vat.Rate must be number without \"%\": 20.\n\n8. Final mapping to schema fields\n   - GrandTotal.Amount: 2787.00 (number)\n   - Invoice.Date: \"31.10.2023\"\n   - Sender.VatId: \"ATU61738089\"\n   - Vat.Rate: 20 (number)\n   - Net.Amount: 2322.50 (number)\n   - Vat.Amount: 464.50 (number)\n\nNo ambiguities remain that would force leaving fields empty.",
+    "step2": "GrandTotal.Amount — Confidence: 98%\nEvidence: \"Rechnungsbetrag EUR 2.787,00\" clearly shown; arithmetic with subtotal and VAT matches.\n\nInvoice.Date — Confidence: 95%\nEvidence: Date \"31.10.2023\" appears near header (Knittelf., 31.10.2023) and matches delivery-note date reference.\n\nSender.VatId — Confidence: 90%\nEvidence: Two UID numbers present; \"UID-Nr: ATU61738089\" appears without \"Ihre\" and aligns with sender position—strong but slightly ambiguous.\n\nVat.Rate — Confidence: 99%\nEvidence: \"20 % MWST.\" clearly printed.\n\nNet.Amount — Confidence: 98%\nEvidence: Subtotal shown as \"EUR 2.322,50\" above VAT line; sums with VAT equal Grand Total.\n\nVat.Amount — Confidence: 99%\nEvidence: VAT line shows \"EUR 464,50\", and 2322.50 + 464.50 = 2787.00."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.29,
+      "input_tokens": 1948,
+      "cached_input_tokens": null,
+      "output_tokens": 865,
+      "total_tokens": 2813,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.24,
+      "input_tokens": 2756,
+      "cached_input_tokens": null,
+      "output_tokens": 410,
+      "total_tokens": 3166,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.35,
+      "input_tokens": 3243,
+      "cached_input_tokens": null,
+      "output_tokens": 172,
+      "total_tokens": 3415,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273945\\273931_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU61738089",
+        "ATU61738089"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        2787.0,
+        "2.787,00"
+      ],
+      "Net.Amount": [
+        true,
+        2322.5,
+        "2.322,50"
+      ],
+      "Vat.Amount": [
+        true,
+        464.5,
+        "464,50"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "31.10.2023",
+        "31.10.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7947,
+    "cached_input_tokens": 0,
+    "output_tokens": 1447,
+    "eur_estimate": 0.004252
+  }
+}

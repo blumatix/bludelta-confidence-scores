@@ -1,0 +1,106 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\171989\\171989_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 183.94,
+    "Invoice.Date": "2022-12-13",
+    "Sender.VatId": "13-2793095",
+    "Vat.Rate": 0.0,
+    "Net.Amount": 154.28,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains clear invoice headers (\"INVOICE\"), invoice number, date, line items, totals → classified as invoice.\n\nRelevant extracted fields and evidence (no guessing):\n- Invoice.Date: \"2022-12-13\" (header line: Invoice No. ... Date 2022-12-13).\n- GrandTotal.Amount: 183.94 (line: Total Amount 183.94; amounts shown in USD).\n- Sender.VatId: \"13-2793095\" (labeled \"Our VAT REG no. 13-2793095\").\n- VAT groups present: two groups labeled A and B.\n  - VAT group A: Net = 154.28, VAT rate = 0.000, VAT amount = 0.00 (table: \"A 154.28 0.000 02 ... 0.00 154.28\").\n  - VAT group B: Net = 29.66, labeled \"DUTIES\" — no VAT percentage shown; the 29.66 appears as duty amount (treated as non-VAT charge). Because no VAT rate is provided for B, do not assign a VAT rate for that group per No Inference rule.\n\nDecision rationale:\n- Chose VAT group A for populated Vat.Rate/Vat.Amount because it explicitly shows a VAT percentage value (0.000) and VAT amount (0.00).\n- For group B, absence of an explicit VAT percentage prevents filling Vat.Rate (No Inference). Its amount is part of the invoice subtotal but is duty, not VAT.\n- Preserved numeric formatting as in source (decimals unchanged).",
+    "step2": "GrandTotal.Amount (183.94)\n- Evidence: \"Total Amount 183.94\" and \"Total Amount                                                         183.94\" in invoice summary; amounts shown as USD elsewhere.\n- Consistency checks: Sum of line amounts (89.28 + 65.00 + 29.66 = 183.94) matches total.\n- Confidence: Very high (95%).\n\nInvoice.Date (\"2022-12-13\")\n- Evidence: Top section shows \"Date\" column with value \"2022-12-13\" aligned to Invoice No. 3163912104.\n- Consistency checks: Service Date is 2022-11-11, which is consistent (invoice issued later).\n- Confidence: Very high (98%).\n\nSender.VatId (\"13-2793095\")\n- Evidence: Labeled \"Our VAT REG no. 13-2793095\" near header.\n- Consistency checks: Format resembles a tax/registration number; appears clearly printed.\n- Confidence: Very high (95%).\n\nVat group A\n- Net.Amount (154.28)\n  - Evidence: Under Tax table, line \"A 154.28 ...\".\n  - Consistency checks: Net 154.28 + VAT 0.00 + other group 29.66 = 183.94 total.\n  - Confidence: Very high (95%).\n- Vat.Rate (0.000 → reported as number 0.000 per rules)\n  - Evidence: Table shows \"0.000\" in the percent/VAT column for group A.\n  - Consistency checks: Matches note \"01: without VAT - these services are not taxable\".\n  - Confidence: Very high (95%).\n- Vat.Amount (0.00)\n  - Evidence: Table shows \"0.00\" in Tax USD for group A.\n  - Consistency checks: Net 154.28 with 0% VAT yields 0.00 VAT; sums match grand total.\n  - Confidence: Very high (95%).\n\nVat group B\n- Net.Amount (29.66)\n  - Evidence: Table shows \"B 29.66 DUTIES\".\n  - Consistency checks: Appears as a duty charge; included in subtotal and total.\n  - Confidence: Very high (95%).\n- Vat.Rate (no value)\n  - Evidence: No explicit VAT percentage shown for group B; column contains text \"DUTIES\" rather than a percent.\n  - Consistency checks: Responsible to avoid inference per rules.\n  - Confidence that leaving empty is correct: Very high (98%).\n- Vat.Amount (29.66 or empty?)\n  - Evidence: The 29.66 in group B is the amount for duties; it is shown under the Tax/Gross columns as 29.66.\n  - Interpretation consideration: The schema expects Vat.Amount per VAT group; group B is not clearly a VAT group but is listed under Tax table. It shows 29.66 as an amount associated with B.\n  - Decision confidence that Vat.Amount = 29.66 is correct if treating B as a VAT group entry: Moderate-high (85%). If interpreted strictly as non-VAT duty (and schema expects only VAT amounts), leaving empty would be conservative—however text places 29.66 under Tax/Gross columns.\n  - Final confidence for populating Vat.Amount with 29.66: 85%.\n\nOverall consistency: Invoice fields align arithmetically and contextually; main uncertainty centers on classification of group B as VAT vs duty for the Vat.Amount field."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.93,
+      "input_tokens": 2789,
+      "cached_input_tokens": null,
+      "output_tokens": 917,
+      "total_tokens": 3706,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 10.08,
+      "input_tokens": 3177,
+      "cached_input_tokens": null,
+      "output_tokens": 798,
+      "total_tokens": 3975,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.76,
+      "input_tokens": 4211,
+      "cached_input_tokens": null,
+      "output_tokens": 411,
+      "total_tokens": 4622,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\171989\\171989.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "13-2793095",
+        []
+      ],
+      "GrandTotal.Amount": [
+        true,
+        183.94,
+        "183.94"
+      ],
+      "Net.Amount": [
+        true,
+        154.28,
+        "154.28"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0.00"
+      ],
+      "Vat.Rate": [
+        true,
+        0.0,
+        "0.000"
+      ],
+      "Invoice.Date": [
+        true,
+        "2022-12-13",
+        [
+          "2022-12-13",
+          "2022-12-13"
+        ]
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 10177,
+    "cached_input_tokens": 0,
+    "output_tokens": 2126,
+    "eur_estimate": 0.001253
+  }
+}

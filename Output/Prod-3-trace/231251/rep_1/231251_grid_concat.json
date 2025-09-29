@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231281\\231251_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2040.14,
+    "Invoice.Date": "25.09.2023",
+    "Sender.VatId": "ATU69710958",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 1770.12,
+    "Vat.Amount": 354.02
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.88,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Highly likely",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. High-level extraction steps and verification:\n\n1. Classification: Document contains clear invoice indicators (\"Rechnung\", \"Nummer\", \"Datum\", \"Gesamtbetrag\", line items, VAT lines) and no dominant exclusion terms — treat as invoice.\n\n2. Locate invoice date: Found \"Datum 25.09.2023\" → Invoice.Date = \"25.09.2023\".\n\n3. Determine sender VAT ID: Footer lists \"Ust.-ID-Nr. ATU69710958\" for CREATON GmbH (issuer). The top \"Ihre Ust-Id-Nr. ATU64131246\" refers to the customer. Use ATU69710958 → Sender.VatId = \"ATU69710958\".\n\n4. Find net, VAT rate, VAT amount:\n   - \"Gesamtbetrag Netto 1.770,12 EUR\" → Net.Amount = 1770.12 (preserve decimals).\n   - VAT line: \"R2 - 20,00% USt auf 1.770,12\" → Vat.Rate = 20.00.\n   - VAT amount shown \"354,02 EUR\" → Vat.Amount = 354.02.\n\n5. Determine grand total payable:\n   - \"Zahlbetrag 2.040,14 EUR\" (after skonto) is the payable amount → GrandTotal.Amount = 2040.14.\n\n6. Ensure no inference beyond visible data and preserve decimal formatting.",
+    "step2": "Confidence estimates for each extracted field:\n\n- Invoice.Date = \"25.09.2023\"\n  - Evidence: Explicit \"Datum 25.09.2023\" near header. Very clear and unambiguous.\n  - Confidence: 0.99\n\n- Sender.VatId = \"ATU69710958\"\n  - Evidence: Footer lists \"Ust.-ID-Nr. ATU69710958\" associated with CREATON GmbH (issuer). There is another Ust‑Id (\"ATU64131246\") labeled \"Ihre Ust-Id-Nr.\" (customer), so choice of sender ID is based on footer issuer context.\n  - Potential ambiguity: two VAT IDs present; must choose issuer’s. Context strongly indicates footer belongs to issuer.\n  - Confidence: 0.90\n\n- Net.Amount = 1770.12\n  - Evidence: Line \"Gesamtbetrag Netto 1.770,12 EUR\" directly matches net amount.\n  - Confidence: 0.99\n\n- Vat.Rate = 20.00\n  - Evidence: \"R2 - 20,00% USt auf 1.770,12\" clearly states 20.00%. Rate formatted with two decimals in source.\n  - Confidence: 0.99\n\n- Vat.Amount = 354.02\n  - Evidence: Immediately adjacent to VAT line the amount \"354,02 EUR\" appears as VAT value.\n  - Confidence: 0.98\n\n- GrandTotal.Amount = 2040.14\n  - Evidence: \"Zahlbetrag 2.040,14 EUR\" shown as payment amount after skonto. There is also \"Gesamtbetrag Brutto 2.124,14 EUR\" (gross total before discount) and a skonto/brutto deduction resulting in Zahlbetrag 2.040,14. Choice assumes Zahlbetrag is requested \"Total payable amount\".\n  - Potential ambiguity: whether GrandTotal should be gross before skonto (2.124,14) or payable after discount (2.040,14). Text labels \"Zahlbetrag\" support using 2.040,14 as payable.\n  - Confidence: 0.88"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.29,
+      "input_tokens": 2824,
+      "cached_input_tokens": null,
+      "output_tokens": 890,
+      "total_tokens": 3714,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.98,
+      "input_tokens": 3185,
+      "cached_input_tokens": null,
+      "output_tokens": 521,
+      "total_tokens": 3706,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.15,
+      "input_tokens": 3942,
+      "cached_input_tokens": null,
+      "output_tokens": 221,
+      "total_tokens": 4163,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231281\\231251_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU69710958",
+        "ATU69710958,"
+      ],
+      "GrandTotal.Amount": [
+        false,
+        2040.14,
+        "2.124,14"
+      ],
+      "Net.Amount": [
+        true,
+        1770.12,
+        "1.770,12"
+      ],
+      "Vat.Amount": [
+        true,
+        354.02,
+        "354,02"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20.00"
+      ],
+      "Invoice.Date": [
+        true,
+        "25.09.2023",
+        "25.09.2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 9951,
+    "cached_input_tokens": 0,
+    "output_tokens": 1632,
+    "eur_estimate": 0.005013
+  }
+}

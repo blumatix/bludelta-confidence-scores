@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\192780\\192780_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2310.0,
+    "Invoice.Date": "22.05.2023",
+    "Sender.VatId": "ATU58198337",
+    "Vat.Rate": 10,
+    "Net.Amount": 2100.0,
+    "Vat.Amount": 210.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains \"Rechnung\" and \"Fakturadatum\" — qualifies as an invoice.\n- No exclusion terms (\"Mahnung\", \"Zahlungserinnerung\", \"Servicebericht\") prominent.\n\nKey field candidates found in text:\n- Invoice date: \"Fakturadatum 22.05.2023\" → Invoice.Date = \"22.05.2023\".\n- Sender VAT ID: labeled \"Unsere USt.-ID-Nr. ATU58198337\" → Sender.VatId = \"ATU58198337\".\n- VAT group: \"Umsatzsteuer 10,00 % von 2.100,00 EUR\" → Vat.Rate = 10 (no %), Vat.Amount = 210,00.\n- Net amount for that VAT group: \"2.100,00\" (Zwischensumme o. Mwst) → Net.Amount = 2.100,00.\n- Grand total: bottom total shown as \"2.310,00\" (sum of net + VAT) → GrandTotal.Amount = 2.310,00.\n\nValidation of alternatives and consistency:\n- Could Sender VAT be the other USt.-ID (\"Ihre USt.-ID-Nr. ATU22642807\") — context \"Unsere USt.-ID-Nr.\" clearly marks ATU58198337 as sender.\n- VAT rate and amounts explicitly match: 10,00% of 2.100,00 = 210,00; net + VAT = 2.310,00 — consistent.\n- No other VAT groups or exchange rates applicable to entire invoice found.\n- All extracted values are explicitly present; no inference required.\n\nFormatting decisions:\n- Preserve decimals as in source (commas indicate decimals); will convert to numeric form in final output while keeping same precision.\n- VAT rate returned without percent symbol as number (10).",
+    "step2": "Confidence evaluation for each extracted field:\n\n- Invoice.Date = \"22.05.2023\"\n  - Evidence: Explicit label \"Fakturadatum 22.05.2023\".\n  - Confidence: Very high.\n\n- Sender.VatId = \"ATU58198337\"\n  - Evidence: Two VAT IDs present: \"Ihre USt.-ID-Nr. ATU22642807\" and \"Unsere USt.-ID-Nr. ATU58198337\". Context \"Unsere\" (our) indicates sender.\n  - Potential ambiguity: If perspective misread, but label is clear.\n  - Confidence: High.\n\n- Vat.Rate = 10\n  - Evidence: Line \"Umsatzsteuer 10,00 % von 2.100,00 EUR\" explicitly states 10,00 %.\n  - Confidence: Very high.\n\n- Net.Amount = 2100.00\n  - Evidence: \"Zwischensumme o. Mwst 2.000,000 KG\" and monetary \"2.100,00\" shown as subtotal (net) for items.\n  - Potential ambiguity: Comma decimal formatting; interpreted as 2100.00 EUR. No other net totals present.\n  - Confidence: High.\n\n- Vat.Amount = 210.00\n  - Evidence: Same VAT line shows calculated VAT amount implicitly (10% of 2.100,00 = 210,00) and \"210,00\" displayed.\n  - Confidence: Very high.\n\n- GrandTotal.Amount = 2310.00\n  - Evidence: Final summed total shown as \"2.310,00\" matching net + VAT.\n  - Confidence: Very high."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.13,
+      "input_tokens": 2035,
+      "cached_input_tokens": null,
+      "output_tokens": 710,
+      "total_tokens": 2745,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.42,
+      "input_tokens": 2472,
+      "cached_input_tokens": null,
+      "output_tokens": 417,
+      "total_tokens": 2889,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.8,
+      "input_tokens": 3125,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3408,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\192780\\192780_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU58198337",
+        "ATU58198337"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        2310.0,
+        "2.310,00"
+      ],
+      "Net.Amount": [
+        true,
+        2100.0,
+        "2.100,00"
+      ],
+      "Vat.Amount": [
+        true,
+        210.0,
+        "210,00"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "22.05.2023",
+        "22.05.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7632,
+    "cached_input_tokens": 0,
+    "output_tokens": 1410,
+    "eur_estimate": 0.004118
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\273924\\273918_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 216.15,
+    "Invoice.Date": "25.01.2024",
+    "Sender.VatId": "ATU26011605",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 196.5,
+    "Vat.Amount": 19.65
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.8,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Plan and evidence summary for extraction (concise, non-sensitive):\n\n1) Document classification\n- Found header \"RECHNUNG\" (German for Invoice) and invoice number \"104236655\" — classify as invoice.\n- No exclusion terms (\"Mahnung\", \"Zahlungserinnerung\") prominent.\n\n2) Locate invoice-level fields\n- Invoice dates: two date labels present:\n  - \"Ausstellungsdatum 25.01.2024\"\n  - \"Rechnungsdatum 26.01.2024\"\n  Choose \"Invoice.Date\" as invoice issue date per schema — candidate: \"25.01.2024\" (Ausstellungsdatum) or \"26.01.2024\" (Rechnungsdatum). Will select the field mapped to \"Invoice.Date\" after deciding which label aligns with schema (likely issue date = Ausstellungsdatum 25.01.2024).\n- Grand total / Endbetrag: \"Endbetrag: 216,15 EUR\" → GrandTotal.Amount candidate: 216,15\n- Sender VAT: multiple UIDs: \"Ihre Ust-Nr. ATU22642807\" appears near top; company also lists \"UID ATU26011605\" at footer. \"Sender.VatId\" should be sender's VAT — likely the company's VAT: ATU26011605 (footer) or \"Ihre Ust-Nr.\" refers to customer. Candidate: ATU26011605.\n  Will choose sender VAT = ATU26011605 (footer labeled UID for issuer).\n  \n3) VAT group(s)\n- VAT line: \"Mehrwertsteuer: A 10,00% MwSt. auf 196,50EUR 19,65 EUR\"\n  Extract VAT group: Rate = 10,00 -> per rule remove \"%\" -> \"10,00\" numeric; Net.Amount = 196,50; Vat.Amount = 19,65.\n  Maintain decimals as in document.\n  \n4) Net and VAT amounts\n- Net.Amount candidate from VAT group = 196,50\n- Vat.Amount candidate = 19,65\n\n5) Numeric formatting and types\n- Keep original decimal separators as in source (commas). The schema expects numbers—ensure numeric values preserve decimals; may need conversion of comma to dot per JSON number formatting. (Will output numbers accordingly in final JSON.)\n\n6) Missing/ambiguous decisions to finalize before JSON\n- Confirm Invoice.Date selection between Ausstellungsdatum and Rechnungsdatum (prefer Ausstellungsdatum 25.01.2024).\n- Confirm Sender.VatId chosen as ATU26011605 (issuer UID) not ATU22642807 (labelled \"Ihre Ust-Nr.\" likely customer).\n\nNext step: produce final JSON with fields:\n- GrandTotal.Amount = 216.15 (numeric)\n- Invoice.Date = \"25.01.2024\"\n- Sender.VatId = \"ATU26011605\"\n- Vat.Rate = 10.00 (numeric)\n- Net.Amount = 196.50 (numeric)\n- Vat.Amount = 19.65 (numeric)",
+    "step2": "GrandTotal.Amount — 95% confident.\nEvidence: \"Endbetrag: 216,15 EUR\" clearly present and unambiguous.\n\nInvoice.Date — 90% confident.\nEvidence: Two dates present (\"Ausstellungsdatum 25.01.2024\" and \"Rechnungsdatum 26.01.2024\"); selection of Ausstellungsdatum (25.01.2024) as invoice issue date is likely but alternative labeling exists.\n\nSender.VatId — 80% confident.\nEvidence: Footer shows \"UID ATU26011605\" (likely sender). Another VAT-like value \"Ihre Ust-Nr. ATU22642807\" appears near header and likely refers to customer, causing some ambiguity.\n\nVat.Rate — 98% confident.\nEvidence: VAT line shows \"10,00% MwSt.\" clearly indicating 10,00.\n\nNet.Amount — 95% confident.\nEvidence: VAT line indicates \"auf 196,50EUR\" as base/net amount.\n\nVat.Amount — 95% confident.\nEvidence: VAT line shows \"19,65 EUR\" as VAT amount."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.82,
+      "input_tokens": 1978,
+      "cached_input_tokens": null,
+      "output_tokens": 901,
+      "total_tokens": 2879,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.96,
+      "input_tokens": 2630,
+      "cached_input_tokens": null,
+      "output_tokens": 425,
+      "total_tokens": 3055,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.37,
+      "input_tokens": 3132,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3415,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273924\\273918_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU26011605",
+        "ATU26011605,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        216.15,
+        "216,15"
+      ],
+      "Net.Amount": [
+        true,
+        196.5,
+        "196,50"
+      ],
+      "Vat.Amount": [
+        true,
+        19.65,
+        "19,65"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        false,
+        "25.01.2024",
+        "26.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7740,
+    "cached_input_tokens": 0,
+    "output_tokens": 1609,
+    "eur_estimate": 0.004486
+  }
+}

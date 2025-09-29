@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\255151\\255117_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 4086.02,
+    "Invoice.Date": "22.11.23",
+    "Sender.VatId": "ATU16406805",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 3405.02,
+    "Vat.Amount": 681.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 1.0,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will determine whether this document is an invoice and then identify the required fields, checking alternatives and evidence.\n\n1) Document classification — is this an invoice?\n- Positive indicators found: the German word \"Rechnung\" appears multiple times with an invoice number \"127272\"; there are invoice-like headers such as \"Rechnungsdatum\", \"Ihre Bestellnr.\", \"Ihre Kundennr.\", line-item table with Beschreibung, Menge, Preis, Betrag, MWST %; totals shown (\"Total EUR ohne MwSt.\", \"Total EUR inkl. MwSt.\"); VAT ID fields (\"USt-IdNr. ATU16406805\"); due date and payment terms. These strongly indicate an invoice.\n- Exclusion indicators: terms like \"Mahnung\" or \"Zahlungserinnerung\" do not appear prominently. \"Servicebericht\" or \"Bericht\" do not appear. Keyword density: invoice keywords clearly dominate.\nConclusion: classify as invoice — proceed to extract fields.\n\n2) Locate GrandTotal.Amount\n- On page 3: \"Total EUR inkl. MwSt. 4’086.02\" — this is the total including VAT. OCR uses apostrophes as thousands separators. This matches expected Grand Total. Alternative candidate: \"Total EUR ohne MwSt. 3’405.02\" is net total, not GrandTotal. Therefore GrandTotal.Amount = 4’086.02 → numeric value should be 4086.02 preserving decimals and removing thousands separators.\n\n3) Locate Invoice.Date\n- Two occurrences: top area shows \"Datum 22.11.23\" and \"Rechnungsdatum 22.11.23\" — invoice date is 22.11.23. Use exact string \"22.11.23\". No conflicting dates other than order/delivery dates; choose \"22.11.23\".\n\n4) Sender.VatId\n- Sender VAT appears as \"MWST Nr. ATU16406805\" and \"USt-IdNr. ATU16406805\" and also \"UID: ATU16406805\" in footer. Consistent value ATU16406805. Use that exact string.\n\n5) Vat.Rate, Net.Amount, Vat.Amount\n- The invoice shows a VAT summary table on page 3:\n  - \"Steuersatz 20.00 3’405.02 681.00\" — layout: Steuersatz 20.00, Total EUR ohne MwSt. 3’405.02, and VAT amount 681.00 (and then Total EUR inkl. MwSt. 4’086.02). So VAT rate is 20.00% (rule: extract without % sign but keep decimals as in input — input shows \"20.00\"). Alternatives: individual line items show \"MWST % 20\" sometimes as integer 20; but the invoice-level summary shows \"20.00\" — per rule, exchange rates not relevant. Use the invoice-level VAT group: Vat.Rate = 20.00, Net.Amount = 3’405.02 → numeric 3405.02, Vat.Amount = 681.00 → numeric 681.00.\n- Verify format: keep decimals as in input (net has two decimals; VAT rate two decimals). Remove thousands separators (apostrophes) for numeric fields.\n\n6) Cross-checks and No-Inference policy\n- Ensure values are present in text; do not infer currency or additional VAT groups. There is a single VAT group present (20%). No other invoice-level exchange rates or VAT groups found. All required fields located.\n- Multiple occurrences: VAT rate appears also as \"20\" in line items; but schema expects potential multiple Vat.Item entries; however invoice-level summary shows single VAT group — provide one set.\n\n7) Final mapping and numeric normalization decisions\n- GrandTotal.Amount: from \"4’086.02\" → 4086.02 (number)\n- Invoice.Date: \"22.11.23\" (string)\n- Sender.VatId: \"ATU16406805\" (string)\n- Vat.Rate: 20.00 (number, no percent sign)\n- Net.Amount: from \"3’405.02\" → 3405.02 (number)\n- Vat.Amount: from \"681.00\" → 681.00 (number)\n\nNo ambiguities remain that would require guessing.",
+    "step2": "GrandTotal.Amount — 99% — Clear labeled value \"Total EUR inkl. MwSt. 4’086.02\" matching invoice total.\n\nInvoice.Date — 99% — Explicit \"Datum 22.11.23\" and \"Rechnungsdatum 22.11.23\" present and consistent.\n\nSender.VatId — 100% — Repeated exact identifier \"ATU16406805\" (MWST Nr. / USt-IdNr. / UID).\n\nVat.Rate — 98% — Invoice-level summary shows \"Steuersatz 20.00\"; line items show \"20\" consistently.\n\nNet.Amount — 98% — Invoice-level \"Total EUR ohne MwSt. 3’405.02\" clearly identified.\n\nVat.Amount — 98% — Invoice-level VAT amount shown as \"681.00\" consistent with net + VAT = grand total."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.76,
+      "input_tokens": 3794,
+      "cached_input_tokens": null,
+      "output_tokens": 969,
+      "total_tokens": 4763,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.16,
+      "input_tokens": 4746,
+      "cached_input_tokens": null,
+      "output_tokens": 379,
+      "total_tokens": 5125,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.01,
+      "input_tokens": 5233,
+      "cached_input_tokens": null,
+      "output_tokens": 284,
+      "total_tokens": 5517,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\255151\\255117_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU16406805",
+        "ATU16406805"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        4086.02,
+        "4’086.02"
+      ],
+      "Net.Amount": [
+        true,
+        3405.02,
+        "3’405.02"
+      ],
+      "Vat.Amount": [
+        true,
+        681.0,
+        "681.00"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20.00"
+      ],
+      "Invoice.Date": [
+        true,
+        "22.11.23",
+        "22.11.23"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 13773,
+    "cached_input_tokens": 0,
+    "output_tokens": 1632,
+    "eur_estimate": 0.005853
+  }
+}

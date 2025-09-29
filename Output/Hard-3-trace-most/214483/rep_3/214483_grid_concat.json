@@ -1,0 +1,113 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\214483\\214483_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 7498.78,
+    "Invoice.Date": "15/12/2022",
+    "Sender.VatId": "LAJ160818355",
+    "Vat.Rate": 16,
+    "Net.Amount": 1020.0,
+    "Vat.Amount": 163.2
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Summary of extraction approach and candidate findings (concise, no internal chain-of-thought):\n\n- Document classification: contains multiple CFDI/invoice-like headers (\"Factura\", \"CFDI\", \"Total\", \"I.V.A.\", \"Fecha Emisión\") → treat as invoice(s) — proceed with extraction.\n\n- Key locations found:\n  - Invoice issue date (primary CFDI on page 1): \"Fecha Emisión : 15/12/2022 10:27:01\" → Invoice.Date candidate \"15/12/2022\".\n  - Sender VAT (Emisor RFC on page 1): \"RFC : LAJ160818355\" → Sender.VatId candidate \"LAJ160818355\".\n  - Grand total: page 1 shows \"Total Factura (GXT + CFDI) : 7,498.78\" and \"Saldo CFDI : 7,498.78\" → GrandTotal.Amount candidate 7498.78 (numeric, keep decimals).\n  - VAT groups: page 1 shows breakdown for services:\n    - Net (Total Ingresos) = 1,020.00 and I.V.A. 16% = 163.20 → Vat group candidate: Vat.Rate = 16, Net.Amount = 1020.00, Vat.Amount = 163.20.\n  - Verify no other invoice-level VAT groups that apply to the entire invoice (other pages contain separate supplier invoices with their own totals for third-party charges; those are separate CFDI documents). Per rule, include only invoice-level VAT groups for the main invoice being processed.\n\n- Uncertainties / decisions:\n  - Multiple embedded CFDI/related supplier invoices exist (pages 2–6). Chosen primary document is the main CFDI on page 1 (Emisor RFC LAJ160818355, Fecha 15/12/2022) because it contains the consolidated \"Total Factura (GXT + CFDI)\".\n  - Where time is present with date, only date portion will be used for Invoice.Date per schema (string). No inference beyond visible values.\n  - All numeric values will preserve decimals as in the text.\n\nI will now produce the final JSON extraction using the above confirmed values.",
+    "step2": "GrandTotal.Amount (7498.78): confidence 0.95 — Appears explicitly as \"Total Factura (GXT + CFDI) : 7,498.78\" and \"Saldo CFDI : 7,498.78\" on page 1.\n\nInvoice.Date (\"15/12/2022\"): confidence 0.98 — Explicit \"Fecha Emisión : 15/12/2022 10:27:01\" on page 1; date portion clearly present.\n\nSender.VatId (\"LAJ160818355\"): confidence 0.99 — Explicit \"RFC : LAJ160818355\" under Emisor on page 1.\n\nVat.Rate (16): confidence 0.95 — Invoice shows \"I.V.A. 16 %\" and VAT per line using 0.160000 → corresponds to 16%.\n\nNet.Amount (1020.00): confidence 0.95 — Shown as \"Total Ingresos : 1,020.00\" on page 1 (net before IVA).\n\nVat.Amount (163.20): confidence 0.95 — Shown as \"I.V.A. 16 % : 163.20\" on page 1.\n\nNote: Multiple related supplier CFDIs exist in the document, but the above values are taken from the primary CFDI on page 1."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.79,
+      "input_tokens": 15746,
+      "cached_input_tokens": null,
+      "output_tokens": 848,
+      "total_tokens": 16594,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.64,
+      "input_tokens": 16257,
+      "cached_input_tokens": null,
+      "output_tokens": 475,
+      "total_tokens": 16732,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.84,
+      "input_tokens": 16840,
+      "cached_input_tokens": null,
+      "output_tokens": 219,
+      "total_tokens": 17059,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\214483\\214483.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "LAJ160818355",
+        "LAJ160818355"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        7498.78,
+        "7,498.78"
+      ],
+      "Net.Amount": [
+        false,
+        1020.0,
+        [
+          "1,020.00",
+          "1,780.00",
+          "48.95",
+          "163.79"
+        ]
+      ],
+      "Vat.Amount": [
+        false,
+        163.2,
+        [
+          "163.20",
+          "284.80",
+          "7.83",
+          "26.21"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        16,
+        "16"
+      ],
+      "Invoice.Date": [
+        true,
+        "15/12/2022",
+        "15/12/2022"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 48843,
+    "cached_input_tokens": 0,
+    "output_tokens": 1542,
+    "eur_estimate": 0.002982
+  }
+}

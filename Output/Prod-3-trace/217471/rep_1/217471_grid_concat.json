@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\217482\\217471_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 15.2,
+    "Invoice.Date": "28.07.2023",
+    "Sender.VatId": "ATU34760103",
+    "Vat.Rate": 10,
+    "Net.Amount": 13.82,
+    "Vat.Amount": 1.38
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.8,
+    "Sender.VatId": 0.7,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Highly likely",
+    "Sender.VatId": "Very good chance",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will:\n\n1) Confirm document is an invoice:\n   - Presence of \"Rechnung\"/\"Rechnungs-Nr.\" and invoice-like sections, line items, totals, VAT => classify as invoice (not excluded).\n2) Locate candidate fields:\n   - Invoice number: \"Rechnungs-Nr. 3817\" (pages show 3817).\n   - Invoice dates: page 1 shows \"Datum 28.07.2023\"; page 2 shows \"Datum 29.07.2023\" — two different issue dates present.\n   - Sender VAT ID: occurrences \"ATU    37102103\" (header) and \"ATU34760103\" (company block). Two different OCR variants present.\n   - VAT rate: \"10,00 % MWST\" / \"10,00%\"; also lines show \"10%\".\n   - Net and VAT amounts: lines show \"Netto 13,82\" and \"MWST 1,38\".\n   - Grand total: \"g.. s a m 15,20\" / final sum shown as 15,20 EUR.\n3) Apply rules and constraints:\n   - No inference: I will not guess or reconcile conflicting OCR variants beyond noting them.\n   - Multiple occurrences: The schema allows single fields; therefore I must choose a single value for each schema key. I will select the most consistent / invoice-proximate occurrences:\n     - For Invoice.Date: prefer page 1 \"28.07.2023\" as primary invoice issue date (page 1 shows Rechnungs-Nr. with that Datum).\n     - For Sender.VatId: choose \"ATU34760103\" which appears in the company block near the address (more likely correct company VAT); note there is a conflicting \"ATU 37102103\" in header OCR.\n     - VAT rate: extract numeric percent without \"%\" as \"10\".\n     - Net.Amount: extract 13,82 → numeric 13.82 (preserve decimals).\n     - Vat.Amount: extract 1,38 → numeric 1.38.\n     - GrandTotal.Amount: extract 15,20 → numeric 15.20.\n4) Preserve decimal precision and number formats when converting to numeric types (commas to dots).",
+    "step2": "GrandTotal.Amount — Confidence: high (~95%)\n- Evidence: final summed value shown near bottom as \"15,20\" and repeated formatting consistent with totals. Clear numeric total present.\n\nInvoice.Date — Confidence: moderate-high (~80%)\n- Evidence: two dates appear: \"Datum 28.07.2023\" (page 1, next to Rechnungs-Nr. 3817) and \"Datum 29.07.2023\" (page 2). Page 1 pairs the invoice number and date together, so 28.07.2023 is more likely the primary issue date, but presence of 29.07.2023 creates some ambiguity.\n\nSender.VatId — Confidence: moderate (~70%)\n- Evidence: two OCR variants found: \"ATU    37102103\" (header) and \"ATU34760103\" (company block). The company-block \"ATU34760103\" appears adjacent to company/address which is typical for sender VAT; however OCR noise makes this uncertain.\n\nVat.Rate — Confidence: high (~90%)\n- Evidence: explicit \"10,00 % MWST\" and \"10,00%\"; line items also show \"10%\". Consistent clear VAT rate of 10%.\n\nNet.Amount — Confidence: high (~90%)\n- Evidence: \"Netto 13,82\" is printed and aligns arithmetically with VAT and total (13.82 + 1.38 = 15.20). Clear value present.\n\nVat.Amount — Confidence: high (~90%)\n- Evidence: \"MWST 1,38\" printed and matches arithmetic with net and total. Clear value present."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.11,
+      "input_tokens": 2314,
+      "cached_input_tokens": null,
+      "output_tokens": 985,
+      "total_tokens": 3299,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.34,
+      "input_tokens": 2834,
+      "cached_input_tokens": null,
+      "output_tokens": 409,
+      "total_tokens": 3243,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 7.39,
+      "input_tokens": 3479,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3760,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\217482\\217471_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU34760103",
+        "ATU 37102103"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        15.2,
+        "15,20"
+      ],
+      "Net.Amount": [
+        true,
+        13.82,
+        "13,82"
+      ],
+      "Vat.Amount": [
+        true,
+        1.38,
+        "1,38"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "28.07.2023",
+        "28.07.2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 8627,
+    "cached_input_tokens": 0,
+    "output_tokens": 1675,
+    "eur_estimate": 0.004796
+  }
+}

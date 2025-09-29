@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\273694\\273668_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 345.6,
+    "Invoice.Date": "06.12.2023",
+    "Sender.VatId": "ATU 63022268",
+    "Vat.Rate": 20,
+    "Net.Amount": 288.0,
+    "Vat.Amount": 57.6
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.97,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Below is a concise, non-sensitive summary of the extraction steps and decisions I will use to produce the structured output:\n\n1. Document classification\n   - Check for invoice indicators: presence of \"Rechnung\", totals, VAT, invoice-like headers. Confirmed (contains \"Rechnung\", \"Gesamtbetrag\", \"USt\", \"Endbetrag\").\n   - Check for exclusion indicators: none prominent (no \"Mahnung\" or \"Zahlungserinnerung\"). Conclude document is an invoice.\n\n2. Locate and extract fields\n   - Invoice.Date: look for explicit date fields labelled \"Datum\" / \"Lieferdatum\". Candidate found: \"06.12.2023\".\n   - GrandTotal.Amount: identify overall payable amount labelled \"Endbetrag\" / \"Gesamtbetrag\". Candidate: \"345,60 EUR\".\n   - Sender.VatId: find UID/UST-ID of sender. Candidate: \"ATU 63022268\" appears near company block; also \"ATU 64131246\" appears near customer block. Determine which is sender: company header lists \"UID-NR: ATU 63022268\" — use that as Sender.VatId.\n   - Vat.Rate / Net.Amount / Vat.Amount: find VAT group lines. There is a VAT line: \"zuzüglich USt 20,00% aus 288,00 57,60 EUR\". Extract Vat.Rate = 20 (without %), Net.Amount = 288,00, Vat.Amount = 57,60.\n   - Numeric formatting: preserve decimals as in document (commas). For final JSON numeric types, convert to numeric values with period decimal separator as appropriate, preserving decimals.\n\n3. Verification and No-Inference policy\n   - If any of the above fields were missing or ambiguous, leave them empty. Do not infer.\n   - Multiple VAT entries: only one VAT group present; include that single group.\n\n4. Output preparation\n   - Produce final JSON matching the provided schema, filling fields with extracted values or empty strings if missing.",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"value\": \"345,60\",\n    \"confidence\": \"95%\",\n    \"evidence\": \"Labelled 'Endbetrag' and 'Gesamtbetrag' showing 345,60 EUR near totals section.\"\n  },\n  \"Invoice.Date\": {\n    \"value\": \"06.12.2023\",\n    \"confidence\": \"95%\",\n    \"evidence\": \"Date '06.12.2023' appears next to 'Datum'/'Lieferdatum' in header area.\"\n  },\n  \"Sender.VatId\": {\n    \"value\": \"ATU 63022268\",\n    \"confidence\": \"90%\",\n    \"evidence\": \"Company block lists 'UID-NR: ATU 63022268' under Weidenthaler GmbH (sender).\"\n  },\n  \"Vat.Rate\": {\n    \"value\": \"20\",\n    \"confidence\": \"98%\",\n    \"evidence\": \"VAT line states 'USt 20,00%'.\"\n  },\n  \"Net.Amount\": {\n    \"value\": \"288,00\",\n    \"confidence\": \"97%\",\n    \"evidence\": \"VAT line shows base amount 'aus 288,00' corresponding to net amount.\"\n  },\n  \"Vat.Amount\": {\n    \"value\": \"57,60\",\n    \"confidence\": \"97%\",\n    \"evidence\": \"VAT line shows VAT amount '57,60 EUR' corresponding to 20% of 288,00.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 6.78,
+      "input_tokens": 1636,
+      "output_tokens": 692,
+      "total_tokens": 2328
+    },
+    "step2": {
+      "runtime_sec": 6.07,
+      "input_tokens": 2079,
+      "output_tokens": 576,
+      "total_tokens": 2655
+    },
+    "step3": {
+      "runtime_sec": 3.86,
+      "input_tokens": 2668,
+      "output_tokens": 346,
+      "total_tokens": 3014
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273694\\273668_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU 63022268",
+        "ATU 63022268"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        345.6,
+        "345,60"
+      ],
+      "Net.Amount": [
+        true,
+        288.0,
+        "288,00"
+      ],
+      "Vat.Amount": [
+        true,
+        57.6,
+        "57,60"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "06.12.2023",
+        "06.12.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  }
+}

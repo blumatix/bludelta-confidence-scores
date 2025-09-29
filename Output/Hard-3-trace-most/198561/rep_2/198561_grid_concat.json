@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198561\\198561_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": "",
+    "Invoice.Date": "09.08.2022",
+    "Sender.VatId": "",
+    "Vat.Rate": 0,
+    "Net.Amount": 1400.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.1,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.05,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Highly unlikely",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost no chance",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (1) check whether the document is an invoice, (2) locate candidate text for each required field, (3) verify presence/format, and (4) note any missing values so they remain blank in the final extraction.\n\n1) Document classification\n- Invoice indicators present: header \"INVOICE - TAX DOCUMENT No.220100247\", invoice-like sections (date, due date, amounts, VAT recapitulation). No prominent exclusion terms. Conclusion: treat as an invoice.\n\n2) Candidate fields found in text\n- Grand total: lines show totals with inconsistent OCR: \"Totalount 1,400.00ncyUR 0.00 1,1,480.0\" and earlier line \"1,400.0\" for a line total. Also \"Recapitulation ... VATnCZK ... TotalZK\" section has garbled numbers. Most consistent explicit overall payable amount is unclear from OCR; candidates: 1,400.00 and 1,480.0 (garbled). Mark as uncertain—will not guess if ambiguous.\n- Invoice date: occurrences: \"date 09.08.2022\" and earlier \"DATE°11/08/2022\" (delivery note). The invoice header shows \"date 09.08.2022\"—select as invoice date candidate.\n- Sender VAT ID: line \"Customerdentif.er: FR47546650334\" appears as customer identifier; also earlier \"Identif.ber:580168\". There's also \"FR47546650334\" which is in VAT ID format. Which is sender vs recipient ambiguous—header shows company \"UBSquicktranss.r.o.\" (issuer) and \"DACHSER France...\" as customer. \"FR47546650334\" is labeled \"Customerdentif.er\", so that is customer VAT. No explicit \"Sender.VatId\" labeled; leave blank unless clearly sender VAT present. No clear sender VAT found.\n- VAT rate(s): Recapitulation shows columns labelled \"%VAT\" with entries \"0%\", \"15%\", and text \"34510,0310% ... 0,00 15% ...\". There is a clearly visible \"0%\" for the line (loading) and a \"15%\" shown in recapitulation. Candidate VAT rates: 0 and 15. Will include both as Vat.Rate items.\n- Net amounts and VAT amounts: For the line item: unit/price shows \"1,400.00 ... 0% 0.00 1,400.0\" implying Net = 1,400.00, VAT amount = 0.00 for the 0% group. Recapitulation lines are garbled for other groups; a VAT 15% group shows 0,00 VAT and 0,03 Total? OCR unclear. Only reliable numeric pair is Net 1,400.00 and Vat 0.00 for the 0% group. Other Net/VAT amounts are ambiguous—do not infer.\n\n3) Decisions per rule\n- Do not infer or guess ambiguous totals (e.g., 1,480.0 appears OCR-corrupted); leave blank if not unambiguous.\n- Include VAT group for 0% with Net 1,400.00 and Vat 0.00.\n- Include VAT rate 15% only if corresponding Net/VAT amounts are unambiguous; they are not—so Vat.Amount and Net.Amount for 15% remain blank.\n\nSummary of extracted, evidence-backed candidates to be used in final JSON:\n- Invoice.Date: \"09.08.2022\" (from \"date 09.08.2022\")\n- GrandTotal.Amount: ambiguous (candidates 1400.00 and 1480.0) — treat as ambiguous and leave blank per no-inference rule\n- Sender.VatId: no clear sender VAT found — leave blank\n- Vat.Rate: include 0 (from shown \"0%\") and 15 (appears in recapitulation but amounts unclear)\n- Net.Amount / Vat.Amount: for 0% group Net = 1400.00, Vat = 0.00; for 15% group amounts not reliably readable so leave blank for that group\n\nI will now produce the final JSON following the schema and rules.",
+    "step2": "GrandTotal.Amount\n- Evidence: OCR shows \"Totalount 1,400.00ncyUR 0.00 1,1,480.0\" and earlier \"1,400.0\". These are inconsistent and partially garbled.\n- Assessment: High ambiguity; could be 1400.00 or 1480.0 but insufficient clear confirmation.\n- Confidence: Low (≈10%).\n\nInvoice.Date\n- Evidence: Two dates present: \"DATE°11/08/2022\" on delivery note page and \"date 09.08.2022\" in the invoice header area (\"Ordero.:3/146271      date 09.08.2022\").\n- Assessment: \"date 09.08.2022\" appears in invoice header and aligns with invoice context; clear text.\n- Confidence: High (≈90%).\n\nSender.VatId\n- Evidence: \"Customerdentif.er:      FR47546650334\" appears, but labeled as customer identifier. No explicit \"Sender VAT\" found for issuer (UB quicktranss.r.o.).\n- Assessment: No clear sender VAT present; available VAT-like string refers to customer, not sender.\n- Confidence that Sender.VatId is present: Very low (≈5%) — therefore leave blank.\n\nVat.Rate\n- Evidence: Recapitulation shows \"%VAT\" with visible \"0%\" for main line; also \"15%\" appears elsewhere in recapitulation though context/numbers are garbled.\n- Assessment: 0% is clearly indicated for the listed line. 15% appears but without reliable amounts.\n- Confidence: 0% entry — High (≈95%); 15% entry — Moderate (≈50%) due to poor clarity.\n\nNet.Amount\n- Evidence: Line item shows \"1       1400.00        1,400.00 0%      0.00    1,400.0\" (OCR variants).\n- Assessment: Net = 1,400.00 for the 0% VAT group is consistently shown across OCR fragments.\n- Confidence for Net=1400.00 (0% group): High (≈90%). No reliable net for 15% group — Confidence for that: Very low (≈5%).\n\nVat.Amount\n- Evidence: Same line shows \"0%      0.00\" associated with the 1,400.00 line.\n- Assessment: VAT amount 0.00 for 0% group is clear.\n- Confidence for Vat=0.00 (0% group): High (≈95%). For 15% group VAT amount is unreadable — Confidence: Very low (≈5%)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.61,
+      "input_tokens": 2628,
+      "cached_input_tokens": null,
+      "output_tokens": 1083,
+      "total_tokens": 3711,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.92,
+      "input_tokens": 3566,
+      "cached_input_tokens": null,
+      "output_tokens": 552,
+      "total_tokens": 4118,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.82,
+      "input_tokens": 4418,
+      "cached_input_tokens": null,
+      "output_tokens": 464,
+      "total_tokens": 4882,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198561\\198561.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "",
+        "CZ28580168"
+      ],
+      "GrandTotal.Amount": [
+        false,
+        "",
+        "1,400.00"
+      ],
+      "Net.Amount": [
+        true,
+        1400.0,
+        "1,400.00"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0.00"
+      ],
+      "Vat.Rate": [
+        false,
+        0,
+        []
+      ],
+      "Invoice.Date": [
+        true,
+        "09.08.2022",
+        "09.08.2022"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 10612,
+    "cached_input_tokens": 0,
+    "output_tokens": 2099,
+    "eur_estimate": 0.001265
+  }
+}

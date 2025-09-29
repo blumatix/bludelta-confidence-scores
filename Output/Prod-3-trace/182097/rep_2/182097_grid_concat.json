@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\182097\\182097_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 439.84,
+    "Invoice.Date": "05.04.2023",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 399.85,
+    "Vat.Amount": 39.99
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.97,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.96
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: document is an invoice (contains \"Rechnung\", invoice number, invoice date, totals, VAT lines, line items).\n\nFields found:\n- Invoice dates: \"Rechnungsdatum: 05.04.2023\" → Invoice.Date = \"05.04.2023\".\n- Sender VAT ID: \"USTID: ATU        22642807\" → Sender.VatId = \"ATU22642807\" (concatenate).\n- Net amount (Warenwert / Zwischensumme): \"399,85\" → Net.Amount = 399.85.\n- VAT rate: shown as \"(10,00 %)\" / \"MwSt (10,00 %)\" → Vat.Rate = 10.00.\n- VAT amount: \"39,99\" → Vat.Amount = 39.99.\n- Grand total ambiguity:\n  - Option A: \"Rechnungsbetrag EUR 439,84\" (399.85 + 39.99 = 439.84) — the full invoiced total.\n  - Option B: \"Rechnungsbetrag EUR 426,64\" shown after Skonto/Skontobetrag EUR 13,20 — total if 3% early-payment discount applied.\nNo inference allowed: both totals are explicitly present; final selection must reflect which value is the invoice's GrandTotal.Amount per schema rules.",
+    "step2": "Invoice.Date — Evidence: \"Rechnungsdatum: 05.04.2023\" clearly present. Confidence: 99%.\n\nSender.VatId — Evidence: \"USTID: ATU        22642807\". Concatenation yields \"ATU22642807\"; format matches Austrian VAT ID. Confidence: 95%.\n\nNet.Amount — Evidence: \"Zwischensumme EUR 399,85\" and \"Warenwert (10,00 %) 399,85\". Both show 399,85 as net value. Confidence: 98%.\n\nVat.Rate — Evidence: Multiple mentions of \"MwSt (10,00 %)\" and \"Skonto (MwSt 10,00 %)\". VAT rate is consistently 10,00%. Per rule remove % when storing numeric. Confidence: 97%.\n\nVat.Amount — Evidence: \"MwSt (10,00 %) 39,99\" appears as VAT amount. Matches net 399,85 * 0.10 = 39,985 → rounded to 39,99 consistent with displayed. Confidence: 96%.\n\nGrandTotal.Amount — Two explicit totals:\n- 439,84 labeled \"Rechnungsbetrag EUR 439,84\" (matches 399,85 + 39,99 = 439,84).\n- 426,64 appears twice: once as \"Rechnungsbetrag EUR 426,64\" and once above as amount after Skonto calculation; 426,64 = 439,84 - 13,20 (skonto). The document shows both full invoice total and early-payment discounted total. Ambiguity about which is the canonical Grand Total: the invoice's nominal total is 439,84, while 426,64 is conditional (if paid within discount period). Evidence for nominal GrandTotal = 439,84 is strong (mathematical consistency and presence). Evidence for GrandTotal = 426,64 is also explicit but conditional. Confidence that canonical GrandTotal.Amount should be 439.84: 90%. Confidence for choosing 426.64 as GrandTotal: 40% (valid as conditional payable if discount applied)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.22,
+      "input_tokens": 1955,
+      "cached_input_tokens": null,
+      "output_tokens": 928,
+      "total_tokens": 2883,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.29,
+      "input_tokens": 2290,
+      "cached_input_tokens": null,
+      "output_tokens": 506,
+      "total_tokens": 2796,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.39,
+      "input_tokens": 3032,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3315,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\182097\\182097_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU38510009"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        439.84,
+        "439,84"
+      ],
+      "Net.Amount": [
+        true,
+        399.85,
+        "399,85"
+      ],
+      "Vat.Amount": [
+        true,
+        39.99,
+        "39,99"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "05.04.2023",
+        "05.04.2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7277,
+    "cached_input_tokens": 0,
+    "output_tokens": 1717,
+    "eur_estimate": 0.004571
+  }
+}

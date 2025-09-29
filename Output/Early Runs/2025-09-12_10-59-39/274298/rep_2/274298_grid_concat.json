@@ -1,0 +1,118 @@
+{
+  "input_path": "..\\Documents\\274327\\274298_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 3175.15,
+    "Invoice.Date": "25.01.2024",
+    "Sender.VatId": "ATU38173800",
+    "Vat.Rate": [
+      0,
+      10
+    ],
+    "Net.Amount": [
+      733.83,
+      2219.37
+    ],
+    "Vat.Amount": [
+      0.0,
+      221.95
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.97,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification:\n- Document contains \"Rechnungsnummer\", \"Datum\", \"Gesamtsumme\", line items with amounts and USt percentages, IBAN/BIC and payment terms → treat as an invoice (not a payment reminder or report).\n\nKey observed invoice elements:\n- Rechnungsnummer: \"0   12856        1852\" (appears as Re-Nr. later)\n- Datum (Invoice Date): \"25.01.2024\"\n- UID / VAT ID (Sender.VatId): \"ATU38173800\" (labeled UID)\n- Grand total displayed as \"Vorschreibungsbetrag                                                                             3.175,15          EUR\" and repeated as \"Betrag: EUR 3175,15\" → GrandTotal.Amount = 3175.15\n- Payment due / debit date: 15.02.2024 (present but not required in schema)\n- Line-item VAT groups shown:\n  - A 0,00 % group with netto 733,83 and USt-Betr. 0,00\n  - A 10,00 % group with netto 2.219,37 and USt-Betr. 221,95\n- Verify totals: 733.83 + 2219.37 = 2953.20 net; VAT 0.00 + 221.95 = 221.95; net + VAT = 3175.15 matches GrandTotal.\n\nExtraction plan (no guessing; use explicit text):\n- GrandTotal.Amount: 3175.15 (preserve decimals as in text)\n- Invoice.Date: \"25.01.2024\"\n- Sender.VatId: \"ATU38173800\"\n- Vat groups to capture as entries:\n  - Vat.Rate: 0 (from \"0,00 %\"), Net.Amount: 733.83, Vat.Amount: 0.00\n  - Vat.Rate: 10 (from \"10,00 %\"), Net.Amount: 2219.37, Vat.Amount: 221.95\n\nNo other required fields (e.g., Net.Amount, Vat.Amount) are to be inferred beyond these explicit group values.",
+    "step2": "I can’t share my step-by-step internal chain-of-thought. Below is a concise confidence assessment for each extracted field with brief evidence.\n\n- GrandTotal.Amount = 3175.15 — Confidence: 98% — Evidence: \"Vorschreibungsbetrag 3.175,15 EUR\" and repeated as \"Betrag: EUR 3175,15\".\n- Invoice.Date = \"25.01.2024\" — Confidence: 99% — Evidence: \"Datum: 25.01.2024\" header.\n- Sender.VatId = \"ATU38173800\" — Confidence: 99% — Evidence: \"UID: ATU38173800\" near sender block.\n- Vat group 1:\n  - Vat.Rate = 0 — Confidence: 98% — Evidence: \"0,00 %\".\n  - Net.Amount = 733.83 — Confidence: 97% — Evidence: \"netto 733,83\" under 0,00 % group.\n  - Vat.Amount = 0.00 — Confidence: 98% — Evidence: \"Ust-Betr. 0,00\" for that group.\n- Vat group 2:\n  - Vat.Rate = 10 — Confidence: 98% — Evidence: \"10,00 %\".\n  - Net.Amount = 2219.37 — Confidence: 97% — Evidence: \"netto 2.219,37\" under 10,00 % group.\n  - Vat.Amount = 221.95 — Confidence: 97% — Evidence: \"Ust-Betr. 221,95\" for that group."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.98,
+      "input_tokens": 2191,
+      "output_tokens": 774,
+      "total_tokens": 2965
+    },
+    "step2": {
+      "runtime_sec": 7.36,
+      "input_tokens": 2652,
+      "output_tokens": 602,
+      "total_tokens": 3254
+    },
+    "step3": {
+      "runtime_sec": 10.45,
+      "input_tokens": 3267,
+      "output_tokens": 695,
+      "total_tokens": 3962
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274327\\274298_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU38173800",
+        "ATU38173800"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        3175.15,
+        "3.175,15"
+      ],
+      "Net.Amount": [
+        true,
+        [
+          733.83,
+          2219.37
+        ],
+        [
+          "2.219,37",
+          "733,83"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        [
+          0.0,
+          221.95
+        ],
+        [
+          "221,95",
+          "0,00"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        [
+          0,
+          10
+        ],
+        [
+          "10,00",
+          "0,00"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "25.01.2024",
+        "25.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  }
+}

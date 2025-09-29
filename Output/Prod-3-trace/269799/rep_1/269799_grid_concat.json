@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\269849\\269799_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2293.5,
+    "Invoice.Date": "09.01.2024",
+    "Sender.VatId": "ATU64721402",
+    "Vat.Rate": 10,
+    "Net.Amount": 2085.0,
+    "Vat.Amount": 208.5
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.97,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Plan and verification steps for extracting required fields:\n\n1. Document classification\n- Check presence of invoice indicators: \"Rechnung\", \"Rechnungsdatum\", \"Gesamtsumme\", \"MWSt\", \"UID/VAT-Nr.\" — these are present. No exclusion indicators like \"Mahnung\" or \"Zahlungserinnerung\" in prominent positions. Conclusion: treat as an invoice and proceed.\n\n2. Locate Invoice.Date\n- Found label \"Rechnungsdatum\" with value \"09.01.2024\". Candidate: \"09.01.2024\".\n\n3. Locate GrandTotal.Amount\n- Found \"Gesamtsumme EUR 2.293,50\". Candidate numeric amount: 2.293,50 (European format with comma as decimal separator). Must preserve decimals.\n\n4. Locate Sender.VatId\n- Two VAT IDs appear: \"Ihre UID/VAT-Nr. ATU22642807\" and \"Unsere UID/VAT-Nr. ATU64721402\". \"Sender\" is the document issuer — header shows Landgold Fresh GmbH (issuer). The issuer VAT is \"ATU64721402\". Candidate: \"ATU64721402\".\n\n5. Locate VAT groups (Vat.Rate, Net.Amount, Vat.Amount)\n- Line showing \"10% MWSt für 2.085,00 208,50\" and then totals. Interpret as VAT group:\n  - Vat.Rate: 10\n  - Net.Amount: 2.085,00\n  - Vat.Amount: 208,50\n- Ensure numeric formatting preserved (same decimals).\n\n6. Apply rules\n- Do not infer missing values; use exact found values.\n- Keep decimal formatting as in input.\n- Prepare to output VAT rate without percent symbol (\"10\").\n\nNext step: produce final JSON with fields populated accordingly.",
+    "step2": "GrandTotal.Amount — 0.95\n- Evidence: \"Gesamtsumme EUR 2.293,50\" clearly present; matches sum of net + VAT.\n\nInvoice.Date — 0.99\n- Evidence: \"Rechnungsdatum 09.01.2024\" explicitly labeled.\n\nSender.VatId — 0.95\n- Evidence: Two VAT numbers present; \"Unsere UID/VAT-Nr. ATU64721402\" aligns with issuer Landgold Fresh (document header).\n\nVat.Rate — 0.98\n- Evidence: \"10% MWSt\" clearly shown for the VAT line.\n\nNet.Amount — 0.97\n- Evidence: Net base shown as \"2.085,00\" associated with the 10% VAT line.\n\nVat.Amount — 0.97\n- Evidence: VAT amount shown as \"208,50\" corresponding to 10% of 2.085,00 (rounded as presented)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.29,
+      "input_tokens": 1944,
+      "cached_input_tokens": null,
+      "output_tokens": 639,
+      "total_tokens": 2583,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.89,
+      "input_tokens": 2374,
+      "cached_input_tokens": null,
+      "output_tokens": 395,
+      "total_tokens": 2769,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.23,
+      "input_tokens": 2877,
+      "cached_input_tokens": null,
+      "output_tokens": 219,
+      "total_tokens": 3096,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\269849\\269799_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU64721402",
+        "ATU64721402"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        2293.5,
+        "2.293,50"
+      ],
+      "Net.Amount": [
+        true,
+        2085.0,
+        "2.085,00"
+      ],
+      "Vat.Amount": [
+        true,
+        208.5,
+        "208,50"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "09.01.2024",
+        "09.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7195,
+    "cached_input_tokens": 0,
+    "output_tokens": 1253,
+    "eur_estimate": 0.003751
+  }
+}

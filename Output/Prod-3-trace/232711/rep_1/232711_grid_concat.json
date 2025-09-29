@@ -1,0 +1,116 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\232721\\232711_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 4041.27,
+    "Invoice.Date": "29.09.2023",
+    "Sender.VatId": "ATU64131246",
+    "Vat.Rate": 20,
+    "Net.Amount": 3503.89,
+    "Vat.Amount": 700.78
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.85,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Highly likely",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Below is a concise, non-sensitive summary of the extraction steps, verification, and the candidate values found to be extracted from the document:\n\n- Document classification: Identified as an invoice (contains \"Rechnung\", invoice number, dates, totals, line items). No exclusion indicators dominant.\n\n- Fields and evidence located:\n  - Invoice.Date: \"Datum 29.09.2023\" (page 1 header).\n  - Sender.VatId: \"Ihre Ust-Id-Nr. ATU64131246\" (page 1).\n  - Vat.Rate: \"20.00%\" shown as \"R2 20.00%\" (page 2); per rules, would be returned as 20.\n  - Net.Amount candidates:\n    - \"Gesamtbetrag Netto 3.503,89 EUR\" (page 2) — invoice net total before VAT.\n  - Vat.Amount candidates:\n    - \"R2 20.00% 700,78 EUR\" (page 2) — VAT amount for that group.\n  - GrandTotal.Amount candidates:\n    - \"Gesamtbetrag Brutto 4.204,67 EUR\" (page 2) — gross total.\n    - \"Zahlbetrag 4.041,27 EUR\" (page 2) — payment amount after skonto; which represents amount to pay.\n- Decision note (to apply when producing final extraction): GrandTotal.Amount should reflect the total payable amount on the invoice per schema — the document shows \"Zahlbetrag 4.041,27 EUR\" as the final pay amount; \"Gesamtbetrag Brutto 4.204,67 EUR\" is the gross total before payment adjustments. No fields will be inferred beyond explicit text.\n\nI will now prepare the final JSON extraction using the explicit values only.",
+    "step2": "- Invoice.Date: High confidence — exact text \"Datum 29.09.2023\" in header appears multiple times.\n- Sender.VatId: High confidence — explicit \"Ihre Ust-Id-Nr. ATU64131246\" present.\n- Vat.Rate: High confidence — explicit \"R2 20.00% USt\" line; per rule percentage converted to number (20).\n- Net.Amount: High confidence — explicit \"Gesamtbetrag Netto 3.503,89 EUR\" shown.\n- Vat.Amount: High confidence — explicit \"R2 20.00% ... 700,78 EUR\" shown as VAT amount for group.\n- GrandTotal.Amount: Medium-high confidence — two candidate totals appear: \"Gesamtbetrag Brutto 4.204,67 EUR\" (gross total) and \"Zahlbetrag 4.041,27 EUR\" (payment after skonto). The schema requests \"Total payable amount on the invoice\"; the document explicitly labels \"Zahlbetrag 4.041,27 EUR\" as the amount to pay, so selecting 4.041,27 is well-supported though requires choosing between these two explicit figures."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 12.19,
+      "input_tokens": 4181,
+      "cached_input_tokens": null,
+      "output_tokens": 834,
+      "total_tokens": 5015,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.46,
+      "input_tokens": 4614,
+      "cached_input_tokens": null,
+      "output_tokens": 502,
+      "total_tokens": 5116,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.58,
+      "input_tokens": 5160,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 5443,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\232721\\232711_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU64131246",
+        "ATU69710958,"
+      ],
+      "GrandTotal.Amount": [
+        false,
+        4041.27,
+        "4.204,67"
+      ],
+      "Net.Amount": [
+        true,
+        3503.89,
+        [
+          "3.503,89",
+          "3.503,89"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        700.78,
+        [
+          "700,78",
+          "700,78"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        [
+          "20.00",
+          "20,00"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "29.09.2023",
+        [
+          "29.09.2023",
+          "29.09.2023",
+          "29.09.2023"
+        ]
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 13955,
+    "cached_input_tokens": 0,
+    "output_tokens": 1619,
+    "eur_estimate": 0.005871
+  }
+}

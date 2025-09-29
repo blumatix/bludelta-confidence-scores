@@ -1,0 +1,83 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198448\\198448_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1334.19,
+    "Invoice.Date": "30 Mar 2023",
+    "Sender.VatId": "DE815512007",
+    "Vat.Rate": 0,
+    "Net.Amount": 1334.19,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification:\n- Contains clear invoice indicators: title \"INVOICE\", \"INVOICE NO.\", \"ISSUE DATE\", \"DUE DATE\", \"VAT NO.\", line-item table, totals; no exclusion keywords present. Classified as invoice.\n\n2) Locate candidate fields:\n- Grand total: \"AMOUNT DUE EUR 1,334.19\" and \"SUB-TOTAL 1,334.19\" — total payable is 1,334.19 EUR.\n- Invoice date: \"ISSUE DATE 30 Mar 2023\".\n- Sender VAT ID: \"VAT NO.: DE815512007\" under invoice-to block (sender/supplier block shows COSCO SHIPPING Lines (Germany) GmbH and VAT number in header).\n- VAT rate: Column \"VAT%\" for charges shows \"0%\" and \"VAT Summary 0.00\" — VAT rate is 0.\n- Net amount and VAT amount: SUB-TOTAL 1,334.19 corresponds to net (excluding VAT) and VAT Summary = 0.00 corresponds to VAT amount.\n\n3) Verify no ambiguous/multiple occurrences:\n- Only one invoice date string found.\n- Only one VAT number present.\n- Totals and VAT summary consistently show net 1,334.19 and VAT 0.00.\n- No exchange rates applicable to entire invoice beyond per-line \"EXCHANGE RATE 0.94384\" (applies to a line's currency conversion but not an invoice-level exchange rate group), so none extracted.\n\n4) Formatting rules & constraints:\n- Preserve decimals as in source (1,334.19 -> 1334.19; VAT 0.00 -> 0.00).\n- VAT rate return as number without \"%\" (0).\n- Do not infer missing data; use only explicitly present values.\n\nConclusion: extract these explicit values for the final structured JSON: GrandTotal.Amount=1334.19, Invoice.Date=\"30 Mar 2023\", Sender.VatId=\"DE815512007\", Vat.Rate=0, Net.Amount=1334.19, Vat.Amount=0.00.",
+    "step2": "GrandTotal.Amount — Confidence: Very high (~95%)\n- Evidence: \"AMOUNT DUE EUR 1,334.19\" explicitly printed; also SUB-TOTAL shown as 1,334.19 matching. Clear currency and placement as invoice total. Low risk of misreading.\n\nInvoice.Date — Confidence: Very high (~95%)\n- Evidence: \"ISSUE DATE 30 Mar 2023\" explicitly present in header. Date format unambiguous.\n\nSender.VatId — Confidence: High (~90%)\n- Evidence: \"VAT NO.: DE815512007\" appears under the invoice-to / header area. Likely sender VAT (COSCO SHIPPING Lines (Germany) GmbH) — clear VAT number. Small risk: could be recipient VAT in some layouts, but here positioning and surrounding sender company name make sender interpretation likely.\n\nVat.Rate — Confidence: High (~90%)\n- Evidence: VAT% column for charge lines shows \"0%\" and \"VAT Summary 0.00\" printed. Consistent across document. Interpreted as 0 without percent symbol per rules.\n\nNet.Amount — Confidence: Very high (~95%)\n- Evidence: SUB-TOTAL 1,334.19 appears immediately above \"AMOUNT DUE\" and VAT summary 0.00; net (excluding VAT) equals subtotal when VAT is zero. Explicit numeric match to total.\n\nVat.Amount — Confidence: Very high (~95%)\n- Evidence: \"VAT Summary 0.00\" printed and VAT column shows 0%; explicit VAT amount is 0.00.\n\nNotes on potential ambiguities:\n- Exchange rate 0.94384 appears per-line for USD conversion; per rules it's not an invoice-level exchange rate and was excluded.\n- Currency normalization: amounts reported as numbers without currency symbol; decimal formatting preserved."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.84,
+      "input_tokens": 1951,
+      "cached_input_tokens": null,
+      "output_tokens": 818,
+      "total_tokens": 2769,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.15,
+      "input_tokens": 2432,
+      "cached_input_tokens": null,
+      "output_tokens": 371,
+      "total_tokens": 2803,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.88,
+      "input_tokens": 3103,
+      "cached_input_tokens": null,
+      "output_tokens": 217,
+      "total_tokens": 3320,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198448\\198448.json",
+    "per_field": {
+      "GrandTotal.Amount": [
+        true,
+        1334.19,
+        "1,334.19"
+      ],
+      "Invoice.Date": [
+        true,
+        "30 Mar 2023",
+        "30 Mar 2023"
+      ]
+    },
+    "summary": {
+      "matched": 2,
+      "total": 2,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7486,
+    "cached_input_tokens": 0,
+    "output_tokens": 1406,
+    "eur_estimate": 0.000866
+  }
+}

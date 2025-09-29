@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\274158\\274155_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 789.03,
+    "Invoice.Date": "01.02.2024",
+    "Sender.VatId": "ATU65161022",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 717.3,
+    "Vat.Amount": 71.73
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.96,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will identify invoice indicators, locate required fields, consider alternatives, and decide what to extract.\n\n1) Document classification: Invoice indicators present\n- Title \"RECHNUNG\" (German for Invoice) with invoice number \"202400030\" and date \"01.02.2024\".\n- Presence of \"Nettobetrag\", VAT line \"+ 10,00% USt. von 717,30\", and final total \"789,03 EUR\".\n- No prominent exclusion terms like \"Zahlungserinnerung\" or \"Mahnung\". Therefore classify as an invoice and proceed with extraction.\n\n2) Required schema fields to extract: GrandTotal.Amount, Invoice.Date, Sender.VatId, Vat.Rate, Net.Amount, Vat.Amount.\n- Apply \"No Inference\": only extract exact values as presented.\n\n3) Locate Invoice.Date\n- Found in header: \"RECHNUNG 202400030 vom 01.02.2024\". So Invoice.Date = \"01.02.2024\".\n\n4) Locate Sender.VatId\n- Top area shows company \"Konditorei Haderer GmbH ... Austria * ATU65161022\". That appears to be sender VAT (format ATU... typical Austrian UID). Also there is a recipient UID \"Kunden-UID-Nr.: ATU22642807\" labeled as customer. The schema field Sender.VatId requests Tax ID of the sender. Thus choose ATU65161022 as Sender.VatId.\n- Confirm no other sender VAT elsewhere; recipient UID explicitly labeled as Kunden-UID-Nr., so do not use that.\n\n5) Locate GrandTotal.Amount\n- The final labeled \"Rechnungsbetrag 789,03 EUR\" (formatted \"R e c h n u n g s b e t r a g 789,03 EUR\"). Thus GrandTotal.Amount = 789,03 (numeric). Preserve decimals as shown (two decimals). No currency symbol per schema; but type expects number — will later format as number.\n\n6) Locate Net.Amount and Vat.Amount and Vat.Rate\n- The invoice shows \"Nettobetrag 717,30 EUR\" and line \"+ 10,00% USt. von 717,30 71,73 EUR\".\n- Vat.Rate: \"10,00%\" — rule: extract rate without percent symbol and preserve decimals? Schema expects number; developer rules: \"Extract rates without the percentage symbol (e.g., '19%' as '19')\". Here \"10,00%\" → represent as number 10,00 or 10? The schema's number type can include decimals; instruction example removed symbol but preserved integer. To be safe, keep decimal formatting as in input but without %: \"10,00\". However earlier rule 5 under Rules said extract rates without percentage symbol and no further change. Also \"Decimal Numbers: Keep the number of decimals places the same as in the input.\" The input shows \"10,00%\", two decimals; so Vat.Rate should be number 10,00. But JSON numeric literals cannot have comma decimal; must use dot. However schema allowed number type. The developer instruction about format used comma in text, but output must be JSON. For consistency, convert commas to dots for numeric fields. So Vat.Rate = 10.00.\n- Net.Amount: \"717,30 EUR\" → numeric 717.30 (preserve two decimals).\n- Vat.Amount: \"71,73 EUR\" → numeric 71.73.\n\n7) Multiple occurrences\n- There is only one VAT group line (10,00%). So single entries suffice.\n\n8) Verify no inference or additional values\n- Do not fill other fields; all required fields are present and filled from explicit invoice text.\n\n9) Edge considerations\n- Ensure numeric values preserved with same decimals: 717.30, 71.73, 789.03, Vat.Rate 10.00.\n- Invoice.Date keep string \"01.02.2024\".\n- Sender.VatId string \"ATU65161022\".\n\nConclusion: fields extracted as above.",
+    "step2": "GrandTotal.Amount (789,03)\n- Evidence: Labeled \"Rechnungsbetrag 789,03 EUR\" at invoice bottom.\n- Likelihood: 98%\n\nInvoice.Date (\"01.02.2024\")\n- Evidence: Header \"RECHNUNG 202400030 vom 01.02.2024\".\n- Likelihood: 99%\n\nSender.VatId (\"ATU65161022\")\n- Evidence: Top header shows company with \"ATU65161022\" (sender). Customer UID also present separately as \"Kunden-UID-Nr.: ATU22642807\", so sender UID is distinct.\n- Likelihood: 96%\n\nVat.Rate (10,00%)\n- Evidence: Line \"+  10,00% USt. von 717,30\" clearly shows VAT rate 10,00%.\n- Likelihood: 99%\n\nNet.Amount (717,30)\n- Evidence: Line \"Nettobetrag 717,30 EUR\".\n- Likelihood: 99%\n\nVat.Amount (71,73)\n- Evidence: VAT line shows \"71,73 EUR\" as the VAT amount for the 10,00% group.\n- Likelihood: 99%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.24,
+      "input_tokens": 2045,
+      "cached_input_tokens": null,
+      "output_tokens": 913,
+      "total_tokens": 2958,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.54,
+      "input_tokens": 2901,
+      "cached_input_tokens": null,
+      "output_tokens": 319,
+      "total_tokens": 3220,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.3,
+      "input_tokens": 3425,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3708,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274158\\274155_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU65161022",
+        "ATU65161022"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        789.03,
+        "789,03"
+      ],
+      "Net.Amount": [
+        true,
+        717.3,
+        "717,30"
+      ],
+      "Vat.Amount": [
+        true,
+        71.73,
+        "71,73"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "01.02.2024",
+        "01.02.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8371,
+    "cached_input_tokens": 0,
+    "output_tokens": 1515,
+    "eur_estimate": 0.004463
+  }
+}

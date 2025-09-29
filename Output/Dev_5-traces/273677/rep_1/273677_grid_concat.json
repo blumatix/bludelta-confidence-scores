@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\273718\\273677_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1441.96,
+    "Invoice.Date": "09.10.2023",
+    "Sender.VatId": "ATU45414706",
+    "Vat.Rate": 20,
+    "Net.Amount": 1201.63,
+    "Vat.Amount": 240.33
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will treat the document as an invoice (contains \"Rechnung\", invoice number, invoice date, totals, VAT line). Key extraction decisions and verifications:\n\n- Document classification: Confirmed invoice — contains \"Rechnung:\", invoice number 2671978, \"Datum: 09.10.2023\", totals and VAT lines; no exclusion keywords dominating.\n- Invoice.Date: Identified as \"09.10.2023\" (explicit \"Datum: 09.10.2023\").\n- GrandTotal.Amount: Identified \"Gesamtbetrag EUR 1.441,96\" → numeric 1441.96 (preserve decimals).\n- VAT rate and amounts: Line shows \"USt 20% 240,33\" and \"Warenwert 1.201,63\" → Vat.Rate = 20, Net.Amount = 1201.63, Vat.Amount = 240.33.\n- Sender.VatId: The seller’s VAT appears as \"ATU45414706\" on page 2 near company/legal info; the other UID \"ATU64131246\" is labeled \"Ihre UID Nr.\" (the customer's UID) so per \"Sender.VatId\" I select ATU45414706.\n- Applied rules: No guessing beyond explicit text; preserved decimal formatting; VAT rate extracted without percent sign.\n\nI will now produce the final JSON extraction.",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"value\": \"1441.96\",\n    \"confidence\": \"High\",\n    \"evidence\": \"Text 'Gesamtbetrag EUR 1.441,96' on page 1 matching total payable.\"\n  },\n  \"Invoice.Date\": {\n    \"value\": \"09.10.2023\",\n    \"confidence\": \"High\",\n    \"evidence\": \"Explicit 'Datum: 09.10.2023' near invoice header.\"\n  },\n  \"Sender.VatId\": {\n    \"value\": \"ATU45414706\",\n    \"confidence\": \"High\",\n    \"evidence\": \"Company tax ID 'ATU45414706' appears in company/bank/legal section on page 2.\"\n  },\n  \"Vat.Rate\": {\n    \"value\": \"20\",\n    \"confidence\": \"High\",\n    \"evidence\": \"Line 'USt 20%' shown with corresponding VAT amount.\"\n  },\n  \"Net.Amount\": {\n    \"value\": \"1201.63\",\n    \"confidence\": \"High\",\n    \"evidence\": \"Line 'Warenwert 1.201,63' corresponds to net amount before VAT.\"\n  },\n  \"Vat.Amount\": {\n    \"value\": \"240.33\",\n    \"confidence\": \"High\",\n    \"evidence\": \"Line 'USt 20% 240,33' explicitly lists VAT amount.\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.81,
+      "input_tokens": 2054,
+      "cached_input_tokens": null,
+      "output_tokens": 674,
+      "total_tokens": 2728,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.86,
+      "input_tokens": 2351,
+      "cached_input_tokens": null,
+      "output_tokens": 497,
+      "total_tokens": 2848,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.57,
+      "input_tokens": 2925,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3208,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273718\\273677_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU45414706",
+        "ATU45414706"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1441.96,
+        "1.441,96"
+      ],
+      "Net.Amount": [
+        true,
+        1201.63,
+        "1.201,63"
+      ],
+      "Vat.Amount": [
+        true,
+        240.33,
+        "240,33"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20"
+      ],
+      "Invoice.Date": [
+        true,
+        "09.10.2023",
+        "09.10.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7330,
+    "cached_input_tokens": 0,
+    "output_tokens": 1454,
+    "eur_estimate": 0.004128
+  }
+}

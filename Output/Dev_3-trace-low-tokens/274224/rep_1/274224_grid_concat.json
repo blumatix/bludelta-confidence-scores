@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\274224\\274224_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 779.22,
+    "Invoice.Date": "18.01.2024",
+    "Sender.VatId": "ATU65960748",
+    "Vat.Rate": 10,
+    "Net.Amount": 708.38,
+    "Vat.Amount": 70.84
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 1,
+    "Invoice.Date": 1,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 1,
+    "Net.Amount": 1,
+    "Vat.Amount": 1
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Plan:\n- Confirm document is an invoice: presence of \"Rechnung\", invoice number, invoice date, line items, totals -> proceed.\n- Identify fields requested in schema and locate their exact text in document.\n- Avoid guessing; if ambiguous or missing, leave as empty.\n\nEvidence and extraction decisions:\n- Invoice.Date: Found \"Rechnungs-Datum 18.01.2024\" on page 1 and repeated on page 2 -> will extract \"18.01.2024\".\n- GrandTotal.Amount: Found \"Gesamtbetrag 779,22\" on page 2 -> will extract numeric 779.22 (preserve two decimals).\n- Net.Amount: Found \"Entgelt Artikel 708,38\" on page 2 (interpreted as net total) -> will extract numeric 708.38.\n- Vat.Amount: Found \"Umsatzsteuer 10% 70,84\" on page 2 -> VAT amount = 70.84.\n- Vat.Rate: From same line \"Umsatzsteuer 10%\" -> VAT rate = 10 (no percentage sign).\n- Sender.VatId: Two VAT IDs present: \"Warenempfänger USt-ID-Nr ATU22642807\" (recipient) and \"UID-Nr. ATU65960748\" near supplier name Bahlsen Management GmbH -> sender VAT is \"ATU65960748\"; will extract that.\n- Verify totals consistency: 708.38 + 70.84 = 779.22 — consistent.\n\nAlternatives considered:\n- If \"Entgelt Artikel\" were not the net; could derive net by subtracting VAT from total. However explicit \"Entgelt Artikel 708,38\" is present, so use it.\n- Multiple VAT IDs: choose the one clearly associated with supplier (UID-Nr. near supplier name).\n\nNo fields are ambiguous beyond the above; no guesses beyond explicit text.",
+    "step2": "Confidence assessment for each field:\n\n- Invoice.Date (\"18.01.2024\"):\n  Evidence: Explicit \"Rechnungs-Datum 18.01.2024\" appears on page 1 and repeats on page 2.\n  Confidence: Very high.\n\n- GrandTotal.Amount (779.22):\n  Evidence: Explicit \"Gesamtbetrag 779,22\" on page 2; matches sum of net + VAT shown.\n  Confidence: Very high.\n\n- Net.Amount (708.38):\n  Evidence: Explicit \"Entgelt Artikel 708,38\" on page 2; interpreted as net total. Also 779.22 - 70.84 = 708.38 which matches.\n  Confidence: Very high.\n\n- Vat.Amount (70.84):\n  Evidence: Explicit \"Umsatzsteuer 10% 70,84\" on page 2; numeric matches totals.\n  Confidence: Very high.\n\n- Vat.Rate (10):\n  Evidence: Shown as \"Umsatzsteuer 10%\"; rule requires removing percent sign.\n  Confidence: Very high.\n\n- Sender.VatId (\"ATU65960748\"):\n  Evidence: Two VAT IDs present: \"Warenempfänger USt-ID-Nr ATU22642807\" (recipient) and \"UID-Nr. ATU65960748\" near supplier name \"Bahlsen Management GmbH\". The latter is the supplier VAT—matches header location.\n  Potential ambiguity: OCR layout could misassociate UID; however proximity to supplier name strongly indicates sender VAT.\n  Confidence: High."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.55,
+      "input_tokens": 2018,
+      "cached_input_tokens": null,
+      "output_tokens": 781,
+      "total_tokens": 2799,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.56,
+      "input_tokens": 2462,
+      "cached_input_tokens": null,
+      "output_tokens": 327,
+      "total_tokens": 2789,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.18,
+      "input_tokens": 2877,
+      "cached_input_tokens": null,
+      "output_tokens": 399,
+      "total_tokens": 3276,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274224\\274224_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU65960748",
+        "ATU65960748"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        779.22,
+        "779,22"
+      ],
+      "Net.Amount": [
+        true,
+        708.38,
+        "708,38"
+      ],
+      "Vat.Amount": [
+        true,
+        70.84,
+        "70,84"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "18.01.2024",
+        "18.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 7357,
+    "cached_input_tokens": 0,
+    "output_tokens": 1507,
+    "eur_estimate": 0.000895
+  }
+}

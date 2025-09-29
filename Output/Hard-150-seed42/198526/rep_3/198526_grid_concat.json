@@ -1,0 +1,98 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198526\\198526_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1450.0,
+    "Invoice.Date": "2023-02-24",
+    "Sender.VatId": "PL 748-000-55-14",
+    "Vat.Rate": "",
+    "Net.Amount": 1450.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will (a) confirm this is an invoice, (b) locate candidate text for each required field, and (c) note any uncertainties or missing data before producing the final JSON.\n\n1) Invoice classification\n- Document contains clear invoice indicators: \"Faktura VAT\", \"Numer dokumentu\", \"Data wystawienia\", line item table, totals, currency and payment terms — so it qualifies as an invoice (no exclusion keywords dominating).\n\n2) Candidate extractions (locations in text)\n- Invoice.Date: near \"Data wystawienia:          2023-02-24\" (explicit date present).\n- GrandTotal.Amount: invoice total shown as \"Razem do zapłaty: 1 450,00 EUR\" and repeated \"Pozostaje do zapłaty: 1 450,00 EUR\" (total in EUR).\n- Sender.VatId: sender's NIP shown as \"NIP: PL 748-000-55-14\" (also repeated as \"NIP: PL 7480005514\" — same digits, different formatting).\n- Vat.Rate: VAT classification in line item shows \"NP\" (likely non-taxable / reverse charge). No numeric percent VAT rate present.\n- Net.Amount: line item net value \"1 450,00\" (EUR) and net totals shown as \"1 450,00 EUR\".\n- Vat.Amount: VAT amount shown in totals as \"0,00\" (PLN) in VAT column; VAT line shows zero.\n\n3) Notes on units, currencies, and conversion\n- Amounts are presented in EUR for invoice totals; a conversion rate is given: \"Kurs przeliczenia: 1 EUR = 4.7538 PLN\".\n- Net and VAT amount fields in schema expect numeric values without currency symbols; maintain decimals as in source.\n- Vat.Rate should be left empty (no numeric percent in document) per No Inference rule; \"NP\" is not a percent and should not be converted to a number.\n- Sender.VatId should use the textual VAT ID exactly as present (retain formatting with hyphens as in source).\n\n4) Missing / ambiguous items\n- No numeric VAT percentage present — Vat.Rate must be \"\".\n- Vat.Amount appears as \"0,00\" (PLN) in the VAT column — usable for Vat.Amount.\n- Ensure GrandTotal.Amount is provided as a number matching the invoice currency value (1 450,00) without currency symbol, preserving decimals and grouping.\n\nI will now prepare the final JSON extraction (not shown here yet).",
+    "step2": "GrandTotal.Amount — Confidence: 95% — Evidence: \"Razem do zapłaty: 1 450,00 EUR\" and repeated \"Pozostaje do zapłaty: 1 450,00 EUR\" clearly state the invoice total in EUR.\n\nInvoice.Date — Confidence: 99% — Evidence: Explicit \"Data wystawienia: 2023-02-24\" present.\n\nSender.VatId — Confidence: 95% — Evidence: Sender section shows \"NIP: PL 748-000-55-14\" (also repeated as \"PL 7480005514\"); digits match.\n\nVat.Rate — Confidence: 90% (value: empty) — Evidence: No numeric VAT percentage shown; VAT classification \"NP\" appears (non-taxable/reverse charge), so leaving rate empty follows No Inference rule.\n\nNet.Amount — Confidence: 95% — Evidence: Line item and totals show \"1 450,00 EUR\" as net amount.\n\nVat.Amount — Confidence: 95% — Evidence: VAT column and totals show \"0,00\" (VAT amount zero)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.28,
+      "input_tokens": 2064,
+      "cached_input_tokens": null,
+      "output_tokens": 984,
+      "total_tokens": 3048,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.12,
+      "input_tokens": 2647,
+      "cached_input_tokens": null,
+      "output_tokens": 427,
+      "total_tokens": 3074,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.37,
+      "input_tokens": 3182,
+      "cached_input_tokens": null,
+      "output_tokens": 285,
+      "total_tokens": 3467,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198526\\198526.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "PL 748-000-55-14",
+        null
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1450.0,
+        "1 450,00"
+      ],
+      "Net.Amount": [
+        false,
+        1450.0,
+        "6 893,01"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "2023-02-24",
+        "2023-02-24"
+      ]
+    },
+    "summary": {
+      "matched": 3,
+      "total": 5,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7893,
+    "cached_input_tokens": 0,
+    "output_tokens": 1696,
+    "eur_estimate": 0.000988
+  }
+}

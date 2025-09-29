@@ -1,0 +1,98 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198719\\198719_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 430.0,
+    "Invoice.Date": "06-03-2023",
+    "Sender.VatId": "BE 0400 661 567",
+    "Vat.Rate": 0,
+    "Net.Amount": 430.0,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.8,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Highly likely",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will determine whether this is an invoice and extract the required fields, exploring alternatives and checking for evidence.\n\n1) Document classification: invoice indicators present\n- Title/labels: \"Factuur\", \"Factuur N22550\", \"Datum 06-03-2023\", \"Totaal transportprijs\", \"Te betalen\", \"BTW\", IBAN, account info, line with transport price and VAT — all indicate an invoice.\n- No prominent exclusion headers like \"Zahlungserinnerung\" or \"Mahnung\".\n=> Proceed as invoice.\n\n2) Identify candidate values and alternatives\n- Grand total / payable amount:\n  - Page 1 shows \"Totaal transportprijs 430,00€\" and lines:\n    - \"BTW 0,00 €\"\n    - \"Te betalen 430,00 €\"\n  - Alternative: page 3 shows price traction H.T.: \"430.00 EUR\" (net). Both support 430.00 as total/net.\n  - Conclusion: GrandTotal.Amount = 430.00 (currency indicated EUR; schema requires numeric).\n\n- Invoice date:\n  - Page 1 near header: \"Factuur N22550 Datum 06-03-2023\" — clearly labelled as invoice date.\n  - Page 3 contains dates related to shipment (08.12.2022) but those are transport dates, not invoice issue date.\n  - Conclusion: Invoice.Date = \"06-03-2023\" (use the invoice header date).\n\n- Sender VAT ID:\n  - Multiple occurrences: \"BTW BE 0400 661 567\" appears on page 1 and page 2 next to N.V. VAN EYCKEN & ZONEN.\n  - Alternative: Dachser France VAT FR47546650334 is the recipient/partner; but sender (invoice issuer) appears to be N.V. VAN EYCKEN & ZONEN with BE VAT.\n  - Conclusion: Sender.VatId = \"BE 0400 661 567\" (use as found).\n\n- VAT rate(s), net amount(s), VAT amount(s):\n  - The invoice shows VAT line with amount \"0,00 €\" and no explicit percentage labelled. Page 1 displays \"BTW 0,00 €\" associated with transport price, implying VAT rate 0% applied.\n  - Page 3 shows \"Prix traction H. T.: 430.00 EUR\" (H.T. = hors taxe / net), reinforcing net = 430.00 and VAT = 0.00.\n  - There is no separate VAT percent printed; the only consistent interpretation is VAT rate = 0, Net amount = 430.00, Vat amount = 0.00.\n  - Per rules: do not guess missing values—here rate is not explicitly printed as \"0%\" but VAT amount is zero and H.T. equals total, so 0 is supported by evidence.\n  - Maintain decimal formatting consistent with inputs: input shows \"430,00€\" and \"0,00 €\"; schema requires numeric with same decimals—use two decimals.\n\n3) Verify no conflicting multiple occurrences\n- Grand total and net both 430.00 in different places — consistent.\n- VAT ID: only sender VAT BE 0400 661 567 relevant for Sender.VatId — consistent.\n- No other VAT groups present that apply to entire invoice (Dachser FR VAT is recipient/partner), so single VAT group only.\n\n4) Compliance with rules\n- Do not infer beyond available evidence: VAT rate not explicitly printed as \"%\", but VAT amount zero and net equal total justify rate 0.\n- Decimal places preserved as two decimals.\n\nPlanned extracted values (to be returned in final JSON):\n- GrandTotal.Amount: 430.00\n- Invoice.Date: \"06-03-2023\"\n- Sender.VatId: \"BE 0400 661 567\"\n- Vat.Rate: 0\n- Net.Amount: 430.00\n- Vat.Amount: 0.00",
+    "step2": "GrandTotal.Amount — Confidence: high (≈95%)\n- Evidence: Page 1 shows \"Totaal transportprijs 430,00€\" and \"Te betalen 430,00 €\". Page 3 shows \"Prix traction H. T.: 430.00 EUR\" supporting same numeric value. Multiple consistent occurrences, no conflicting totals.\n\nInvoice.Date — Confidence: high (≈90%)\n- Evidence: Page 1 header clearly shows \"Factuur N22550 Datum 06-03-2023\". Other dates (08.12.2022, 09.12.2022) are shipment dates, not invoice issue date. Clear label reduces ambiguity.\n\nSender.VatId — Confidence: high (≈90%)\n- Evidence: \"BTW BE 0400 661 567\" appears on page 1 and page 2 next to N.V. VAN EYCKEN & ZONEN (the sender/commissionaire). There is another VAT (FR47546650334) but that corresponds to DACHSER France (counterparty), so BE number fits Sender.VatId.\n\nVat.Rate — Confidence: moderate-high (≈80%)\n- Evidence: There is no explicit percentage printed. VAT amount is \"0,00 €\" and the net (H.T.) equals the total, implying 0% VAT applied. This is a reasonable extraction but relies on inferred rate from amounts rather than an explicit \"% 0\" label.\n\nNet.Amount — Confidence: high (≈90%)\n- Evidence: \"Prix traction H. T.: 430.00 EUR\" on page 3 and \"Totaal transportprijs 430,00€\" / \"Te betalen 430,00 €\" on page 1 indicate net amount 430.00. Consistent across document.\n\nVat.Amount — Confidence: high (≈90%)\n- Evidence: Page 1 shows \"BTW 0,00 €\" explicitly. Matches net == total and supports VAT amount zero."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.5,
+      "input_tokens": 4163,
+      "cached_input_tokens": null,
+      "output_tokens": 1282,
+      "total_tokens": 5445,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.81,
+      "input_tokens": 5044,
+      "cached_input_tokens": null,
+      "output_tokens": 407,
+      "total_tokens": 5451,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.16,
+      "input_tokens": 5751,
+      "cached_input_tokens": null,
+      "output_tokens": 284,
+      "total_tokens": 6035,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198719\\198719.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "BE 0400 661 567",
+        "BE 0400 661 567"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        430.0,
+        "430,00"
+      ],
+      "Net.Amount": [
+        true,
+        430.0,
+        "430,00"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "06-03-2023",
+        "06-03-2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 5,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 14958,
+    "cached_input_tokens": 0,
+    "output_tokens": 1973,
+    "eur_estimate": 0.001438
+  }
+}

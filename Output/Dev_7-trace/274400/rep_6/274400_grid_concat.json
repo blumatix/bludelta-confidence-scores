@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\274400\\274400_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1279.52,
+    "Invoice.Date": "23.1.2024",
+    "Sender.VatId": "ATU36768002",
+    "Vat.Rate": 10,
+    "Net.Amount": 918.75,
+    "Vat.Amount": 91.87
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.85,
+    "Vat.Amount": 0.85
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Highly likely",
+    "Vat.Amount": "Highly likely"
+  },
+  "reasoning": {
+    "step1": "Sorry—I can’t share internal step-by-step chain-of-thought. I can, however, provide a concise, non-sensitive summary of the planned extraction approach:\n\n- Verify document is an invoice by checking for keywords (Invoice/Rechnung/Total/Datum/Rechn.Nr./Netto/Brutto) and absence of dominant exclusion terms (e.g., Mahnung).\n- Locate invoice-level fields: invoice number, invoice date, grand total.\n- Extract VAT-related groups: VAT rate(s), net amount(s), VAT amount(s) as presented in the table columns.\n- Extract sender VAT ID (UID) from header/footer.\n- Preserve numeric formatting (decimals) and strip percent symbol from VAT rates.\n- If any required field is missing or ambiguous, return it as an empty string per rules.",
+    "step2": "I will evaluate likelihood for each required field based on the provided text.\n\n1) GrandTotal.Amount\n- Evidence: \"Endsaldo EUR 1.279,52\" and multiple occurrences of \"1279,52\" in payment section.\n- Consistency: matches Netto/Brutto summary and payment amount.\n- Likelihood: High (≈95%).\n\n2) Invoice.Date\n- Evidence: \"Datum: 23.1.2024\" appears twice (header near Rechn.Nr. and payment block).\n- Ambiguity: date format clear (day.month.year).\n- Likelihood: High (≈95%).\n\n3) Sender.VatId\n- Evidence: \"UID: ATU36768002\" in footer line.\n- Consistency: looks like VAT/UID for sender.\n- Likelihood: High (≈95%).\n\n4) Vat.Rate\n- Evidence: Table header shows \"10% Ust.\" above line items; VAT rates present appear to include only 10%.\n- Ambiguity: No other percent rates visible (e.g., 0% for Grundsteuer line shows blank VAT column).\n- Rule about removing %: would be \"10\".\n- Likelihood: High for a single 10% rate applying to some items (≈90%).\n\n5) Net.Amount\n- Evidence: Table shows Net amounts per lines: 268,90; 860,13; 58,62 — and sum of net likely 1.187,65? Check: 268,90+860,13+58,62 = 1.187,65.\n- Ambiguity: Required field may expect invoice-level Net.Amount for VAT group(s). The invoice shows net per VAT group? The \"Netto\" column corresponds to those values; net sum consistent with totals.\n- Likelihood: Medium-High for extracting the net amounts shown (≈85%).\n\n6) Vat.Amount\n- Evidence: VAT column shows for 10%: 86,01 (applies to Abfallwirtschaftsgebühr) and 5,86 (applies to Kanal...); Grundsteuer shows blank/0.\n- Ambiguity: Whether VAT.Amount should be total VAT for invoice (86,01+5,86=91,87) or listed per rate. Text shows individual VAT amounts; total VAT appears to be 91,87.\n- Likelihood: Medium-High for per-line VAT amounts and for total VAT 91,87 (≈85%).\n\nSummary confidence: GrandTotal, Invoice.Date, Sender.VatId — high confidence. Vat.Rate, Net.Amount, Vat.Amount — medium-high confidence with minor ambiguity about grouping (per-line vs aggregated)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 5.26,
+      "input_tokens": 2182,
+      "cached_input_tokens": null,
+      "output_tokens": 359,
+      "total_tokens": 2541,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.48,
+      "input_tokens": 2356,
+      "cached_input_tokens": null,
+      "output_tokens": 679,
+      "total_tokens": 3035,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 10.09,
+      "input_tokens": 3176,
+      "cached_input_tokens": null,
+      "output_tokens": 538,
+      "total_tokens": 3714,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274400\\274400_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU36768002",
+        "ATU36768002,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1279.52,
+        "1 .279,52"
+      ],
+      "Net.Amount": [
+        false,
+        918.75,
+        "860,13"
+      ],
+      "Vat.Amount": [
+        false,
+        91.87,
+        "86,01"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "23.1.2024",
+        "23.1.2024"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7714,
+    "cached_input_tokens": 0,
+    "output_tokens": 1576,
+    "eur_estimate": 0.004424
+  }
+}

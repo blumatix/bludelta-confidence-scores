@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\270246\\270237_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 3381.73,
+    "Invoice.Date": "11.01.2024",
+    "Sender.VatId": "ATU67782722",
+    "Vat.Rate": 10,
+    "Net.Amount": 3074.3,
+    "Vat.Amount": 307.43
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.8,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Highly likely",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Plan to extract fields (concise, non-sensitive):\n\n- Confirm document is an invoice-like document: find keywords \"Rechnungsnummer\", \"Rechnungsdatum\", \"USt.-ID\", totals and VAT lines. Exclusion terms (\"Zahlungserinnerung\"/\"Mahnung\") are absent; proceed.\n\n- Locate Invoice.Date: read value after \"Rechnungsdatum:\" (present twice: 11.01.2024 at top near Rechnungsnummer 2024/7724000117; and 08.01.2024 associated with Rechnungsnummer 2024/7724000085). Note multiple occurrences — will preserve the invoice date corresponding to the main Rechnungsnummer (top block) if schema requires single value; record exact string(s) and decide based on header alignment.\n\n- Locate Sender.VatId: find \"Ihre USt.-ID.\" / \"VAT/UID-Nr:\" — values present (\"ATU22642807\" near customer block; \"ATU67782722\" near Puratos address). Determine which is sender (Puratos: VAT/UID-Nr: ATU67782722) and which is customer (Ihre USt.-ID.: ATU22642807). Use sender VAT = ATU67782722.\n\n- Locate GrandTotal.Amount: find total payable. The table shows \"zu erstattender Betrag ... 3.381,73 EUR\" — take 3381.73 as GrandTotal.Amount (preserve decimal and no currency symbol).\n\n- Locate VAT groups: find VAT rate and net/vat amounts. Table shows Net 3.074,30; Ust 10% and Ust amount 307,43. Extract Vat.Rate = 10 (no %), Net.Amount = 3074.30, Vat.Amount = 307.43 (preserve decimals as in input, converting comma to dot for numeric fields).\n\n- Ensure numeric fields use same decimal precision as input. Do not infer missing values. If ambiguity between invoice dates persists, choose the date that aligns with the top-level Rechnungsnummer (11.01.2024) as primary Invoice.Date; keep other date empty per no-inference rule unless multiple allowed.\n\n- Prepare final JSON with required keys, using empty strings only if a field cannot be confidently extracted.",
+    "step2": "GrandTotal.Amount — Confidence: High\n- Evidence: \"zu erstattender Betrag ... 3.381,73 EUR\" clearly shown as total payable. Numeric format matches invoice.\n\nInvoice.Date — Confidence: Medium-High\n- Evidence: Two \"Rechnungsdatum:\" occurrences: 11.01.2024 (top block) and 08.01.2024 (linked to Rechnungsnummer 2024/7724000085). Primary top-level Rechnungsnummer context supports 11.01.2024, but ambiguity exists due to multiple dates.\n\nSender.VatId — Confidence: High\n- Evidence: \"VAT/UID-Nr: ATU67782722\" appears in sender address block (Puratos Austria), while \"Ihre USt.-ID.: ATU22642807\" refers to the customer. Sender VAT assignment is clear.\n\nVat.Rate — Confidence: High\n- Evidence: VAT percent shown as \"10  %\" in VAT summary and line item; extraction as numeric 10 is direct.\n\nNet.Amount — Confidence: High\n- Evidence: Net amount shown as \"3.074,30\" in the summary corresponding to the 10% VAT group; format clear.\n\nVat.Amount — Confidence: High\n- Evidence: VAT amount shown as \"307,43\" aligned with the 10% VAT on the net value; clear in summary."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.71,
+      "input_tokens": 1773,
+      "cached_input_tokens": null,
+      "output_tokens": 670,
+      "total_tokens": 2443,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.29,
+      "input_tokens": 2298,
+      "cached_input_tokens": null,
+      "output_tokens": 479,
+      "total_tokens": 2777,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.91,
+      "input_tokens": 2885,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 3168,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\270246\\270237_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU67782722",
+        "ATU67782722"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        3381.73,
+        "3.381,73"
+      ],
+      "Net.Amount": [
+        true,
+        3074.3,
+        "3.074,30"
+      ],
+      "Vat.Amount": [
+        true,
+        307.43,
+        "307,43"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "11.01.2024",
+        "11.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 6956,
+    "cached_input_tokens": 0,
+    "output_tokens": 1432,
+    "eur_estimate": 0.004008
+  }
+}

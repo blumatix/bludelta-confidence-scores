@@ -1,0 +1,112 @@
+{
+  "input_path": "..\\Documents\\273638\\273607_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 80902.8,
+    "Invoice.Date": "24.01.2024",
+    "Sender.VatId": "ATU14391601",
+    "Vat.Rate": 10,
+    "Net.Amount": 73548.0,
+    "Vat.Amount": 7354.8
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Sorry—I can’t share my internal step-by-step chain-of-thought. I can, however provide a concise summary of the approach I will use to extract the invoice data:\n\n- Validate document is an invoice via presence of headings (RECHNUNG, Nr:, Datum:, Total/Bruttobetrag) and absence of dominant exclusion terms.\n- Locate Invoice Date (Datum:), Invoice Number (Nr:), and customer fields.\n- Extract Sender VAT ID from USt-Id / USt-IdNr fields.\n- Find monetary totals: Nettowert gesamt, VAT groups (rate and VAT amount), and Bruttobetrag (Grand Total). Preserve decimal precision and do not infer missing values.\n- Parse VAT rate values as numbers without \"%\" and return Net and Vat amounts corresponding to each VAT group.\n- If document fails invoice checks, return all fields empty per schema.\n- Follow rule: no guessing; multiple VAT groups captured as multiple entries where present.",
+    "step2": "- GrandTotal.Amount (80.902,80): 95% — clearly labeled \"Bruttobetrag 80.902,80\" on page 2.\n- Invoice.Date (24.01.2024): 99% — explicitly shown next to \"Datum:\" at top of pages.\n- Sender.VatId (ATU14391601): 90% — footer shows \"USt-IdNr. ATU14391601\" for STAMAG; another USt-Id (ATU22642807) appears near the top (likely customer), so moderate-high confidence in footer being sender.\n- Vat.Rate (10 and 00): 95% — page 2 lists \"10% MWSt\" and \"00% MWSt\" as VAT groups.\n- Net.Amount (73.548,00 for 10% group; 0,00 for 00% group): 95% / 90% — \"Nettowert gesamt 73.548,00\" matches the 10% group; 00% group shows 0,00.\n- Vat.Amount (7.354,80 for 10% group; 0,00 for 00% group): 95% / 90% — page 2 shows \"10% MWSt ... 7.354,80\" and \"00% MWSt ... 0,00\"."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 5.27,
+      "input_tokens": 2759,
+      "cached_input_tokens": null,
+      "output_tokens": 459,
+      "total_tokens": 3218,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 11.55,
+      "input_tokens": 2969,
+      "cached_input_tokens": null,
+      "output_tokens": 1062,
+      "total_tokens": 4031,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 7.42,
+      "input_tokens": 3532,
+      "cached_input_tokens": null,
+      "output_tokens": 540,
+      "total_tokens": 4072,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273638\\273607_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU14391601",
+        "ATU14391601,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        80902.8,
+        "80.902,80"
+      ],
+      "Net.Amount": [
+        true,
+        73548.0,
+        [
+          "73.548,00",
+          "73.548,00"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        7354.8,
+        [
+          "7.354,80",
+          "7.354,80"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        [
+          "10",
+          "10"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "24.01.2024",
+        "24.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 9260,
+    "cached_input_tokens": 0,
+    "output_tokens": 2061,
+    "eur_estimate": 0.005603
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\271305\\271244_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 82500.0,
+    "Invoice.Date": "30-12-2023",
+    "Sender.VatId": "",
+    "Vat.Rate": 10,
+    "Net.Amount": 75000.0,
+    "Vat.Amount": 7500.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.1,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly unlikely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will:\n1. Confirm this is an invoice (contains \"GUTSCHRIFT\", totals, VAT, invoice date) and not an exclusion document.\n2. Locate explicit fields:\n   - Invoice.Date: found \"Wien, 30-12-2023\".\n   - GrandTotal.Amount: found \"EUR 82.500,00\" → 82500.00.\n   - Net.Amount: found \"75.000,00\" → 75000.00.\n   - Vat.Rate: found \"+ 10 % Mehrwertsteuer\" → 10.\n   - Vat.Amount: found \"7.500,00\" → 7500.00.\n3. Identify Sender.VatId: two VAT-like strings present (\"ATU22642807\" and \"UID-Nr.: ATU 43349701\"); cannot reliably determine which is sender VAT without inference, so will leave Sender.VatId empty per No Inference rule.\n4. Ensure numeric formats preserve decimals and no symbols; if any field is missing or ambiguous, it will be returned as an empty string.",
+    "step2": "GrandTotal.Amount — 95% — Text shows \"EUR 82.500,00\" clearly as Endbetrag; numeric parsing straightforward.\n\nInvoice.Date — 95% — \"Wien, 30-12-2023\" explicitly present and formatted as a date.\n\nSender.VatId — 10% — Two VAT-like IDs appear (\"ATU22642807\" and \"UID-Nr.: ATU 43349701\"); cannot unambiguously assign which is sender VAT, so very low confidence.\n\nVat.Rate — 95% — \"+ 10 % Mehrwertsteuer\" explicitly stated; rate extraction unambiguous (10).\n\nNet.Amount — 95% — \"Auftragssumme 75.000,00\" / line shows 75.000,00 as net value; clear match.\n\nVat.Amount — 95% — \"7.500,00\" shown adjacent to VAT line; matches 10% of 75.000,00."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.66,
+      "input_tokens": 1754,
+      "cached_input_tokens": null,
+      "output_tokens": 741,
+      "total_tokens": 2495,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.61,
+      "input_tokens": 2030,
+      "cached_input_tokens": null,
+      "output_tokens": 396,
+      "total_tokens": 2426,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.28,
+      "input_tokens": 2534,
+      "cached_input_tokens": null,
+      "output_tokens": 342,
+      "total_tokens": 2876,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\271305\\271244_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "",
+        "ATU 43349701"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        82500.0,
+        "82.500,00"
+      ],
+      "Net.Amount": [
+        true,
+        75000.0,
+        "75.000,00"
+      ],
+      "Vat.Amount": [
+        true,
+        7500.0,
+        "7.500,00"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "30-12-2023",
+        "30-12-2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 6318,
+    "cached_input_tokens": 0,
+    "output_tokens": 1479,
+    "eur_estimate": 0.003949
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\186205\\186205_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1280.66,
+    "Invoice.Date": "26.04.2023",
+    "Sender.VatId": "ATU34775204",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 1067.22,
+    "Vat.Amount": 213.44
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.97,
+    "Vat.Rate": 0.96,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will determine whether this is an invoice and extract required fields.\n\n1) Document classification\n- Indicators present: header \"RECHNUNG\" (German for Invoice) appears prominently. Other invoice elements: \"Nummer\", \"Datum : 26.04.2023\", \"Steuernr. : ATU34775204\", \"Kd. Steuernr. : ATU22642807\", line items with quantities/prices, \"Summe Warenwert\", \"Mwst. 20,00 %\", \"Rechnungsbetrag ... EUR 1280,66\".\n- No exclusion terms like \"Zahlungserinnerung\" or \"Mahnung\" present.\n- Conclusion: document is an invoice.\n\n2) Locate required schema fields and verify availability (no inference; if missing, leave empty)\n- Invoice.Date: Found as \"Datum : 26.04.2023\" → candidate value \"26.04.2023\".\n- Sender.VatId: Found as \"Steuernr. : ATU34775204\" (sender tax ID) → candidate \"ATU34775204\".\n- Vat.Rate: Found as \"20,00 % Mwst.\" → VAT percentage is 20,00. Rule: extract rate without percent symbol. Candidate numeric value \"20,00\" (need to preserve decimals as in input).\n- Net.Amount: \"Summe Warenwert EUR 1067,22\" → net amount candidate \"1067,22\".\n- Vat.Amount: \"20,00 % Mwst. EUR 213,44\" → VAT amount candidate \"213,44\".\n- GrandTotal.Amount: \"Rechnungsbetrag ... EUR 1280,66\" → candidate \"1280,66\".\n\n3) Validate consistency\n- Check Net + Vat = GrandTotal numerically: 1067,22 + 213,44 = 1280,66 — matches exactly.\n- VAT rate and amounts align: 20% of 1067,22 = 213,444 → rounded shown 213,44 consistent with two-decimal presentation.\n\n4) Formatting and rules considerations\n- No inference required; all fields are explicitly present.\n- VAT rate must be returned without \"%\" and keep decimals as in input (\"20,00\").\n- Decimal places should be preserved as in source (two decimals with comma). The schema expects number type; exact representation requirements: keep decimal places same. (Final JSON must use numeric values—will ensure decimals preserved.)\n- Currency symbols omitted per schema; values to be numeric only.\n- All required fields are present and consistent.\n\nDecision: extract the following explicit values:\n- Invoice.Date = \"26.04.2023\"\n- Sender.VatId = \"ATU34775204\"\n- Vat.Rate = 20,00\n- Net.Amount = 1067,22\n- Vat.Amount = 213,44\n- GrandTotal.Amount = 1280,66\n\nI will produce the final JSON with these fields (numbers preserving two-decimal precision) in the next step.",
+    "step2": "Invoice.Date — 26.04.2023\n- Evidence: Explicit \"Datum : 26.04.2023\" near top of document header.\n- Consistency: Appears twice (page 1 and 2 headers identical).\n- OCR risk: Low (clear numeric date).\n- Confidence: 98%\n\nSender.VatId — ATU34775204\n- Evidence: Explicit \"Steuernr. : ATU34775204\" in header.\n- Consistency: Matches typical VAT ID format (ATU + digits).\n- OCR risk: Low (letters/numbers clear).\n- Confidence: 97%\n\nVat.Rate — 20,00\n- Evidence: Line \" +     20,00             %    Mwst.\" clearly indicates VAT percentage.\n- Consistency: Used to compute Vat.Amount; matches math.\n- OCR risk: Low-moderate (comma vs period formatting preserved).\n- Confidence: 96%\n\nNet.Amount — 1067,22\n- Evidence: \"Summe Warenwert EUR 1067,22\" explicitly stated.\n- Consistency: Net + VAT equals GrandTotal; aligns with line item subtotals/Übertrag.\n- OCR risk: Low (numeric with comma decimal).\n- Confidence: 99%\n\nVat.Amount — 213,44\n- Evidence: \"+  20,00 % Mwst.  EUR 213,44\" shown directly under sum.\n- Consistency: 20% of 1067,22 = 213,444 → rounded/displayed 213,44 consistent with two-decimal formatting.\n- OCR risk: Low (numeric clear).\n- Confidence: 98%\n\nGrandTotal.Amount — 1280,66\n- Evidence: \"Rechnungsbetrag ... EUR 1280,66\" explicitly given.\n- Consistency: 1067,22 + 213,44 = 1280,66 matches exactly.\n- OCR risk: Low.\n- Confidence: 99%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.5,
+      "input_tokens": 2835,
+      "cached_input_tokens": null,
+      "output_tokens": 821,
+      "total_tokens": 3656,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.42,
+      "input_tokens": 3511,
+      "cached_input_tokens": null,
+      "output_tokens": 473,
+      "total_tokens": 3984,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.35,
+      "input_tokens": 4220,
+      "cached_input_tokens": null,
+      "output_tokens": 285,
+      "total_tokens": 4505,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\186205\\186205_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU34775204",
+        "ATU34775204"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1280.66,
+        "1280,66"
+      ],
+      "Net.Amount": [
+        true,
+        1067.22,
+        "1067,22"
+      ],
+      "Vat.Amount": [
+        true,
+        213.44,
+        "213,44"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "26.04.2023",
+        "26.04.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 10566,
+    "cached_input_tokens": 0,
+    "output_tokens": 1579,
+    "eur_estimate": 0.005056
+  }
+}

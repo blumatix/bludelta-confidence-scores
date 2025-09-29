@@ -1,0 +1,109 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198307\\198307_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 6455.56,
+    "Invoice.Date": "14.03.2023",
+    "Sender.VatId": "DE346615600",
+    "Vat.Rate": 19,
+    "Net.Amount": 5424.84,
+    "Vat.Amount": 1030.72
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.9
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will extract fields only if the document is an invoice.\n\n1) Document classification\n- Invoice indicators present: header \"Rechnung\", \"Rechnungs-Datum\", invoice number \"R/F/0008/03/2023\", line items with \"Gesamt netto\", \"MwSt\", \"Gesamt brutto\", explicit totals and \"Rechnungsbetrag\". No exclusion terms like \"Mahnung\" or \"Zahlungserinnerung\". Conclusion: document is an invoice — proceed with extraction.\n\n2) Candidate field values seen in text (verbatim occurrences to consider)\n- Invoice date: \"Rechnungs-Datum                                 14.03.2023\" → clear date 14.03.2023.\n- Sender VAT ID: labeled \"Ust-ID-Nr:           DE     346615600\" → VAT ID appears as \"DE 346615600\" (with spacing).\n- Grand total / Invoice amount: \"Rechnungsbetrag                                 EUR:                                        6   455,56\" → total 6 455,56 (Euro), i.e., 6,455.56.\n- Net total: table shows \"Gesamt EUR 5   424,84\" → 5 424,84 (i.e., 5,424.84).\n- VAT total: table shows \"1 030,72\" in same summary row (aligned as MwSt) → 1 030,72 (i.e., 1,030.72).\n- VAT rate: line items show \"19%\" repeatedly; summary row shows \"[%] 19%\" → rate 19.\n\n3) Considerations / verification and alternatives\n- Number formatting in source uses spaces as thousands separators and comma as decimal separator. Required output numbers must preserve decimals; later final JSON will need numeric values (dot decimal). No inference of currency required; strip currency symbol.\n- Sender VAT: source shows \"DE     346615600\" — options: keep spaces \"DE     346615600\" or normalize to \"DE346615600\" or \"DE 346615600\". Rule 2 (No Inference) implies we should not change content arbitrarily. But schema expects a string; best to capture the VAT ID as presented but without excessive OCR spacing if that would be considered inference. To be safe, preserve the letters and digits in sequence: \"DE346615600\" is a direct concatenation of shown parts — this is a normalization step. Alternative is to keep original spacing. Given no explicit normalization rule, both are plausible; record both options mentally and choose the one that preserves content while removing OCR spacing artifacts: \"DE346615600\".\n- Numeric parsing: convert \"6   455,56\" → 6455.56; \"5   424,84\" → 5424.84; \"1 030,72\" → 1030.72. VAT rate \"19%\" → record numeric 19 (rule: remove %).\n- Ensure decimals preserved as in input (two decimals present) — keep them.\n\n4) Final chosen extractions to place into schema (confirmed by repeated occurrences and summary lines)\n- Invoice.Date = \"14.03.2023\"\n- Sender.VatId = \"DE346615600\" (normalized by removing spaces between country code and digits)\n- GrandTotal.Amount = 6455.56\n- Net.Amount = 5424.84\n- Vat.Amount = 1030.72\n- Vat.Rate = 19\n\nNo other alternatives override these values; summary totals explicitly match line-item aggregates.",
+    "step2": "Invoice.Date — Confidence: 0.95\n- Clear label \"Rechnungs-Datum 14.03.2023\" exactly present; low ambiguity.\n\nSender.VatId — Confidence: 0.85\n- Label \"Ust-ID-Nr: DE 346615600\" present. OCR spacing between DE and digits required normalization; digits and country code clearly readable but slight OCR spacing reduces certainty.\n\nGrandTotal.Amount — Confidence: 0.90\n- \"Rechnungsbetrag EUR: 6   455,56\" appears explicitly in summary; grouping spaces and comma decimal interpreted consistently. Minor OCR spacing risk.\n\nNet.Amount — Confidence: 0.90\n- Summary shows \"Gesamt EUR 5   424,84\" clearly; same formatting issues as GrandTotal but consistent.\n\nVat.Amount — Confidence: 0.90\n- Summary shows \"1 030,72\" aligned under MwSt; matches sum of item VATs; formatting consistent.\n\nVat.Rate — Confidence: 0.98\n- \"19%\" shown repeatedly for line items and summary \"[%] 19%\"; unambiguous."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 15.34,
+      "input_tokens": 2617,
+      "cached_input_tokens": null,
+      "output_tokens": 1125,
+      "total_tokens": 3742,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.3,
+      "input_tokens": 3405,
+      "cached_input_tokens": null,
+      "output_tokens": 431,
+      "total_tokens": 3836,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.16,
+      "input_tokens": 3944,
+      "cached_input_tokens": null,
+      "output_tokens": 219,
+      "total_tokens": 4163,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198307\\198307.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "DE346615600",
+        "DE 346615600"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        6455.56,
+        "6 455,56"
+      ],
+      "Net.Amount": [
+        true,
+        5424.84,
+        [
+          "5 424,84",
+          "5 424,84"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        1030.72,
+        [
+          "1 030,72",
+          "1 030,72"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        19,
+        "19"
+      ],
+      "Invoice.Date": [
+        true,
+        "14.03.2023",
+        "14.03.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 9966,
+    "cached_input_tokens": 0,
+    "output_tokens": 1775,
+    "eur_estimate": 0.00112
+  }
+}

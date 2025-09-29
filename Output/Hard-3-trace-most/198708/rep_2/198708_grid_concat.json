@@ -1,0 +1,114 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198708\\198708_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 296.64,
+    "Invoice.Date": "28.März 2023",
+    "Sender.VatId": "DE815512007",
+    "Vat.Rate": 19,
+    "Net.Amount": 217.65,
+    "Vat.Amount": 41.35
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.92,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.92
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "- Document classification: contains clear invoice indicators (\"Rechnung\", \"Rechnungsnr.\", totals, VAT) → classify as invoice.\n- Candidate extractions from visible text:\n  - Invoice.Date: \"28.März 2023\"\n  - GrandTotal.Amount / Fälliger Gesamtbetrag: \"EUR 296,64\" → numeric 296,64\n  - Sender.VatId / Kunden USt-ID-Nr.: \"DE815512007\" appears near header as Kunden USt-ID-Nr.; also \"UPS USt-ID-Nr.: DE812321109\" (but sender likely UPS; sender VAT ID to extract: DE815512007)\n  - VAT groups (multiple):\n    - VAT group 1: Rate shown as \"19 % MwSt.\" and VAT amount \"41,35\" (appears under MwSt.-pflichtig lines)\n    - VAT group 2: VAT-exempt group labelled \"VAT: Art.146(1)(e) - Dir 2006/112/EC\" with amount \"37,64\" (MwSt.-frei)\n  - Net amounts: MwSt.-pflichtig net total appears as \"217,65\" (label \"MwSt.-pflichtig EUR 217,65\")\n  - Vat.Amount for 19% group: \"41,35\"\n  - Vat.Rate for that group: \"19\" (without % per rules)\n  - For VAT-exempt group: Vat.Rate should be empty (no percent shown); Net.Amount for that group corresponds to \"37,64\" and Vat.Amount \"0\" or contract shows VAT: Art.146... with amount 37,64 (treated as Vat.Amount per schema? — evidence: line \"MwSt.-frei EUR 37,64\" and VAT line repeats 37,64). To comply with no inference, treat Vat.Rate as \"\" and Vat.Amount as 37,64 and Net.Amount as 37,64? But avoid inference: extract exact labelled values:\n    - MwSt.-frei: amount 37,64 (assign to Net.Amount and Vat.Amount per schema only if explicitly indicated). The VAT line shows \"VAT: Art.146... 37,64\" — interpret as Vat.Amount = 37,64 and Net.Amount = \"\"? To avoid inference, set Net.Amount = 217,65 (for 19% group) and another Net.Amount = \"\"? However invoice shows \"MwSt.-frei EUR 37,64\" separate.\n- Decision for final mapping (consistent with visible labels and no inference):\n  - Vat group entries to include:\n    1) Vat.Rate = 19, Net.Amount = 217,65, Vat.Amount = 41,35\n    2) Vat.Rate = \"\", Net.Amount = 37,64, Vat.Amount = 37,64\n- Fields missing/unavailable: none for the above candidates; ensure numeric values preserve decimals.",
+    "step2": "Invoice.Date — 95% — Clearly printed \"Rechnungsdatum 28.März 2023\" near header.\n\nGrandTotal.Amount — 98% — \"Fälliger Gesamtbetrag EUR 296,64\" appears twice (summary and payment stub); numeric value consistent.\n\nSender.VatId — 85% — \"Kunden USt-ID-Nr.: DE815512007\" is visible near header; moderate confidence because multiple VAT IDs appear (also UPS USt-ID-Nr.: DE812321109) but DE815512007 is adjacent to Kunden label.\n\nVat group 1 (Vat.Rate = 19) — 92% — \"19 % MwSt.\" and \"19 % MwSt. 41,35\" are visible; rate 19 extracted per rule (without %).\n\nVat group 1 Net.Amount = 217,65 — 90% — Label \"MwSt.-pflichtig EUR 217,65\" directly supports this as net taxable amount.\n\nVat group 1 Vat.Amount = 41,35 — 92% — \"19 % MwSt. 41,35\" clearly shown.\n\nVat group 2 (VAT-exempt) Vat.Rate = \"\" — 95% — Labeled \"VAT: Art.146(1)(e) - Dir 2006/112/EC\" / \"MwSt.-frei\" — no percentage provided, so empty per rules.\n\nVat group 2 Net.Amount = 37,64 — 88% — \"MwSt.-frei EUR 37,64\" appears; treated as amount for VAT-exempt items. Moderate confidence because mapping to \"Net.Amount\" is based on label.\n\nVat group 2 Vat.Amount = 37,64 — 60% — The VAT line repeats \"VAT: ... 37,64\"; ambiguity whether this is reported as VAT amount or as VAT-exempt group total. Lower confidence due to potential interpretation ambiguity; included value matches visible 37,64 but may represent net only."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.97,
+      "input_tokens": 11590,
+      "cached_input_tokens": null,
+      "output_tokens": 932,
+      "total_tokens": 12522,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 8.81,
+      "input_tokens": 12249,
+      "cached_input_tokens": null,
+      "output_tokens": 609,
+      "total_tokens": 12858,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.92,
+      "input_tokens": 12966,
+      "cached_input_tokens": null,
+      "output_tokens": 473,
+      "total_tokens": 13439,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198708\\198708.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "DE815512007",
+        "DE812321109"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        296.64,
+        "296,64"
+      ],
+      "Net.Amount": [
+        true,
+        217.65,
+        "217,65"
+      ],
+      "Vat.Amount": [
+        true,
+        41.35,
+        "41,35"
+      ],
+      "Vat.Rate": [
+        true,
+        19,
+        "19"
+      ],
+      "Invoice.Date": [
+        true,
+        "28.März 2023",
+        [
+          "28.März 2023",
+          "28.März 2023",
+          "28.März 2023",
+          "28.März 2023",
+          "28.März 2023",
+          "28.März 2023",
+          "28.März 2023",
+          "28.März 2023",
+          "28.März 2023",
+          "28.März 2023"
+        ]
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 36805,
+    "cached_input_tokens": 0,
+    "output_tokens": 2014,
+    "eur_estimate": 0.002545
+  }
+}

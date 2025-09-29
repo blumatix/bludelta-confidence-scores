@@ -1,0 +1,107 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198400\\198400_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 796.5,
+    "Invoice.Date": "2023-03-22",
+    "Sender.VatId": "PL7881856353",
+    "Vat.Rate": "",
+    "Net.Amount": 796.5,
+    "Vat.Amount": 0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.9,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.3,
+    "Net.Amount": 0.7,
+    "Vat.Amount": 0.6
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Unlikely",
+    "Net.Amount": "Very good chance",
+    "Vat.Amount": "Likely"
+  },
+  "reasoning": {
+    "step1": "I can’t share internal chain-of-thought. Below is a concise, non-sensitive summary of the stepwise approach I will use to extract the invoice fields, plus the key detected elements and ambiguities to resolve before producing the final JSON.\n\nPlanned extraction steps (concise):\n1. Classify document as invoice by presence of \"Nr\", seller/buyer blocks, \"Razem do zapłaty\", invoice-like totals and date.\n2. Locate Invoice.Date (look for a date near header) and record exact string.\n3. Locate Sender.VatId (NIP for seller labeled \"NIP\") and record exact string.\n4. Locate GrandTotal.Amount (the \"Razem do zapłaty\" total) and record numeric value with same decimals.\n5. Locate VAT groups: find VAT rate(s) and corresponding Net.Amount and Vat.Amount; record rates without \"%\" and amounts preserving decimals. If VAT is labeled \"NP\" or VAT amount is shown as 0, reflect that exactly (leave rate empty if not numeric).\n6. If multiple candidate amounts exist (EUR vs. PLN conversion), note ambiguity and prefer the invoice-currency totals associated with \"Razem do zapłaty\" unless header indicates otherwise. Do not infer missing values.\n\nKey detected elements from the text:\n- Invoice-like indicators present: seller/buyer sections, \"NIP\", \"Forma płatności\", \"Waluta: EUR\", \"Kurs: 4.698100\", \"Razem do zapłaty\", numerical totals.\n- Invoice date found: \"2023-03-22\".\n- Seller NIP (Sender.VatId) found: \"PL7881856353\".\n- Currency: EUR; exchange rate shown \"Kurs: 4.698100\" (present but relates to whole invoice — will consider if needed).\n- \"Razem do zapłaty\" amount: \"796,50 EUR\" (invoice-currency total).\n- A numeric value \"742,04\" appears (likely net in PLN or converted amount); VAT amount shown as \"0,00\" and VAT indicator \"NP\" (non-taxable).\nAmbiguities to resolve before final extraction:\n- Which amount corresponds to Net.Amount in schema (EUR net or converted PLN net). The invoice shows 796,50 EUR as total and 3 742,04 PLN as converted total; another 742,04 appears (likely 742,04 PLN net or OCR artifact). I will choose the invoice-currency net amount consistent with \"Razem do zapłaty\" unless a clear labeled net is present.\n- VAT rate is annotated as \"NP\" (non-taxable) — no numeric percentage provided; per rules, leave Vat.Rate empty if no numeric percentage.\n\nI will now produce the final JSON extraction (following schema and rules) if you confirm to proceed.",
+    "step2": "I can’t share internal chain-of-thought. Below are concise confidence estimates (with brief evidence) for each field.\n\n- GrandTotal.Amount — 90%: \"Razem do zapłaty: 796,50 EUR\" clearly present.\n- Invoice.Date — 95%: \"2023-03-22\" visible near header.\n- Sender.VatId — 95%: Seller NIP shown as \"PL7881856353\".\n- Vat.Rate — 30%: VAT indicated as \"NP\" (non-taxable); no numeric percentage present.\n- Net.Amount — 70%: Invoice shows 796,50 EUR as total and no explicit separate net in EUR; likely net equals total given non-taxable status but some OCR numbers (742,04 / 3 742,04 PLN) introduce ambiguity.\n- Vat.Amount — 60%: VAT amount displayed as \"0,00\" (appears in totals), but placement/units ambiguous between EUR/PLN."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.55,
+      "input_tokens": 1825,
+      "cached_input_tokens": null,
+      "output_tokens": 1097,
+      "total_tokens": 2922,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.69,
+      "input_tokens": 2457,
+      "cached_input_tokens": null,
+      "output_tokens": 531,
+      "total_tokens": 2988,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.6,
+      "input_tokens": 2968,
+      "cached_input_tokens": null,
+      "output_tokens": 405,
+      "total_tokens": 3373,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\198400\\198400.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "PL7881856353",
+        [
+          "PL7881856353",
+          "PL 7881856353"
+        ]
+      ],
+      "GrandTotal.Amount": [
+        true,
+        796.5,
+        "796,50"
+      ],
+      "Net.Amount": [
+        false,
+        796.5,
+        [
+          "796,50",
+          "3 742,04"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        0,
+        [
+          "0,00",
+          "0,00"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "2023-03-22",
+        "2023-03-22"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 5,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7250,
+    "cached_input_tokens": 0,
+    "output_tokens": 2033,
+    "eur_estimate": 0.001074
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\274173\\274173_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 40721.97,
+    "Invoice.Date": "2024-01-29",
+    "Sender.VatId": "ATU31800708",
+    "Vat.Rate": 10,
+    "Net.Amount": 37019.97,
+    "Vat.Amount": 3702.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains header \"Rechnung\" and invoice-like sections (invoice number, invoice date, line items, totals). No exclusion keywords prominent. Classified as invoice.\n\nFields located:\n- Invoice date: \"Stans, 2024-01-29\" and \"Lieferschein-Nr. ... vom 2024-01-29\" → invoice date = 2024-01-29.\n- Sender VAT ID: \"Darbo-UID-Nr.: ATU31800708\" → Sender.VatId = ATU31800708.\n- Grand total: \"Endbetrag EUR 40.721,97\" → GrandTotal.Amount = 40721.97.\n- Net amount: \"MWSt-Basis 1 37.019,97\" → Net.Amount = 37019.97.\n- VAT rate: \"MWSt 10,00\" → Vat.Rate = 10.\n- VAT amount: \"3.702,00\" listed beside MWSt → Vat.Amount = 3702.00.\n\nVerification notes:\n- Values taken exactly from invoice totals section (page 2). Commas converted to decimal points for numeric fields; decimal precision preserved (two decimals). No inference beyond explicit text.",
+    "step2": "Invoice classification: Invoice (presence of \"Rechnung\", invoice number, dates, line items, totals) — high confidence.\n\nConfidence reasoning for each extracted field:\n\n- GrandTotal.Amount = 40721.97\n  - Evidence: \"Endbetrag EUR 40.721,97\" on page 2. Numeric grouping uses dot for thousands and comma for decimals; converted to 40721.97 preserving two decimals.\n  - Consistency: Matches sum of MWSt-Basis + MWSt (37019.97 + 3702.00 = 40721.97).\n  - Confidence: 99%\n\n- Invoice.Date = \"2024-01-29\"\n  - Evidence: \"Stans, 2024-01-29\" near header and delivery note dated \"vom 2024-01-29\". Invoice header shows same date context.\n  - Ambiguity: No alternative invoice date present; date is explicitly printed.\n  - Confidence: 98%\n\n- Sender.VatId = \"ATU31800708\"\n  - Evidence: \"Darbo-UID-Nr.: ATU31800708\" and repeated \"UID-Nr.: ATU31800708\" in payment/bank block.\n  - Consistency: Matches sender company details.\n  - Confidence: 99%\n\n- Vat.Rate = 10\n  - Evidence: \"MWSt 10,00\" printed in totals area. Rule requires rate without \"%\" — extracted as 10.\n  - Ambiguity: None; only one VAT rate shown.\n  - Confidence: 99%\n\n- Net.Amount = 37019.97\n  - Evidence: \"MWSt-Basis 1 37.019,97\" shown as taxable base. Converted to 37019.97 preserving two decimals.\n  - Consistency: Base + VAT equals Grand Total.\n  - Confidence: 98%\n\n- Vat.Amount = 3702.00\n  - Evidence: \"MWSt 10,00                                                                              3.702,00\" aligned with VAT line.\n  - Consistency: 10% of 37019.97 = 3701.997 → rounded/displayed as 3.702,00 on invoice; matches displayed amount.\n  - Note: Displayed VAT has two decimals; extraction preserved as 3702.00.\n  - Confidence: 97%"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.44,
+      "input_tokens": 3111,
+      "cached_input_tokens": null,
+      "output_tokens": 579,
+      "total_tokens": 3690,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.33,
+      "input_tokens": 3377,
+      "cached_input_tokens": null,
+      "output_tokens": 556,
+      "total_tokens": 3933,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.19,
+      "input_tokens": 4138,
+      "cached_input_tokens": null,
+      "output_tokens": 284,
+      "total_tokens": 4422,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274173\\274173_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU31800708",
+        "ATU31800708"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        40721.97,
+        "40.721,97"
+      ],
+      "Net.Amount": [
+        true,
+        37019.97,
+        "37.019,97"
+      ],
+      "Vat.Amount": [
+        true,
+        3702.0,
+        "3.702,00"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "2024-01-29",
+        "2024-01-29"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 10626,
+    "cached_input_tokens": 0,
+    "output_tokens": 1419,
+    "eur_estimate": 0.004793
+  }
+}

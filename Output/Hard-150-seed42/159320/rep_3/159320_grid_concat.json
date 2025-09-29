@@ -1,0 +1,101 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\159320\\159320_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 117.51,
+    "Invoice.Date": "29/11/2022",
+    "Sender.VatId": "IT00098090210",
+    "Vat.Rate": "",
+    "Net.Amount": 117.51,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.97,
+    "Vat.Rate": 0.1,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Highly unlikely",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will summarize the observable invoice evidence and the decisions for each required field (keeps internal deliberation brief, not step-by-step chain-of-thought).\n\nDocument classification\n- Clearly an invoice: header shows \"INVOICE\", invoice number and date, line items, taxable and VAT breakdown, and a total. No exclusion terms present.\n\nEvidence found (locations and content)\n- Invoice number and date: \"INVOICE Num. 3046016 of 29/11/2022\" — confirms invoice ID/date presence and that the document is invoice-like.\n- Sender VAT ID: \"Cod. Fisc. e Part. IVA: IT00098090210\" — VAT ID of sender present.\n- Line items and amounts: multiple service lines with amounts listed (e.g., 2.50, 54.42, 3.03, 10.78, 16.88, 6.90, 9.20, 13.80) and a summed taxable amount.\n- Taxable and VAT group row: shows code \"A7\" and a row:\n  - Taxable: \"117.51\"\n  - VAT: \"0.00\"\n  - Amount: \"117.51 EUR\"\n  This indicates the invoice net/taxable amount is 117.51, VAT amount 0.00, total payable 117.51 EUR.\n- VAT rate: The VAT group is labelled \"INVER. CONTABILE 7TER\" and shows VAT amount 0.00. No explicit numeric VAT percentage is present in the extracted text near the group. The header includes \"VAT NB. ATU47239901\" but that is not a percentage. No explicit percentage like \"22%\" or \"19%\" appears.\n\nField-by-field decisions\n- Invoice.Date: available as \"29/11/2022\" (use this exact string).\n- Sender.VatId: available as \"IT00098090210\".\n- Net.Amount: Taxable shown as 117.51 — treat as Net.Amount (no currency symbol).\n- Vat.Amount: shown as 0.00.\n- GrandTotal.Amount: total payable shown as 117.51 EUR — numeric value 117.51.\n- Vat.Rate: no explicit numeric VAT percentage found in the text. Per No Inference rule, leave Vat.Rate empty.\n\nValidation against rules\n- Do not infer missing VAT percentage; leave empty.\n- Preserve decimals as shown (117.51, 0.00).\n- Currency noted in document but numeric fields must be numbers without symbols.\n- Document is invoice-like; proceed to extraction.\n\nI will now prepare the final JSON with these values (omitting any inferred VAT rate).",
+    "step2": "GrandTotal.Amount — Confidence: 98%\n- Evidence: \"TOTAL 117.51 EUR\" on page 2 and the VAT group row shows Amount \"117.51 EUR\".\n- Consistency: Matches taxable + VAT (117.51 + 0.00 = 117.51). Low chance of OCR misread.\n\nInvoice.Date — Confidence: 99%\n- Evidence: \"INVOICE Num. 3046016 of 29/11/2022\" appears on both pages.\n- Consistency: Clear date format; minimal ambiguity.\n\nSender.VatId — Confidence: 97%\n- Evidence: \"Cod. Fisc. e Part. IVA: IT00098090210\" near header.\n- Consistency: Valid-looking VAT format (IT + numbers). Possible OCR errors are unlikely here.\n\nVat.Rate — Confidence: 10%\n- Evidence: No explicit numeric VAT percentage found. Label \"INVER. CONTABILE 7TER\" and VAT amount 0.00 imply reverse charge/exemption, not a numeric rate.\n- Decision: Per no-inference rule, left empty. Low confidence that a numeric rate exists in the document.\n\nNet.Amount — Confidence: 98%\n- Evidence: VAT group row shows \"Taxable 117.51\" and line items sum to that; total matches.\n- Consistency: Clear numeric with decimals preserved.\n\nVat.Amount — Confidence: 98%\n- Evidence: VAT column for the A7 group shows \"0.00\".\n- Consistency: Matches reverse-charge/exempt indication; total consistency confirmed."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.2,
+      "input_tokens": 2628,
+      "cached_input_tokens": null,
+      "output_tokens": 814,
+      "total_tokens": 3442,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.38,
+      "input_tokens": 3233,
+      "cached_input_tokens": null,
+      "output_tokens": 389,
+      "total_tokens": 3622,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.35,
+      "input_tokens": 3858,
+      "cached_input_tokens": null,
+      "output_tokens": 279,
+      "total_tokens": 4137,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\159320\\159320.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "IT00098090210",
+        [
+          "IT00098090210",
+          "IT00098090210"
+        ]
+      ],
+      "GrandTotal.Amount": [
+        true,
+        117.51,
+        "117.51"
+      ],
+      "Net.Amount": [
+        true,
+        117.51,
+        "117.51"
+      ],
+      "Vat.Amount": [
+        true,
+        0.0,
+        "0.00"
+      ],
+      "Invoice.Date": [
+        true,
+        "29/11/2022",
+        "29/11/2022"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 5,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 9719,
+    "cached_input_tokens": 0,
+    "output_tokens": 1482,
+    "eur_estimate": 0.001005
+  }
+}

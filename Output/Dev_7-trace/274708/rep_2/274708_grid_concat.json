@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\274772\\274708_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 40.44,
+    "Invoice.Date": "30.01.2024",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 33.7,
+    "Vat.Amount": 6.74
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide internal chain-of-thought. Instead, a concise, non-sensitive summary of the extraction approach and findings:\n\n- Document classification: Contains clear invoice indicators (\"Rechnung\", \"Rechnungsendbetrag\", invoice number R1041560, VAT lines), so treated as an invoice.\n- Fields sought per schema: GrandTotal.Amount, Invoice.Date, Sender.VatId, Vat.Rate, Net.Amount, Vat.Amount.\n- Locating values in text:\n  - Invoice date: \"Druckdatum 30.01.2024\" appears as the issue/print date.\n  - Sender VAT: Multiple UID/UID-Nr entries; sender header (hollu Systemhygiene GmbH) shows \"UID-Nr ATU22642807\" near top — this is the sender VAT.\n  - Grand total: \"Rechnungsendbetrag 40,44 €\" → numeric 40.44 (preserve decimal places as in source: two decimals, comma decimal separator in source; for schema use number type).\n  - VAT group: \"+  20,0 % Ust. von 33,70 € 6,74 €\" → Vat.Rate = 20.0 (strip %), Net.Amount = 33.70, Vat.Amount = 6.74 (preserve decimals).\n- No inference beyond explicit text; if any field were missing, it would be left empty.\n\nI will produce the final JSON in the required schema next.",
+    "step2": "GrandTotal.Amount — 40.44\n- Confidence: 0.95\n- Evidence: \"Rechnungsendbetrag 40,44 €\" clearly shown; comma-to-dot conversion applied, exact match to displayed amount.\n\nInvoice.Date — \"30.01.2024\"\n- Confidence: 0.90\n- Evidence: \"Druckdatum 30.01.2024\" present; treated as invoice/print date (explicit date on invoice).\n\nSender.VatId — \"ATU22642807\"\n- Confidence: 0.90\n- Evidence: Near sender header: \"UID-Nr ATU22642807\" directly associated with hollu Systemhygiene GmbH.\n\nVat.Rate — 20.0\n- Confidence: 0.95\n- Evidence: Line shows \"+  20,0 % Ust.\" — percentage extracted and converted to numeric without percent sign.\n\nNet.Amount — 33.70\n- Confidence: 0.95\n- Evidence: Line shows \"Ust. von 33,70 €\" indicating the net base for VAT; numeric preserved.\n\nVat.Amount — 6.74\n- Confidence: 0.95\n- Evidence: Same VAT line shows \"6,74 €\" as VAT amount; numeric preserved."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.31,
+      "input_tokens": 2177,
+      "cached_input_tokens": null,
+      "output_tokens": 502,
+      "total_tokens": 2679,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.94,
+      "input_tokens": 2494,
+      "cached_input_tokens": null,
+      "output_tokens": 463,
+      "total_tokens": 2957,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.12,
+      "input_tokens": 3034,
+      "cached_input_tokens": null,
+      "output_tokens": 347,
+      "total_tokens": 3381,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274772\\274708_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU66213527,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        40.44,
+        "40,44"
+      ],
+      "Net.Amount": [
+        true,
+        33.7,
+        "33,70"
+      ],
+      "Vat.Amount": [
+        true,
+        6.74,
+        "6,74"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,0"
+      ],
+      "Invoice.Date": [
+        true,
+        "30.01.2024",
+        "30.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7705,
+    "cached_input_tokens": 0,
+    "output_tokens": 1312,
+    "eur_estimate": 0.003965
+  }
+}

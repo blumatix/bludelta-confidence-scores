@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\275155\\275155_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 4789.99,
+    "Invoice.Date": "30.01.2024",
+    "Sender.VatId": "ATU23264205",
+    "Vat.Rate": 10,
+    "Net.Amount": 4354.54,
+    "Vat.Amount": 435.45
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.99,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification\n- Contains clear invoice indicators: title \"Rechnung\", \"Gesamtsumme\", \"Rechnungsbetrag\", invoice-like headers, line items and totals. No exclusion headers like \"Mahnung\" or \"Zahlungserinnerung\". => Classified as invoice.\n\n2) Identify candidate fields in text\n- Invoice date: multiple \"v. 30.01.2024\" near Belegnr./Lieferschein/Auftrag; invoice header shows \"Belegnr. 31695933 v. 30.01.2024\". Use \"30.01.2024\" as Invoice.Date.\n- Grand total: \"Rechnungsbetrag 4.789,99\" on page 2. European format uses comma as decimal separator; numeric value = 4789.99.\n- Net amount: \"Gesamtbetrag exkl. Umsatzsteuer 4.354,54\" => Net = 4354.54.\n- VAT amount: \"Umsatzsteuer 10,00% von 4.354,54 435,45\" => VAT amount = 435.45.\n- VAT rate: \"10,00%\" shown; per rule strip percent symbol => 10.\n- Sender VAT ID: two UIDs present: \"UID: ATU22642807\" appears with the Rechnungsempfänger (customer BÄKO). Footer shows sender details including \"UID: ATU23264205\" for NÖM AG (sender). Per schema Sender.VatId = ATU23264205.\n\n3) Verify no inference beyond text\n- All extracted values are explicitly present in the invoice text; no guessed data.\n- Decimal formats preserved: 4.789,99 -> 4789.99; 4.354,54 -> 4354.54; 435,45 -> 435.45; VAT rate preserved as 10.\n\n4) Multiple occurrences / ambiguity handling\n- Two UID occurrences distinguished by context (recipient vs sender); selected sender UID from sender block.\n- Invoice date occurrence consistent across document; selected date appearing with Belegnr. and invoice header.\n\nConclusion: fields to extract — Invoice.Date = \"30.01.2024\"; GrandTotal.Amount = 4789.99; Net.Amount = 4354.54; Vat.Amount = 435.45; Vat.Rate = 10; Sender.VatId = \"ATU23264205\".",
+    "step2": "GrandTotal.Amount — High\n- Evidence: \"Rechnungsbetrag 4.789,99\" on page 2. Clear labelled total.\n\nInvoice.Date — High\n- Evidence: \"v. 30.01.2024\" appears next to Belegnr. 31695933 and invoice header multiple times.\n\nSender.VatId — High\n- Evidence: Sender block/footer shows \"UID: ATU23264205\" associated with NÖM AG (sender).\n\nVat.Rate — High\n- Evidence: \"Umsatzsteuer 10,00%\" displayed in totals section; rate explicitly given.\n\nNet.Amount — High\n- Evidence: \"Gesamtbetrag exkl. Umsatzsteuer 4.354,54\" in totals section.\n\nVat.Amount — High\n- Evidence: \"von 4.354,54 435,45\" shown as VAT amount in totals section."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.61,
+      "input_tokens": 3366,
+      "cached_input_tokens": null,
+      "output_tokens": 826,
+      "total_tokens": 4192,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.48,
+      "input_tokens": 3879,
+      "cached_input_tokens": null,
+      "output_tokens": 381,
+      "total_tokens": 4260,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.79,
+      "input_tokens": 4337,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 4620,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\275155\\275155_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU23264205",
+        "ATU23264205"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        4789.99,
+        "4.789,99"
+      ],
+      "Net.Amount": [
+        true,
+        4354.54,
+        "4.354,54"
+      ],
+      "Vat.Amount": [
+        true,
+        435.45,
+        "435,45"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "30.01.2024",
+        "30.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 11582,
+    "cached_input_tokens": 0,
+    "output_tokens": 1490,
+    "eur_estimate": 0.005126
+  }
+}

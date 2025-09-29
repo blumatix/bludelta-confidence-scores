@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\183085\\183085_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1612.98,
+    "Invoice.Date": "11.04.2023",
+    "Sender.VatId": "ATU63242011",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 1344.15,
+    "Vat.Amount": 268.83
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: document is an invoice.\n\nExtraction plan and findings (concise, non-sensitive):\n\n- Identify invoice header: \"Rechnung 2204063 vom 11.04.2023\" → Invoice.Number present and Invoice.Date = \"11.04.2023\".\n- Determine sender VAT (UID) candidates: \"UID-Nr.: ATU63242011\" appears with issuer/company details → Sender.VatId = \"ATU63242011\". (Customer UID ATU22642807 is present but is buyer.)\n- Locate totals block (page 2): shows Zwischensumme 1493,50 €, -10,00% -> Nettobetrag 1344,15 €, +20,00% USt. von 1344,15 -> 268,83 €, Rechnungsbetrag 1612,98 €.\n  - GrandTotal.Amount = 1612,98 (preserve decimals)\n  - Vat.Rate = 20,00 → extract as number without %: 20,00 (preserve comma/decimal formatting per input — will output numeric with same decimals)\n  - Net.Amount = 1344,15\n  - Vat.Amount = 268,83\n- Confirm no multiple VAT groups shown (single 20% group), so one VAT entry only.\n- No inference beyond visible values; values taken exactly from totals block.",
+    "step2": "{\n  \"GrandTotal.Amount\": {\n    \"value\": 1612.98,\n    \"confidence\": \"High\",\n    \"justification\": \"Explicitly shown as \\\"Rechnungsbetrag 1612,98 €\\\" on page 2; matches Nettobetrag + VAT line.\"\n  },\n  \"Invoice.Date\": {\n    \"value\": \"11.04.2023\",\n    \"confidence\": \"High\",\n    \"justification\": \"Explicit header line: \\\"Rechnung 2204063 vom 11.04.2023\\\" on page 1.\"\n  },\n  \"Sender.VatId\": {\n    \"value\": \"ATU63242011\",\n    \"confidence\": \"High\",\n    \"justification\": \"UID-Nr. labeled near sender/bank details: \\\"UID-Nr.: ATU63242011\\\" repeated on pages.\"\n  },\n  \"Vat.Rate\": {\n    \"value\": 20.00,\n    \"confidence\": \"High\",\n    \"justification\": \"Totals block shows \\\"+ 20,00% USt. von 1344,15\\\" — single VAT group present.\"\n  },\n  \"Net.Amount\": {\n    \"value\": 1344.15,\n    \"confidence\": \"High\",\n    \"justification\": \"Totals block explicitly lists \\\"Nettobetrag 1344,15 €\\\".\"\n  },\n  \"Vat.Amount\": {\n    \"value\": 268.83,\n    \"confidence\": \"High\",\n    \"justification\": \"Totals block explicitly lists \\\"20,00% USt. von 1344,15 268,83 €\\\".\"\n  }\n}"
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 11.48,
+      "input_tokens": 3067,
+      "cached_input_tokens": null,
+      "output_tokens": 672,
+      "total_tokens": 3739,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.71,
+      "input_tokens": 3402,
+      "cached_input_tokens": null,
+      "output_tokens": 477,
+      "total_tokens": 3879,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.59,
+      "input_tokens": 4051,
+      "cached_input_tokens": null,
+      "output_tokens": 221,
+      "total_tokens": 4272,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\183085\\183085_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU63242011",
+        "ATU63242011,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1612.98,
+        "1612,98"
+      ],
+      "Net.Amount": [
+        true,
+        1344.15,
+        "1344,15"
+      ],
+      "Vat.Amount": [
+        true,
+        268.83,
+        "268,83"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "11.04.2023",
+        "11.04.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 10520,
+    "cached_input_tokens": 0,
+    "output_tokens": 1370,
+    "eur_estimate": 0.004684
+  }
+}

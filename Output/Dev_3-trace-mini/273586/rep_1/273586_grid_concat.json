@@ -1,0 +1,103 @@
+{
+  "input_path": "..\\Documents\\273632\\273586_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 29193.12,
+    "Invoice.Date": "25.01.2024",
+    "Sender.VatId": "ATU39103108",
+    "Vat.Rate": 10,
+    "Net.Amount": 26539.2,
+    "Vat.Amount": 2653.92
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.99,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.97,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification\n- Presence of header \"Rechnung\" (German for Invoice) and invoice-like sections (Nummer, Datum, positions, MwSt, Gesamt) → qualifies as invoice.\n- No exclusion terms like \"Zahlungserinnerung\" or \"Mahnung\" prominent → not excluded.\n\n2) Identify candidate fields and locate values\n- Invoice number: appears as \"Nummer: 1119100274\" (top of pages). Good evidence.\n- Invoice date: \"Datum 25.01.2024\" found top-right on page 1. Use exact string format as in document.\n- Sender VAT ID: two VAT-like entries: \"VAT Registration n° ATU39103108\" near top and repeated at footer \"ATU39103108\". Also \"ATU39103108\" appears consistently as Lesaffre’s VAT. Use ATU39103108.\n- Grand total amount: look for total payable. Two related totals:\n  - Table shows line totals sum \"26.539,20\" labeled under netto? Then MwSt line shows for 10%: \"26.539,20\" netto and \"2.653,92\" MwSt and \"29.193,12\" brutto. Page 2 shows payment amounts: \"Zahlung bis 24.02.2024 2,000 % EUR 28.609,26\" and \"Zahlung bis 05.03.2024 NETTO EUR 29.193,12\". Need to interpret:\n    - The gross total (brutto) is 29.193,12 EUR — appears as Gesamtsumme brutto and matches NETTO label confusion on page 2 but clear in table: brutto 29.193,12.\n    - The required \"GrandTotal.Amount\" is \"Total payable amount on the invoice\" → use gross total 29.193,12.\n- VAT group(s):\n  - There is one VAT rate 10,00% with Net value 26.539,20 and VAT amount 2.653,92 (document uses comma decimals). So Vat.Rate = 10, Vat.Net.Amount = 26.539,20, Vat.Amount = 2.653,92.\n- Net.Amount field in schema (top-level) expects net amount excluding VAT. The invoice net total is 26.539,20.\n- Vat.Amount top-level is 2.653,92.\n- Rate value must be numeric without % sign: 10 (preserve decimals per input? input \"10,00 %\" -> rate integer 10).\n- Decimal formatting: schema expects numbers, but instructions say keep decimal places as in input. We must convert comma decimals to dot for JSON numbers. Preserve two decimals: 295. Use numeric types with decimals: 29193.12, 26539.20, 2653.92.\n- Verify no other VAT groups or exchange rates apply to entire invoice → only one VAT group present.\n\n3) Check no inference beyond visible data\n- All chosen values appear explicitly: date, VAT ID, net, VAT, gross totals. No guessing.\n\n4) Potential ambiguities and resolution\n- Page 2 shows \"Zahlung bis 24.02.2024 2,000 % EUR 28.609,26\" — this is an early-payment discount line (2% discount to pay earlier) and not the invoice total. We should not use 28.609,26 as GrandTotal.\n- Use brutto 29.193,12 as GrandTotal.Amount.\n- Ensure numeric types with decimal point and same decimal places as input (two decimals).\n\n5) Final mapping to schema fields (values to be used in final output)\n- GrandTotal.Amount -> 29193.12\n- Invoice.Date -> \"25.01.2024\"\n- Sender.VatId -> \"ATU39103108\"\n- Vat.Rate -> 10\n- Net.Amount -> 26539.20\n- Vat.Amount -> 2653.92\n\nNo other VAT groups found.",
+    "step2": "GrandTotal.Amount — Confidence: 95%\n- Evidence: \"Gesamtsumme brutto\" listed as 29.193,12 in the VAT summary table; repeated as \"NETTO EUR 29.193,12\" on page 2 (label confusion), but table clearly shows brutto = 29.193,12. Early-payment discount value 28.609,26 is clearly a discounted amount, not total.\n\nInvoice.Date — Confidence: 99%\n- Evidence: \"Datum 25.01.2024\" shown top-right on page 1.\n\nSender.VatId — Confidence: 99%\n- Evidence: \"VAT Registration n° ATU39103108\" near header and repeated in footer; clearly the sender's VAT ID.\n\nVat.Rate — Confidence: 98%\n- Evidence: VAT summary shows \"10,00 %\" for the VAT group applied to all items. Rate to report without percent → 10.\n\nNet.Amount — Confidence: 97%\n- Evidence: VAT summary lists net total \"26.539,20\" corresponding to the 10% VAT group and sum of line item nettobeträge; matches table context.\n\nVat.Amount — Confidence: 97%\n- Evidence: VAT summary shows MwSt.-€ of \"2.653,92\" for the 10% group, consistent with net 26.539,20 × 10% = 2.653,92."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.92,
+      "input_tokens": 2664,
+      "cached_input_tokens": null,
+      "output_tokens": 971,
+      "total_tokens": 3635,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 6.02,
+      "input_tokens": 3514,
+      "cached_input_tokens": null,
+      "output_tokens": 362,
+      "total_tokens": 3876,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.81,
+      "input_tokens": 4081,
+      "cached_input_tokens": null,
+      "output_tokens": 220,
+      "total_tokens": 4301,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273632\\273586_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU39103108",
+        "ATU39103108"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        29193.12,
+        "29.193,12"
+      ],
+      "Net.Amount": [
+        true,
+        26539.2,
+        "26.539,20"
+      ],
+      "Vat.Amount": [
+        true,
+        2653.92,
+        "2.653,92"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "25.01.2024",
+        "25.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 10259,
+    "cached_input_tokens": 0,
+    "output_tokens": 1553,
+    "eur_estimate": 0.004944
+  }
+}

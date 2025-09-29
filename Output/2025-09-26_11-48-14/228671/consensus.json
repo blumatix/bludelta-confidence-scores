@@ -1,0 +1,495 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\228685\\228671_grid_concat.txt",
+  "n_paths": 3,
+  "final_answer": {
+    "Vat.Amount": {
+      "value": [
+        19.84,
+        12.86
+      ],
+      "sum_confidence": 1.87,
+      "vote_count": 2,
+      "avg_confidence": 0.94,
+      "correct": true
+    },
+    "Invoice.Date": {
+      "value": "06.09.2023",
+      "sum_confidence": 2.96,
+      "vote_count": 3,
+      "avg_confidence": 0.99,
+      "correct": true
+    },
+    "Vat.Rate": {
+      "value": [
+        20,
+        10
+      ],
+      "sum_confidence": 1.92,
+      "vote_count": 2,
+      "avg_confidence": 0.96,
+      "correct": true
+    },
+    "Sender.VatId": {
+      "value": "ATU 22642807",
+      "sum_confidence": 1.92,
+      "vote_count": 2,
+      "avg_confidence": 0.96,
+      "correct": false
+    },
+    "GrandTotal.Amount": {
+      "value": 260.43,
+      "sum_confidence": 2.78,
+      "vote_count": 3,
+      "avg_confidence": 0.93,
+      "correct": true
+    },
+    "Net.Amount": {
+      "value": [
+        99.18,
+        128.55
+      ],
+      "sum_confidence": 1.87,
+      "vote_count": 2,
+      "avg_confidence": 0.94,
+      "correct": true
+    }
+  },
+  "runs": [
+    {
+      "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\228685\\228671_grid_concat.txt",
+      "answer": {
+        "GrandTotal.Amount": 260.43,
+        "Invoice.Date": "06.09.2023",
+        "Sender.VatId": "ATU 22642807",
+        "Vat.Rate": [
+          20,
+          10
+        ],
+        "Net.Amount": [
+          99.18,
+          128.55
+        ],
+        "Vat.Amount": [
+          19.84,
+          12.86
+        ]
+      },
+      "confidence_numeric": {
+        "GrandTotal.Amount": 0.85,
+        "Invoice.Date": 0.98,
+        "Sender.VatId": 0.95,
+        "Vat.Rate": 0.97,
+        "Net.Amount": 0.95,
+        "Vat.Amount": 0.95
+      },
+      "confidence_verbal": {
+        "GrandTotal.Amount": "Highly likely",
+        "Invoice.Date": "Almost certain",
+        "Sender.VatId": "Almost certain",
+        "Vat.Rate": "Almost certain",
+        "Net.Amount": "Almost certain",
+        "Vat.Amount": "Almost certain"
+      },
+      "reasoning": {
+        "step1": "Classification: document is an invoice (contains \"Rechnung\", invoice number, invoice date, totals, VAT lines, line items). Exclusion terms absent.\n\nPlanned extraction steps and findings (concise, non-sensitive summary):\n\n1. Locate invoice identifiers:\n   - Rechnungs-Nr.: 372192\n   - Rechnungsdatum: 06.09.2023\n\n2. Sender VAT ID:\n   - USTID / ATU appears as \"ATU 22642807\" (appears twice). Use \"ATU 22642807\" as sender VAT.\n\n3. Totals and VAT groups:\n   - Zwischensumme (subtotal): EUR 227,73\n   - Two VAT groups shown:\n     - Warenwert (20,00 %) = 99,18 with MwSt (20,00 %) = 19,84\n     - Warenwert (10,00 %) = 128,55 with MwSt (10,00 %) = 12,86\n   - Sum of VAT amounts = 19,84 + 12,86 = 32,70\n   - Subtotal + VAT = 227,73 + 32,70 = 260,43\n\n4. Ambiguity / discount lines:\n   - There is a \"Rechnungsbetrag EUR 252,62\" present (appears in context after skonto/discount calculation). The document also shows \"Rechnungsbetrag EUR 260,43\" (total without early-payment discount). According to invoice layout, 260,43 is the gross invoice total; 252,62 is the discounted amount if paying within the skonto period.\n   - Per rule \"No Inference Policy\", treat the invoice Grand Total as the explicit total for the invoice (use 260,43) and do not replace it with the discounted figure unless that is explicitly labeled as the invoice total.\n\n5. VAT rates to extract:\n   - Two VAT rates: 20 and 10 (remove % sign per rules).\n\n6. Net and VAT amounts to extract:\n   - For 20%: Net = 99,18 ; VAT = 19,84\n   - For 10%: Net = 128,55 ; VAT = 12,86\n\n7. Decimal preservation:\n   - Keep commas as decimal separators in OCR text; outputs should preserve decimal precision and convert to numeric format with same decimals (e.g., 260.43, 227.73, 99.18, 19.84, 128.55, 12.86).\n\nDecision for final extraction mapping:\n- GrandTotal.Amount -> 260.43\n- Invoice.Date -> \"06.09.2023\"\n- Sender.VatId -> \"ATU 22642807\"\n- Vat.Rate -> include both 20 and 10 (as separate VAT group entries)\n- Net.Amount -> corresponding 99.18 and 128.55\n- Vat.Amount -> corresponding 19.84 and 12.86\n\nNext step: produce the JSON object populated with these values (respecting schema and multiple VAT group entries).",
+        "step2": "GrandTotal.Amount (260.43)\n- Confidence: 85%\n- Evidence: \"Rechnungsbetrag  EUR 260,43\" appears clearly as a total. Minor ambiguity: a second \"Rechnungsbetrag EUR 252,62\" (discounted total) exists; chosen 260.43 as the gross invoice total. Possible OCR misreads low.\n\nInvoice.Date (\"06.09.2023\")\n- Confidence: 98%\n- Evidence: \"Rechnungsdatum: 06.09.2023\" clearly printed.\n\nSender.VatId (\"ATU 22642807\")\n- Confidence: 95%\n- Evidence: \"USTID: ATU 22642807\" and \"ATU 22642807\" repeated; OCR spacing minimal risk.\n\nVat.Rate entries (20, 10)\n- Confidence: 97%\n- Evidence: VAT group labels shown as \"MwSt (20,00 %)\" and \"MwSt (10,00 %)\". Rule to strip percent applied.\n\nNet.Amount entries (99.18 for 20%; 128.55 for 10%)\n- Confidence: 95%\n- Evidence: Lines \"Warenwert (20,00 %) 99,18\" and \"Warenwert (10,00 %) 128,55\" clearly present. Decimal/comma conversion assumed correct.\n\nVat.Amount entries (19.84 for 20%; 12.86 for 10%)\n- Confidence: 95%\n- Evidence: Lines \"MwSt (20,00 %) 19,84\" and \"MwSt (10,00 %) 12,86\" present.\n\nConsistency checks:\n- Sum of Net amounts 99.18 + 128.55 = 227.73 matches Zwischensumme (227,73) — Confidence in Net totals: 99%.\n- Sum of VAT amounts 19.84 + 12.86 = 32.70; Net + VAT = 260.43 matches chosen GrandTotal — strengthens overall consistency.\n\nMain residual risk: interpreting 252.62 vs 260.43 (discounted vs gross). This affects GrandTotal only; other fields unaffected."
+      },
+      "llm_logs": {
+        "step1": {
+          "runtime_sec": 23.02,
+          "input_tokens": 2432,
+          "cached_input_tokens": null,
+          "output_tokens": 1348,
+          "total_tokens": 3780,
+          "timed_out": false
+        },
+        "step2": {
+          "runtime_sec": 6.95,
+          "input_tokens": 3123,
+          "cached_input_tokens": null,
+          "output_tokens": 512,
+          "total_tokens": 3635,
+          "timed_out": false
+        },
+        "step3": {
+          "runtime_sec": 6.4,
+          "input_tokens": 3871,
+          "cached_input_tokens": null,
+          "output_tokens": 438,
+          "total_tokens": 4309,
+          "timed_out": false
+        }
+      },
+      "evaluation": {
+        "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\228685\\228671_reference.json",
+        "per_field": {
+          "Sender.VatId": [
+            false,
+            "ATU 22642807",
+            "ATU38510009"
+          ],
+          "GrandTotal.Amount": [
+            true,
+            260.43,
+            "260,43"
+          ],
+          "Net.Amount": [
+            true,
+            [
+              99.18,
+              128.55
+            ],
+            [
+              "99,18",
+              "128,55"
+            ]
+          ],
+          "Vat.Amount": [
+            true,
+            [
+              19.84,
+              12.86
+            ],
+            [
+              "19,84",
+              "12,86"
+            ]
+          ],
+          "Vat.Rate": [
+            true,
+            [
+              20,
+              10
+            ],
+            [
+              "20,00",
+              "10,00"
+            ]
+          ],
+          "Invoice.Date": [
+            true,
+            "06.09.2023",
+            "06.09.2023"
+          ]
+        },
+        "summary": {
+          "matched": 5,
+          "total": 6,
+          "all_match": false
+        }
+      },
+      "cost": {
+        "input_tokens": 9426,
+        "cached_input_tokens": 0,
+        "output_tokens": 2298,
+        "eur_estimate": 0.006049
+      }
+    },
+    {
+      "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\228685\\228671_grid_concat.txt",
+      "answer": {
+        "GrandTotal.Amount": 260.43,
+        "Invoice.Date": "06.09.2023",
+        "Sender.VatId": "ATU 22642807",
+        "Vat.Rate": [
+          20,
+          10
+        ],
+        "Net.Amount": [
+          99.18,
+          128.55
+        ],
+        "Vat.Amount": [
+          19.84,
+          12.86
+        ]
+      },
+      "confidence_numeric": {
+        "GrandTotal.Amount": 0.98,
+        "Invoice.Date": 0.99,
+        "Sender.VatId": 0.97,
+        "Vat.Rate": 0.95,
+        "Net.Amount": 0.92,
+        "Vat.Amount": 0.92
+      },
+      "confidence_verbal": {
+        "GrandTotal.Amount": "Almost certain",
+        "Invoice.Date": "Almost certain",
+        "Sender.VatId": "Almost certain",
+        "Vat.Rate": "Almost certain",
+        "Net.Amount": "Almost certain",
+        "Vat.Amount": "Almost certain"
+      },
+      "reasoning": {
+        "step1": "{\n  \"GrandTotal.Amount\": 260.43,\n  \"Invoice.Date\": \"06.09.2023\",\n  \"Sender.VatId\": \"ATU 22642807\",\n  \"Vat.Rate\": [\n    20,\n    10\n  ],\n  \"Net.Amount\": [\n    99.18,\n    128.55\n  ],\n  \"Vat.Amount\": [\n    19.84,\n    12.86\n  ]\n}",
+        "step2": "{\n  \"GrandTotal.Amount\": {\n    \"value\": 260.43,\n    \"confidence\": 0.98,\n    \"evidence\": \"Matches 'Rechnungsbetrag EUR 260,43' on page 1.\"\n  },\n  \"Invoice.Date\": {\n    \"value\": \"06.09.2023\",\n    \"confidence\": 0.99,\n    \"evidence\": \"Matches 'Rechnungsdatum: 06.09.2023' on page 1.\"\n  },\n  \"Sender.VatId\": {\n    \"value\": \"ATU 22642807\",\n    \"confidence\": 0.97,\n    \"evidence\": \"Appears as 'USTID: ATU 22642807' and 'ATU 22642807' in header/address block.\"\n  },\n  \"Vat.Rate\": {\n    \"value\": [\n      20,\n      10\n    ],\n    \"confidence\": 0.95,\n    \"evidence\": \"Rates shown as 'MwSt (20,00 %)' and 'MwSt (10,00 %)' in tax breakdown.\"\n  },\n  \"Net.Amount\": {\n    \"value\": [\n      99.18,\n      128.55\n    ],\n    \"confidence\": 0.92,\n    \"evidence\": \"Shown as 'Warenwert (20,00 %) 99,18' and 'Warenwert (10,00 %) 128,55' in breakdown.\"\n  },\n  \"Vat.Amount\": {\n    \"value\": [\n      19.84,\n      12.86\n    ],\n    \"confidence\": 0.92,\n    \"evidence\": \"Shown as 'MwSt (20,00 %) 19,84' and 'MwSt (10,00 %) 12,86' in breakdown.\"\n  }\n}"
+      },
+      "llm_logs": {
+        "step1": {
+          "runtime_sec": 15.74,
+          "input_tokens": 2432,
+          "cached_input_tokens": null,
+          "output_tokens": 1128,
+          "total_tokens": 3560,
+          "timed_out": false
+        },
+        "step2": {
+          "runtime_sec": 9.83,
+          "input_tokens": 2583,
+          "cached_input_tokens": null,
+          "output_tokens": 649,
+          "total_tokens": 3232,
+          "timed_out": false
+        },
+        "step3": {
+          "runtime_sec": 6.86,
+          "input_tokens": 3276,
+          "cached_input_tokens": null,
+          "output_tokens": 502,
+          "total_tokens": 3778,
+          "timed_out": false
+        }
+      },
+      "evaluation": {
+        "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\228685\\228671_reference.json",
+        "per_field": {
+          "Sender.VatId": [
+            false,
+            "ATU 22642807",
+            "ATU38510009"
+          ],
+          "GrandTotal.Amount": [
+            true,
+            260.43,
+            "260,43"
+          ],
+          "Net.Amount": [
+            true,
+            [
+              99.18,
+              128.55
+            ],
+            [
+              "99,18",
+              "128,55"
+            ]
+          ],
+          "Vat.Amount": [
+            true,
+            [
+              19.84,
+              12.86
+            ],
+            [
+              "19,84",
+              "12,86"
+            ]
+          ],
+          "Vat.Rate": [
+            true,
+            [
+              20,
+              10
+            ],
+            [
+              "20,00",
+              "10,00"
+            ]
+          ],
+          "Invoice.Date": [
+            true,
+            "06.09.2023",
+            "06.09.2023"
+          ]
+        },
+        "summary": {
+          "matched": 5,
+          "total": 6,
+          "all_match": false
+        }
+      },
+      "cost": {
+        "input_tokens": 8291,
+        "cached_input_tokens": 0,
+        "output_tokens": 2279,
+        "eur_estimate": 0.005767
+      }
+    },
+    {
+      "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\228685\\228671_grid_concat.txt",
+      "answer": {
+        "GrandTotal.Amount": 260.43,
+        "Invoice.Date": "06.09.2023",
+        "Sender.VatId": "ATU38510009",
+        "Vat.Rate": "",
+        "Net.Amount": 227.73,
+        "Vat.Amount": 32.7
+      },
+      "confidence_numeric": {
+        "GrandTotal.Amount": 0.95,
+        "Invoice.Date": 0.99,
+        "Sender.VatId": 0.9,
+        "Vat.Rate": 0.2,
+        "Net.Amount": 0.9,
+        "Vat.Amount": 0.88
+      },
+      "confidence_verbal": {
+        "GrandTotal.Amount": "Almost certain",
+        "Invoice.Date": "Almost certain",
+        "Sender.VatId": "Almost certain",
+        "Vat.Rate": "Chances are slight",
+        "Net.Amount": "Almost certain",
+        "Vat.Amount": "Highly likely"
+      },
+      "reasoning": {
+        "step1": "Sorry—I can’t share my internal step-by-step reasoning. I can, however, extract the invoice fields requested. Shall I proceed to extract them now?",
+        "step2": "{\n  \"GrandTotal.Amount\": 260.43,\n  \"Invoice.Date\": \"06.09.2023\",\n  \"Sender.VatId\": \"ATU38510009\",\n  \"Vat.Rate\": \"\",\n  \"Net.Amount\": 227.73,\n  \"Vat.Amount\": 32.70\n}"
+      },
+      "llm_logs": {
+        "step1": {
+          "runtime_sec": 8.12,
+          "input_tokens": 2432,
+          "cached_input_tokens": null,
+          "output_tokens": 293,
+          "total_tokens": 2725,
+          "timed_out": false
+        },
+        "step2": {
+          "runtime_sec": 11.39,
+          "input_tokens": 2516,
+          "cached_input_tokens": null,
+          "output_tokens": 969,
+          "total_tokens": 3485,
+          "timed_out": false
+        },
+        "step3": {
+          "runtime_sec": 6.1,
+          "input_tokens": 2889,
+          "cached_input_tokens": null,
+          "output_tokens": 471,
+          "total_tokens": 3360,
+          "timed_out": false
+        }
+      },
+      "evaluation": {
+        "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\228685\\228671_reference.json",
+        "per_field": {
+          "Sender.VatId": [
+            true,
+            "ATU38510009",
+            "ATU38510009"
+          ],
+          "GrandTotal.Amount": [
+            true,
+            260.43,
+            "260,43"
+          ],
+          "Net.Amount": [
+            false,
+            227.73,
+            [
+              "99,18",
+              "128,55"
+            ]
+          ],
+          "Vat.Amount": [
+            false,
+            32.7,
+            [
+              "19,84",
+              "12,86"
+            ]
+          ],
+          "Vat.Rate": [
+            false,
+            "",
+            [
+              "20,00",
+              "10,00"
+            ]
+          ],
+          "Invoice.Date": [
+            true,
+            "06.09.2023",
+            "06.09.2023"
+          ]
+        },
+        "summary": {
+          "matched": 3,
+          "total": 6,
+          "all_match": false
+        }
+      },
+      "cost": {
+        "input_tokens": 7837,
+        "cached_input_tokens": 0,
+        "output_tokens": 1733,
+        "eur_estimate": 0.004722
+      }
+    }
+  ],
+  "vote_debug": {
+    "Vat.Amount": {
+      "sum_conf_per_value": {
+        "[19.84, 12.86]": 1.87,
+        "32.7": 0.88
+      },
+      "counts": {
+        "[19.84, 12.86]": 2,
+        "32.7": 1
+      }
+    },
+    "Invoice.Date": {
+      "sum_conf_per_value": {
+        "06.09.2023": 2.96
+      },
+      "counts": {
+        "06.09.2023": 3
+      }
+    },
+    "Vat.Rate": {
+      "sum_conf_per_value": {
+        "[20, 10]": 1.92,
+        "": 0.2
+      },
+      "counts": {
+        "[20, 10]": 2,
+        "": 1
+      }
+    },
+    "Sender.VatId": {
+      "sum_conf_per_value": {
+        "ATU 22642807": 1.92,
+        "ATU38510009": 0.9
+      },
+      "counts": {
+        "ATU 22642807": 2,
+        "ATU38510009": 1
+      }
+    },
+    "GrandTotal.Amount": {
+      "sum_conf_per_value": {
+        "260.43": 2.78
+      },
+      "counts": {
+        "260.43": 3
+      }
+    },
+    "Net.Amount": {
+      "sum_conf_per_value": {
+        "[99.18, 128.55]": 1.87,
+        "227.73": 0.9
+      },
+      "counts": {
+        "[99.18, 128.55]": 2,
+        "227.73": 1
+      }
+    }
+  },
+  "cost": {
+    "input_tokens": 25554,
+    "cached_input_tokens": 0,
+    "output_tokens": 6310,
+    "eur_estimate": 0.016538
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\275096\\275073_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 627.41,
+    "Invoice.Date": "31.01.24",
+    "Sender.VatId": "ATU22642807",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 522.84,
+    "Vat.Amount": 104.57
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Document classification\n- Presence of header \"RECHNUNG\" and invoice-like sections (positions, NETTOBETRAG, MEHRWERTSTEUER, GESAMTBETRAG) → classify as invoice.\n- No exclusion keywords (\"Mahnung\", \"Zahlungserinnerung\", \"Servicebericht\") in prominent header area → not excluded.\n\n2) Locate candidate fields and verify exact text occurrences\n- Grand total: line shows \"GESAMTBETRAG EUR 627,41\" and an asterisk; candidate value = 627,41.\n- Invoice date: near top under headers, \"RE-DATUM 31.01.24\" → candidate = 31.01.24.\n- Sender VAT ID: line \"UST-ID-NR.: ATU22642807\" → candidate = ATU22642807.\n- VAT rate: table shows \"MEHRWERTSTEUER 20,00%\" → candidate = 20,00%.\n- Net amount: line \"NETTOBETRAG EUR 522,84\" → candidate = 522,84.\n- VAT amount: line \"MEHRWERTSTEUER 20,00% 104,57\" (shows tax amount 104,57) → candidate = 104,57.\n\n3) Cross-checks and alternatives\n- Ensure totals sum: 522,84 + 104,57 = 627,41 matches GESAMTBETRAG — consistent.\n- No other VAT groups or exchange rates present; single VAT group applies to whole invoice.\n- No ambiguous alternate dates seen (e.g., \"AUFTR.-DAT\" = 19.01.24 is different from RE-DATUM); use RE-DATUM for Invoice.Date per label.\n\n4) Formatting rules and no-inference constraints\n- Values must be returned without currency symbols and preserving decimals as in source.\n- VAT rate must be returned without percent sign, preserving decimals (\"20,00\" → numeric 20,00 but schema expects number; will preserve decimal places).\n- Do not infer any missing values; all required fields are present in text.\n\n5) Conclusion — fields to extract (exact source strings)\n- GrandTotal.Amount: \"627,41\"\n- Invoice.Date: \"31.01.24\"\n- Sender.VatId: \"ATU22642807\"\n- Vat.Rate: \"20,00\" (as appears; will output numeric 20 or 20.00 per schema)\n- Net.Amount: \"522,84\"\n- Vat.Amount: \"104,57\"",
+    "step2": "GrandTotal.Amount — 95% — High confidence. \"GESAMTBETRAG EUR 627,41\" appears clearly and matches the sum of net + VAT.\n\nInvoice.Date — 90% — High confidence. \"RE-DATUM 31.01.24\" is a labeled invoice date; alternative dates (AUFTR.-DAT 19.01.24) exist but are clearly different labeled fields.\n\nSender.VatId — 95% — High confidence. \"UST-ID-NR.: ATU22642807\" exactly matches typical VAT ID labeling.\n\nVat.Rate — 95% — High confidence. \"MEHRWERTSTEUER 20,00%\" is explicitly shown; rate conversion rule (no % sign) is straightforward.\n\nNet.Amount — 95% — High confidence. \"NETTOBETRAG EUR 522,84\" is explicit and arithmetic matches total.\n\nVat.Amount — 95% — High confidence. VAT amount \"104,57\" is shown next to the 20,00% VAT line and sums correctly with net to the grand total."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.33,
+      "input_tokens": 2232,
+      "output_tokens": 860,
+      "total_tokens": 3092
+    },
+    "step2": {
+      "runtime_sec": 8.43,
+      "input_tokens": 2779,
+      "output_tokens": 422,
+      "total_tokens": 3201
+    },
+    "step3": {
+      "runtime_sec": 4.45,
+      "input_tokens": 3278,
+      "output_tokens": 346,
+      "total_tokens": 3624
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\275096\\275073_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU22642807",
+        "ATU66643000,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        627.41,
+        "627,41 *"
+      ],
+      "Net.Amount": [
+        true,
+        522.84,
+        "522,84"
+      ],
+      "Vat.Amount": [
+        true,
+        104.57,
+        "104,57"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "31.01.24",
+        "31.01.24"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  }
+}

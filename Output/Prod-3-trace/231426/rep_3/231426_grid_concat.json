@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231433\\231426_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 180.36,
+    "Invoice.Date": "22.09.2023",
+    "Sender.VatId": "ATU69710958",
+    "Vat.Rate": 20.0,
+    "Net.Amount": 155.73,
+    "Vat.Amount": 31.15
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.75,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Very good chance",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Plan:\n- Confirm this is an invoice (presence of \"Rechnung\", invoice number, dates, totals).\n- Locate requested fields in the text and extract exact values without guessing.\n- Prefer sender VAT from invoice issuer (CREATON GmbH) over buyer's VAT.\n- Preserve decimal precision and convert comma decimals to dot for numeric fields; remove percent symbol for VAT rate.\n\nField-by-field extraction evidence:\n- Document type: invoice (header \"Rechnung\", invoice number, totals present).\n- Invoice.Date: \"Datum 22.09.2023\" → \"22.09.2023\".\n- GrandTotal.Amount: \"Zahlbetrag 180,36 EUR\" → 180.36.\n- Net.Amount: \"Gesamtbetrag Netto 155,73 EUR\" → 155.73.\n- Vat.Rate: \"R2 - 20,00% USt auf 155,73\" → 20.00 (per rule return number without %).\n- Vat.Amount: \"31,15 EUR\" shown as VAT for that group → 31.15.\n- Sender.VatId: footer lists \"Ust.-ID-Nr. ATU69710958\" for CREATON GmbH (invoice issuer) → \"ATU69710958\".\n\nNo inference used beyond mapping text to fields; if any field were missing, it would be left empty.",
+    "step2": "Invoice.Date — Confidence: High\n- Evidence: Explicit \"Datum 22.09.2023\" under invoice header.\n\nGrandTotal.Amount — Confidence: High\n- Evidence: \"Zahlbetrag 180,36 EUR\" clearly labeled as payable amount.\n\nNet.Amount — Confidence: High\n- Evidence: \"Gesamtbetrag Netto 155,73 EUR\" explicitly shown.\n\nVat.Rate — Confidence: High\n- Evidence: Line \"R2 - 20,00% USt auf 155,73\" shows 20,00% VAT rate for the invoice; extracted as 20.00 (no percent sign).\n\nVat.Amount — Confidence: High\n- Evidence: Corresponding VAT value shown as \"31,15 EUR\" on the same VAT line.\n\nSender.VatId — Confidence: Medium\n- Evidence: Footer lists \"Ust.-ID-Nr. ATU69710958\" for CREATON GmbH (company header matches invoice issuer). Medium confidence because the invoice also shows \"Ihre Ust-Id-Nr. ATU64131246\" (customer VAT) elsewhere; selection of issuer VAT is based on footer company identification."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.43,
+      "input_tokens": 2687,
+      "cached_input_tokens": null,
+      "output_tokens": 736,
+      "total_tokens": 3423,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.46,
+      "input_tokens": 3022,
+      "cached_input_tokens": null,
+      "output_tokens": 306,
+      "total_tokens": 3328,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.18,
+      "input_tokens": 3564,
+      "cached_input_tokens": null,
+      "output_tokens": 219,
+      "total_tokens": 3783,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\231433\\231426_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU69710958",
+        "ATU69710958,"
+      ],
+      "GrandTotal.Amount": [
+        false,
+        180.36,
+        "186,88"
+      ],
+      "Net.Amount": [
+        true,
+        155.73,
+        "155,73"
+      ],
+      "Vat.Amount": [
+        true,
+        31.15,
+        "31,15"
+      ],
+      "Vat.Rate": [
+        true,
+        20.0,
+        "20.00"
+      ],
+      "Invoice.Date": [
+        true,
+        "22.09.2023",
+        "22.09.2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 9273,
+    "cached_input_tokens": 0,
+    "output_tokens": 1261,
+    "eur_estimate": 0.004222
+  }
+}

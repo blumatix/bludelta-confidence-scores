@@ -1,0 +1,100 @@
+{
+  "input_path": "..\\Documents\\273944\\273934_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 2500.8,
+    "Invoice.Date": "2023.12.06",
+    "Sender.VatId": "ATU25098907",
+    "Vat.Rate": 20,
+    "Net.Amount": 2084.0,
+    "Vat.Amount": 416.8
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.98,
+    "Vat.Amount": 0.98
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification: contains \"Rechnung\" and invoice-like headers — treat as invoice.\n\nDetected candidate fields:\n- Invoice.Date: \"2023.12.06\" (Belegdatum)\n- GrandTotal.Amount: \"2.500,80\" (Endbetrag in EUR on page 2)\n- Sender.VatId: \"ATU25098907\" (UID Nr.)\n- Vat.Rate: \"20,00 %\" (MwSt 20,00 %)\n- Net.Amount: \"2.084,00\" (Netto / Summe Positionen)\n- Vat.Amount: \"416,80\" (MwSt amount)\n\nValidation checks / decisions:\n- No exclusion keywords prominent; proceed with extraction.\n- Preserve original decimal precision and formatting from source (commas as decimal separators observed). Schema requires numeric values; final output will convert to numeric representation keeping decimal places.\n- Vat.Rate will be returned without the percent sign (as numeric \"20\" per rules).\n- No inference used; each extracted value corresponds to explicit text occurrences.\n- No multiple occurrences conflict for these fields; single clear instances selected.",
+    "step2": "GrandTotal.Amount (2.500,80)\n- Evidence: \"Endbetrag in EUR 2.500,80\" on page 2.\n- Consistency: Matches Net (2.084,00) + VAT (416,80) = 2.500,80.\n- OCR risks: comma decimal and thousand formatting consistent.\n- Confidence: High.\n\nInvoice.Date (\"2023.12.06\")\n- Evidence: \"Belegdatum 2023.12.06\" on page 1.\n- Consistency: Standard invoice date field; format clearly shown.\n- OCR risks: low (digits and dots clear).\n- Confidence: High.\n\nSender.VatId (\"ATU25098907\")\n- Evidence: \"UID Nr. ATU25098907\" near header on pages 1–3.\n- Consistency: Matches Austrian VAT ID format (ATU + digits).\n- OCR risks: possible character confusion (U vs. V) but context strong.\n- Confidence: High.\n\nVat.Rate (20)\n- Evidence: \"MwSt 20,00 %\" shown next to VAT amount on page 2.\n- Consistency: Standard VAT percentage; rule requires no percent sign and numeric value.\n- OCR risks: comma vs dot irrelevant for integer percent.\n- Confidence: High.\n\nNet.Amount (2.084,00)\n- Evidence: \"Netto 2.084,00\" and \"Summe Positionen 2.084,00\" on page 2.\n- Consistency: When added to VAT (416,80) equals Grand Total.\n- OCR risks: low.\n- Confidence: High.\n\nVat.Amount (416,80)\n- Evidence: \"MwSt 20,00 % 416,80\" clearly listed on page 2.\n- Consistency: 20% of 2.084,00 = 416,80; sums to total.\n- OCR risks: low.\n- Confidence: High."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 6.67,
+      "input_tokens": 3387,
+      "cached_input_tokens": null,
+      "output_tokens": 552,
+      "total_tokens": 3939
+    },
+    "step2": {
+      "runtime_sec": 4.28,
+      "input_tokens": 3626,
+      "cached_input_tokens": null,
+      "output_tokens": 467,
+      "total_tokens": 4093
+    },
+    "step3": {
+      "runtime_sec": 5.38,
+      "input_tokens": 4298,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 4581
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273944\\273934_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU25098907",
+        "ATU25098907"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        2500.8,
+        "2.500,80"
+      ],
+      "Net.Amount": [
+        true,
+        2084.0,
+        "2.084,00"
+      ],
+      "Vat.Amount": [
+        true,
+        416.8,
+        "416,80"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "2023.12.06",
+        "2023.12.06"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 11311,
+    "cached_input_tokens": 0,
+    "output_tokens": 1302,
+    "eur_estimate": 0.004741
+  }
+}

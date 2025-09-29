@@ -1,0 +1,98 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\170851\\170850_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 6757.34,
+    "Invoice.Date": "21/12/22",
+    "Sender.VatId": "BE0434680160",
+    "Vat.Rate": 0,
+    "Net.Amount": 6757.34,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.92,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.98,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Step 1 — classification check\n- Document contains clear invoice indicators: header \"I N V O I C E\", invoice number-like string \"VF2022120525\", VAT ID \"vat: BE0434680160\", explicit totals and currency \"6.757,34 EUR\", payment terms and due date. No exclusion indicators like \"Zahlungserinnerung\" or \"Mahnung\". Conclusion: this is an invoice.\n\nLocate candidate fields and verify\n- Sender.VatId:\n  - Found at top: \"vat:          BE0434680160\". Clear match. No ambiguity.\n\n- Invoice.Date:\n  - Near the invoice header line: \"I  N    V    O    I  C    E                                    21/12/22                    VF2022120525\". The date \"21/12/22\" is adjacent to the Invoice heading. Alternative possibilities: no other obvious full dates except due date \"11/01/23\" (which is due date, not issue date). So Invoice.Date = \"21/12/22\".\n\n- GrandTotal.Amount / Net.Amount / Vat.Amount:\n  - Totals area shows lines with columns labelled \"taxe net vat total amount\" and a numeric entry \"6.757,34                0%                                                                            6.757,34                EUR\".\n  - Interpretation: Net = 6.757,34, VAT rate = 0%, VAT amount = 0, total payable = 6.757,34 EUR.\n  - Confirmed elsewhere: \"deposit 0%\" and repeated \"6.757,34                 0,00\" and \"INVOICE\" context. No other grand total found. Therefore GrandTotal.Amount = 6.757,34 (numeric), Net.Amount = 6.757,34, Vat.Amount = 0,00.\n  - Decimal/format handling: input uses comma as decimal separator and thousand point; must preserve decimal precision but output numeric values. Convert to dot decimal for numeric types while keeping same decimal places: 6.757,34 -> 6757.34 (two decimals). 0,00 -> 0.00.\n\n- Vat.Rate:\n  - Document explicitly shows \"0%\" in the totals/tax column and repeated \"0%\". No other VAT rates. Per rules, extract rate without percent symbol -> 0 (numeric).\n\nAmbiguities considered and resolved\n- Could the \"21/12/22\" be something else? It's placed next to the Invoice header and adjacent to invoice ID, consistent with invoice date; due date is explicitly shown elsewhere as \"due date 11/01/23\", so 21/12/22 is the issue date.\n- Multiple VAT groups? Only a single VAT group with 0% appears; no separate VAT lines with different rates. So single Vat group.\n\nFinal mapping prepared (values determined, numeric conversions noted)\n- Sender.VatId = \"BE0434680160\"\n- Invoice.Date = \"21/12/22\"\n- GrandTotal.Amount = 6757.34\n- Net.Amount = 6757.34\n- Vat.Amount = 0.00\n- Vat.Rate = 0",
+    "step2": "Sender.VatId — 95%: Clear label \"vat: BE0434680160\" at top of document.\n\nInvoice.Date — 90%: \"21/12/22\" appears adjacent to the \"INVOICE\" header; due date shown separately as \"11/01/23\".\n\nGrandTotal.Amount — 92%: Total shown as \"6.757,34 EUR\" in the totals area and repeated near invoice summary.\n\nNet.Amount — 90%: Totals section shows net as \"6.757,34\" aligning with the displayed total and 0% VAT.\n\nVat.Amount — 95%: VAT amount shown as \"0,00\" and tax rate displayed as \"0%\"; consistency across totals.\n\nVat.Rate — 98%: Explicit \"0%\" appears in the tax column multiple times; extracted as 0."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 13.29,
+      "input_tokens": 1891,
+      "cached_input_tokens": null,
+      "output_tokens": 916,
+      "total_tokens": 2807,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.94,
+      "input_tokens": 2598,
+      "cached_input_tokens": null,
+      "output_tokens": 373,
+      "total_tokens": 2971,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 6.19,
+      "input_tokens": 3079,
+      "cached_input_tokens": null,
+      "output_tokens": 282,
+      "total_tokens": 3361,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\170851\\170850_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "BE0434680160",
+        "BE0434680160"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        6757.34,
+        "6757.34"
+      ],
+      "Net.Amount": [
+        true,
+        6757.34,
+        "6757.34"
+      ],
+      "Vat.Rate": [
+        true,
+        0,
+        "0.00"
+      ],
+      "Invoice.Date": [
+        false,
+        "21/12/22",
+        "2022-12-21"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 5,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7568,
+    "cached_input_tokens": 0,
+    "output_tokens": 1571,
+    "eur_estimate": 0.004383
+  }
+}

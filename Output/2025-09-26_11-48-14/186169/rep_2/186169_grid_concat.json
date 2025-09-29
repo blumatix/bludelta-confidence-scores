@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\186197\\186169_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 22.97,
+    "Invoice.Date": "26.04.2023",
+    "Sender.VatId": "ATU63242011",
+    "Vat.Rate": 20,
+    "Net.Amount": 19.14,
+    "Vat.Amount": 3.83
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Invoice indicators present: header \"Rechnung\", \"Rechnungsbetrag\", \"Nettobetrag\", \"USt.\", invoice number, dates, line items and totals.\n- No exclusion indicators (\"Mahnung\", \"Zahlungserinnerung\", \"Servicebericht\") present.\n=> Treat as invoice.\n\nExtracted candidate fields with evidence (no inference beyond explicit text):\n- Invoice.Date: \"vom 26.04.2023\" (line near invoice number).\n- GrandTotal.Amount: \"Rechnungsbetrag 22,97 €\" → 22.97.\n- Net.Amount: \"Nettobetrag 19,14 €\" → 19.14.\n- Vat.Amount: \"+ 20,00% USt. von 19,14 3,83 €\" → 3.83.\n- Vat.Rate: \"20,00%\" → 20 (per rule: without %).\n- Sender.VatId: two UID values present:\n  - \"UID-Nr.: ATU63242011\" (appears under Bankverbindung / company block) — corresponds to sender.\n  - \"Kunden-UID-Nr.: ATU22642807\" (customer UID).\nPer no-inference rule, select UID explicitly labeled for sender: ATU63242011.\n\nAll values taken exactly as shown (decimal commas converted to dots for numeric representation).",
+    "step2": "GrandTotal.Amount: High — \"Rechnungsbetrag 22,97 €\" explicitly shown.\n\nInvoice.Date: High — \"vom 26.04.2023\" appears next to the invoice number.\n\nSender.VatId: Medium-High — \"UID-Nr.: ATU63242011\" appears under company/bank details; another UID (customer) also present, but sender UID is explicitly labeled.\n\nVat.Rate: High — \"20,00% USt.\" is explicitly shown (converted to \"20\" per rule).\n\nNet.Amount: High — \"Nettobetrag 19,14 €\" explicitly shown.\n\nVat.Amount: High — \"3,83 €\" shown as VAT on 19,14 € (line \"+ 20,00% USt. ... 3,83 €\")."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 7.18,
+      "input_tokens": 2517,
+      "cached_input_tokens": null,
+      "output_tokens": 615,
+      "total_tokens": 3132,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.71,
+      "input_tokens": 2859,
+      "cached_input_tokens": null,
+      "output_tokens": 558,
+      "total_tokens": 3417,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.43,
+      "input_tokens": 3333,
+      "cached_input_tokens": null,
+      "output_tokens": 281,
+      "total_tokens": 3614,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\186197\\186169_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU63242011",
+        "ATU63242011,"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        22.97,
+        "22,97"
+      ],
+      "Net.Amount": [
+        true,
+        19.14,
+        "19,14"
+      ],
+      "Vat.Amount": [
+        true,
+        3.83,
+        "3,83"
+      ],
+      "Vat.Rate": [
+        true,
+        20,
+        "20,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "26.04.2023",
+        "26.04.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 8709,
+    "cached_input_tokens": 0,
+    "output_tokens": 1454,
+    "eur_estimate": 0.004431
+  }
+}

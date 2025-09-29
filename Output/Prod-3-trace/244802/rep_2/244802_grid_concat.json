@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\244802\\244802_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 1201.75,
+    "Invoice.Date": "03.11.2023",
+    "Sender.VatId": "ATU 22642807",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 1092.5,
+    "Vat.Amount": 109.25
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.97,
+    "Net.Amount": 0.96,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Classification: document is an invoice (contains \"Rechnung\", invoice number, invoice date, totals, VAT lines).\n\nKey evidence and chosen extractions (no guesses; values taken exactly as shown):\n- Invoice.Date: \"03.11.2023\" (labeled Rechnungsdatum)\n- GrandTotal.Amount: 1.201,75 EUR (Rechnungsbetrag EUR 1.201,75 shown as final invoice amount)\n- Vat.Rate: 10,00 % (MwSt (10,00 %))\n- Net.Amount: 1.092,50 EUR (Warenwert / Zwischensumme 1.092,50)\n- Vat.Amount: 109,25 EUR (MwSt (10,00 %) 109,25)\n- Sender.VatId: \"ATU 22642807\" (USTID / ATU 22642807 present)\n\nAmbiguities considered and resolved:\n- Two \"Rechnungsbetrag\" numbers appear: 1.165,70 and 1.201,75. 1.165,70 is shown as \"Rechnungsbetrag EUR 1.165,70\" near a skonto line, but the final \"Rechnungsbetrag EUR 1.201,75\" follows VAT line and matches net+VAT (1.092,50 + 109,25 = 1.201,75). Chosen 1.201,75 as GrandTotal.\n- Skonto lines not used to override final invoice total.\n- VAT rate and amounts taken from VAT section linking Warenwert and MwSt.\n\nWill produce final JSON with these extracted values (numbers preserved with same decimals, VAT rate returned as numeric without %).",
+    "step2": "Invoice.Date — Confidence: 0.99\n- Evidence: Explicit label \"Rechnungsdatum: 03.11.2023\" present and unambiguous.\n\nGrandTotal.Amount — Confidence: 0.95\n- Evidence: Two \"Rechnungsbetrag\" values present (1.165,70 and 1.201,75). 1.201,75 appears after VAT line and equals Net (1.092,50) + VAT (109,25) = 1.201,75, indicating it is the final total. Minor risk due to duplicate label earlier.\n\nSender.VatId — Confidence: 0.98\n- Evidence: \"USTID: ATU 22642807\" appears twice (once in Lieferadresse block and line \"ATU 22642807\"), clear VAT ID formatting.\n\nVat.Rate — Confidence: 0.97\n- Evidence: VAT shown as \"MwSt (10,00 %)\" in VAT section and St*2 legend indicating (H) reduced rate. Clear numeric percentage. Converted to numeric (10,00 → 10.00) with high certainty.\n\nNet.Amount — Confidence: 0.96\n- Evidence: \"Zwischensumme EUR 1.092,50\" and \"Warenwert (10,00 %) 1.092,50\" indicate net amount before VAT. Clear match; low ambiguity.\n\nVat.Amount — Confidence: 0.97\n- Evidence: \"MwSt (10,00 %) 109,25\" is explicitly listed. Matches Net * 10% = 109,25, consistent.\n\nOverall note: main ambiguity was the duplicate \"Rechnungsbetrag\" (1.165,70 vs 1.201,75); resolving by checking arithmetic (Net+VAT) yields 1.201,75 as final."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 8.91,
+      "input_tokens": 2209,
+      "cached_input_tokens": null,
+      "output_tokens": 738,
+      "total_tokens": 2947,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.72,
+      "input_tokens": 2610,
+      "cached_input_tokens": null,
+      "output_tokens": 449,
+      "total_tokens": 3059,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.2,
+      "input_tokens": 3295,
+      "cached_input_tokens": null,
+      "output_tokens": 350,
+      "total_tokens": 3645,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\244802\\244802_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU 22642807",
+        "ATU38510009"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        1201.75,
+        "1.201,75"
+      ],
+      "Net.Amount": [
+        true,
+        1092.5,
+        "1.092,50"
+      ],
+      "Vat.Amount": [
+        true,
+        109.25,
+        "109,25"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "03.11.2023",
+        "03.11.2023"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 8114,
+    "cached_input_tokens": 0,
+    "output_tokens": 1537,
+    "eur_estimate": 0.004444
+  }
+}

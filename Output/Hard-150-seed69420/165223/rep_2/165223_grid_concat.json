@@ -1,0 +1,88 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\165223\\165223_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 11.6,
+    "Invoice.Date": "28.02.22",
+    "Sender.VatId": "ATU47239901",
+    "Vat.Rate": "",
+    "Net.Amount": 11.6,
+    "Vat.Amount": 0.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.9,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.3,
+    "Net.Amount": 0.8,
+    "Vat.Amount": 0.75
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Unlikely",
+    "Net.Amount": "Highly likely",
+    "Vat.Amount": "Very good chance"
+  },
+  "reasoning": {
+    "step1": "1) Document classification\n- Presence of header \"RECHNUNG\" and invoice-like fields (BESTELLDATUM, DATUM, GESAMTBETRAG, ARTIKEL-NR., MENGE, GESAMTGEWICHT) → classify as invoice.\n- No exclusion keywords (e.g., \"Mahnung\", \"Zahlungserinnerung\") dominating the header → proceed with extraction.\n\n2) Locate candidate fields and ambiguous items\n- Grand total: \"GESAMTBETRAG\" line shows \"11,60\" and currency header \"EUR\" → candidate GrandTotal.Amount = 11,60.\n- Invoice date: top-right area shows \"DATUM 28.02.22\" next to other invoice identifiers → candidate Invoice.Date = \"28.02.22\".\n- Sender VAT ID: near top-left \"Kunden Ust —Id —Nr. ATU47239901\" → candidate Sender.VatId = \"ATU47239901\".\n- VAT rate and VAT amounts: text contains \"Steuerfreie innergemeinschaftliche Lieferung Erwerbsbesteuerung durch Kunden\" indicating tax-exempt intra-community supply. No explicit percent (e.g., \"19%\") appears.\n  - Possible interpretations:\n    a) VAT rate explicitly present as numeric percent — not found.\n    b) VAT effectively 0% / VAT amount 0 because of \"steuerfrei\" — supported by wording.\n  - Per No Inference rule: only extract when supported by text. The phrase \"steuerfreie ... Lieferung\" directly supports VAT amount = 0 and that VAT percent is not provided as a numeric percent. Net amount likely equals total (11,60) because supply is tax-free.\n- Net.Amount: could be 11,60 if net = total for tax-free supply; supported by invoice text.\n- Vat.Amount: supported as 0.00 by the tax-free statement.\n\n3) Decimal formatting and representation\n- Keep decimals as in source: \"11,60\" uses comma. Schema expects numbers; will convert to numeric with same decimal precision as source: 11.60 (two decimals).\n- VAT rate: no numeric percent in source → leave empty (do not infer \"0\" as a percent unless explicitly given).\n\n4) Decision summary (fields to extract)\n- GrandTotal.Amount: 11.60 (from GESAMTBETRAG 11,60 EUR)\n- Invoice.Date: \"28.02.22\" (from DATUM)\n- Sender.VatId: \"ATU47239901\"\n- Vat.Rate: \"\" (no explicit percent in text)\n- Net.Amount: 11.60 (net equals total supported by \"steuerfreie ... Lieferung\")\n- Vat.Amount: 0.00 (supported by \"steuerfreie ... Lieferung\")\n\nNote: If strict interpretation requires leaving VAT rate empty and yet allows VAT amount 0 when text explicitly says \"steuerfreie\", extraction as above is consistent with document evidence and No Inference rule.",
+    "step2": "GrandTotal.Amount — Confidence: 95%\nReason: \"GESAMTBETRAG\" clearly shows \"11,60\" with EUR nearby.\n\nInvoice.Date — Confidence: 90%\nReason: \"DATUM 28.02.22\" appears in invoice header area next to other invoice identifiers.\n\nSender.VatId — Confidence: 98%\nReason: VAT ID shown as \"ATU47239901\" labeled near customer/VAT section.\n\nVat.Rate — Confidence: 30%\nReason: No explicit numeric VAT percentage found; document states \"steuerfreie ... Lieferung\" suggesting no VAT percent, but percent not printed.\n\nNet.Amount — Confidence: 80%\nReason: If supply is tax-free, net equals total (11,60), which is consistent with text; explicit \"Netto\" value not separately shown.\n\nVat.Amount — Confidence: 75%\nReason: \"steuerfreie innergemeinschaftliche Lieferung\" implies VAT amount 0.00, though a numeric VAT amount is not explicitly printed."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 15.35,
+      "input_tokens": 2084,
+      "cached_input_tokens": null,
+      "output_tokens": 1197,
+      "total_tokens": 3281,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 5.29,
+      "input_tokens": 2752,
+      "cached_input_tokens": null,
+      "output_tokens": 401,
+      "total_tokens": 3153,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 5.33,
+      "input_tokens": 3261,
+      "cached_input_tokens": null,
+      "output_tokens": 342,
+      "total_tokens": 3603,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\165223\\165223.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "ATU47239901",
+        "DE 217744571"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        11.6,
+        "11,60"
+      ],
+      "Invoice.Date": [
+        true,
+        "28.02.22",
+        "28.02.22"
+      ]
+    },
+    "summary": {
+      "matched": 2,
+      "total": 3,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 8097,
+    "cached_input_tokens": 0,
+    "output_tokens": 1940,
+    "eur_estimate": 0.001084
+  }
+}

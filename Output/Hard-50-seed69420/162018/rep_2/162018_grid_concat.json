@@ -1,0 +1,83 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\162018\\162018_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 133350,
+    "Invoice.Date": "2022/10/07",
+    "Sender.VatId": "",
+    "Vat.Rate": "",
+    "Net.Amount": 68150,
+    "Vat.Amount": 65200
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.85,
+    "Vat.Amount": 0.88
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Highly likely",
+    "Vat.Amount": "Highly likely"
+  },
+  "reasoning": {
+    "step1": "Plan and step-by-step reasoning to extract fields:\n\n1) Confirm document is an invoice\n- Presence of \"INVOICE\", \"InvoiceNo.\", \"CreateDate\", \"TOTAL INVOICE AMOUNT\", line-item style charges and sub totals → document qualifies as an invoice.\n- No exclusion headers like \"Mahnung\" or \"Zahlungserinnerung\" appear prominently → do not classify as non-invoice.\n\n2) Locate high-confidence fields\n- Invoice date: \"CreateDate 2022/10/07\" clearly formatted as date. High confidence.\n- Grand total: Appears as \"TOTAL INVOICE AMOUNT ... Y133, 350\" and repeated near bottom \"TOTAL (TOTAL AMOUNT) Y133, 350\" → high confidence that payable amount is 133,350 (currency JPY). Will extract numeric value 133350 (no currency).\n\n3) Search for Sender VAT ID\n- Scan for VAT/VAT ID labels (e.g., \"VAT\", \"VAT ID\", \"USt-IdNr.\", \"Tax ID\") — none found in the OCR text. No clear sender tax ID. Must leave Sender.VatId empty (no inference).\n\n4) Search for VAT rate(s)\n- Look for percentage signs like \"19%\" or other rate markers — none present. There is a \"CONSUMPTION TAX\" line with amounts, but no explicit percentage. According to rules, if rate not explicitly present, do not infer. Therefore Vat.Rate should be empty.\n\n5) Identify Net and VAT amount groups\n- The invoice shows grouped subtotals and labels:\n  - Under \"(EXEMPTED)\" there is a subtotal line \"4* (SUB AMOUNT) Y28, 230\" — likely a subtotal of exempt items (net for exempt group) → possible Net = 28,230 for exempt group.\n  - Under \"(OUTSIDE-TAXABLE)\" there is \"CONSUMPTION TAX Y65, 200\" and then \"(SUB AMOUNT) Y65,200\" — text implies a consumption tax amount of 65,200 (this reads like a tax amount). Unclear whether this is a VAT amount or a separate consumption tax; no rate shown.\n  - Under \"(TAXABLE)\" there are item amounts and a \"(SUB AMOUNT) Y39, 920\" — likely subtotal net for taxable group. Also individual lines include \"Y34, 780\" and others, but it's ambiguous whether Y34,780 is a VAT amount or a line charge.\n  - The invoice then shows \"Mgefith(TOTAL AMOUNT) Y133, 350\" which matches the grand total.\n\n- Ambiguities / alternatives:\n  - Alternative A: Treat \"CONSUMPTION TAX Y65,200\" as the VAT amount for some group. Alternative B: Treat it as a tax-exclusive charge category and not the invoice VAT. No explicit mapping to a VAT rate or to a single Vat.Rate.\n  - Net amounts could be the two subtotals: 28,230 (exempt) and 39,920 (taxable). Summing 28,230 + 39,920 = 68,150. Adding consumption tax 65,200 yields 133,350 which matches grand total (68,150 + 65,200 = 133,350). That suggests a plausible decomposition:\n    - Net total (sum of subtotals) = 68,150\n    - VAT/consumption tax = 65,200\n    - GrandTotal = 133,350\n  - However, individual labeled amounts like Y34,780 appear in the TAXABLE section and could be part of the 39,920 subtotal; mapping of which numbers correspond to Net vs VAT is not explicitly labeled with \"VAT\" percent.\n\n6) Apply \"No inference\" rule and conservatism\n- Vat.Rate: no explicit percentage → must be empty.\n- Sender.VatId: not present → empty.\n- For Net.Amount and Vat.Amount fields: the decomposition that sums to grand total (Net sum 68,150 and VAT 65,200) is supported by the subtotals shown (28,230 exempt + 39,920 taxable = 68,150) and the labeled \"CONSUMPTION TAX Y65,200\". This mapping is consistent with the numbers printed and does not require assuming a percentage rate. Therefore it is reasonable to extract:\n  - Net.Amount = 68150 (keep decimals as in source: none)\n  - Vat.Amount = 65200\n- Alternative conservative choice would be to leave Net.Amount and Vat.Amount empty if any uncertainty is unacceptable. But given the clear subtotals and that their sum plus the consumption tax equals the grand total, extracting these amounts is evidence-supported and allowed by the \"No Inference\" rule because values appear explicitly.\n\n7) Decimal formatting and numeric types\n- Keep same decimal places as input: all amounts are integers with thousands separators and no decimals. Return numeric values without currency symbols and without separators (e.g., 133350).\n- Vat.Rate must be numeric if present; since absent, set empty string.\n\n8) Final mapping to schema fields (decided)\n- GrandTotal.Amount: 133350 (from TOTAL INVOICE AMOUNT Y133, 350)\n- Invoice.Date: \"2022/10/07\" (from CreateDate)\n- Sender.VatId: \"\" (not present)\n- Vat.Rate: \"\" (no percentage shown)\n- Net.Amount: 68150 (sum of subtotals Y28,230 and Y39,920 as net)\n- Vat.Amount: 65200 (labelled \"CONSUMPTION TAX Y65,200\")\n\n9) Validation checks\n- Sum check: Net (68150) + Vat (65200) = 133350 which matches GrandTotal → internally consistent.\n- Ensure no fields are inferred beyond explicit numbers shown; Vat.Rate and Sender.VatId remain empty because not provided.\n\n10) Prepare to output JSON following schema with those values (numeric for amounts, strings for date and empty strings where needed).",
+    "step2": "GrandTotal.Amount — Confidence: 98%\n- Evidence: Explicit label \"TOTAL INVOICE AMOUNT\" and repeated \"TOTAL (TOTAL AMOUNT) Y133, 350\". Clear numeric match in two places. Very low ambiguity.\n\nInvoice.Date — Confidence: 98%\n- Evidence: Explicit \"CreateDate 2022/10/07\". Clear ISO-like date format. Low ambiguity.\n\nSender.VatId — Confidence: 95% (that it is absent)\n- Evidence: No visible VAT/VAT ID/Tax ID markers in OCR text. Reasonably certain no sender VAT is present; small risk OCR omitted a separate line.\n\nVat.Rate — Confidence: 99% (that it is absent)\n- Evidence: No percentage sign or explicit tax rate shown. The invoice shows \"CONSUMPTION TAX\" amount but no percent. Very likely no explicit VAT rate printed.\n\nNet.Amount — Confidence: 85%\n- Evidence: Two subtotals are printed: \"4* (SUB AMOUNT) Y28, 230\" under EXEMPTED and \"(SUB AMOUNT) Y39, 920\" under TAXABLE; their sum 28,230 + 39,920 = 68,150. This sum plus the labeled consumption tax (65,200) equals the grand total, supporting this decomposition.\n- Uncertainty: Labelling is somewhat noisy/ambiguous (OCR artifacts), and the exact intent of each subtotal (whether they represent net amounts) is inferred from arithmetic consistency rather than explicit \"Net\" label. Thus moderate confidence but not as high as fields explicitly labeled.\n\nVat.Amount — Confidence: 88%\n- Evidence: The invoice contains a line \"CONSUMPTION TAX Y65, 200\" and a subsequent \"(SUB AMOUNT) Y65,200\", suggesting a tax amount of 65,200. This value, when added to the net subtotals, equals the grand total.\n- Uncertainty: The term \"CONSUMPTION TAX\" could be interpreted differently in some contexts, but here it functions as the tax amount. No percentage given prevents further verification. Fairly confident but small OCR/interpretation risk."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 17.18,
+      "input_tokens": 1812,
+      "cached_input_tokens": null,
+      "output_tokens": 1839,
+      "total_tokens": 3651,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.89,
+      "input_tokens": 3122,
+      "cached_input_tokens": null,
+      "output_tokens": 447,
+      "total_tokens": 3569,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.59,
+      "input_tokens": 3869,
+      "cached_input_tokens": null,
+      "output_tokens": 206,
+      "total_tokens": 4075,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\162018\\162018.json",
+    "per_field": {
+      "GrandTotal.Amount": [
+        false,
+        133350,
+        "133, 350"
+      ],
+      "Invoice.Date": [
+        true,
+        "2022/10/07",
+        "2022/10/07"
+      ]
+    },
+    "summary": {
+      "matched": 1,
+      "total": 2,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 8803,
+    "cached_input_tokens": 0,
+    "output_tokens": 2492,
+    "eur_estimate": 0.001312
+  }
+}

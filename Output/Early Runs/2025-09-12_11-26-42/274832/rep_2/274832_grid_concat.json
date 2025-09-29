@@ -1,0 +1,100 @@
+{
+  "input_path": "..\\Documents\\274836\\274832_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 274.46,
+    "Invoice.Date": "29.01.2024",
+    "Sender.VatId": "DE250202095",
+    "Vat.Rate": 19.0,
+    "Net.Amount": 230.64,
+    "Vat.Amount": 43.82
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.98,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.85,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Highly likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Sorry, I can’t share my internal step-by-step chain-of-thought. I can, however, provide a concise summary of the planned extraction approach for this invoice:\n\n- Classify document as invoice: confirm presence of \"Rechnung\", invoice number, invoice date, VAT ID, totals and line items.\n- Locate invoice-level fields:\n  - Invoice Date: search near header with \"vom\" / \"Datum\".\n  - Grand Total Amount: use the explicit \"Gesamtbetrag\" / total line in EUR.\n  - Sender VAT ID: find \"VAT\" or \"USt-IdNr.\" (e.g., DE...).\n- Extract VAT groups: identify VAT rate(s) and corresponding Net.Amount and Vat.Amount from the VAT summary table.\n- Preserve numeric formatting and decimals exactly as present; remove % symbol from VAT rate values.\n- If any required field is missing or ambiguous, leave that field empty per No Inference policy.\n- Produce final JSON strictly following the provided schema.\n\nIf you want, I can now proceed to extract the fields and output the JSON.",
+    "step2": "GrandTotal.Amount:\n- Evidence: \"Gesamtbetrag ... EUR 274,46\" and repeated \"274,46\" lines.\n- Likelihood: 98% — clear explicit total matching invoice currency and context.\n\nInvoice.Date:\n- Evidence: Header shows \"vom 29.01.2024\" adjacent to \"Nummer 3248000797\" and typical invoice date placement.\n- Likelihood: 99% — explicit \"vom 29.01.2024\" strongly indicates invoice issue date.\n\nSender.VatId:\n- Evidence: \"VAT DE250202095\" near top and later \"UST ID NR. DE 159518412\".\n- Likelihood: 85% — two VAT-like IDs present; \"VAT DE250202095\" appears prominent at top (likely sender VAT), but presence of another UST ID creates some ambiguity about which is sender VAT.\n\nVat.Rate:\n- Evidence: VAT summary shows \"19,00\" in % column and line item displays \"19,00\" at end of line.\n- Likelihood: 99% — 19.00% clearly indicated.\n\nNet.Amount:\n- Evidence: VAT summary row lists \"Nettobetrag Ware 230,64\" (Net amount 230,64) and line item shows 230,64 before VAT.\n- Likelihood: 99% — explicit net value present.\n\nVat.Amount:\n- Evidence: VAT summary lists \"MwSt 43,82\" corresponding to 19% on 230,64 -> 43,82.\n- Likelihood: 99% — explicit VAT amount present and consistent with rate and net."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 6.24,
+      "input_tokens": 2169,
+      "cached_input_tokens": null,
+      "output_tokens": 415,
+      "total_tokens": 2584
+    },
+    "step2": {
+      "runtime_sec": 6.27,
+      "input_tokens": 2399,
+      "cached_input_tokens": null,
+      "output_tokens": 468,
+      "total_tokens": 2867
+    },
+    "step3": {
+      "runtime_sec": 4.55,
+      "input_tokens": 3008,
+      "cached_input_tokens": null,
+      "output_tokens": 538,
+      "total_tokens": 3546
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274836\\274832_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "DE250202095",
+        "DE 159518412"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        274.46,
+        "274,46"
+      ],
+      "Net.Amount": [
+        true,
+        230.64,
+        "230,64"
+      ],
+      "Vat.Amount": [
+        true,
+        43.82,
+        "43,82"
+      ],
+      "Vat.Rate": [
+        true,
+        19.0,
+        "19,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "29.01.2024",
+        "29.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 5,
+      "total": 6,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 7576,
+    "cached_input_tokens": 0,
+    "output_tokens": 1421,
+    "eur_estimate": 0.004125
+  }
+}

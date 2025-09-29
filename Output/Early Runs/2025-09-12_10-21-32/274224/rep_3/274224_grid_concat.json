@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\274224\\274224_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 779.22,
+    "Invoice.Date": "18.01.2024",
+    "Sender.VatId": "ATU65960748",
+    "Vat.Rate": 10,
+    "Net.Amount": 708.38,
+    "Vat.Amount": 70.84
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.7,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Very good chance",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will not provide detailed internal chain-of-thought. Brief extraction plan and findings:\n\n- Document classification: contains headers \"Rechnung\", invoice number and dates, totals and VAT — treat as invoice.\n- Invoice.Date: found \"18.01.2024\" (Rechnungs-Datum).\n- GrandTotal.Amount: found \"Gesamtbetrag 779,22\" (EUR).\n- Net.Amount: found \"Entgelt ... 708,38\" (EUR) on page 2.\n- Vat.Rate and Vat.Amount: found \"Umsatzsteuer 10% 70,84\" (VAT rate 10, VAT amount 70,84).\n- Sender.VatId: two VAT IDs present: \"USt-ID-Nr ATU22642807\" (near header) and \"UID-Nr. ATU65960748\" (company footer). Sender is Bahlsen GmbH & Co. KG — use UID-Nr. ATU65960748 as sender VAT ID.\n- No other conflicting totals or exchange rates affecting entire invoice.\n\nI will now produce the final JSON output.",
+    "step2": "GrandTotal.Amount — Confidence: High (95%)\n- Evidence: \"Gesamtbetrag                                                                                               779,22\" on page 2; matches Entgelt + Umsatzsteuer (708,38 + 70,84 = 779,22).\n- Consistency: arithmetic check passes; single clear occurrence.\n\nInvoice.Date — Confidence: High (95%)\n- Evidence: \"Rechnungs-Datum                   18.01.2024\" on page 1 and repeated on page 2.\n- Consistency: identical occurrences, unambiguous format.\n\nSender.VatId — Confidence: Medium (70%)\n- Evidence: Two VAT-like IDs present: \"USt-ID-Nr                                           ATU22642807\" near the invoice header (likely buyer USt-ID?) and footer \"UID-Nr.  ATU65960748\" associated with Bahlsen company details.\n- Ambiguity: which ID is the sender's VAT is unclear from labeling; footer UID-Nr. is linked to Bahlsen (sender) but header USt-ID-Nr. appears in supplier/recipient block. This causes uncertainty.\n\nVat.Rate — Confidence: High (95%)\n- Evidence: \"Umsatzsteuer           10%\" on page 2; multiple line items show \"10 %\" VAT column.\n- Consistency: single clear VAT percentage for the invoice.\n\nNet.Amount — Confidence: High (95%)\n- Evidence: \"Entgelt     Artikel                                                                                        708,38\" on page 2 (Net amount / Entgelt).\n- Consistency: Net + VAT = Grand Total confirmed.\n\nVat.Amount — Confidence: High (95%)\n- Evidence: \"Umsatzsteuer           10%                                                                                   70,84\" on page 2.\n- Consistency: Matches 10% of net (10% of 708,38 = 70,838 → rounded to 70,84 consistent with shown value)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 6.33,
+      "input_tokens": 2752,
+      "output_tokens": 679,
+      "total_tokens": 3431
+    },
+    "step2": {
+      "runtime_sec": 6.74,
+      "input_tokens": 2990,
+      "output_tokens": 523,
+      "total_tokens": 3513
+    },
+    "step3": {
+      "runtime_sec": 4.12,
+      "input_tokens": 3654,
+      "output_tokens": 345,
+      "total_tokens": 3999
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\274224\\274224_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU65960748",
+        "ATU65960748"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        779.22,
+        "779,22"
+      ],
+      "Net.Amount": [
+        true,
+        708.38,
+        "708,38"
+      ],
+      "Vat.Amount": [
+        true,
+        70.84,
+        "70,84"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "18.01.2024",
+        "18.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\253592\\253585_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 67075.5,
+    "Invoice.Date": "16.11.2023",
+    "Sender.VatId": "ATU76204938",
+    "Vat.Rate": [
+      10,
+      20
+    ],
+    "Net.Amount": [
+      54010.68,
+      6386.46
+    ],
+    "Vat.Amount": [
+      5401.07,
+      1277.29
+    ]
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.98,
+    "Vat.Rate": 0.97,
+    "Net.Amount": 0.97,
+    "Vat.Amount": 0.97
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Document classification:\n- Contains clear invoice indicators: headers \"Rechnung\", \"Rechnungsdatum\", \"Belegnummer\", \"Warenwert\", \"Endbetrag\", VAT percentages \"10,00%\" and \"20,00%\". No exclusion terms like \"Mahnung\" prominent. Classify as invoice.\n\nFields to extract per schema: GrandTotal.Amount, Invoice.Date, Sender.VatId, Vat.Rate (one or more), Net.Amount, Vat.Amount.\n\nLocate invoice date:\n- \"Rechnungsdatum 16.11.2023\" appears repeatedly (pages). Invoice.Date = \"16.11.2023\".\n\nLocate sender VAT ID:\n- Two VAT IDs visible: \"Unsere USt-ID: ATU76204938\" (sender) and \"Ihre USt-ID ATU22642807\" (recipient). Schema requires Sender.VatId → use sender's: \"ATU76204938\".\n\nLocate grand total:\n- Bottom of page 6 shows \"Endbetrag (EUR) 67.075,50\". Grand total numeric = 67075.50 (note keep decimals as in input; schema number). Confirm no other grand total. So GrandTotal.Amount = 67075.50.\n\nLocate net amount:\n- Page 6 shows \"Warenwert Netto 60.397,14\" (Netto). Net.Amount = 60397.14.\n\nLocate VAT groups (rates and amounts):\n- Page 6 lists:\n  - \"Ausgangssteuer 1 = 10,00%: 5.401,07\" and next line \"54.010,68\" likely gross group base? Need mapping: The lines show probably net amounts per rate: 54.010,68 corresponds to net at 10%? But clearer: Warenwert Netto = 60.397,14 total net. Then two groups shown:\n    - For 10.00%: \"Ausgangssteuer 1 = 10,00%: 5.401,07\" and adjacent \"54.010,68\" — 54,010.68 is net taxed at 10%; VAT 5,401.07.\n    - For 20.00%: \"Ausgangssteuer 2 = 20,00%: 1.277,29\" and adjacent \"6.386,46\" — 6,386.46 is net taxed at 20%; VAT 1,277.29.\n  - Sum nets: 54,010.68 + 6,386.46 = 60,397.14 matches Warenwert Netto. Sum VAT: 5,401.07 + 1,277.29 = 6,678.36; Net + VAT = 67,075.50 matches Endbetrag.\n- Therefore extract two Vat groups:\n  - Vat.Rate = 10 (per rule remove %), Net.Amount = 54010.68, Vat.Amount = 5401.07\n  - Vat.Rate = 20, Net.Amount = 6386.46, Vat.Amount = 1277.29\n\nDouble-check number formats: maintain decimals as in input (two decimals). All fields present.\n\nNo missing required fields.\n\nPlan: produce final JSON with values (numbers for numeric fields).",
+    "step2": "GrandTotal.Amount — 95% confident\n- Evidence: \"Endbetrag (EUR) 67.075,50\" clearly shown at bottom; matches Net + VAT sums.\n\nInvoice.Date — 99% confident\n- Evidence: \"Rechnungsdatum 16.11.2023\" appears multiple times.\n\nSender.VatId — 98% confident\n- Evidence: \"Unsere USt-ID: ATU76204938\" explicitly labels sender VAT; recipient VAT also present but distinguishable.\n\nVat.Rate / Net.Amount / Vat.Amount (10% group) — 97% confident\n- Evidence: Group shows \"Ausgangssteuer 1 = 10,00%: 5.401,07\" alongside \"54.010,68\"; 54,010.68 + 5,401.07 consistent with totals.\n\nVat.Rate / Net.Amount / Vat.Amount (20% group) — 97% confident\n- Evidence: Group shows \"Ausgangssteuer 2 = 20,00%: 1.277,29\" alongside \"6.386,46\"; 6,386.46 + 1,277.29 consistent with totals.\n\nOverall internal consistency — high (numbers sum: 54,010.68 + 6,386.46 = 60,397.14 net; VAT sum = 6,678.36; net + VAT = 67,075.50)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.7,
+      "input_tokens": 9685,
+      "cached_input_tokens": null,
+      "output_tokens": 744,
+      "total_tokens": 10429,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.7,
+      "input_tokens": 10412,
+      "cached_input_tokens": null,
+      "output_tokens": 494,
+      "total_tokens": 10906,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 12.37,
+      "input_tokens": 11014,
+      "cached_input_tokens": null,
+      "output_tokens": 634,
+      "total_tokens": 11648,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\253592\\253585_reference.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU76204938",
+        "ATU76204938"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        67075.5,
+        "67.075,50"
+      ],
+      "Net.Amount": [
+        true,
+        [
+          54010.68,
+          6386.46
+        ],
+        [
+          "54.010,68",
+          "6.386,46"
+        ]
+      ],
+      "Vat.Amount": [
+        true,
+        [
+          5401.07,
+          1277.29
+        ],
+        [
+          "5.401,07",
+          "1.277,29"
+        ]
+      ],
+      "Vat.Rate": [
+        true,
+        [
+          10,
+          20
+        ],
+        [
+          "10,00",
+          "20,00"
+        ]
+      ],
+      "Invoice.Date": [
+        true,
+        "16.11.2023",
+        "16.11.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 31111,
+    "cached_input_tokens": 0,
+    "output_tokens": 1872,
+    "eur_estimate": 0.010083
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\181081\\181081_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 64.3,
+    "Invoice.Date": "17.03.2023",
+    "Sender.VatId": "ATU38510009",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 58.45,
+    "Vat.Amount": 5.85
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.99,
+    "Sender.VatId": 0.9,
+    "Vat.Rate": 0.99,
+    "Net.Amount": 0.99,
+    "Vat.Amount": 0.99
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Plan: identify invoice markers, confirm invoice, locate required fields (GrandTotal.Amount, Invoice.Date, Sender.VatId, Vat.Rate, Net.Amount, Vat.Amount). Verify ambiguous candidates and choose best-supported values; do not guess missing data.\n\n1) Document classification\n- Header contains \"Rechnung\" (German for invoice) and invoice-like sections (Rechnungs-Nr., Rechnungsdatum, Lieferadresse, Artikel, Zwischensumme, MwSt, Rechnungsbetrag). No exclusion terms like \"Mahnung\" or \"Zahlungserinnerung\" in prominent positions. Conclusion: this is an invoice — proceed.\n\n2) Locate Invoice.Date\n- Found \"Rechnungsdatum: 17.03.2023\". This is explicit invoice issue date. Candidate: \"17.03.2023\".\n\n3) Locate Sender.VatId\n- Two VAT-like values present:\n  a) Near Lieferadresse: \"USTID: ATU 22642807\" — appears adjacent to the delivery/customer address (Bäckerei Schmidl) → likely customer's VAT.\n  b) In footer under Günthart GmbH: \"ATU38510009\" (labeled near company contact info) → likely the issuer/sender VAT. According to rule \"Sender.VatId = Tax ID of the sender (VAT)\". Choose \"ATU38510009\" as Sender.VatId.\n\n4) Locate GrandTotal.Amount\n- Multiple amounts:\n  - \"Zwischensumme EUR 58,45\" (subtotal)\n  - \"Warenwert (10,00 %) 58,45\"\n  - \"MwSt (10,00 %) 5,85\"\n  - Two lines showing \"Rechnungsbetrag\": one \"Rechnungsbetrag EUR 62,37\" appears next to \"Skontobetrag EUR 1,93\" and another \"Rechnungsbetrag EUR 64,30\".\n- Interpretations:\n  - 62,37 appears to be the invoice total after applying a 3% cash discount (Skonto) or maybe the net after discount — the layout shows \"Bei Zahlung bis 31.03.2023 gewähren wir 3,00 % Skonto.\" followed by numbers and \"Skontobetrag EUR 1,93\" and \"Rechnungsbetrag EUR 62,37\" — that suggests 62,37 is the amount after discount (payable if paid early).\n  - 64,30 is labeled \"Rechnungsbetrag EUR 64,30\" on another line and likely the gross invoice amount due without taking Skonto into account (total payable per invoice).\n- Requirement: \"GrandTotal.Amount: Total payable amount on the invoice\" — interpret as the billed total on the invoice document. The clear labeled full invoice total is \"Rechnungsbetrag EUR 64,30\". Choose 64.30 as GrandTotal.Amount (numeric).\n\n5) Locate Vat.Rate, Net.Amount, Vat.Amount\n- VAT group shown: \"MwSt (10,00 %) 5,85\" and \"Warenwert (10,00 %) 58,45\".\n- Vat.Rate: 10,00 % → per rule extract without percent as number; preserve decimals present. Input uses comma, so numeric value = 10.00.\n- Net.Amount: Warenwert 58,45 → numeric 58.45.\n- Vat.Amount: 5,85 → numeric 5.85.\n\n6) Consistency check\n- Net 58.45 + VAT 5.85 = 64.30 matches chosen GrandTotal.Amount 64.30. The alternative total 62.37 corresponds to applying 3% Skonto (62.37 + Skonto 1.93 = 64.30), so interpretation is consistent.\n\nConclusion: all required fields present and chosen values are supported by invoice text. Final extraction will use:\n- GrandTotal.Amount: 64.30\n- Invoice.Date: \"17.03.2023\"\n- Sender.VatId: \"ATU38510009\"\n- Vat.Rate: 10.00\n- Net.Amount: 58.45\n- Vat.Amount: 5.85",
+    "step2": "GrandTotal.Amount (64.30)\n- Evidence: Explicit line \"Rechnungsbetrag EUR 64,30\" and arithmetic consistency with Net 58,45 + VAT 5,85 = 64,30.\n- Ambiguity: Another \"Rechnungsbetrag EUR 62,37\" appears (amount after 3% Skonto), but layout indicates 64,30 is gross invoice total.\n- Confidence: High (~95%).\n\nInvoice.Date (\"17.03.2023\")\n- Evidence: Explicit labeled field \"Rechnungsdatum: 17.03.2023\".\n- Ambiguity: None visible.\n- Confidence: Very high (~99%).\n\nSender.VatId (\"ATU38510009\")\n- Evidence: VAT-like value \"ATU38510009\" appears in footer near Günthart GmbH contact details (issuer).\n- Ambiguity: Another VAT \"ATU 22642807\" is present near delivery/customer block, likely customer VAT. Sender label not explicit but position strongly indicates issuer VAT.\n- Confidence: High (~90%).\n\nVat.Rate (10.00)\n- Evidence: VAT group clearly shown as \"MwSt (10,00 %)\" associated with Warenwert and VAT amount.\n- Ambiguity: None for the shown VAT rate.\n- Confidence: Very high (~99%).\n\nNet.Amount (58.45)\n- Evidence: Line \"Warenwert (10,00 %) 58,45\" corresponds to net amount for the VAT group; arithmetic matches total.\n- Ambiguity: None.\n- Confidence: Very high (~99%).\n\nVat.Amount (5.85)\n- Evidence: Line \"MwSt (10,00 %) 5,85\" explicitly lists VAT amount; sums with net to total.\n- Ambiguity: None.\n- Confidence: Very high (~99%)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 24.73,
+      "input_tokens": 2257,
+      "cached_input_tokens": null,
+      "output_tokens": 1579,
+      "total_tokens": 3836,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 7.64,
+      "input_tokens": 3179,
+      "cached_input_tokens": null,
+      "output_tokens": 445,
+      "total_tokens": 3624,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 4.03,
+      "input_tokens": 3860,
+      "cached_input_tokens": null,
+      "output_tokens": 283,
+      "total_tokens": 4143,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\cluster_with_grid\\181081\\181081_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU38510009",
+        "ATU38510009"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        64.3,
+        "64,30"
+      ],
+      "Net.Amount": [
+        true,
+        58.45,
+        "58,45"
+      ],
+      "Vat.Amount": [
+        true,
+        5.85,
+        "5,85"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "17.03.2023",
+        "17.03.2023"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  },
+  "cost": {
+    "input_tokens": 9296,
+    "cached_input_tokens": 0,
+    "output_tokens": 2307,
+    "eur_estimate": 0.006036
+  }
+}

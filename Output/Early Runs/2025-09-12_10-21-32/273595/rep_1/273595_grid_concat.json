@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\273595\\273595_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 34649.73,
+    "Invoice.Date": "25-01-2024",
+    "Sender.VatId": "ATU43349701",
+    "Vat.Rate": 10,
+    "Net.Amount": 31499.75,
+    "Vat.Amount": 3149.98
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.6,
+    "Vat.Rate": 0.95,
+    "Net.Amount": 0.95,
+    "Vat.Amount": 0.95
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Likely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "I will extract invoice fields by (1) confirming the document is an invoice (presence of \"RECHNUNG\", invoice-like headers, totals), (2) locating explicit amounts and VAT lines, (3) picking the sender VAT/UID from the issuer block, and (4) preserving numeric precision and formats per rules.\n\nFindings and decisions:\n- Document classification: invoice (header \"RECHNUNG\", totals and invoice metadata present).\n- Invoice date: located near \"Wien am 25-01-2024\" → Invoice.Date = \"25-01-2024\".\n- Grand total: \"Endbetrag EUR 34.649,73\" → GrandTotal.Amount = 34649.73 (preserve two decimals).\n- Net amount: \"Auftragssumme 31.499,75\" appears as net → Net.Amount = 31499.75.\n- VAT amount: shown as \"3.149,98\" under VAT → Vat.Amount = 3149.98.\n- VAT rate: shown as \"+     10       %    Mehrwertsteuer\" → Vat.Rate = 10.\n- Sender VAT: Two UIDs appear: \"Ihre UID: ATU22642807\" and \"UID-Nr.: ATU 43349701\". The latter (\"UID-Nr.: ATU 43349701\") is the company's issuer UID (sender) in the company block, so Sender.VatId = \"ATU43349701\".\n- No inference beyond explicit text; all values taken from explicit occurrences.",
+    "step2": "GrandTotal.Amount (34,649.73)\n- Confidence: High\n- Evidence: Explicit \"Endbetrag EUR 34.649,73\" present; format matches typical total.\n\nInvoice.Date (\"25-01-2024\")\n- Confidence: High\n- Evidence: Explicit date next to location: \"Wien am 25-01-2024\".\n\nSender.VatId (\"ATU43349701\")\n- Confidence: Medium\n- Evidence: Two UID values appear: \"Ihre UID: ATU22642807\" and \"UID-Nr.: ATU 43349701\". The latter appears in the issuer/company block, supporting it as the sender VAT, but presence of two UIDs introduces ambiguity.\n\nVat.Rate (10)\n- Confidence: High\n- Evidence: Explicit line \"+     10       %    Mehrwertsteuer\" indicating 10% VAT.\n\nNet.Amount (31,499.75)\n- Confidence: High\n- Evidence: \"Auftragssumme 31.499,75\" is present and corresponds to the amount before VAT lines.\n\nVat.Amount (3,149.98)\n- Confidence: High\n- Evidence: A separate line shows \"3.149,98\" aligned under VAT calculation; matches 10% of the net amount (31,499.75 × 0.10 = 3,149.975 → rounded display 3,149.98)."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 9.43,
+      "input_tokens": 2055,
+      "output_tokens": 898,
+      "total_tokens": 2953
+    },
+    "step2": {
+      "runtime_sec": 5.65,
+      "input_tokens": 2384,
+      "output_tokens": 485,
+      "total_tokens": 2869
+    },
+    "step3": {
+      "runtime_sec": 4.91,
+      "input_tokens": 2946,
+      "output_tokens": 348,
+      "total_tokens": 3294
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273595\\273595_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU43349701",
+        "ATU 43349701"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        34649.73,
+        "34.649,73"
+      ],
+      "Net.Amount": [
+        true,
+        31499.75,
+        "31.499,75"
+      ],
+      "Vat.Amount": [
+        true,
+        3149.98,
+        "3.149,98"
+      ],
+      "Vat.Rate": [
+        true,
+        10,
+        "10"
+      ],
+      "Invoice.Date": [
+        true,
+        "25-01-2024",
+        "25-01-2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  }
+}

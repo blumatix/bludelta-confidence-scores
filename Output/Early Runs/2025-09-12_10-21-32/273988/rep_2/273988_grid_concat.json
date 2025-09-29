@@ -1,0 +1,91 @@
+{
+  "input_path": "..\\Documents\\273988\\273988_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 566.0,
+    "Invoice.Date": "23.01.2024",
+    "Sender.VatId": "ATU 40371209",
+    "Vat.Rate": 10.0,
+    "Net.Amount": 514.55,
+    "Vat.Amount": 51.45
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.98,
+    "Sender.VatId": 0.95,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.9,
+    "Vat.Amount": 0.92
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Almost certain",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "Sorry—I can’t share my internal step-by-step chain-of-thought. I can, however, provide a concise, non-sensitive summary of the extraction approach I will use:\n\n- Determine whether the document is an invoice by checking for headers like \"Rechnung\", invoice number, date, totals, and absence of dominant exclusion terms.\n- Locate invoice number and invoice date fields (e.g., near \"Rechnungsnummer\" and \"Datum\").\n- Identify Grand Total amount by finding numeric totals labeled with currency or presented as overall payable amount.\n- Find Sender VAT ID (UID) labeled \"UID\" or similar.\n- Extract VAT rate(s), net amount(s), and VAT amount(s) by locating tax lines (e.g., \"10,00% netto 514,55 Ust-Betr 51,45\") and convert rates to numbers without the percent sign while preserving decimals.\n- If any required field is missing or ambiguous, leave it empty per the no-inference rule.\n- Return the final data strictly following the provided JSON schema.",
+    "step2": "GrandTotal.Amount — High confidence (~95%)\n- Evidence: \"566,00 EUR\" appears multiple times and in payment instruction as total payable (also printed as 00000056600).\n- Potential issues: none significant.\n\nInvoice.Date — Very high confidence (~98%)\n- Evidence: \"Datum: 23.01.2024\" clearly shown.\n- Potential issues: none.\n\nSender.VatId — High confidence (~95%)\n- Evidence: \"UID: ATU 40371209\" at top of document.\n- Potential issues: OCR spacing could introduce minor formatting variance, but digits are clear.\n\nVat.Rate — High confidence (~90%)\n- Evidence: Line reads \"10,00%    netto ...\" indicating a 10% VAT rate.\n- Potential issues: Comma decimal format is clear; rate should be returned without the percent symbol per rules.\n\nNet.Amount — High confidence (~90%)\n- Evidence: \"netto 514,55\" directly associated with the 10,00% line.\n- Potential issues: OCR could misplace decimals, but 514,55 matches (566,00 total minus 51,45 VAT = 514,55), consistent.\n\nVat.Amount — High confidence (~92%)\n- Evidence: \"Ust-Betr,      51,45\" shown on the VAT line; arithmetic matches total.\n- Potential issues: minor OCR risk but value consistent with net + vat = grand total."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 4.99,
+      "input_tokens": 1889,
+      "output_tokens": 472,
+      "total_tokens": 2361
+    },
+    "step2": {
+      "runtime_sec": 5.13,
+      "input_tokens": 2112,
+      "output_tokens": 616,
+      "total_tokens": 2728
+    },
+    "step3": {
+      "runtime_sec": 4.78,
+      "input_tokens": 2677,
+      "output_tokens": 412,
+      "total_tokens": 3089
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "..\\Documents\\273988\\273988_test.json",
+    "per_field": {
+      "Sender.VatId": [
+        true,
+        "ATU 40371209",
+        "ATU 40371209"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        566.0,
+        "566,00"
+      ],
+      "Net.Amount": [
+        true,
+        514.55,
+        "514,55"
+      ],
+      "Vat.Amount": [
+        true,
+        51.45,
+        "51,45"
+      ],
+      "Vat.Rate": [
+        true,
+        10.0,
+        "10,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "23.01.2024",
+        "23.01.2024"
+      ]
+    },
+    "summary": {
+      "matched": 6,
+      "total": 6,
+      "all_match": true
+    }
+  }
+}

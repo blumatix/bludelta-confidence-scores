@@ -1,0 +1,98 @@
+{
+  "input_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\160960\\160960_grid_concat.txt",
+  "answer": {
+    "GrandTotal.Amount": 6432.0,
+    "Invoice.Date": "1.6.2022",
+    "Sender.VatId": "",
+    "Vat.Rate": 20,
+    "Net.Amount": 5360.0,
+    "Vat.Amount": 1072.0
+  },
+  "confidence_numeric": {
+    "GrandTotal.Amount": 0.95,
+    "Invoice.Date": 0.95,
+    "Sender.VatId": 0.3,
+    "Vat.Rate": 0.9,
+    "Net.Amount": 0.92,
+    "Vat.Amount": 0.92
+  },
+  "confidence_verbal": {
+    "GrandTotal.Amount": "Almost certain",
+    "Invoice.Date": "Almost certain",
+    "Sender.VatId": "Unlikely",
+    "Vat.Rate": "Almost certain",
+    "Net.Amount": "Almost certain",
+    "Vat.Amount": "Almost certain"
+  },
+  "reasoning": {
+    "step1": "1) Classify document as invoice:\n- Title \"RECHNUNG\" present; contains \"Rechnungsdatum\", \"Rechnungsnummer\", line items, Nettobetrag, Umsatzsteuer, Rechnungsbetrag. No exclusion terms like \"Mahnung\" prominent. => treat as invoice.\n\n2) Locate Invoice Date:\n- Found \"Rechnungsdatum: 1.6.2022\". Candidate: \"1.6.2022\". No conflicting dates.\n\n3) Locate Sender VAT (Sender.VatId):\n- Two UID entries appear near recipient block: \"UID Nummer : ATU47239901\" and \"UID nummer: ATU73397567\".\n- Document layout ambiguous as to which UID belongs to sender vs recipient. No explicit label \"UID des Absenders\" for either.\n- Per No Inference rule, do not guess; leave Sender.VatId empty.\n\n4) Extract VAT rates and VAT amounts:\n- Line items show \"Ust. % 20%\" for both entries. Global VAT group evident in summary \"Umsatzsteuer 1   072,00 €\".\n- VAT rate applicable to invoice: 20 -> record as number 20 (without %).\n- Vat.Amount: \"Umsatzsteuer 1   072,00 €\" -> 1,072.00 (preserve decimals).\n- Net.Amount: \"Nettobetrag 5   360,00 €\" -> 5,360.00.\n\n5) Grand total:\n- \"Rechnungsbetrag 6   432,00 €\" -> 6,432.00.\n\n6) Verify decimal formatting:\n- Keep two decimal places as in source (use dot decimal separator for numeric fields).\n\n7) Check for exchange rates or other VAT groups:\n- No invoice-wide exchange rate present.\n- Only single VAT group visible; map Vat.Rate, Net.Amount, Vat.Amount accordingly.\n\nConclusion: invoice identified; extract Invoice.Date = \"1.6.2022\"; GrandTotal.Amount = 6432.00; Net.Amount = 5360.00; Vat.Amount = 1072.00; Vat.Rate = 20; Sender.VatId = \"\" (empty due to ambiguity).",
+    "step2": "GrandTotal.Amount — Confidence: 0.95\n- Evidence: \"Rechnungsbetrag 6   432,00 €\" clearly shown; numeric parsing straightforward.\n\nInvoice.Date — Confidence: 0.95\n- Evidence: \"Rechnungsdatum: 1.6.2022\" explicitly present and unambiguous.\n\nSender.VatId — Confidence: 0.30\n- Evidence: Two UID numbers appear (\"ATU47239901\", \"ATU73397567\") with ambiguous attribution; insufficient labeling to assign to sender without guessing.\n\nVat.Rate — Confidence: 0.90\n- Evidence: Line items show \"Ust. % 20%\"; invoice-wide VAT group aligns with 20%.\n\nNet.Amount — Confidence: 0.92\n- Evidence: \"Nettobetrag 5   360,00 €\" explicitly present; parsing clear.\n\nVat.Amount — Confidence: 0.92\n- Evidence: \"Umsatzsteuer 1   072,00 €\" explicitly present; parsing clear."
+  },
+  "llm_logs": {
+    "step1": {
+      "runtime_sec": 10.16,
+      "input_tokens": 1512,
+      "cached_input_tokens": null,
+      "output_tokens": 1039,
+      "total_tokens": 2551,
+      "timed_out": false
+    },
+    "step2": {
+      "runtime_sec": 4.38,
+      "input_tokens": 2022,
+      "cached_input_tokens": null,
+      "output_tokens": 351,
+      "total_tokens": 2373,
+      "timed_out": false
+    },
+    "step3": {
+      "runtime_sec": 3.77,
+      "input_tokens": 2545,
+      "cached_input_tokens": null,
+      "output_tokens": 278,
+      "total_tokens": 2823,
+      "timed_out": false
+    }
+  },
+  "evaluation": {
+    "ground_truth_path": "\\\\nas-01\\TrainingsDataExt4\\steady-faster-learning\\confidence_score\\gpt-5-mini\\out\\160960\\160960.json",
+    "per_field": {
+      "Sender.VatId": [
+        false,
+        "",
+        "ATU73397567"
+      ],
+      "GrandTotal.Amount": [
+        true,
+        6432.0,
+        "6 432,00"
+      ],
+      "Net.Amount": [
+        true,
+        5360.0,
+        "5 360,00"
+      ],
+      "Vat.Amount": [
+        true,
+        1072.0,
+        "1 072,00"
+      ],
+      "Invoice.Date": [
+        true,
+        "1.6.2022",
+        "1.6.2022"
+      ]
+    },
+    "summary": {
+      "matched": 4,
+      "total": 5,
+      "all_match": false
+    }
+  },
+  "cost": {
+    "input_tokens": 6079,
+    "cached_input_tokens": 0,
+    "output_tokens": 1668,
+    "eur_estimate": 0.000888
+  }
+}
